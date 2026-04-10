@@ -1,0 +1,265 @@
+{
+  "2": {
+    "1": {
+      "Characters": {
+        "Artist": [
+          { "age": 1, "id": 0 },
+          { "age": 1, "id": 1 },
+          { "age": 1, "id": 2 }
+        ],
+        "Builder": [
+          { "age": 1, "id": 3, "buildDiscount": 1, "prestigePoints": 3 },
+          { "age": 1, "id": 4, "buildDiscount": 2, "prestigePoints": 0 },
+          { "age": 1, "id": 5, "buildDiscount": 1, "prestigePoints": 2 }
+        ],
+        "Gatherer": [
+          { "age": 1, "id": 6, "discount": 3 },
+          { "age": 1, "id": 7, "discount": 3 }
+        ],
+        "Hunter": [
+          { "age": 1, "id": 8, "food": true },
+          { "age": 1, "id": 9, "food": false },
+          { "age": 1, "id": 10, "food": true }
+        ],
+        "Inventor": [
+          { "age": 1, "id": 11, "invention": "LEATHER" },
+          { "age": 1, "id": 12, "invention": "BOAT" },
+          { "age": 1, "id": 13, "invention": "ARROW" },
+          { "age": 1, "id": 14, "invention": "BREAD" }
+        ],
+        "Shaman": [
+          { "age": 1, "id": 15, "numStars": 2 },
+          { "age": 1, "id": 16, "numStars": 1 }
+        ]
+      },
+      "Events": {
+        "HuntEvent": [
+          { "age": 1, "id": 17 }
+        ],
+        "PaintEvent": [
+          { "age": 1, "id": 18 }
+        ],
+        "ShamanEvent": [
+          { "age": 1, "id": 19 }
+        ],
+        "SustenanceEvent": [
+          { "age": 1, "id": 20 }
+        ]
+      }
+    },
+    "2": {
+      "Characters": {
+        "Artist": [
+          { "age": 2, "id": 21 },
+          { "age": 2, "id": 22 },
+          { "age": 2, "id": 23 }
+        ],
+        "Builder": [
+          { "age": 2, "id": 24, "buildDiscount": 1, "prestigePoints": 4 },
+          { "age": 2, "id": 25, "buildDiscount": 2, "prestigePoints": 1 },
+          { "age": 2, "id": 26, "buildDiscount": 2, "prestigePoints": 3 }
+        ],
+        "Gatherer": [
+          { "age": 2, "id": 27, "discount": 3 }
+        ],
+        "Hunter": [
+          { "age": 2, "id": 28, "food": false },
+          { "age": 2, "id": 29, "food": false },
+          { "age": 2, "id": 30, "food": true }
+        ],
+        "Inventor": [
+          { "age": 2, "id": 31, "invention": "VODOO" },
+          { "age": 2, "id": 32, "invention": "ROPE" },
+          { "age": 2, "id": 33, "invention": "FLUTE" },
+          { "age": 2, "id": 34, "invention": "BOWL" },
+          { "age": 2, "id": 35, "invention": "LEATHER" }
+        ],
+        "Shaman": [
+          { "age": 2, "id": 36, "numStars": 2 },
+          { "age": 2, "id": 37, "numStars": 2 }
+        ]
+      },
+      "Events": {
+        "HuntEvent": [
+          { "age": 2, "id": 38 }
+        ],
+        "PaintEvent": [
+          { "age": 2, "id": 39 }
+        ],
+        "ShamanEvent": [
+          { "age": 2, "id": 40 }
+        ],
+        "SustenanceEvent": [
+          { "age": 2, "id": 41 }
+        ]
+      }
+    },
+    "3": {
+      "Characters": {
+        "Artist": [
+          { "age": 3, "id": 42 },
+          { "age": 3, "id": 43 },
+          { "age": 3, "id": 44 }
+        ],
+        "Builder": [
+          { "age": 3, "id": 45, "buildDiscount": 1, "prestigePoints": 5 },
+          { "age": 3, "id": 46, "buildDiscount": 2, "prestigePoints": 3 },
+          { "age": 3, "id": 47, "buildDiscount": 2, "prestigePoints": 2 }
+        ],
+        "Gatherer": [
+          { "age": 3, "id": 48, "discount": 3 }
+        ],
+        "Hunter": [
+          { "age": 3, "id": 49, "food": true },
+          { "age": 3, "id": 50, "food": false },
+          { "age": 3, "id": 51, "food": false }
+        ],
+        "Inventor": [
+          { "age": 3, "id": 52, "invention": "VODOO" },
+          { "age": 3, "id": 53, "invention": "HOOK" },
+          { "age": 3, "id": 54, "invention": "JEWEL" },
+          { "age": 3, "id": 55, "invention": "BREAD" }
+        ],
+        "Shaman": [
+          { "age": 3, "id": 56, "numStars": 2 },
+          { "age": 3, "id": 57, "numStars": 3 },
+          { "age": 3, "id": 58, "numStars": 3 }
+        ]
+      },
+      "Events": {
+        "HuntEvent": [
+          { "age": 3, "id": 59 }
+        ],
+        "PaintEvent": [
+          { "age": 3, "id": 60 }
+        ]
+      }
+    }
+  },
+
+  "3": {
+    "1": {
+      "Characters": {
+        "Artist": [{ "age": 1, "id": 61 }],
+        "Builder": [],
+        "Gatherer": [{ "age": 1, "id": 62, "discount": 3 }],
+        "Hunter": [
+          { "age": 1, "id": 63, "food": false },
+          { "age": 1, "id": 64, "food": false }
+        ],
+        "Inventor": [],
+        "Shaman": []
+      },
+      "Events": {}
+    },
+    "2": {
+      "Characters": {
+        "Artist": [{ "age": 2, "id": 65 }],
+        "Builder": [{ "age": 2, "id": 66, "buildDiscount": 1, "prestigePoints": 2 }],
+        "Gatherer": [{ "age": 2, "id": 67, "discount": 3 }],
+        "Hunter": [{ "age": 2, "id": 68, "food": true }],
+        "Inventor": [],
+        "Shaman": []
+      },
+      "Events": {}
+    },
+    "3": {
+      "Characters": {
+        "Artist": [],
+        "Builder": [],
+        "Gatherer": [],
+        "Hunter": [],
+        "Inventor": [
+          { "age": 3, "id": 69, "invention": "ARROW" },
+          { "age": 3, "id": 70, "invention": "BOAT" }
+        ],
+        "Shaman": [{ "age": 3, "id": 71, "numStars": 2 }]
+      },
+      "Events": {}
+    }
+  },
+
+  "4": {
+    "1": {
+      "Characters": {
+        "Artist": [
+          { "age": 1, "id": 72 }
+        ],
+        "Builder": [],
+        "Gatherer": [],
+        "Hunter": [],
+        "Inventor": [
+          { "age": 1, "id": 73, "invention": "ROPE" },
+          { "age": 1, "id": 74, "invention": "FLUTE" },
+          { "age": 1, "id": 75, "invention": "BOWL" }
+        ],
+        "Shaman": [{ "age": 1, "id": 76, "numStars": 1 }]
+      },
+      "Events": {}
+    },
+    "2": {
+      "Characters": {
+        "Artist": [],
+        "Builder": [],
+        "Gatherer": [{ "age": 2, "id": 77, "discount": 3 }],
+        "Hunter": [{ "age": 2, "id": 78, "food": true }],
+        "Inventor": [{ "age": 2, "id": 79, "invention": "HOOK" }],
+        "Shaman": []
+      },
+      "Events": {}
+    },
+    "3": {
+      "Characters": {
+        "Artist": [],
+        "Builder": [],
+        "Gatherer": [{ "age": 3, "id": 80, "discount": 3 }],
+        "Hunter": [],
+        "Inventor": [{ "age": 3, "id": 81, "invention": "JEWEL" }],
+        "Shaman": [{ "age": 3, "id": 82, "numStars": 2 }]
+      },
+      "Events": {}
+    }
+  },
+
+  "5": {
+    "1": {
+      "Characters": {
+        "Artist": [],
+        "Builder": [{ "age": 1, "id": 83, "buildDiscount": 2, "prestigePoints": 1 }],
+        "Gatherer": [{ "age": 1, "id": 84, "discount": 3 }],
+        "Hunter": [],
+        "Inventor": [],
+        "Shaman": [{ "age": 1, "id": 85, "numStars": 2 }]
+      },
+      "Events": {}
+    },
+    "2": {
+      "Characters": {
+        "Artist": [],
+        "Builder": [],
+        "Gatherer": [{ "age": 2, "id": 86, "discount": 3 }],
+        "Hunter": [
+          { "age": 2, "id": 87, "food": true },
+          { "age": 2, "id": 88, "food": false }
+        ],
+        "Inventor": [],
+        "Shaman": [
+          { "age": 2, "id": 89, "numStars": 1 },
+          { "age": 2, "id": 90, "numStars": 2 }
+        ]
+      },
+      "Events": {}
+    },
+    "3": {
+      "Characters": {
+        "Artist": [{ "age": 3, "id": 91 }],
+        "Builder": [{ "age": 3, "id": 92, "buildDiscount": 1, "prestigePoints": 4 }],
+        "Gatherer": [{ "age": 3, "id": 93, "discount": 3 }],
+        "Hunter": [],
+        "Inventor": [],
+        "Shaman": []
+      },
+      "Events": {}
+    }
+  }
+}

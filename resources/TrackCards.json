@@ -1,0 +1,55 @@
+{
+  "2": [
+    {
+      "name": "B",
+      "numPickTop": 0,
+      "numPickBottom": 1,
+      "numFood": 0
+    },
+    {
+      "name": "C",
+      "numPickTop": 1,
+      "numPickBottom": 0,
+      "numFood": 0
+    },
+    {
+      "name": "E",
+      "numPickTop": 1,
+      "numPickBottom": 1,
+      "numFood": 0
+    },
+    {
+      "name": "F",
+      "numPickTop": 2,
+      "numPickBottom": 0,
+      "numFood": 0
+    }
+  ],
+
+  "3": [
+    {
+      "name": "D",
+      "numPickTop": 0,
+      "numPickBottom": 2,
+      "numFood": 0
+    }
+  ],
+
+  "4": [
+    {
+      "name": "G",
+      "numPickTop": 1,
+      "numPickBottom": 2,
+      "numFood": 0
+    }
+  ],
+
+  "5": [
+    {
+      "name": "A",
+      "numPickTop": 0,
+      "numPickBottom": 0,
+      "numFood": 3
+    }
+  ]
+}

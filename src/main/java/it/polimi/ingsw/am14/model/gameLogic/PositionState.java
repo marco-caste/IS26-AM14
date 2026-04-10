@@ -1,0 +1,79 @@
+package it.polimi.ingsw.am14.model.gameLogic;
+
+import it.polimi.ingsw.am14.model.boardComponents.TrackCard;
+import it.polimi.ingsw.am14.model.exceptions.IllegalPlacementException;
+import it.polimi.ingsw.am14.model.exceptions.UnknownPositionException;
+import it.polimi.ingsw.am14.model.exceptions.WrongTurnException;
+
+class PositionState extends GameState {
+
+    /**
+     * <p>
+     *     moves player p from the TurnOrderCard towards the required TrackCard:
+     *     - sets trackCard.playerTotem to p
+     *     - calls trackCard.effect()
+     *     - increments game.currentPlayerIndex by 1
+     *     - triggers a state transition if p has been the last player to position their totem
+     * </p>
+     * @param context not null
+     * @param p not null
+     * @param trackCardName any char
+     * @throws UnknownPositionException if there is no TrackCard with name trackCardName
+     * @throws WrongTurnException if it's not p's turn to play
+     */
+    @Override
+    protected void placeTotem(Game context, Player p, char trackCardName) throws UnknownPositionException, WrongTurnException, IllegalPlacementException {
+
+        // retrieves data from the context
+        TrackCard destinationTrackCard = context.getBoard().getOffersPath().offersPathGet(trackCardName);
+        int currentPlayerIdx = context.getCurrentPlayerIndex();
+
+        if (destinationTrackCard == null) {
+            throw new UnknownPositionException("There is no such trackCard with name " + trackCardName);
+        }
+
+        Player expectedCurrentPlayer = context.getBoard().getTurnOrderCard().getPlayer(currentPlayerIdx);
+        if (!expectedCurrentPlayer.equals(p)) {
+            throw new WrongTurnException("It's not " + p.getNickname() + "'s turn");
+        }
+
+        if(destinationTrackCard.getPlayerTotem() != null) {
+            throw new IllegalPlacementException("TrackCard already occupied by " + destinationTrackCard.getPlayerTotem().getNickname());
+        }
+
+        // places p on the desired TrackCard and applies its effects
+        destinationTrackCard.setPlayerTotem(p);
+        destinationTrackCard.effect();
+        // increases the currentPlayerIndex
+        context.incrementCurrentPlayerIndexBy(1);
+
+        if (context.getCurrentPlayerIndex() > context.getNumPlayers() - 1) {
+            this.nextState(context);
+        }
+
+        // TODO: client update
+    }
+
+    /**
+     * <p>
+     *     changes the current State of the game:
+     *     - sets context.currentState to a new PickState
+     *     - sets context.currentPlayerIndex to 0
+     *     - clears the TurnOrderCard's players array
+     * </p>
+     * @param context not null
+     */
+    @Override
+    protected void nextState(Game context) {
+        // updatest current state
+        context.setCurrentState(new PickState());
+        // sets currentPlayerIndex = 0
+        context.setCurrentPlayerIndex(0);
+
+        // clears turnOrderCard
+        // TODO: check if this is the right place to clear the turn order card, or if it should be done one at a time in the placeTotem method
+        context.getBoard().getTurnOrderCard().clearPlayerOrder();
+
+        // TODO: client update
+    }
+}
