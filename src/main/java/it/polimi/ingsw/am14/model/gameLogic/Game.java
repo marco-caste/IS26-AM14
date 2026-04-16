@@ -1,8 +1,8 @@
 package it.polimi.ingsw.am14.model.gameLogic;
 
+import it.polimi.ingsw.am14.exceptions.*;
 import it.polimi.ingsw.am14.model.boardComponents.Board;
 import it.polimi.ingsw.am14.model.cards.Card;
-import it.polimi.ingsw.am14.model.exceptions.*;
 
 import java.util.*;
 

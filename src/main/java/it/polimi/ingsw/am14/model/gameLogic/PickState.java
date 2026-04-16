@@ -4,9 +4,9 @@ import it.polimi.ingsw.am14.model.cards.Card;
 import it.polimi.ingsw.am14.model.cards.buildings.Building;
 import it.polimi.ingsw.am14.model.cards.buildings.visitors.ImmediateVisitor;
 import it.polimi.ingsw.am14.model.cards.buildings.visitors.SetVisitor;
-import it.polimi.ingsw.am14.model.exceptions.ForcedPickException;
-import it.polimi.ingsw.am14.model.exceptions.IllegalPickException;
-import it.polimi.ingsw.am14.model.exceptions.WrongTurnException;
+import it.polimi.ingsw.am14.exceptions.ForcedPickException;
+import it.polimi.ingsw.am14.exceptions.IllegalPickException;
+import it.polimi.ingsw.am14.exceptions.WrongTurnException;
 
 import java.util.ArrayList;
 import java.util.Optional;

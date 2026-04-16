@@ -1,6 +1,6 @@
 package it.polimi.ingsw.am14.model.boardComponents;
 
-import it.polimi.ingsw.am14.model.utils.TrackCardManager;
+import it.polimi.ingsw.am14.utils.TrackCardManager;
 
 import java.io.IOException;
 import java.util.HashSet;

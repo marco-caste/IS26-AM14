@@ -1,10 +1,10 @@
 package it.polimi.ingsw.am14.model.utils;
 
 import it.polimi.ingsw.am14.model.cards.deckCards.*;
+import it.polimi.ingsw.am14.utils.CardManager;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 

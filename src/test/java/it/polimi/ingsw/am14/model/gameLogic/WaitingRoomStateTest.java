@@ -5,7 +5,7 @@ import it.polimi.ingsw.am14.model.boardComponents.TurnOrderCard;
 import it.polimi.ingsw.am14.model.cards.buildings.Building;
 import it.polimi.ingsw.am14.model.cards.deckCards.DeckCard;
 import it.polimi.ingsw.am14.model.cards.deckCards.EventCard;
-import it.polimi.ingsw.am14.model.exceptions.WrongStateException;
+import it.polimi.ingsw.am14.exceptions.WrongStateException;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;

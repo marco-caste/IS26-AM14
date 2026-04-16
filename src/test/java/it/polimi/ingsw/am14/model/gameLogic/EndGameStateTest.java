@@ -4,7 +4,7 @@ import it.polimi.ingsw.am14.model.cards.buildings.effects.Flat25Prestige;
 import it.polimi.ingsw.am14.model.cards.buildings.effects.ScoringBuilders;
 import it.polimi.ingsw.am14.model.cards.buildings.types.EndGameBuilding;
 import it.polimi.ingsw.am14.model.cards.deckCards.*;
-import it.polimi.ingsw.am14.model.exceptions.WrongStateException;
+import it.polimi.ingsw.am14.exceptions.WrongStateException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

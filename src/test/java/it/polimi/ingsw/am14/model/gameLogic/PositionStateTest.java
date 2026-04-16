@@ -1,7 +1,9 @@
 package it.polimi.ingsw.am14.model.gameLogic;
 
+import it.polimi.ingsw.am14.exceptions.IllegalPlacementException;
+import it.polimi.ingsw.am14.exceptions.UnknownPositionException;
+import it.polimi.ingsw.am14.exceptions.WrongTurnException;
 import it.polimi.ingsw.am14.model.boardComponents.*;
-import it.polimi.ingsw.am14.model.exceptions.*;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;

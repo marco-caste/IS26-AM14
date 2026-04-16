@@ -1,11 +1,9 @@
 package it.polimi.ingsw.am14.model.boardComponents;
 
-import it.polimi.ingsw.am14.model.cards.Card;
-import it.polimi.ingsw.am14.model.utils.CardManager;
+import it.polimi.ingsw.am14.utils.CardManager;
 import it.polimi.ingsw.am14.model.cards.deckCards.*;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.*;
 
 public class TribeDeck {

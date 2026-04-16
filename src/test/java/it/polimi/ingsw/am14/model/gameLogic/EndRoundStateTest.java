@@ -2,7 +2,7 @@ package it.polimi.ingsw.am14.model.gameLogic;
 
 import it.polimi.ingsw.am14.model.cards.deckCards.Shaman;
 import it.polimi.ingsw.am14.model.cards.deckCards.Hunter;
-import it.polimi.ingsw.am14.model.exceptions.WrongStateException;
+import it.polimi.ingsw.am14.exceptions.WrongStateException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

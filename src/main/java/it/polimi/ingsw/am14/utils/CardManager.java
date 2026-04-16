@@ -1,4 +1,4 @@
-package it.polimi.ingsw.am14.model.utils;
+package it.polimi.ingsw.am14.utils;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;

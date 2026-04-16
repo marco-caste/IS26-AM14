@@ -1,6 +1,6 @@
 package it.polimi.ingsw.am14.model.gameLogic;
 
-import it.polimi.ingsw.am14.model.exceptions.IllegalSetupException;
+import it.polimi.ingsw.am14.exceptions.IllegalSetupException;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

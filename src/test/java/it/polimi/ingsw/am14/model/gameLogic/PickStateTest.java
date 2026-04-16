@@ -1,8 +1,6 @@
 package it.polimi.ingsw.am14.model.gameLogic;
 
 import it.polimi.ingsw.am14.model.boardComponents.Board;
-import it.polimi.ingsw.am14.model.boardComponents.OffersPath;
-import it.polimi.ingsw.am14.model.boardComponents.TurnOrderCard;
 import it.polimi.ingsw.am14.model.cards.buildings.Building;
 import it.polimi.ingsw.am14.model.cards.buildings.effects.ExtraEndTurnFood;
 import it.polimi.ingsw.am14.model.cards.buildings.effects.ExtraShamanicStars;
@@ -16,10 +14,10 @@ import it.polimi.ingsw.am14.model.cards.deckCards.Hunter;
 import it.polimi.ingsw.am14.model.cards.deckCards.Inventor;
 import it.polimi.ingsw.am14.model.cards.deckCards.InventionType;
 import it.polimi.ingsw.am14.model.cards.deckCards.Shaman;
-import it.polimi.ingsw.am14.model.exceptions.ForcedPickException;
-import it.polimi.ingsw.am14.model.exceptions.IllegalPickException;
-import it.polimi.ingsw.am14.model.exceptions.WrongStateException;
-import it.polimi.ingsw.am14.model.exceptions.WrongTurnException;
+import it.polimi.ingsw.am14.exceptions.ForcedPickException;
+import it.polimi.ingsw.am14.exceptions.IllegalPickException;
+import it.polimi.ingsw.am14.exceptions.WrongStateException;
+import it.polimi.ingsw.am14.exceptions.WrongTurnException;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;

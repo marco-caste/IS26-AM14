@@ -1,6 +1,7 @@
 package it.polimi.ingsw.am14.model.utils;
 
 import it.polimi.ingsw.am14.model.cards.buildings.effects.EffectStrategy;
+import it.polimi.ingsw.am14.utils.EffectConstructor;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

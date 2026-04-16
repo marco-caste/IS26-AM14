@@ -2,7 +2,7 @@ package it.polimi.ingsw.am14.model.gameLogic;
 
 import it.polimi.ingsw.am14.model.boardComponents.Board;
 import it.polimi.ingsw.am14.model.cards.deckCards.*;
-import it.polimi.ingsw.am14.model.exceptions.IllegalSetupException;
+import it.polimi.ingsw.am14.exceptions.IllegalSetupException;
 
 public abstract class GameFactory {
 
