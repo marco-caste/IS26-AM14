@@ -67,35 +67,23 @@ class PickState extends GameState {
 
         switch (row) {
             case TOP_DECKABLE_ROW:
-                if(!(context.getBoard().getTopDeckableRow().contains(selectedCard))){
-                    throw new IllegalPickException("The selected card is not available");
-                }
                 player.removeSingleTopPick();
                 pickDeckCardAndApplyEffects(selectedCard, context, player);
                 context.getBoard().removeFromTopDeckableRow(selectedCard);
                 availableTopCharacters--;
                 break;
             case TOP_BUILDING_ROW:
-                if(!(context.getBoard().getTopBuildingRow().contains(selectedCard))){
-                    throw new IllegalPickException("The selected card is not available");
-                }
                 player.removeSingleTopPick();
                 pickBuildingAndApplyImmediateEffects((Building) selectedCard, context, player);
                 context.getBoard().removeFromTopBuildingRow(selectedCard);
                 break;
             case BOTTOM_DECKABLE_ROW:
-                if(!(context.getBoard().getBottomDeckableRow().contains(selectedCard))){
-                    throw new IllegalPickException("The selected card is not available");
-                }
                 player.removeSingleBottomPick();
                 pickDeckCardAndApplyEffects(selectedCard, context, player);
                 context.getBoard().removeFromBottomDeckableRow(selectedCard);
                 availableBottomCharacters--;
                 break;
             case BOTTOM_BUILDING_ROW:
-                if(!(context.getBoard().getBottomBuildingRow().contains(selectedCard))){
-                    throw new IllegalPickException("The selected card is not available");
-                }
                 player.removeSingleBottomPick();
                 pickBuildingAndApplyImmediateEffects((Building) selectedCard, context, player);
                 context.getBoard().removeFromBottomBuildingRow(selectedCard);

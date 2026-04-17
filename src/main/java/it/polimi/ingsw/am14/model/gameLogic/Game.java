@@ -59,13 +59,15 @@ public class Game {
      * <p>
      *     calls this.currentState.placeTotem()
      * </p>
-     * @param player not null
+     * @param nickname not null
      * @param position any char
      * @throws WrongStateException if this.currentState.placeTotem() throws it
      * @throws WrongTurnException if this.currentState.placeTotem() throws it
      * @throws UnknownPositionException if this.currentState.placeTotem() throws it
      */
-    public void placeTotem(Player player, char position) throws WrongStateException, WrongTurnException, UnknownPositionException, IllegalPlacementException {
+    public void placeTotem(String nickname, char position) throws WrongStateException, WrongTurnException, UnknownPositionException, IllegalPlacementException, UnknownNicknameException {
+        // Find player by nickname
+        Player player = findPlayerByNickname(nickname);
         this.currentState.placeTotem(this, player, position);
     }
 
@@ -73,16 +75,59 @@ public class Game {
      * <p>
      *     calls this.currentState.pickCard()
      * </p>
-     * @param player not null
-     * @param card not null
-     * @param row between 0 and 3
+     * @param nickname not null
+     * @param cardId not null, use -1 for skip
+     * @param row between 0 and 3, -1 for skip
      * @throws WrongStateException if this.currentState.pickCard() throws it
      * @throws WrongTurnException if this.currentState.pickCard() throws it
-     * @throws IllegalPickException if this.currentState.pickCard() throws it
+     * @throws IllegalPickException if this.currentState.pickCard() throws it or card not found
      * @throws ForcedPickException if this.currentState.pickCard() throws it
+     * @throws UnknownNicknameException if the nickname is not found
      */
-    public void pickCard(Player player, Optional<Card> card, int row) throws WrongStateException, WrongTurnException, IllegalPickException, ForcedPickException {
+    public void pickCard(String nickname, int cardId, int row) throws WrongStateException, WrongTurnException, IllegalPickException, ForcedPickException, UnknownNicknameException {
+        // Find player by nickname
+        Player player = findPlayerByNickname(nickname);
+        
+        // Create Optional<Card>: if cardId is -1, it's empty (skip), otherwise find card by id in the specified row
+        Optional<Card> card = cardId == -1 
+                ? Optional.empty() 
+                : findCardById(cardId, row);
+
         this.currentState.pickCard(this, player, card, row);
+    }
+
+    private Player findPlayerByNickname(String nickname) throws UnknownNicknameException {
+        return players.stream()
+                .filter(p -> p.getNickname().equals(nickname))
+                .findFirst()
+                .orElseThrow(() -> new UnknownNicknameException("Player not found: " + nickname));
+    }
+
+    private Optional<Card> findCardById(int cardId, int row) throws IllegalPickException {
+        switch (row) {
+            case 0: // TOP_DECKABLE_ROW
+                return Optional.of(board.getTopDeckableRow().stream()
+                        .filter(card -> card.getId() == cardId)
+                        .findFirst()
+                        .orElseThrow(() -> new IllegalPickException("The selected card is not available")));
+            case 1: // TOP_BUILDING_ROW
+                return Optional.of(board.getTopBuildingRow().stream()
+                        .filter(card -> card.getId() == cardId)
+                        .findFirst()
+                        .orElseThrow(() -> new IllegalPickException("The selected card is not available")));
+            case 2: // BOTTOM_DECKABLE_ROW
+                return Optional.of(board.getBottomDeckableRow().stream()
+                        .filter(card -> card.getId() == cardId)
+                        .findFirst()
+                        .orElseThrow(() -> new IllegalPickException("The selected card is not available")));
+            case 3: // BOTTOM_BUILDING_ROW
+                return Optional.of(board.getBottomBuildingRow().stream()
+                        .filter(card -> card.getId() == cardId)
+                        .findFirst()
+                        .orElseThrow(() -> new IllegalPickException("The selected card is not available")));
+            default:
+                throw new IllegalPickException("Invalid row: " + row);
+        }
     }
 
     /**

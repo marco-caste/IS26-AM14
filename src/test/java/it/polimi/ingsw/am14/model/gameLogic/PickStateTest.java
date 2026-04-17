@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am14.model.gameLogic;
 
+import it.polimi.ingsw.am14.exceptions.*;
 import it.polimi.ingsw.am14.model.boardComponents.Board;
 import it.polimi.ingsw.am14.model.cards.buildings.Building;
 import it.polimi.ingsw.am14.model.cards.buildings.effects.ExtraEndTurnFood;
@@ -14,10 +15,6 @@ import it.polimi.ingsw.am14.model.cards.deckCards.Hunter;
 import it.polimi.ingsw.am14.model.cards.deckCards.Inventor;
 import it.polimi.ingsw.am14.model.cards.deckCards.InventionType;
 import it.polimi.ingsw.am14.model.cards.deckCards.Shaman;
-import it.polimi.ingsw.am14.exceptions.ForcedPickException;
-import it.polimi.ingsw.am14.exceptions.IllegalPickException;
-import it.polimi.ingsw.am14.exceptions.WrongStateException;
-import it.polimi.ingsw.am14.exceptions.WrongTurnException;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -534,7 +531,7 @@ public class PickStateTest {
         // pick di due
         fixture.state.pickCard(fixture.game, fixture.p2, Optional.of(hunterForExceptional), 0);
 
-        fixture.state.pickCard(fixture.game, fixture.p1, null, 4);
+        fixture.game.pickCard(fixture.p1.getNickname(), -1, -1);
 
         assertEquals(0, fixture.p1.getTribe().getBuildings().size());
         assertInstanceOf(PositionState.class, fixture.game.getCurrentState());
@@ -784,7 +781,7 @@ public class PickStateTest {
         fixture.game.getBoard().setTopDeckableRow(new ArrayList<>(List.of(top1Hunter, top2Hunter)));
 
         // Setup to reach exceptional pick scenario (currentPlayerIndex == numPlayers)
-        fixture.game.pickCard(fixture.p1, Optional.of(top1Hunter), 0); // P1 picks to trigger addTopPick
+        fixture.game.pickCard(fixture.p1.getNickname(), top1Hunter.getId(), 0); // P1 picks to trigger addTopPick
 
         // P1 tries to pick from bottom with exceptional pick active (should throw exception)
         // In exceptional pick mode, only row 0 (top deckable) and row 1 (top building) are allowed
@@ -858,7 +855,7 @@ public class PickStateTest {
     }
 
     @Test
-    public void testAddTopPickSkipMandatory() throws IllegalPickException, ForcedPickException, WrongStateException, WrongTurnException {
+    public void testAddTopPickSkipMandatory() throws IllegalPickException, ForcedPickException, WrongStateException, WrongTurnException, UnknownNicknameException {
         TestFixture fixture = buildFixture();
         putTotem(fixture, 'B', fixture.p1);
         putTotem(fixture, 'C', fixture.p2);
@@ -876,7 +873,7 @@ public class PickStateTest {
         fixture.game.getBoard().setTopDeckableRow(new ArrayList<>(List.of(top1Hunter)));
 
         // Setup to reach exceptional pick scenario (currentPlayerIndex == numPlayers)
-        fixture.game.pickCard(fixture.p1, Optional.of(top1Hunter), 0); // P1 picks to trigger addTopPick
+        fixture.game.pickCard(fixture.p1.getNickname(), top1Hunter.getId(), 0); // P1 picks to trigger addTopPick
 
         assertEquals(0, fixture.game.getCurrentPlayerIndex());
         assertInstanceOf(PositionState.class, fixture.game.getCurrentState());
