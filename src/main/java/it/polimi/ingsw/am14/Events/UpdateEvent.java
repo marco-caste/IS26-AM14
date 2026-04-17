@@ -1,4 +1,5 @@
 package it.polimi.ingsw.am14.Events;
 
-public class UpdateEvent {
+public class UpdateEvent extends Event{
+
 }
