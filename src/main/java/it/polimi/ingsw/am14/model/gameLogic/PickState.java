@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am14.model.gameLogic;
 
+import it.polimi.ingsw.am14.events.CardPickedEvent;
 import it.polimi.ingsw.am14.model.cards.Card;
 import it.polimi.ingsw.am14.model.cards.buildings.Building;
 import it.polimi.ingsw.am14.model.cards.buildings.visitors.ImmediateVisitor;
@@ -153,6 +154,15 @@ class PickState extends GameState {
         if (context.getCurrentPlayerIndex() < context.getNumPlayers()) {
             finalizeCurrentPlayerTurn(context, player, playerTotemPosition);
             findAndActivateNextPlayerInTurnOrder(context, availableTopCharacters, availableBottomCharacters, playerTotemPosition);
+
+            ClientHandlersManager.update(
+                    new CardPickedEvent(
+                            player.getNickname(),
+                            null,
+                            -1
+                    )
+            );
+
         } else {
             nextState(context);
         }

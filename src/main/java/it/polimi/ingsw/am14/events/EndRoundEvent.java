@@ -1,4 +1,4 @@
-package it.polimi.ingsw.am14.Events;
+package it.polimi.ingsw.am14.events;
 
 import it.polimi.ingsw.am14.model.boardComponents.Board;
 import it.polimi.ingsw.am14.model.cards.Card;
@@ -21,6 +21,7 @@ public class EndRoundEvent extends UpdateEvent {
     private final Map<String, ArrayList<Integer>> playersAttributes;          // pos0 = numFood, pos1 = numPrestigePoints
 
     public EndRoundEvent(final Board board,final ArrayList<Player> players) {
+
         // board is updated for everyone
         this.board = new ArrayList<>();
         this.board.set(TOP_DECKABLE_ROW,

@@ -1,4 +1,4 @@
-package it.polimi.ingsw.am14.Events;
+package it.polimi.ingsw.am14.events;
 
 import it.polimi.ingsw.am14.model.gameLogic.Player;
 

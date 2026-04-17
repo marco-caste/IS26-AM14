@@ -1,5 +1,8 @@
 package it.polimi.ingsw.am14.model.gameLogic;
 
+import it.polimi.ingsw.am14.events.GameStartedEvent;
+import it.polimi.ingsw.am14.events.JoinedGameEvent;
+
 class WaitingRoomState extends GameState {
 
     @Override
@@ -10,9 +13,16 @@ class WaitingRoomState extends GameState {
         game.getBoard().getTurnOrderCard().addPlayer(p);
         if (game.playersSize() == game.getNumPlayers()) {
             this.nextState(game);
+            return;
         }
 
-        // TODO: client update
+        ClientHandlersManager.update(new JoinedGameEvent(
+                nickname,
+                game.getGameId(),
+                game.getBoard(),
+                game.getNumPlayers()
+        ));
+
     }
 
     @Override
@@ -20,6 +30,8 @@ class WaitingRoomState extends GameState {
         context.setCurrentState(new PositionState());
         context.getBoard().getTurnOrderCard().setupPhaseTen();
 
-        // TODO: client update
+        ClientHandlersManager.update(new GameStartedEvent(
+                context.getBoard().getTurnOrderCard().getPlayerOrder()
+        ));
     }
 }

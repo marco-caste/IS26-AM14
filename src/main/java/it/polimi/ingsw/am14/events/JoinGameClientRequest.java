@@ -1,4 +1,4 @@
-package it.polimi.ingsw.am14.Events;
+package it.polimi.ingsw.am14.events;
 
 public class JoinGameClientRequest extends ClientRequest {
 
