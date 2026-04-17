@@ -1,4 +1,4 @@
-package it.polimi.ingsw.am14.model.utils;
+package it.polimi.ingsw.am14.utils;
 
 import it.polimi.ingsw.am14.model.boardComponents.TrackCard;
 import it.polimi.ingsw.am14.utils.TrackCardManager;

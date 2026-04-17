@@ -105,4 +105,12 @@ public class TurnOrderCard {
     public Player getPlayer(int index) {
         return this.playerOrder.get(index);
     }
+
+    public ArrayList<Player> getPlayerOrder() {
+        return new ArrayList<>(playerOrder);
+    }
+
+    public void removePlayer(Player p) {
+        this.playerOrder.remove(p);
+    }
 }

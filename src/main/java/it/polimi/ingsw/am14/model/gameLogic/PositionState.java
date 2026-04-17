@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am14.model.gameLogic;
 
+import it.polimi.ingsw.am14.events.TotemPlacedEvent;
 import it.polimi.ingsw.am14.model.boardComponents.TrackCard;
 import it.polimi.ingsw.am14.exceptions.IllegalPlacementException;
 import it.polimi.ingsw.am14.exceptions.UnknownPositionException;
@@ -44,14 +45,21 @@ class PositionState extends GameState {
         // places p on the desired TrackCard and applies its effects
         destinationTrackCard.setPlayerTotem(p);
         destinationTrackCard.effect();
+        // removes p from the TurnOrderCard
+        context.getBoard().getTurnOrderCard().removePlayer(p);
         // increases the currentPlayerIndex
         context.incrementCurrentPlayerIndexBy(1);
+
+        // signals the views that player at position currentPlayerIdx has been removed from TurnOrderCard.
+        ClientHandlersManager.update(new TotemPlacedEvent(
+                p.getNickname(),
+                trackCardName,
+                currentPlayerIdx
+        ));
 
         if (context.getCurrentPlayerIndex() > context.getNumPlayers() - 1) {
             this.nextState(context);
         }
-
-        // TODO: client update
     }
 
     /**
@@ -69,11 +77,5 @@ class PositionState extends GameState {
         context.setCurrentState(new PickState());
         // sets currentPlayerIndex = 0
         context.setCurrentPlayerIndex(0);
-
-        // clears turnOrderCard
-        // TODO: check if this is the right place to clear the turn order card, or if it should be done one at a time in the placeTotem method
-        context.getBoard().getTurnOrderCard().clearPlayerOrder();
-
-        // TODO: client update
     }
 }

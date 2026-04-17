@@ -6,6 +6,8 @@ import it.polimi.ingsw.am14.exceptions.IllegalSetupException;
 
 public abstract class GameFactory {
 
+    private static int gameIdCounter = 0;
+
     /**
      * <p>
      *     calls Game constructor, performs the first 6 phases of game setup according to the rules
@@ -20,7 +22,7 @@ public abstract class GameFactory {
             throw new IllegalSetupException("A game with that number of players is not possible");
         }
         // create gameObjects:
-        Game newGame = new Game(numPlayers);
+        Game newGame = new Game(numPlayers, "Game" + gameIdCounter);
         DeckCard d;
 
         Board currentBoard = newGame.getBoard();
@@ -41,6 +43,7 @@ public abstract class GameFactory {
             );
         }
 
+        gameIdCounter++;
         // setup: phase 8 - to be continued in WaitingRoomState.onPlayerConnection() and WaitingRoomState.nextState()
         return newGame;
 

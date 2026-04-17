@@ -14,6 +14,7 @@ public class Game {
     private final int numPlayers;
     private int currentRound;
     private int currentAge;
+    private final String gameId;
 
 
     /**
@@ -28,7 +29,8 @@ public class Game {
      * </p>
      * @param numPlayers between 2 and 5
      */
-    public Game(int numPlayers) {
+    public Game(int numPlayers, String gameId) {
+        this.gameId             = gameId;
         this.currentState       = new WaitingRoomState();
         this.players            = new ArrayList<>();
         this.currentPlayerIndex = 0;
@@ -38,14 +40,15 @@ public class Game {
         this.board              = new Board(numPlayers);
     }
 
-    // called if a game crashes, gets the arguments from the latest JSON snapshot
+    // called if the server shuts down, gets the arguments from the latest JSON snapshot
     public Game(GameState lastCurrentState,
                    List<Player> lastPlayers,
                    Board lastBoard,
                    int lastCurrentPlayerIndex,
                    int numPlayers,
                    int currentRound,
-                   int currentAge) {
+                   int currentAge,
+                   String gameId) {
         this.currentState       = lastCurrentState;
         this.players            = lastPlayers;
         this.board              = lastBoard;
@@ -53,6 +56,7 @@ public class Game {
         this.numPlayers         = numPlayers;
         this.currentRound       = currentRound;
         this.currentAge         = currentAge;
+        this.gameId             = gameId;
     }
 
     /**
@@ -163,6 +167,9 @@ public class Game {
     }
     public int getCurrentPlayerIndex() {
         return currentPlayerIndex;
+    }
+    public String getGameId() {
+        return gameId;
     }
 
     /**
