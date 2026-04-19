@@ -1,4 +1,4 @@
 package it.polimi.ingsw.am14.events;
 
-public class ClientRequest extends Event {
+public abstract class ClientRequest extends Event {
 }

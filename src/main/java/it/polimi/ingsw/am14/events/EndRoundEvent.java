@@ -6,6 +6,7 @@ import it.polimi.ingsw.am14.model.gameLogic.Player;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -20,7 +21,7 @@ public class EndRoundEvent extends UpdateEvent {
     private final ArrayList<ArrayList<Integer>> board;
     private final Map<String, ArrayList<Integer>> playersAttributes;          // pos0 = numFood, pos1 = numPrestigePoints
 
-    public EndRoundEvent(final Board board,final ArrayList<Player> players) {
+    public EndRoundEvent(final Board board,final List<Player> players) {
 
         // board is updated for everyone
         this.board = new ArrayList<>();

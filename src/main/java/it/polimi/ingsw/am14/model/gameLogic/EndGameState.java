@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am14.model.gameLogic;
 
+import it.polimi.ingsw.am14.events.EndGameEvent;
 import it.polimi.ingsw.am14.model.boardComponents.Board;
 import it.polimi.ingsw.am14.model.cards.buildings.Building;
 import it.polimi.ingsw.am14.model.cards.buildings.visitors.EndGameVisitor;
@@ -83,7 +84,9 @@ class EndGameState extends GameState {
                     }
                 }).toList();
 
-        // TODO: send the object ranking to the views => client update
+        ClientHandlersManager.broadcastUpdate(
+                new EndGameEvent(context.getBoard(), ranking)
+        );
 
         // at the end, we will display a ranking of players, in the form of
         // player - prestigePoints - foodAvailable

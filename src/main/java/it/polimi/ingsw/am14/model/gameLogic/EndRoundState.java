@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am14.model.gameLogic;
 
+import it.polimi.ingsw.am14.events.EndRoundEvent;
 import it.polimi.ingsw.am14.model.boardComponents.Board;
 
 class EndRoundState extends GameState {
@@ -41,11 +42,9 @@ class EndRoundState extends GameState {
 
         for (int i = currentBoard.toResolveOtherEventsRowSize() - 1; i >= 0; i--) {
             currentBoard.getFromResolveOtherEventsRow(i).applyEffect(null, context);
-            // TODO: client update
         }
         for (int i = 0; i < currentBoard.toResolveSustenanceEventsRowSize(); i++) {
             currentBoard.getFromResolveSustenanceEventRow(i).applyEffect(null, context);
-            // TODO: client update
         }
         currentBoard.discardEvents();
 
@@ -77,7 +76,10 @@ class EndRoundState extends GameState {
             currentBoard.pickBuildingAndAddToTop(context.getCurrentAge());
         }
 
+        ClientHandlersManager.broadcastUpdate(
+                new EndRoundEvent(context.getBoard(), context.getPlayers())
+        );
+
         this.nextState(context);
-        // TODO: client update
     }
 }

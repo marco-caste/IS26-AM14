@@ -29,6 +29,8 @@ class PickState extends GameState {
         }
     }
 
+    // TODO: RIMUOVERE CHECK DELLA CARTA PRESENTE SULLA BOARD
+
     @Override
     protected void pickCard(Game context, Player player, Optional<Card> card, int row)
             throws IllegalPickException, ForcedPickException, WrongTurnException {
@@ -93,6 +95,7 @@ class PickState extends GameState {
                 throw new IllegalPickException("You can't pick this card");
         }
 
+        // CHECK PLAYER SUCCESSIVO + CLIENT UPDATE:
 
         // Il prossimo pick puo restare al player corrente o passare al successivo.
         if (player.getNumTopPicksLeft() != 0 || player.getNumBottomPicksLeft() != 0) {
@@ -100,18 +103,20 @@ class PickState extends GameState {
             if (!currentPlayerHasMorePicks) {
                 findAndActivateNextPlayerInTurnOrder(context, availableTopCharacters, availableBottomCharacters, playerTotemPosition);
             }
+            // client update
+            this.update(player, selectedCard, row, context, false);
         } else {  // dobbiamo analizzare cosa avviene dopo il pick del player corrente che ha appena finito i pick
             finalizeCurrentPlayerTurn(context, player, playerTotemPosition); // riportiamo il player corrente nella turnOrderCard
+            // client update
+            this.update(player, selectedCard, row, context, true);
 
             if (context.getCurrentPlayerIndex() == context.getNumPlayers()) { // se il player era l'ultimo
                 handleAllPlayersFinishedTheirPicksPhase(context, availableTopCharacters); // verifico se devo fare la transizione di stato
 
-            } else  {  // se il player non è l'ultimo  --> verifico se il prossimo player può anora pickare
+            } else  {  // se il player non è l'ultimo --> verifico se il prossimo player può anora pickare
                 findAndActivateNextPlayerInTurnOrder(context, availableTopCharacters, availableBottomCharacters, playerTotemPosition);
             }
         }
-
-        // TODO: client update
     }
 
     private int countAvailableCharacterCardsFromTopRow(Game context, Player player) {
@@ -141,17 +146,12 @@ class PickState extends GameState {
 
         if (context.getCurrentPlayerIndex() < context.getNumPlayers()) {
             finalizeCurrentPlayerTurn(context, player, playerTotemPosition);
+            // client update
+            this.update(player, null, -1, context, true);
             findAndActivateNextPlayerInTurnOrder(context, availableTopCharacters, availableBottomCharacters, playerTotemPosition);
-
-            ClientHandlersManager.update(
-                    new CardPickedEvent(
-                            player.getNickname(),
-                            null,
-                            -1
-                    )
-            );
-
         } else {
+            // client update
+            this.update(player, null, -1, context, true);
             nextState(context);
         }
     }
@@ -173,6 +173,10 @@ class PickState extends GameState {
             default:
                 throw new IllegalPickException("You can't pick this card");
         }
+
+        // client update
+        this.update(player, card, row, context, true);
+
         nextState(context);
     }
 
@@ -321,6 +325,23 @@ class PickState extends GameState {
             return true;
         }
         return false;
+    }
+
+    private void update(Player player, Card card, int row, Game context, boolean wasLastPick) {
+        Optional<ArrayList<Player>> currentTurnOrderCard =
+                !wasLastPick ? Optional.empty() :
+                Optional.of(context.getBoard().getTurnOrderCard().getPlayerOrder());
+
+        ClientHandlersManager.broadcastUpdate(
+                new CardPickedEvent(
+                        player.getNickname(),
+                        card,
+                        row,
+                        player.getNumFood(),
+                        player.getNumPrestigePoints(),
+                        currentTurnOrderCard
+                )
+        );
     }
 
     @Override
