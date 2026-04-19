@@ -1,12 +1,16 @@
 package it.polimi.ingsw.am14.model.cards.deckCards;
 
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import it.polimi.ingsw.am14.model.gameLogic.Player;
 import it.polimi.ingsw.am14.model.boardComponents.Board;
 
 public abstract class CharacterCard extends DeckCard {
 
-    public CharacterCard(int age, int id) {
+    public CharacterCard(
+            @JsonProperty("age") int age,
+            @JsonProperty("id") int id
+    ) {
         super(age, id);
     }
 

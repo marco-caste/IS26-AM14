@@ -1,5 +1,7 @@
 package it.polimi.ingsw.am14.events;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import it.polimi.ingsw.am14.model.boardComponents.Board;
 import it.polimi.ingsw.am14.model.cards.Card;
 
@@ -21,6 +23,7 @@ public class JoinedGameEvent extends ServerEvent {
     private final ArrayList<ArrayList<Integer>> board;
 
     public JoinedGameEvent(String playerNickname, String gameId, final Board initialBoard, int numPlayers) {
+        super("");
         this.playerNickname = playerNickname;
         this.gameId = gameId;
         this.turnOrderCardIndex = numPlayers - 2;
@@ -51,6 +54,22 @@ public class JoinedGameEvent extends ServerEvent {
         );
 
         this.description = "Player \"" + playerNickname + "\" has joined game [" + gameId + "].";
+    }
+
+    @JsonCreator
+    public JoinedGameEvent(
+            @JsonProperty("description") String description,
+            @JsonProperty("nickname") String playerNickname,
+            @JsonProperty("gameID") String gameId,
+            @JsonProperty("turnOrderCard") int turnOrderCardIndex,
+            @JsonProperty("numPlayers") int numPlayers,
+            @JsonProperty("board") ArrayList<ArrayList<Integer>> board) {
+        super(description);
+        this.playerNickname = playerNickname;
+        this.gameId = gameId;
+        this.turnOrderCardIndex = turnOrderCardIndex;
+        this.numPlayers = numPlayers;
+        this.board = board;
     }
 
     /*

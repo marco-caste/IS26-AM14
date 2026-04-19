@@ -1,5 +1,7 @@
 package it.polimi.ingsw.am14.model.cards.deckCards;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import it.polimi.ingsw.am14.model.gameLogic.Game;
 import it.polimi.ingsw.am14.model.gameLogic.Player;
 
@@ -9,7 +11,12 @@ public class Gatherer extends CharacterCard{
     // it's a positive number that represents
     // the discount on the gathering event
 
-    public Gatherer ( int age, int id, int discount) {
+    @JsonCreator
+    public Gatherer (
+            @JsonProperty("age") int age,
+            @JsonProperty("id") int id,
+            @JsonProperty("discount") int discount
+    ) {
         super(age, id);
         this.discount = discount;
     }

@@ -3,9 +3,11 @@ package it.polimi.ingsw.am14.model.boardComponents;
 
 import it.polimi.ingsw.am14.utils.BuildingManager;
 import it.polimi.ingsw.am14.model.cards.buildings.Building;
+import it.polimi.ingsw.am14.utils.JsonCodec;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class BuildingDeck {
     private final Map<Integer, ArrayList<Building>> buildingDecks;
@@ -33,13 +35,19 @@ public class BuildingDeck {
         this.buildingDecks.put(2, new ArrayList<>());
         this.buildingDecks.put(3, new ArrayList<>());
         // reads values from JSON data file, puts Buildings in the corresponding eras;
-        Map<Integer, ArrayList<Building>> completeDecks;
-        try{
-            completeDecks = BuildingManager.turnJsonIntoBuildingMap();
-        } catch (IOException e) {
-            e.printStackTrace();
-            return;
-        }
+        JsonCodec jsonCodec = new JsonCodec();
+
+        Map<Integer, ArrayList<Building>> completeDecks = new HashMap<>();
+
+        completeDecks.put(1, jsonCodec.readBuildings("resources/Buildings.json").stream().
+                filter(b -> b.getAge() == 1).
+                collect(Collectors.toCollection(ArrayList::new)));
+        completeDecks.put(2, jsonCodec.readBuildings("resources/Buildings.json").stream().
+                filter(b -> b.getAge() == 2).
+                collect(Collectors.toCollection(ArrayList::new)));
+        completeDecks.put(3, jsonCodec.readBuildings("resources/Buildings.json").stream().
+                filter(b -> b.getAge() == 3).
+                collect(Collectors.toCollection(ArrayList::new)));
 
 
         // shuffles the decks separately:

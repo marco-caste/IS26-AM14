@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am14.model.boardComponents;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import it.polimi.ingsw.am14.model.gameLogic.Player;
 
 // classe che ha lo scopo di memorizzare il player che ci è finito sopra e assegnare
@@ -28,7 +29,11 @@ public class TrackCard {
      * @param numPicksBottom between 0 and 1
      * @param numFood = 0 or 3
      */
-    public TrackCard(char name, int numPicksTop, int numPicksBottom, int numFood) {
+    public TrackCard(
+            @JsonProperty("name") char name,
+            @JsonProperty("numPickTop") int numPicksTop,
+            @JsonProperty("numPickBottom") int numPicksBottom,
+            @JsonProperty("numFood") int numFood) {
         this.playerTotem = null;
         this.name = name;
         this.numPicksTop = numPicksTop;
@@ -61,5 +66,14 @@ public class TrackCard {
         playerTotem.setNumTopPicksLeft(numPicksTop);
         playerTotem.setNumBottomPicksLeft(numPicksBottom);
         playerTotem.addToNumFood(numFood);
+    }
+
+    @Override
+    public String toString() {
+        return "TrackCard " +
+                ", name=" + name +
+                ", numPicksTop=" + numPicksTop +
+                ", numPicksBottom=" + numPicksBottom +
+                ", numFood=" + numFood;
     }
 }

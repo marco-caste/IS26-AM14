@@ -1,5 +1,7 @@
 package it.polimi.ingsw.am14.events;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import it.polimi.ingsw.am14.model.boardComponents.Board;
 import it.polimi.ingsw.am14.model.cards.Card;
 import it.polimi.ingsw.am14.model.gameLogic.Player;
@@ -22,6 +24,7 @@ public class EndRoundEvent extends UpdateEvent {
     private final Map<String, ArrayList<Integer>> playersAttributes;          // pos0 = numFood, pos1 = numPrestigePoints
 
     public EndRoundEvent(final Board board,final List<Player> players) {
+        super("");
 
         // board is updated for everyone
         this.board = new ArrayList<>();
@@ -56,6 +59,17 @@ public class EndRoundEvent extends UpdateEvent {
         }
 
         this.description = "End of round, the board has been updated";
+    }
+
+    // called by the JSON parser
+    @JsonCreator
+    public EndRoundEvent(
+            @JsonProperty("board") ArrayList<ArrayList<Integer>> board,
+            @JsonProperty("playersAttribute") Map<String, ArrayList<Integer>> playersAttributes,
+            @JsonProperty("description") String description){
+        super(description);
+        this.board = board;
+        this.playersAttributes = playersAttributes;
     }
 
     /*

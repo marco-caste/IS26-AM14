@@ -1,5 +1,7 @@
 package it.polimi.ingsw.am14.model.cards.deckCards;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import it.polimi.ingsw.am14.model.cards.buildings.Building;
 import it.polimi.ingsw.am14.model.cards.buildings.visitors.HuntEventVisitor;
 import it.polimi.ingsw.am14.model.gameLogic.*;
@@ -8,7 +10,11 @@ import java.util.ArrayList;
 
 public class HuntEvent extends EventCard {
 
-    public HuntEvent(int age, int id) {
+    @JsonCreator
+    public HuntEvent(
+            @JsonProperty("age") int age,
+            @JsonProperty("id") int id
+    ) {
         super(age, id);
     }
 

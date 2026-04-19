@@ -1,5 +1,7 @@
 package it.polimi.ingsw.am14.model.cards.deckCards;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import it.polimi.ingsw.am14.model.cards.buildings.*;
 import it.polimi.ingsw.am14.model.cards.buildings.visitors.InventorsVisitor;
 import it.polimi.ingsw.am14.model.gameLogic.*;
@@ -10,9 +12,14 @@ public class Inventor extends CharacterCard{
 
     private final InventionType invention;
 
-    public Inventor(int age, int id, InventionType invention) {
+    @JsonCreator
+    public Inventor(
+            @JsonProperty("age") int age,
+            @JsonProperty("id") int id,
+            @JsonProperty("inventionType") String invention
+    ) {
         super(age, id);
-        this.invention = invention;
+        this.invention = InventionType.valueOf(invention.toUpperCase());
     }
 
     public InventionType getInvention(){

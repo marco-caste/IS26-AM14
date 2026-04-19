@@ -1,179 +1,219 @@
-{
-  "1": [
-  {
-    "type": "SetBuilding",
-    "age": 1,
-    "id": 96,
-    "cost": 4,
-    "prestigePoints": 3,
-    "effectStrategy": "SetCompletionFood"
-  },
-  {
-    "type": "InventorsBuilding",
-    "age": 1,
-    "id": 97,
-    "cost": 3,
-    "prestigePoints": 4,
-    "effectStrategy": "InventorPairFood"
-  },
-  {
-    "type": "ImmediateBuilding",
-    "age": 1,
-    "id":98,
-    "cost": 3,
-    "prestigePoints": 3,
-    "effectStrategy": "ExtraEndTurnFood"
-  },
-
-  {
-    "type": "SustenanceEventBuilding",
-    "age": 1,
-    "id": 99,
-    "cost": 5,
-    "prestigePoints": 3,
-    "effectStrategy": "SustenanceDiscountArtists"
-  },
-  {
-    "type": "SustenanceEventBuilding",
-    "age": 1,
-    "id": 100,
-    "cost": 4,
-    "prestigePoints": 4,
-    "effectStrategy": "SustenanceDiscountGatherers"
-  },
-  {
-    "type": "ShamanMalusEventBuilding",
-    "age": 1,
-    "id": 101,
-    "cost": 5,
-    "prestigePoints": 2,
-    "effectStrategy": "ShamanicPenaltyShield"
-  }
-],
-
-  "2": [
-      {
-        "type": "SustenanceEventBuilding",
-        "age": 2,
-        "id": 102,
-        "cost": 7,
-        "prestigePoints": 4,
-        "effectStrategy": "SustenanceDiscountInventors"
-      },
-      {
-        "type": "ImmediateBuilding",
-        "age": 2,
-        "id": 103,
-        "cost": 6,
-        "prestigePoints": 4,
-        "effectStrategy": "ExtraShamanicStars"
-      },
-      {
-        "type": "ShamanBonusEventBuilding",
-        "age": 2,
-        "id": 104,
-        "cost": 7,
-        "prestigePoints": 0,
-        "effectStrategy": "DoubleShamanicReward"
-      },
-      {
-        "type": "HuntEventBuilding",
-        "age": 2,
-        "id": 105,
-        "cost": 7,
-        "prestigePoints": 2,
-        "effectStrategy": "HuntExtraFoodAndPrestige"
-      },
-      {
-        "type": "PaintEventBuilding",
-        "age": 2,
-        "id": 106,
-        "cost": 5,
-        "prestigePoints": 6,
-        "effectStrategy": "PaintExtraFood"
-      },
-      {
-        "type": "EndGameBuilding",
-        "age": 2,
-        "id": 107,
-        "cost": 5,
-        "prestigePoints": 6,
-        "effectStrategy": "EndGameSetPrestige"
-      },
-      {
-        "type": "EndGameBuilding",
-        "age": 2,
-        "id": 108,
-        "cost": 6,
-        "prestigePoints": 4,
-        "effectStrategy": "DoubleBuilderPrestige"
+[
+  [
+    {
+      "type": "SetBuilding",
+      "age": 1,
+      "id": 96,
+      "cost": 4,
+      "prestigePoints": 3,
+      "effectStrategy": {
+        "type": "SetCompletionFood"
       }
-    ],
-
-  "3": [
-      {
-        "type": "ImmediateBuilding",
-        "age": 3,
-        "id": 109,
-        "cost": 9,
-        "prestigePoints": 3,
-        "effectStrategy": "PlayerExtraDraft"
-      },
-      {
-        "type": "PassiveBuilding",
-        "age": 3,
-        "id": 110,
-        "cost": 10,
-        "prestigePoints": 25,
-        "effectStrategy": "Flat25Prestige"
-      },
-      {
-        "type": "EndGameBuilding",
-        "age": 3,
-        "id": 111,
-        "cost": 6,
-        "prestigePoints": 6,
-        "effectStrategy": "ScoringInventors"
-      },
-      {
-        "type": "EndGameBuilding",
-        "age": 3,
-        "id": 112,
-        "cost": 6,
-        "prestigePoints": 3,
-        "effectStrategy": "ScoringBuilders"
-      },
-      {
-        "type": "EndGameBuilding",
-        "age": 3,
-        "id": 113,
-        "cost": 7,
-        "prestigePoints": 6,
-        "effectStrategy": "ScoringGatherers"
-      },
-      {
-        "type": "EndGameBuilding",
-        "age": 3,
-        "id": 114,
-        "cost": 7,
-        "prestigePoints": 4,
-        "effectStrategy": "ScoringShamans"
-      },
-      {
-        "type": "EndGameBuilding",
-        "age": 3,
-        "id": 115,
-        "cost": 7,
-        "prestigePoints": 4,
-        "effectStrategy": "ScoringArtists"
-      },
-      {
-        "type": "EndGameBuilding",
-        "age": 3,
-        "id": 116,
-        "cost": 8,
-        "prestigePoints": 8,
-        "effectStrategy": "ScoringHunters"
+    },
+    {
+      "type": "InventorsBuilding",
+      "age": 1,
+      "id": 97,
+      "cost": 3,
+      "prestigePoints": 4,
+      "effectStrategy": {
+        "type": "InventorPairFood"
       }
-    ]
-}
+    },
+    {
+      "type": "ImmediateBuilding",
+      "age": 1,
+      "id":98,
+      "cost": 3,
+      "prestigePoints": 3,
+      "effectStrategy": {
+        "type": "ExtraEndTurnFood"
+      }
+    },
+
+    {
+      "type": "SustenanceEventBuilding",
+      "age": 1,
+      "id": 99,
+      "cost": 5,
+      "prestigePoints": 3,
+      "effectStrategy": {
+        "type": "SustenanceDiscountArtists"
+      }
+    },
+    {
+      "type": "SustenanceEventBuilding",
+      "age": 1,
+      "id": 100,
+      "cost": 4,
+      "prestigePoints": 4,
+      "effectStrategy": {
+        "type": "SustenanceDiscountGatherers"
+      }
+    },
+    {
+      "type": "ShamanMalusEventBuilding",
+      "age": 1,
+      "id": 101,
+      "cost": 5,
+      "prestigePoints": 2,
+      "effectStrategy": {
+        "type": "ShamanicPenaltyShield"
+      }
+    }
+  ],
+  [
+    {
+      "type": "SustenanceEventBuilding",
+      "age": 2,
+      "id": 102,
+      "cost": 7,
+      "prestigePoints": 4,
+      "effectStrategy": {
+        "type": "SustenanceDiscountInventors"
+      }
+    },
+    {
+      "type": "ImmediateBuilding",
+      "age": 2,
+      "id": 103,
+      "cost": 6,
+      "prestigePoints": 4,
+      "effectStrategy": {
+        "type": "ExtraShamanicStars"
+      }
+    },
+    {
+      "type": "ShamanBonusEventBuilding",
+      "age": 2,
+      "id": 104,
+      "cost": 7,
+      "prestigePoints": 0,
+      "effectStrategy": {
+        "type": "DoubleShamanicReward"
+      }
+    },
+    {
+      "type": "HuntEventBuilding",
+      "age": 2,
+      "id": 105,
+      "cost": 7,
+      "prestigePoints": 2,
+      "effectStrategy": {
+        "type": "HuntExtraFoodAndPrestige"
+      }
+    },
+    {
+      "type": "PaintEventBuilding",
+      "age": 2,
+      "id": 106,
+      "cost": 5,
+      "prestigePoints": 6,
+      "effectStrategy": {
+        "type": "PaintExtraFood"
+      }
+    },
+    {
+      "type": "EndGameBuilding",
+      "age": 2,
+      "id": 107,
+      "cost": 5,
+      "prestigePoints": 6,
+      "effectStrategy": {
+        "type": "EndGameSetPrestige"
+      }
+    },
+    {
+      "type": "EndGameBuilding",
+      "age": 2,
+      "id": 108,
+      "cost": 6,
+      "prestigePoints": 4,
+      "effectStrategy": {
+        "type": "DoubleBuilderPrestige"
+      }
+    }
+  ],
+  [
+    {
+      "type": "ImmediateBuilding",
+      "age": 3,
+      "id": 109,
+      "cost": 9,
+      "prestigePoints": 3,
+      "effectStrategy": {
+        "type": "PlayerExtraDraft"
+      }
+    },
+    {
+      "type": "PassiveBuilding",
+      "age": 3,
+      "id": 110,
+      "cost": 10,
+      "prestigePoints": 25,
+      "effectStrategy": {
+        "type": "Flat25Prestige"
+      }
+    },
+    {
+      "type": "EndGameBuilding",
+      "age": 3,
+      "id": 111,
+      "cost": 6,
+      "prestigePoints": 6,
+      "effectStrategy": {
+        "type": "ScoringInventors"
+      }
+    },
+    {
+      "type": "EndGameBuilding",
+      "age": 3,
+      "id": 112,
+      "cost": 6,
+      "prestigePoints": 3,
+      "effectStrategy": {
+        "type": "ScoringBuilders"
+      }
+    },
+    {
+      "type": "EndGameBuilding",
+      "age": 3,
+      "id": 113,
+      "cost": 7,
+      "prestigePoints": 6,
+      "effectStrategy": {
+        "type": "ScoringGatherers"
+      }
+    },
+    {
+      "type": "EndGameBuilding",
+      "age": 3,
+      "id": 114,
+      "cost": 7,
+      "prestigePoints": 4,
+      "effectStrategy": {
+        "type": "ScoringShamans"
+      }
+    },
+    {
+      "type": "EndGameBuilding",
+      "age": 3,
+      "id": 115,
+      "cost": 7,
+      "prestigePoints": 4,
+      "effectStrategy": {
+        "type": "ScoringArtists"
+      }
+    },
+    {
+      "type": "EndGameBuilding",
+      "age": 3,
+      "id": 116,
+      "cost": 8,
+      "prestigePoints": 8,
+      "effectStrategy": {
+        "type": "ScoringHunters"
+      }
+    }
+  ]
+]
