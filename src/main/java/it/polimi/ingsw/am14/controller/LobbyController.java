@@ -24,6 +24,12 @@ public class LobbyController {
         this.activeNicknames = new HashSet<>();
     }
 
+    public LobbyController(Map<String, Integer> nicknameToGameId) {
+        this.gameIdToGameController = new HashMap<>();
+        this.nicknameToGameId = nicknameToGameId;
+        this.activeNicknames = new HashSet<>();
+    }
+
     private void addGameController(int gameId, GameController gameController) {
         gameIdToGameController.put(gameId, gameController);
     }
@@ -84,32 +90,31 @@ public class LobbyController {
     }
 
     public void connectUser(String nickname) throws IllegalNicknameException, IllegalGameIdException, WrongStateException {
-        if (isPlayerActive(nickname)) {
-            throw new IllegalNicknameException("Nickname is already in use in an active game");
-        }
-        else {
-            //Nickname available, but might have a game assigned if the user is reconnecting after a server crash
-            activatePlayer(nickname);
-            //TODO: chiedere a Lorenzo se c'è un unico update di connessione o un altro per la riconnessione
-            if (hasPlayerAGameAssigned(nickname)) {
-                //Player is reconnecting after a server crash
+        synchronized (activeNicknames) {
+            if (isPlayerActive(nickname)) {
+                throw new IllegalNicknameException("Nickname is already in use in an active game");
+            } else {
+                //Nickname available, but might have a game assigned if the user is reconnecting after a server crash
                 activatePlayer(nickname);
-                //update(PlayerReconnectedEvent(X));
-                int gameId = getGameIdByNickname(nickname).orElseThrow();
-                if (!hasGameAController(gameId)) {
-                    //First person to connect to this game after the crash, need to set it up again
-                    //TODO: nuovo metodo di setup in GameFactory che si basa sul gameId?
-                    //Game game = GameFactory.setup(gameId);
-                    GameController gameController = new GameController(game);
-                    addGameController(game.getGameId(), gameController);
+                //TODO: chiedere a Lorenzo se c'è un unico update di connessione o un altro per la riconnessione
+                if (hasPlayerAGameAssigned(nickname)) {
+                    //Player is reconnecting after a server crash
+                    //update(PlayerReconnectedEvent(X));
+                    int gameId = getGameIdByNickname(nickname).orElseThrow();
+                    if (!hasGameAController(gameId)) {
+                        //First person to connect to this game after the crash, need to set it up again
+                        //TODO: nuovo metodo di setup in GameFactory che si basa sul gameId?
+                        //Game game = GameFactory.setup(gameId);
+                        GameController gameController = new GameController(game);
+                        addGameController(game.getGameId(), gameController);
+                    }
+                    //TODO: nuovo stato di WaitingRoomAfterCrash in Game onPlayerConncetion?
+                    //joinGame(nickname, gameId, null);
+                } else {
+                    //Player is connecting for the first time, add to lobby
+                    addPlayerToLobby(nickname);
+                    //update(PlayerConnectedEvent(X));
                 }
-                //TODO: nuovo stato di WaitingRoomAfterCrash in Game onPlayerConncetion?
-                //joinGame(nickname, gameId, null);
-            }
-            else {
-                //Player is connecting for the first time, add to lobby
-                addPlayerToLobby(nickname);
-                //update(PlayerConnectedEvent(X));
             }
         }
     }
@@ -141,15 +146,22 @@ public class LobbyController {
     }
 
     public void disconnectUser(String nickname) {
-        if (hasPlayerAGameAssigned(nickname)) {
-            int gameId = getGameIdByNickname(nickname).orElseThrow();
-            removeGameController(gameId);
-            deactivatePlayer(nickname);
+        synchronized (activeNicknames) {
+            if (hasPlayerAGameAssigned(nickname)) {
+                int gameId = getGameIdByNickname(nickname).orElseThrow();
+                removeGameController(gameId);
+                removePlayerFromLobby(nickname);
+                getPlayersByGameId(gameId).forEach(this::addPlayerToLobby);
+                //update(PlayerDisconnectedEvent(X));
+                return;
+            }
             removePlayerFromLobby(nickname);
-            getPlayersByGameId(gameId).forEach(this::addPlayerToLobby);
-            //update(PlayerDisconnectedEvent(X));
-            return;
+            deactivatePlayer(nickname);
         }
-        removePlayerFromLobby(nickname);
+    }
+
+    // Called automatically after a certain timeout if server pings are not answered to
+    public void disconnectServer() {
+        activeNicknames.clear();
     }
 }
