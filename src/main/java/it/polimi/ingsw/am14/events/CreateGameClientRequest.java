@@ -1,11 +1,8 @@
 package it.polimi.ingsw.am14.events;
 
-import it.polimi.ingsw.am14.controller.LobbyController;
-import it.polimi.ingsw.am14.exceptions.IllegalSetupException;
-import it.polimi.ingsw.am14.exceptions.WrongStateException;
-
 public class CreateGameClientRequest extends ClientRequest {
 
+    private static final String METHOD_NAME = "setup";
     private final String nickname;
     private final int numPlayers;
     private final String totemColor;
@@ -14,9 +11,5 @@ public class CreateGameClientRequest extends ClientRequest {
         this.nickname = nickname;
         this.numPlayers = numPlayers;
         this.totemColor = totemColor;
-    }
-
-    public void dispatchRequest(LobbyController controller) throws IllegalSetupException, WrongStateException {
-        controller.createGame(this.nickname, this.numPlayers, this.totemColor);
     }
 }
