@@ -6,5 +6,5 @@ public abstract class Event {
     // a brief description of the event, for logging purposes
     protected String description;
 
-    public abstract void effect(ClientModel model);
+    public void effect(ClientModel model){}
 }
