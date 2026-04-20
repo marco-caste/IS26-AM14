@@ -23,6 +23,8 @@ public abstract class Event {
     // a brief description of the event, for logging purposes
     protected String description;
 
+    public void effect(ClientModel model){}
+
     public Event(String description) {
         this.description = description;
     }
