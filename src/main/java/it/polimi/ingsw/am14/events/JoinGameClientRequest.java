@@ -4,13 +4,18 @@ import it.polimi.ingsw.am14.controller.LobbyController;
 import it.polimi.ingsw.am14.exceptions.IllegalGameIdException;
 import it.polimi.ingsw.am14.exceptions.WrongStateException;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class JoinGameClientRequest extends ClientRequest {
 
     private final String nickname;
-    private final int gameId;
     private final String totemColor;
+    private final int gameId;
 
-    public JoinGameClientRequest(String nickname, int gameId,String totemColor) {
+    public JoinGameClientRequest(
+            @JsonProperty("nickname") String nickname,
+            @JsonProperty("totemColor") String totemColor,
+            @JsonProperty("gameID") int gameId) {
         this.nickname = nickname;
         this.gameId = gameId;
         this.totemColor = totemColor;

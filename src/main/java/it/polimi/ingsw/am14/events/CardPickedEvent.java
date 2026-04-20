@@ -1,5 +1,7 @@
 package it.polimi.ingsw.am14.events;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import it.polimi.ingsw.am14.model.cards.Card;
 import it.polimi.ingsw.am14.model.gameLogic.Player;
 
@@ -16,7 +18,9 @@ public class CardPickedEvent extends UpdateEvent{
     int playerPrestigePoints;
     ArrayList<String> updatedTurnOrderCard;
 
+    // called by the model
     public CardPickedEvent(String playerNickname, Card card, int row, int playerFood, int playerPrestigePoints, Optional<ArrayList<Player>> updatedTurnOrderCard) {
+        super("");
         int ID = card == null ? -1 : card.getId();
 
         updatedTurnOrderCard.ifPresentOrElse(
@@ -53,5 +57,24 @@ public class CardPickedEvent extends UpdateEvent{
         this.playerFood = playerFood;
         this.playerPrestigePoints = playerPrestigePoints;
         this.description += "Player " + playerNickname + " has picked card with ID " + cardID + " from " + rowName;
+    }
+
+    // called by the JSON parser
+    @JsonCreator
+    public CardPickedEvent(
+            @JsonProperty("nickname") String playerNickname,
+            @JsonProperty("cardID") int cardID,
+            @JsonProperty("row") int row,
+            @JsonProperty("playerFood") int playerFood,
+            @JsonProperty("playerPrestigePoints") int playerPrestigePoints,
+            @JsonProperty("updatedTurnOrderCard") ArrayList<String> updatedTurnOrderCard,
+            @JsonProperty("description") String description){
+        super(description);
+        this.playerNickname = playerNickname;
+        this.cardID = cardID;
+        this.row = row;
+        this.playerFood = playerFood;
+        this.playerPrestigePoints = playerPrestigePoints;
+        this.updatedTurnOrderCard = updatedTurnOrderCard;
     }
 }

@@ -2,9 +2,11 @@ package it.polimi.ingsw.am14.model.boardComponents;
 
 import it.polimi.ingsw.am14.utils.CardManager;
 import it.polimi.ingsw.am14.model.cards.deckCards.*;
+import it.polimi.ingsw.am14.utils.JsonCodec;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class TribeDeck {
     private final Stack<DeckCard> deckableDeck;
@@ -23,14 +25,19 @@ public class TribeDeck {
     public TribeDeck(int numPlayers) {
         this.deckableDeck = new Stack<>();
         // reads values from JSON data file, puts DeckCards in the corresponding eras;
-        Map<Integer, ArrayList<DeckCard>> decks;
-        try{
-            decks = CardManager.buildDecksFromCardMap(CardManager.instantiateCardMap(CardManager.turnJsonIntoRawMap(numPlayers)));
-        } catch (IOException e) {
-            // the following lines are not tested;
-            e.printStackTrace();
-            return;
-        }
+        Map<Integer, ArrayList<DeckCard>> decks = new HashMap<>();
+
+        JsonCodec jsonCodec = new JsonCodec();
+
+        decks.put(1, jsonCodec.readDeckCards("resources/DeckCards.json", numPlayers).stream().
+                filter(c -> c.getAge() == 1).
+                collect(Collectors.toCollection(ArrayList::new)));
+        decks.put(2, jsonCodec.readDeckCards("resources/DeckCards.json", numPlayers).stream().
+                filter(c -> c.getAge() == 2).
+                collect(Collectors.toCollection(ArrayList::new)));
+        decks.put(3, jsonCodec.readDeckCards("resources/DeckCards.json", numPlayers).stream().
+                filter(c -> c.getAge() == 3).
+                collect(Collectors.toCollection(ArrayList::new)));
 
         // shuffles the decks separately:
         Collections.shuffle(decks.get(1));
