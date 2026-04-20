@@ -34,6 +34,7 @@ public class SocketClient {
 
     private void runVirtualServer() throws IOException {
         String line;
+
         while ((line = input.readLine()) != null) {
             Event event = jsonWriter.writeAsEvent(line);
             event.effect(this.model);
