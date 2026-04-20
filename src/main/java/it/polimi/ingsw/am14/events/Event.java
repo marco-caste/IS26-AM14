@@ -1,5 +1,7 @@
 package it.polimi.ingsw.am14.events;
 
+import it.polimi.ingsw.am14.view.ClientModel;
+
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
