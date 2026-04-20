@@ -1,5 +1,7 @@
 package it.polimi.ingsw.am14.model.cards.deckCards;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import it.polimi.ingsw.am14.model.cards.buildings.Building;
 import it.polimi.ingsw.am14.model.cards.buildings.visitors.ShamanBonusEventVisitor;
 import it.polimi.ingsw.am14.model.cards.buildings.visitors.ShamanMalusEventVisitor;
@@ -9,9 +11,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
- public class ShamanEvent extends EventCard {
+public class ShamanEvent extends EventCard {
 
-    public ShamanEvent(int age, int id) {
+    @JsonCreator
+    public ShamanEvent(
+            @JsonProperty("age") int age,
+            @JsonProperty("id") int id
+    ) {
         super(age, id);
     }
 

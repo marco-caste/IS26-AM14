@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am14.model.boardComponents;
 
+import it.polimi.ingsw.am14.utils.JsonCodec;
 import it.polimi.ingsw.am14.utils.TrackCardManager;
 
 import java.io.IOException;
@@ -17,16 +18,9 @@ public class OffersPath {
      * @param numPlayers between 2 and 5
      */
     public OffersPath(int numPlayers) {
-        Map<Character, TrackCard> map = null;
-        try{
-            map = TrackCardManager.turnJsonIntoTrackCardMap(numPlayers);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        finally{
-            offersPath = map;
-        }
+        JsonCodec jsonCodec = new JsonCodec();
 
+        this.offersPath = jsonCodec.readTrackCards("resources/trackCards.json", numPlayers);
     }
 
     /**

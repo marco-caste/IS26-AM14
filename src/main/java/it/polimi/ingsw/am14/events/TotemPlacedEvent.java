@@ -1,11 +1,8 @@
 package it.polimi.ingsw.am14.events;
 
-import it.polimi.ingsw.am14.model.gameLogic.Player;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 public class TotemPlacedEvent extends UpdateEvent{
 
@@ -16,9 +13,22 @@ public class TotemPlacedEvent extends UpdateEvent{
 
     // constructor
     public TotemPlacedEvent(String playerNickname, char trackCardName, int removedTotemPosition) {
+        super("");
         this.description = "Player " + playerNickname + " has placed their totem on track card " + trackCardName;
         this.playerNickname = playerNickname;
         this.trackCardName = trackCardName;
         this.removedTotemIndex = removedTotemPosition;
+    }
+
+    @JsonCreator
+    public TotemPlacedEvent(
+            @JsonProperty("description") String description,
+            @JsonProperty("nickname") String playerNickname,
+            @JsonProperty("trackCardName") char trackCardName,
+            @JsonProperty("removedTotemIdx") int removedTotemIndex) {
+        super(description);
+        this.playerNickname = playerNickname;
+        this.trackCardName = trackCardName;
+        this.removedTotemIndex = removedTotemIndex;
     }
 }

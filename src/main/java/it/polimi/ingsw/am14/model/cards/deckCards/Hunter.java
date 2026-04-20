@@ -1,5 +1,7 @@
 package it.polimi.ingsw.am14.model.cards.deckCards;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import it.polimi.ingsw.am14.model.gameLogic.Game;
 import it.polimi.ingsw.am14.model.gameLogic.Player;
 
@@ -7,7 +9,12 @@ public class Hunter extends CharacterCard{
 
     private final boolean hasHam;
 
-    public Hunter(int age, int id, boolean food) {
+    @JsonCreator
+    public Hunter(
+            @JsonProperty("age") int age,
+            @JsonProperty("id") int id,
+            @JsonProperty("hasHam") boolean food
+    ) {
         super(age, id);
         this.hasHam = food;
     }

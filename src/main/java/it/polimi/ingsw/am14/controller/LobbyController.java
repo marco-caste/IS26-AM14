@@ -127,6 +127,7 @@ public class LobbyController {
         gameController.onPlayerConnection(nickname, totemColor);
     }
 
+    // TODO: RENDERE COERENTE GAMEID
     public void joinGame(String nickname, int gameId, String totemColor) throws WrongStateException, IllegalGameIdException {
         getGameController(gameId).orElseThrow(() -> new IllegalGameIdException("Game with the specified ID does not exist"))
                 .onPlayerConnection(nickname, totemColor);

@@ -1,5 +1,5 @@
-{
-  "2": [
+[
+  [
     {
       "name": "B",
       "numPickTop": 0,
@@ -25,8 +25,7 @@
       "numFood": 0
     }
   ],
-
-  "3": [
+  [
     {
       "name": "D",
       "numPickTop": 0,
@@ -34,8 +33,7 @@
       "numFood": 0
     }
   ],
-
-  "4": [
+  [
     {
       "name": "G",
       "numPickTop": 1,
@@ -43,8 +41,7 @@
       "numFood": 0
     }
   ],
-
-  "5": [
+  [
     {
       "name": "A",
       "numPickTop": 0,
@@ -52,4 +49,4 @@
       "numFood": 3
     }
   ]
-}
+]

@@ -1,21 +1,45 @@
 package it.polimi.ingsw.am14.events;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import it.polimi.ingsw.am14.model.cards.Card;
+import it.polimi.ingsw.am14.model.gameLogic.Player;
+
+import java.util.ArrayList;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class CardPickedEvent extends UpdateEvent{
 
     String playerNickname;
     int cardID;
     int row;
+    int playerFood;
+    int playerPrestigePoints;
+    ArrayList<String> updatedTurnOrderCard;
 
-    public CardPickedEvent(String playerNickname, Card card, int row) {
+    // called by the model
+    public CardPickedEvent(String playerNickname, Card card, int row, int playerFood, int playerPrestigePoints, Optional<ArrayList<Player>> updatedTurnOrderCard) {
+        super("");
         int ID = card == null ? -1 : card.getId();
 
+        updatedTurnOrderCard.ifPresentOrElse(
+            (turnOrder) -> {
+                this.updatedTurnOrderCard = turnOrder.stream().
+                        map(Player::getNickname).
+                        collect(Collectors.toCollection(ArrayList::new));
+                this.description += "Was " + playerNickname + "'s last pick, turnOrderCard has been updated\n";
+            },
+            () -> this.updatedTurnOrderCard = null
+        );
+
         if (ID < 0) {
-            this.description = "Player " + playerNickname + " has skipped the turn";
+            this.description += "Player " + playerNickname + " has skipped the turn";
             this.playerNickname = playerNickname;
             this.cardID = -1;
             this.row = -1;
+            this.playerFood = playerFood;
+            this.playerPrestigePoints = playerPrestigePoints;
             return;
         }
 
@@ -30,6 +54,27 @@ public class CardPickedEvent extends UpdateEvent{
         this.playerNickname = playerNickname;
         this.cardID = ID;
         this.row = row;
-        this.description = "Player " + playerNickname + " has picked card with ID " + cardID + " from " + rowName;
+        this.playerFood = playerFood;
+        this.playerPrestigePoints = playerPrestigePoints;
+        this.description += "Player " + playerNickname + " has picked card with ID " + cardID + " from " + rowName;
+    }
+
+    // called by the JSON parser
+    @JsonCreator
+    public CardPickedEvent(
+            @JsonProperty("nickname") String playerNickname,
+            @JsonProperty("cardID") int cardID,
+            @JsonProperty("row") int row,
+            @JsonProperty("playerFood") int playerFood,
+            @JsonProperty("playerPrestigePoints") int playerPrestigePoints,
+            @JsonProperty("updatedTurnOrderCard") ArrayList<String> updatedTurnOrderCard,
+            @JsonProperty("description") String description){
+        super(description);
+        this.playerNickname = playerNickname;
+        this.cardID = cardID;
+        this.row = row;
+        this.playerFood = playerFood;
+        this.playerPrestigePoints = playerPrestigePoints;
+        this.updatedTurnOrderCard = updatedTurnOrderCard;
     }
 }
