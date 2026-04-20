@@ -19,6 +19,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
         @JsonSubTypes.Type(value = LoginSuccesfulEvent.class, name = "LoginSuccesfulEvent"),
         @JsonSubTypes.Type(value = PlayerReconnectedEvent.class, name = "PlayerReconnectedEvent"),
         @JsonSubTypes.Type(value = TotemPlacedEvent.class, name = "TotemPlacedEvent"),
+        @JsonSubTypes.Type(value = ExceptionEvent.class, name = "ExceptionEvent")
 })
 
 public abstract class Event {

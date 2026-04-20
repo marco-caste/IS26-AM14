@@ -9,7 +9,9 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ClientHandlersManager {
 
@@ -50,6 +52,7 @@ public class ClientHandlersManager {
     public void receiveRequest(ClientRequest request, SocketClientHandler sender){
         try {
             request.dispatchRequest(this.controller);
+            //TODO broadcast update to all clients: passare il game id nella creazione del clientrequest
         }
         catch (Exception e){
             sender.reportError(new ExceptionEvent(e.getMessage()));
