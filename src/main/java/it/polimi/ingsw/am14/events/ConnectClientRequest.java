@@ -1,5 +1,7 @@
 package it.polimi.ingsw.am14.events;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import it.polimi.ingsw.am14.controller.LobbyController;
 import it.polimi.ingsw.am14.exceptions.IllegalGameIdException;
 import it.polimi.ingsw.am14.exceptions.IllegalNicknameException;
@@ -9,7 +11,10 @@ public class ConnectClientRequest extends ClientRequest{
 
     private final String nickname;
 
-    public ConnectClientRequest(String nickname) {
+    @JsonCreator
+    public ConnectClientRequest(
+            @JsonProperty("nickname") String nickname) {
+        super("connect client request");
         this.nickname = nickname;
     }
 
