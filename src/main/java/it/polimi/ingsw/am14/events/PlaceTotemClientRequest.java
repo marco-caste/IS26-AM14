@@ -7,15 +7,13 @@ import it.polimi.ingsw.am14.exceptions.*;
 
 public class PlaceTotemClientRequest extends ClientRequest {
 
-    private final String nickname;
     private final char position;
 
     @JsonCreator
     public PlaceTotemClientRequest(
             @JsonProperty("nickname") String nickname,
             @JsonProperty("position") char position) {
-        super("place totem client request");
-        this.nickname = nickname;
+        super("place totem client request", nickname);
         this.position = position;
     }
 

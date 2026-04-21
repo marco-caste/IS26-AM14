@@ -332,7 +332,8 @@ class PickState extends GameState {
                 !wasLastPick ? Optional.empty() :
                 Optional.of(context.getBoard().getTurnOrderCard().getPlayerOrder());
 
-        ClientHandlersManager.broadcastUpdate(
+        // observer pattern: sends event to event buffer
+        context.notifyObservers(
                 new CardPickedEvent(
                         player.getNickname(),
                         card,

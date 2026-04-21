@@ -1,12 +1,16 @@
 package it.polimi.ingsw.am14.model.gameLogic;
 
+import it.polimi.ingsw.am14.Observable;
+import it.polimi.ingsw.am14.Observer;
+import it.polimi.ingsw.am14.VirtualView;
+import it.polimi.ingsw.am14.events.Event;
 import it.polimi.ingsw.am14.exceptions.*;
 import it.polimi.ingsw.am14.model.boardComponents.Board;
 import it.polimi.ingsw.am14.model.cards.Card;
 
 import java.util.*;
 
-public class Game {
+public class Game implements Observable {
     private GameState currentState;
     private final List<Player> players;
     private final Board board;
@@ -15,6 +19,8 @@ public class Game {
     private int currentRound;
     private int currentAge;
     private final String gameId;
+
+    private final List<Observer> observers = new ArrayList<>();
 
 
     /**
@@ -244,6 +250,32 @@ public class Game {
         return this.players.size();
     }
 
+    // OBSERVER PATTERN towards the network layer:
+    /**
+     * @param observer not null - the observer to add
+     */
+    @Override
+    public void addObserver(Observer observer) {
+        this.observers.add(observer);
+    }
+
+    /**
+     * @param observer not null - the observer to remove
+     */
+    @Override
+    public void removeObserver(Observer observer) {
+        this.observers.remove(observer);
+    }
+
+    /**
+     * @param event not null - the event to notify to observers
+     */
+    @Override
+    public void notifyObservers(Event event) {
+        for (Observer observer : observers) {
+            observer.update(event);
+        }
+    }
 }
 
 

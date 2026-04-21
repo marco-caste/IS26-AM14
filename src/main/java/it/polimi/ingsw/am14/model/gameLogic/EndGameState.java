@@ -84,7 +84,8 @@ class EndGameState extends GameState {
                     }
                 }).toList();
 
-        ClientHandlersManager.broadcastUpdate(
+        // observer pattern: sends event to event buffer
+        context.notifyObservers(
                 new EndGameEvent(context.getBoard(), ranking)
         );
 

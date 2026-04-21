@@ -8,7 +8,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class PickCardClientRequest extends ClientRequest {
 
-    private final String nickname;
     private final int cardId;
     private final int row;
 
@@ -17,8 +16,7 @@ public class PickCardClientRequest extends ClientRequest {
             @JsonProperty("nickname") String nickname,
             @JsonProperty("cardID") int cardId,
             @JsonProperty("row") int row) {
-        super("pick card client request");
-        this.nickname = nickname;
+        super("pick card client request", nickname);
         this.cardId = cardId;
         this.row = row;
     }

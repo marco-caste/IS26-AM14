@@ -50,12 +50,14 @@ class PositionState extends GameState {
         // increases the currentPlayerIndex
         context.incrementCurrentPlayerIndexBy(1);
 
-        // signals the views that player at position currentPlayerIdx has been removed from TurnOrderCard.
-        ClientHandlersManager.broadcastUpdate(new TotemPlacedEvent(
-                p.getNickname(),
-                trackCardName,
-                currentPlayerIdx
-        ));
+        // observer pattern: sends event to event buffer
+        context.notifyObservers(
+                new TotemPlacedEvent(
+                        p.getNickname(),
+                        trackCardName,
+                        currentPlayerIdx
+                )
+        );
 
         if (context.getCurrentPlayerIndex() > context.getNumPlayers() - 1) {
             this.nextState(context);

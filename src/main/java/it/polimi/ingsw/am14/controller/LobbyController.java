@@ -55,7 +55,7 @@ public class LobbyController {
         nicknameToGameId.remove(nickname);
     }
 
-    private Optional<Integer> getGameIdByNickname(String nickname) {
+    public Optional<Integer> getGameIdByNickname(String nickname) {
         return Optional.ofNullable(nicknameToGameId.get(nickname));
     }
 
@@ -127,7 +127,6 @@ public class LobbyController {
         gameController.onPlayerConnection(nickname, totemColor);
     }
 
-    // TODO: RENDERE COERENTE GAMEID
     public void joinGame(String nickname, int gameId, String totemColor) throws WrongStateException, IllegalGameIdException {
         getGameController(gameId).orElseThrow(() -> new IllegalGameIdException("Game with the specified ID does not exist"))
                 .onPlayerConnection(nickname, totemColor);

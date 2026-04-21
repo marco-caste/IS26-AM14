@@ -76,7 +76,8 @@ class EndRoundState extends GameState {
             currentBoard.pickBuildingAndAddToTop(context.getCurrentAge());
         }
 
-        ClientHandlersManager.broadcastUpdate(
+        // observer pattern: sends event to event buffer
+        context.notifyObservers(
                 new EndRoundEvent(context.getBoard(), context.getPlayers())
         );
 
