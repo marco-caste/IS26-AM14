@@ -43,6 +43,10 @@ public class ClientHandlersManager {
                 waitingClients.add(handler);
             }
 
+
+            // whenever a new client connects, two threads are created:
+            // one listens for the client's requests
+            // the other finds the correct time to flush the update queue to the client.
             new Thread(() -> {
                 try {
                     handler.runVirtualView();
@@ -50,6 +54,27 @@ public class ClientHandlersManager {
                     throw new RuntimeException(e);
                 }
             }).start();
+
+            new Thread(() -> {
+
+                while (true) {
+                    synchronized (handler.getEventBuffer()) {       // possibile?
+                        while (handler.getEventBuffer().isEmpty()) {
+                            try {
+                                handler.getEventBuffer().wait();    // lazy wait
+                            } catch (InterruptedException e) {}
+                        }
+                        List<Event> eventsToSend = handler.getEventBuffer().flushBuffer();
+                        for (Event event : eventsToSend) {
+                            handler.update(event);
+                        }
+                    }
+                    // must break at some point, e.g. when client disconnects.
+                }
+
+            }).start();
+
+            // TODO: thread that pings clients to check if they are still alive
         }
     }
 

@@ -42,6 +42,6 @@ public class NetworkLayer implements Observer{
      */
     @Override
     public void update(Event event) {
-        // will add the event to the buffers of the clients.
+        // will add the event to the buffers of the clients and then return.
     }
 }

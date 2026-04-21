@@ -1,4 +1,5 @@
 package it.polimi.ingsw.am14.socket.server;
+import it.polimi.ingsw.am14.EventBuffer;
 import it.polimi.ingsw.am14.events.ClientRequest;
 import it.polimi.ingsw.am14.events.Event;
 import it.polimi.ingsw.am14.events.ExceptionEvent;
@@ -13,6 +14,7 @@ public class SocketClientHandler implements VirtualClientSocket{
     final BufferedReader input;
     final PrintWriter output;
     private final JsonCodec jsonCodec = new JsonCodec();
+    private final EventBuffer eventBuffer = new EventBuffer();
 
     public SocketClientHandler(ClientHandlersManager server, BufferedReader input, PrintWriter output) {
         this.server = server;
@@ -40,5 +42,9 @@ public class SocketClientHandler implements VirtualClientSocket{
         String errorString = jsonCodec.writeEvent(error);
         output.println(errorString);
         output.flush();
+    }
+
+    public EventBuffer getEventBuffer() {
+        return eventBuffer;
     }
 }
