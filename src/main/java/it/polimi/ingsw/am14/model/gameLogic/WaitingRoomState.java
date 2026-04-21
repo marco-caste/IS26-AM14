@@ -16,12 +16,15 @@ class WaitingRoomState extends GameState {
             return;
         }
 
-        ClientHandlersManager.update(new JoinedGameEvent(
-                nickname,
-                game.getGameId(),
-                game.getBoard(),
-                game.getNumPlayers()
-        ));
+        // observer pattern: sends event to event buffer
+        game.notifyObservers(
+                new JoinedGameEvent(
+                        nickname,
+                        game.getGameId(),
+                        game.getBoard(),
+                        game.getNumPlayers()
+                )
+        );
 
     }
 
@@ -30,8 +33,11 @@ class WaitingRoomState extends GameState {
         context.setCurrentState(new PositionState());
         context.getBoard().getTurnOrderCard().setupPhaseTen();
 
-        ClientHandlersManager.update(new GameStartedEvent(
-                context.getBoard().getTurnOrderCard().getPlayerOrder()
-        ));
+        // observer pattern: sends event to event buffer
+        context.notifyObservers(
+                new GameStartedEvent(
+                        context.getBoard().getTurnOrderCard().getPlayerOrder()
+                )
+        );
     }
 }

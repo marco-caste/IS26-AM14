@@ -9,7 +9,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class JoinGameClientRequest extends ClientRequest {
 
-    private final String nickname;
     private final String totemColor;
     private final int gameId;
 
@@ -18,8 +17,7 @@ public class JoinGameClientRequest extends ClientRequest {
             @JsonProperty("nickname") String nickname,
             @JsonProperty("totemColor") String totemColor,
             @JsonProperty("gameID") int gameId) {
-        super("join game client request");
-        this.nickname = nickname;
+        super("join game client request", nickname);
         this.gameId = gameId;
         this.totemColor = totemColor;
     }

@@ -19,9 +19,16 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 public abstract class ClientRequest extends Event {
 
+    String nickname;
+
     public abstract void dispatchRequest(LobbyController controller) throws Exception;
 
-    public ClientRequest(String description) {
+    public ClientRequest(String description, String nickname) {
         super(description);
+        this.nickname = nickname;
+    }
+
+    public String getNickname() {
+        return nickname;
     }
 }

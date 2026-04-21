@@ -9,15 +9,14 @@ import it.polimi.ingsw.am14.exceptions.WrongStateException;
 
 public class ConnectClientRequest extends ClientRequest{
 
-    private final String nickname;
-
+    // mferr
     @JsonCreator
     public ConnectClientRequest(
             @JsonProperty("nickname") String nickname) {
-        super("connect client request");
-        this.nickname = nickname;
+        super("connect client request", nickname);
     }
 
+    // mferr
     @Override
     public void dispatchRequest(LobbyController controller) throws IllegalNicknameException, IllegalGameIdException, WrongStateException {
         controller.connectUser(this.nickname);
