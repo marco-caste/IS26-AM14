@@ -2,6 +2,7 @@ package it.polimi.ingsw.am14.model.gameLogic;
 
 import it.polimi.ingsw.am14.events.GameStartedEvent;
 import it.polimi.ingsw.am14.events.JoinedGameEvent;
+import it.polimi.ingsw.am14.socket.server.ClientHandlersManager;
 
 class WaitingRoomState extends GameState {
 
@@ -16,7 +17,7 @@ class WaitingRoomState extends GameState {
             return;
         }
 
-        ClientHandlersManager.update(new JoinedGameEvent(
+        ClientHandlersManager.broadcastUpdate(new JoinedGameEvent(
                 nickname,
                 game.getGameId(),
                 game.getBoard(),
@@ -30,7 +31,7 @@ class WaitingRoomState extends GameState {
         context.setCurrentState(new PositionState());
         context.getBoard().getTurnOrderCard().setupPhaseTen();
 
-        ClientHandlersManager.update(new GameStartedEvent(
+        ClientHandlersManager.broadcastUpdate(new GameStartedEvent(
                 context.getBoard().getTurnOrderCard().getPlayerOrder()
         ));
     }

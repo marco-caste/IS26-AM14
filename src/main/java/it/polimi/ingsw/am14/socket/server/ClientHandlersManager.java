@@ -17,13 +17,13 @@ public class ClientHandlersManager {
 
     private final ServerSocket listenSocket;
     private final LobbyController controller = new LobbyController();
-    private final List<SocketClientHandler> clients = new ArrayList<>();
+    private static final List<SocketClientHandler> clients = new ArrayList<>();
 
     public ClientHandlersManager(ServerSocket listenSocket) {
         this.listenSocket = listenSocket;
     }
 
-    private void runServer() throws IOException {
+    public void runServer() throws IOException {
         Socket clientSocket = null;
         while ((clientSocket = this.listenSocket.accept()) != null) {
             InputStreamReader socketRx = new InputStreamReader(clientSocket.getInputStream());
@@ -59,9 +59,9 @@ public class ClientHandlersManager {
         }
     }
 
-    public void broadcastUpdate(Event update) {
-        synchronized (this.clients) {
-            for (var client : this.clients) {
+    public static void broadcastUpdate(Event update) {
+        synchronized (clients) {
+            for (var client : clients) {
                 client.update(update);
             }
         }

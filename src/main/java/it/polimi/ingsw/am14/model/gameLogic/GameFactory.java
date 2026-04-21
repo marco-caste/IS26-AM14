@@ -22,7 +22,7 @@ public abstract class GameFactory {
             throw new IllegalSetupException("A game with that number of players is not possible");
         }
         // create gameObjects:
-        Game newGame = new Game(numPlayers, "Game" + gameIdCounter);
+        Game newGame = new Game(numPlayers, gameIdCounter);
         DeckCard d;
 
         Board currentBoard = newGame.getBoard();

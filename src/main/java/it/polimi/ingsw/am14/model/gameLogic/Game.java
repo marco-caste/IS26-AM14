@@ -14,7 +14,7 @@ public class Game {
     private final int numPlayers;
     private int currentRound;
     private int currentAge;
-    private final String gameId;
+    private final int gameId;
 
 
     /**
@@ -29,7 +29,7 @@ public class Game {
      * </p>
      * @param numPlayers between 2 and 5
      */
-    public Game(int numPlayers, String gameId) {
+    public Game(int numPlayers, int gameId) {
         this.gameId             = gameId;
         this.currentState       = new WaitingRoomState();
         this.players            = new ArrayList<>();
@@ -48,7 +48,7 @@ public class Game {
                    int numPlayers,
                    int currentRound,
                    int currentAge,
-                   String gameId) {
+                   int gameId) {
         this.currentState       = lastCurrentState;
         this.players            = lastPlayers;
         this.board              = lastBoard;
@@ -168,7 +168,7 @@ public class Game {
     public int getCurrentPlayerIndex() {
         return currentPlayerIndex;
     }
-    public String getGameId() {
+    public int getGameId() {
         return gameId;
     }
 

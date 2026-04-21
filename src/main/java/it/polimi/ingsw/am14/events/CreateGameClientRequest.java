@@ -16,6 +16,7 @@ public class CreateGameClientRequest extends ClientRequest {
             @JsonProperty("nickname") String nickname,
             @JsonProperty("numPlayers") int numPlayers,
             @JsonProperty("totemColor") String totemColor) {
+
         this.nickname = nickname;
         this.numPlayers = numPlayers;
         this.totemColor = totemColor;

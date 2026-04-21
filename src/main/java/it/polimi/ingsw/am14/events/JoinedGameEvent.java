@@ -17,12 +17,12 @@ public class JoinedGameEvent extends ServerEvent {
 
     // attributes
     private final String playerNickname;
-    private final String gameId;
+    private final int gameId;
     private final int turnOrderCardIndex;
     private final int numPlayers;
     private final ArrayList<ArrayList<Integer>> board;
 
-    public JoinedGameEvent(String playerNickname, String gameId, final Board initialBoard, int numPlayers) {
+    public JoinedGameEvent(String playerNickname, int gameId, final Board initialBoard, int numPlayers) {
         super("");
         this.playerNickname = playerNickname;
         this.gameId = gameId;
@@ -60,7 +60,7 @@ public class JoinedGameEvent extends ServerEvent {
     public JoinedGameEvent(
             @JsonProperty("description") String description,
             @JsonProperty("nickname") String playerNickname,
-            @JsonProperty("gameID") String gameId,
+            @JsonProperty("gameID") int gameId,
             @JsonProperty("turnOrderCard") int turnOrderCardIndex,
             @JsonProperty("numPlayers") int numPlayers,
             @JsonProperty("board") ArrayList<ArrayList<Integer>> board) {
