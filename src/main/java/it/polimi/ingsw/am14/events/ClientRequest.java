@@ -1,5 +1,7 @@
 package it.polimi.ingsw.am14.events;
 
+import it.polimi.ingsw.am14.controller.LobbyController;
+
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
@@ -16,6 +18,9 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 })
 
 public abstract class ClientRequest extends Event {
+
+    public abstract void dispatchRequest(LobbyController controller) throws Exception;
+
     public ClientRequest(String description) {
         super(description);
     }

@@ -1,5 +1,7 @@
 package it.polimi.ingsw.am14.events;
 
+import it.polimi.ingsw.am14.view.ClientModel;
+
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
@@ -17,11 +19,14 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
         @JsonSubTypes.Type(value = LoginSuccesfulEvent.class, name = "LoginSuccesfulEvent"),
         @JsonSubTypes.Type(value = PlayerReconnectedEvent.class, name = "PlayerReconnectedEvent"),
         @JsonSubTypes.Type(value = TotemPlacedEvent.class, name = "TotemPlacedEvent"),
+        @JsonSubTypes.Type(value = ExceptionEvent.class, name = "ExceptionEvent")
 })
 
 public abstract class Event {
     // a brief description of the event, for logging purposes
     protected String description;
+
+    public void effect(ClientModel model){}
 
     public Event(String description) {
         this.description = description;
