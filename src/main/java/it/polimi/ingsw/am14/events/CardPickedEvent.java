@@ -84,7 +84,7 @@ public class CardPickedEvent extends UpdateEvent{
 
     @Override
     public void effect(ClientModel model){
-        mù
+
     }
 
 

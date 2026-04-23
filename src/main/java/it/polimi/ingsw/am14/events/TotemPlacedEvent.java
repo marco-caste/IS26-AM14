@@ -35,7 +35,8 @@ public class TotemPlacedEvent extends UpdateEvent{
 
     @Override
     public void effect(it.polimi.ingsw.am14.view.ClientModel model) {
-        model.updateTotemPlacedEvent(description, playerNickname, trackCardName, removedTotemIndex);
+
+        model.notifyObservers();
     }
 
 }

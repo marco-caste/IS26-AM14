@@ -2,26 +2,22 @@ package it.polimi.ingsw.am14.view;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class ClientModel {
 
     List<ClientView> observers;
-    List<Integer> playerTribe;
-    Map<String, ArrayList<Integer>> playersAttributes;
-    String playerNickname;
+    ClientPlayer homePlayer;
+    ArrayList<ClientPlayer> otherPlayers;
     ArrayList<String> playerOrder;
-    ArrayList<ArrayList<Integer>> board;
+    ArrayList<ArrayList<Integer>> board;;
 
     int turnOrderCardIndex; // it's needed to build the right TurnorderCard in the view, it depends on this index.
     int gameId;
     int numPlayers; // it's needed to build the right offersPath in the View.
 
-
     public void registerObserver(ClientView view) {
         observers.add(view);
     }
-
 
     public void notifyObservers(){
         for(ClientView observer : observers){
@@ -29,25 +25,8 @@ public class ClientModel {
         }
     }
 
-
-
-
-
-    // setter
-    public void setPlayerNickname(String playerNickname) {
-        this.playerNickname = playerNickname;
-    }
-
-    public void setPlayerTribe(List<Integer> playerTribe) {
-        this.playerTribe = playerTribe;
-    }
-
     public void setPlayerOrder(ArrayList<String> playerOrder) {
         this.playerOrder = playerOrder;
-    }
-
-    public void setPlayersAttributes(Map<String, ArrayList<Integer>> playersAttributes) {
-        this.playersAttributes = playersAttributes;
     }
 
     public void setTurnOrderCardIndex(int turnOrderCardIndex) {
@@ -62,8 +41,39 @@ public class ClientModel {
         this.numPlayers = numPlayers;
     }
 
+    private ClientPlayer getPlayerByNickname(String nickname) {
+        if (homePlayer.getNickname().equals(nickname)) {
+            return homePlayer;
+        }
+        for (ClientPlayer player : otherPlayers) {
+            if (player.getNickname().equals(nickname)) {
+                return player;
+            }
+        }
+        return null;
+    }
 
+    public void updatePlayerFood(String nickname, int numFood) {
+        ClientPlayer player = getPlayerByNickname(nickname);
+        if (player != null) {
+            player.setNumFood(numFood);
+            notifyObservers();
+        }
+    }
 
+    public void updatePlayerPrestigePoints(String nickname, int numPrestigePoints) {
+        ClientPlayer player = getPlayerByNickname(nickname);
+        if (player != null) {
+            player.setNumPrestigePoints(numPrestigePoints);
+            notifyObservers();
+        }
+    }
 
-
+    public void addPlayerTribeElement(String nickname, Integer tribeElement) {
+        ClientPlayer player = getPlayerByNickname(nickname);
+        if (player != null) {
+            player.addToPlayerTribe(tribeElement);
+            notifyObservers();
+        }
+    }
 }
