@@ -2,6 +2,7 @@ package it.polimi.ingsw.am14.events;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import it.polimi.ingsw.am14.NetworkLayer;
 import it.polimi.ingsw.am14.model.boardComponents.Board;
 import it.polimi.ingsw.am14.model.cards.Card;
 import it.polimi.ingsw.am14.view.ClientModel;
@@ -88,4 +89,9 @@ public class JoinedGameEvent extends ServerEvent {
     Se il giocatore destinatario è il giocatore che si è appena unito, inizializza clientBoard
     altrimenti, aggiunge un nuovo nickName alla lista dei giocatori e inizializza i suoi attributi (numFood, numPrestigePoints) a 0.
      */
+
+    @Override
+    public void bufferize(NetworkLayer network) {
+        network.getClientBy(this.playerNickname).addToEventBuffer(this);
+    }
 }

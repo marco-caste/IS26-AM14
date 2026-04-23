@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am14.events;
 
+import it.polimi.ingsw.am14.NetworkLayer;
 import it.polimi.ingsw.am14.view.ClientModel;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
@@ -27,10 +28,13 @@ public abstract class Event {
     protected String description;
 
     public void effect(ClientModel model){}
+    // TODO: SOTTOCLASSI
 
     public Event(String description) {
         this.description = description;
     }
+
+    public void bufferize(NetworkLayer network) {}
 
     public String getDescription() {
         return description;

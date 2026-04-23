@@ -9,7 +9,6 @@ import it.polimi.ingsw.am14.exceptions.WrongStateException;
 
 public class CreateGameClientRequest extends ClientRequest {
 
-    private final String nickname;
     private final int numPlayers;
     private final String totemColor;
 
@@ -19,7 +18,6 @@ public class CreateGameClientRequest extends ClientRequest {
             @JsonProperty("numPlayers") int numPlayers,
             @JsonProperty("totemColor") String totemColor) {
         super("create game client request", nickname);
-        this.nickname = nickname;
         this.numPlayers = numPlayers;
         this.totemColor = totemColor;
     }

@@ -2,6 +2,7 @@ package it.polimi.ingsw.am14.events;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import it.polimi.ingsw.am14.NetworkLayer;
 import it.polimi.ingsw.am14.model.boardComponents.Board;
 import it.polimi.ingsw.am14.model.cards.Card;
 import it.polimi.ingsw.am14.model.gameLogic.Player;
@@ -23,8 +24,10 @@ public class EndRoundEvent extends UpdateEvent {
     // attributes
     private final ArrayList<ArrayList<Integer>> board;
     private final Map<String, ArrayList<Integer>> playersAttributes;          // pos0 = numFood, pos1 = numPrestigePoints
+    private int gameId; // only used for bufferization, will not be sent to the client
 
-    public EndRoundEvent(final Board board,final List<Player> players) {
+    public EndRoundEvent(final Board board,final List<Player> players, int gameId) {
+        this.gameId = gameId;
         super("");
 
         // board is updated for everyone
@@ -71,6 +74,14 @@ public class EndRoundEvent extends UpdateEvent {
         super(description);
         this.board = board;
         this.playersAttributes = playersAttributes;
+    }
+
+    public int getGameId() {
+        return gameId;
+    }
+
+    public void bufferize(NetworkLayer networkLayer) {
+        networkLayer.broadcastUpdate(this, gameId);
     }
 
     @Override

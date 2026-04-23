@@ -1,27 +1,30 @@
 package it.polimi.ingsw.am14.socket.server;
 
+import it.polimi.ingsw.am14.NetworkLayer;
 import it.polimi.ingsw.am14.controller.LobbyController;
 import it.polimi.ingsw.am14.events.ClientRequest;
 import it.polimi.ingsw.am14.events.Event;
 import it.polimi.ingsw.am14.events.ExceptionEvent;
-import it.polimi.ingsw.am14.exceptions.ModelException;
 
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ClientHandlersManager {
 
     private final ServerSocket listenSocket;
-    private final LobbyController controller = new LobbyController();
-    private static final List<SocketClientHandler> clients = new ArrayList<>();
+    private final LobbyController controller;
+    private final NetworkLayer networkLayer;
+
+    private final Set<SocketClientHandler> waitingClients;
 
     public ClientHandlersManager(ServerSocket listenSocket) {
         this.listenSocket = listenSocket;
+        this.waitingClients = new HashSet<>();
+        // TODO: COSTRUZIONE DA FARE NEL MAIN
+        this.networkLayer = new NetworkLayer();
+        this.controller = new LobbyController(networkLayer);
     }
 
     public void runServer() throws IOException {
@@ -36,10 +39,14 @@ public class ClientHandlersManager {
                     new PrintWriter(socketTx)
             );
 
-            synchronized(clients) {
-                clients.add(handler);
+            synchronized(this.waitingClients) {
+                waitingClients.add(handler);
             }
 
+
+            // whenever a new client connects, two threads are created:
+            // one listens for the client's requests
+            // the other finds the correct time to flush the update queue to the client.
             new Thread(() -> {
                 try {
                     handler.runVirtualView();
@@ -47,25 +54,54 @@ public class ClientHandlersManager {
                     throw new RuntimeException(e);
                 }
             }).start();
+
+            new Thread(() -> {
+
+                long lastPingTime = 0;
+
+                while (true) {
+                    synchronized (handler.getEventBuffer()) {
+                        while (handler.getEventBuffer().isEmpty()) {
+                            // TODO: ping verso il client per capire se è ancora connesso.
+//                            handler.update(
+//                                    new ServerPing("ping")
+//                            );
+
+                            try {
+                                handler.getEventBuffer().wait();    // lazy wait
+                            } catch (InterruptedException _) {}
+                        }
+                        List<Event> eventsToSend = handler.getEventBuffer().flushBuffer();
+                        for (Event event : eventsToSend) {
+                            handler.update(event);
+                        }
+//                        if (handler.hasDisconnected())
+//                            break;
+                    }
+                }
+
+            }).start();
         }
     }
 
     public void receiveRequest(ClientRequest request, SocketClientHandler sender){
         try {
+            // if sender is still in waiting room, the only possible request is to connect to the server (meaning: to declare a nickname).
+            if (waitingClients.contains(sender))
+                networkLayer.updateMap(request.getNickname(), sender);
+
             request.dispatchRequest(this.controller);
-            //TODO broadcast update to all clients: passare il game id nella creazione del clientrequest
+
+            this.controller.getGameIdByNickname(request.getNickname()).ifPresentOrElse(
+                    (id) -> {
+                        networkLayer.updateClients(id, sender);
+                        waitingClients.remove(sender);
+                    },
+                    () -> { }
+            );
         }
-        catch (Exception e) {
+        catch (Exception e){
             sender.reportError(new ExceptionEvent(e.getMessage()));
         }
     }
-
-    public static void broadcastUpdate(Event update) {
-        synchronized (clients) {
-            for (var client : clients) {
-                client.update(update);
-            }
-        }
-    }
-
 }

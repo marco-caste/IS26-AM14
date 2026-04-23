@@ -56,7 +56,8 @@ class PositionState extends GameState {
                 new TotemPlacedEvent(
                         p.getNickname(),
                         trackCardName,
-                        currentPlayerIdx
+                        currentPlayerIdx,
+                        context.getGameId()
                 )
         );
 

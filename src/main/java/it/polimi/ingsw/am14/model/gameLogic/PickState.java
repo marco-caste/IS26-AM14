@@ -343,7 +343,8 @@ class PickState extends GameState {
                         row,
                         player.getNumFood(),
                         player.getNumPrestigePoints(),
-                        currentTurnOrderCard
+                        currentTurnOrderCard,
+                        context.getGameId()
                 )
         );
     }
