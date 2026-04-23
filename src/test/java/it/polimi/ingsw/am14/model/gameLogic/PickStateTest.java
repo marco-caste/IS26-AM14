@@ -63,6 +63,7 @@ public class PickStateTest {
                 0,
                 2,
                 1,
+                1,
                 1
         );
 
@@ -699,7 +700,7 @@ public class PickStateTest {
         fixture.p1.getTribe().addBuilding(setBuilding);
 
         // Complete the set with all 6 character types
-        fixture.p1.getTribe().addInventor(new Inventor(1, 402, InventionType.FLUTE));
+        fixture.p1.getTribe().addInventor(new Inventor(1, 402, InventionType.FLUTE.toString()));
         fixture.p1.getTribe().addShaman(new Shaman(1, 403, 2));
         fixture.p1.getTribe().addGatherer(new Gatherer(1, 404, 1));
         fixture.p1.getTribe().addArtist(new Artist(1, 405));
@@ -896,6 +897,7 @@ public class PickStateTest {
                 board,
                 0,
                 3,
+                1,
                 1,
                 1
         );

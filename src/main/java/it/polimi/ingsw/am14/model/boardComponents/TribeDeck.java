@@ -20,7 +20,7 @@ public class TribeDeck {
      * </p>
      * @param numPlayers between 2 and 5, included
      */
-    public TribeDeck(int numPlayers) {
+    public TribeDeck(int numPlayers){
         this.deckableDeck = new Stack<>();
         // reads values from JSON data file, puts DeckCards in the corresponding eras;
         Map<Integer, ArrayList<DeckCard>> decks = new HashMap<>();

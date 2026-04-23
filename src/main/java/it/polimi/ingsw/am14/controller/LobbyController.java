@@ -82,7 +82,7 @@ public class LobbyController {
         }
         return players;
     }
-/*
+
     public void connectUser(String nickname) throws IllegalNicknameException, IllegalGameIdException, WrongStateException {
         if (isPlayerActive(nickname)) {
             throw new IllegalNicknameException("Nickname is already in use in an active game");
@@ -96,13 +96,13 @@ public class LobbyController {
                 activatePlayer(nickname);
                 //update(PlayerReconnectedEvent(X));
                 int gameId = getGameIdByNickname(nickname).orElseThrow();
-                if (!hasGameAController(gameId)) {
-                    //First person to connect to this game after the crash, need to set it up again
-                    //TODO: nuovo metodo di setup in GameFactory che si basa sul gameId?
-                    //Game game = GameFactory.setup(gameId);
-                    GameController gameController = new GameController(game);
-                    addGameController(game.getGameId(), gameController);
-                }
+//                if (!hasGameAController(gameId)) {
+//                    //First person to connect to this game after the crash, need to set it up again
+//                    //TODO: nuovo metodo di setup in GameFactory che si basa sul gameId?
+//                    //Game game = GameFactory.setup(gameId);
+//                    GameController gameController = new GameController(game);
+//                    addGameController(game.getGameId(), gameController);
+//                }
                 //TODO: nuovo stato di WaitingRoomAfterCrash in Game onPlayerConncetion?
                 //joinGame(nickname, gameId, null);
             }
@@ -113,7 +113,7 @@ public class LobbyController {
             }
         }
     }
-*/
+
     public void createGame(String nickname, int numPlayers, String totemColor) throws IllegalSetupException, WrongStateException {
         Game game = GameFactory.setup(numPlayers);
         GameController gameController = new GameController(game);
@@ -123,7 +123,7 @@ public class LobbyController {
     }
 
     // TODO: RENDERE COERENTE GAMEID
-    public void joinGame(String nickname, int gameId, String totemColor) throws WrongStateException, IllegalGameIdException {
+    public void joinGame(String nickname, int gameId, String totemColor) throws WrongStateException, IllegalGameIdException, IllegalArgumentException{
         getGameController(gameId).orElseThrow(() -> new IllegalGameIdException("Game with the specified ID does not exist"))
                 .onPlayerConnection(nickname, totemColor);
         assignPlayerToGame(nickname, gameId);

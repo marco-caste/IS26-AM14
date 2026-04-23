@@ -55,10 +55,10 @@ public class BuildingDeck {
 
         // pushes the shuffled cards in the Queue;
         for (int i = 1; i <= 3; i++) {      // cycles through ages 1 to 3
-            for (int j = 0; j < initialBuildings[numPlayers - 1][i - 1]; j++) {
+            for (int j = 0; j < initialBuildings[numPlayers - 2][i - 1]; j++) {
                 // initialBuildings[numPlayers - 1][i - 1] is the number of building cards
                 // given numPlayers, for the current era i;
-                this.buildingDecks.get(i).add(completeDecks.get(i).get(j));
+               this.buildingDecks.get(i).add(completeDecks.get(i).get(j));
             }
         }
     }

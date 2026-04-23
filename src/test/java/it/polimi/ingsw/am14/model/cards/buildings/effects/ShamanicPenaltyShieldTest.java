@@ -24,7 +24,7 @@ class ShamanicPenaltyShieldTest {
     @BeforeEach
     void setUp() {
         player = new Player("P1", TotemColor.WHITE);
-        game = new Game(null, new ArrayList<>(), new Board(2), 0, 2, 1, 1);
+        game = new Game(null, new ArrayList<>(), new Board(2), 0, 2, 1, 1,1);
         effect = new ShamanicPenaltyShield();
     }
 

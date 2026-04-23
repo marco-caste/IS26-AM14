@@ -4,6 +4,7 @@ import it.polimi.ingsw.am14.controller.LobbyController;
 import it.polimi.ingsw.am14.events.ClientRequest;
 import it.polimi.ingsw.am14.events.Event;
 import it.polimi.ingsw.am14.events.ExceptionEvent;
+import it.polimi.ingsw.am14.exceptions.ModelException;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -35,7 +36,7 @@ public class ClientHandlersManager {
                     new PrintWriter(socketTx)
             );
 
-            synchronized(this.clients) {
+            synchronized(clients) {
                 clients.add(handler);
             }
 
@@ -54,7 +55,7 @@ public class ClientHandlersManager {
             request.dispatchRequest(this.controller);
             //TODO broadcast update to all clients: passare il game id nella creazione del clientrequest
         }
-        catch (Exception e){
+        catch (Exception e) {
             sender.reportError(new ExceptionEvent(e.getMessage()));
         }
     }

@@ -25,7 +25,7 @@ class DoubleShamanicRewardTest {
     void setUp() {
         player = new Player("P1", TotemColor.WHITE);
         // Minimal game snapshot: for this effect we only need game.getBoard().getLastOtherEvent().
-        game = new Game(null, new ArrayList<>(), new Board(2), 0, 2, 1, 1);
+        game = new Game(null, new ArrayList<>(), new Board(2), 0, 2, 1, 1,1);
         effect = new DoubleShamanicReward();
     }
 

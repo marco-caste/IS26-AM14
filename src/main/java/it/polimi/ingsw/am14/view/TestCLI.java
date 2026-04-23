@@ -26,8 +26,8 @@ public class TestCLI {
             try {
                 String line;
                 while ((line = in.readLine()) != null) {
-                    Event e = codec.parseEvent(line); // come nel tuo client
-                    System.out.println("[EVENT] " + e.getClass().getSimpleName());
+                    Event e = codec.parseEvent(line);
+                    System.out.println("[EVENT] " + e.getDescription());
                     // opzionale: e.effect(modelDiTest);
                 }
             } catch (Exception ex) {
@@ -51,7 +51,7 @@ public class TestCLI {
 
         while (true) {
             System.out.print("> ");
-            String line = sc.nextLine().trim();
+            String line = sc.nextLine();//.trim();
             if (line.isEmpty()) continue;
             if (line.equalsIgnoreCase("quit")) break;
 
