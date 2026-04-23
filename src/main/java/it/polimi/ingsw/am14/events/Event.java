@@ -31,4 +31,8 @@ public abstract class Event {
     public Event(String description) {
         this.description = description;
     }
+
+    public String getDescription() {
+        return description;
+    }
 }

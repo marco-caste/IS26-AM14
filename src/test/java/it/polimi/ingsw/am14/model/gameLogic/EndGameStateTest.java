@@ -23,7 +23,7 @@ class EndGameStateTest {
 
     @BeforeEach
     void setUp() {
-        gameStub = new Game(2);
+        gameStub = new Game(2,1);
         endGameStateStub = new EndGameState();
         gameStub.setCurrentState(endGameStateStub);
 
@@ -88,9 +88,9 @@ class EndGameStateTest {
         p1.getTribe().addArtist(new Artist(1, 45));
         p1.getTribe().addArtist(new Artist(1, 46));
 
-        p1.getTribe().addInventor(new Inventor(1, 47, InventionType.BOAT));
-        p1.getTribe().addInventor(new Inventor(1, 48, InventionType.BOAT));
-        p1.getTribe().addInventor(new Inventor(1, 49, InventionType.LEATHER));
+        p1.getTribe().addInventor(new Inventor(1, 47, InventionType.BOAT.toString()));
+        p1.getTribe().addInventor(new Inventor(1, 48, InventionType.BOAT.toString()));
+        p1.getTribe().addInventor(new Inventor(1, 49, InventionType.LEATHER.toString()));
 
         endGameStateStub.endRound(gameStub);
 

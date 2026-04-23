@@ -2,6 +2,7 @@ package it.polimi.ingsw.am14.events;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import it.polimi.ingsw.am14.view.ClientModel;
 
 public class LoginSuccesfulEvent extends ServerEvent {
 
@@ -20,4 +21,12 @@ public class LoginSuccesfulEvent extends ServerEvent {
         super(description);
         this.playerNickname = playerNickname;
     }
+
+    // update Client Model
+    @Override
+    public void effect(ClientModel model) {
+        model.setPlayerNickname(playerNickname);
+        model.notifyObservers();
+    }
+
 }

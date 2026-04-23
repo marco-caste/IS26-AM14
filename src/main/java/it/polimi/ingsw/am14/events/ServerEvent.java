@@ -4,4 +4,5 @@ public abstract class ServerEvent extends Event{
     public ServerEvent(String description) {
         super(description);
     }
+
 }

@@ -9,7 +9,11 @@ class WaitingRoomState extends GameState {
     @Override
     protected void onPlayerConnection(Game game, String nickname, String totemColor) {
 
-        Player p = new Player(nickname, TotemColor.valueOf(totemColor));
+        TotemColor color = TotemColor.valueOf(totemColor.toUpperCase());
+        if(game.getPlayers().stream().map(Player::getTotemColor).anyMatch(color::equals)){
+            throw new IllegalArgumentException("Totem color already taken");
+        }
+        Player p = new Player(nickname,color);
         game.addPlayer(p);
         game.getBoard().getTurnOrderCard().addPlayer(p);
         if (game.playersSize() == game.getNumPlayers()) {

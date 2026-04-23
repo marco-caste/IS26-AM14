@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import it.polimi.ingsw.am14.model.boardComponents.Board;
 import it.polimi.ingsw.am14.model.cards.Card;
 import it.polimi.ingsw.am14.model.gameLogic.Player;
+import it.polimi.ingsw.am14.view.ClientModel;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -70,6 +71,11 @@ public class EndRoundEvent extends UpdateEvent {
         super(description);
         this.board = board;
         this.playersAttributes = playersAttributes;
+    }
+
+    @Override
+    public void effect(ClientModel model) {
+        model.setPlayerT
     }
 
     /*

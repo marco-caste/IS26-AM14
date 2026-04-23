@@ -13,6 +13,7 @@ public class SocketClientHandler implements VirtualClientSocket{
     final BufferedReader input;
     final PrintWriter output;
     private final JsonCodec jsonCodec = new JsonCodec();
+    private final String clientNikcname;
 
     public SocketClientHandler(ClientHandlersManager server, BufferedReader input, PrintWriter output) {
         this.server = server;
@@ -31,9 +32,9 @@ public class SocketClientHandler implements VirtualClientSocket{
 
     @Override
     public void update(Event update){
-         String updateString = jsonCodec.writeEvent(update);
-         output.println(updateString);
-         output.flush();
+        String updateString = jsonCodec.writeEvent(update);
+        output.println(updateString);
+        output.flush();
     }
     @Override
     public void reportError(ExceptionEvent error){

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import it.polimi.ingsw.am14.model.cards.Card;
 import it.polimi.ingsw.am14.model.gameLogic.Player;
+import it.polimi.ingsw.am14.view.ClientModel;
 
 import java.util.ArrayList;
 import java.util.Optional;
@@ -77,4 +78,15 @@ public class CardPickedEvent extends UpdateEvent{
         this.playerPrestigePoints = playerPrestigePoints;
         this.updatedTurnOrderCard = updatedTurnOrderCard;
     }
+
+
+    // method effect to update the client model
+
+    @Override
+    public void effect(ClientModel model){
+        mù
+    }
+
+
+
 }

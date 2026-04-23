@@ -8,7 +8,7 @@ import java.net.ServerSocket;
 public class ServerMain {
     public static final int port = 12345;
 
-    public static void main() {
+    public static void main(String[] args) {
         try (ServerSocket serverSocket = new ServerSocket(port)) {
             ClientHandlersManager manager = new ClientHandlersManager(serverSocket);
             manager.runServer();

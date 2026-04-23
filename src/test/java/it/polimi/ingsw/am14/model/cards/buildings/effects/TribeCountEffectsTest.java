@@ -34,8 +34,8 @@ class TribeCountEffectsTest {
 
         player.getTribe().addBuilder(new Builder(1, 8, 1, 2));
 
-        player.getTribe().addInventor(new Inventor(1, 9, InventionType.ARROW));
-        player.getTribe().addInventor(new Inventor(1, 10, InventionType.BOAT));
+        player.getTribe().addInventor(new Inventor(1, 9, InventionType.ARROW.toString()));
+        player.getTribe().addInventor(new Inventor(1, 10, InventionType.BOAT.toString()));
 
         player.getTribe().addShaman(new Shaman(1, 11, 1));
         player.getTribe().addShaman(new Shaman(1, 12, 1));

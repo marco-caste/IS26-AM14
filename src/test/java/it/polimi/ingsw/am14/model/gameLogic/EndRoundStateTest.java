@@ -20,7 +20,7 @@ class EndRoundStateTest {
 
     @BeforeEach
     void setUp() {
-        gameStub = new Game(2);
+        gameStub = new Game(2, 1);
         endRoundStateStub = new EndRoundState();
         gameStub.setCurrentState(endRoundStateStub);
 

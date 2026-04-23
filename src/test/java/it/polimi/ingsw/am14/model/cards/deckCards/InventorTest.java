@@ -21,16 +21,16 @@ class InventorTest {
 
     @BeforeEach
     void setUp() {
-        inventor = new Inventor(2, 50, InventionType.LEATHER);
+        inventor = new Inventor(2, 50, InventionType.LEATHER.toString());
         player = new Player("TestPlayer", TotemColor.RED);
-        game = new Game(2);
+        game = new Game(2,1);
         InventorPairFood inventorBuilding = new InventorPairFood();
         inventorsBuilding = new InventorsBuilding(10, 5, 2, 2, inventorBuilding);
     }
 
     @Test
     void constructorInitializesAllAttributes() {
-        Inventor inv = new Inventor(1, 100, InventionType.BOAT);
+        Inventor inv = new Inventor(1, 100, InventionType.BOAT.toString());
         assertEquals(1, inv.getAge());
         assertEquals(100, inv.getId());
         assertEquals(InventionType.BOAT, inv.getInvention());
@@ -53,9 +53,9 @@ class InventorTest {
     @Test
     void setupPhaseFourMultipleInventors() {
         Board board = new Board(2);
-        Inventor inv1 = new Inventor(1, 1, InventionType.BOAT);
-        Inventor inv2 = new Inventor(2, 2, InventionType.ARROW);
-        Inventor inv3 = new Inventor(3, 3, InventionType.ROPE);
+        Inventor inv1 = new Inventor(1, 1, InventionType.BOAT.toString());
+        Inventor inv2 = new Inventor(2, 2, InventionType.ARROW .toString());
+        Inventor inv3 = new Inventor(3, 3, InventionType.ROPE.toString());
 
         assertEquals(1, inv1.setupPhaseFour(board));
         assertEquals(1, inv2.setupPhaseFour(board));
@@ -83,14 +83,14 @@ class InventorTest {
     @Test
     void applyEffectWithMatchingInventorAndBuilding() {
         // Add a matching inventor to the tribe
-        Inventor leatherInventor = new Inventor(2, 1, InventionType.LEATHER);
+        Inventor leatherInventor = new Inventor(2, 1, InventionType.LEATHER.toString());
         player.getTribe().addInventor(leatherInventor);
 
         // Add an InventorsBuilding
         player.getTribe().addBuilding(inventorsBuilding);
 
         // Apply effect with a matching inventor (checkInventorPairBuilding is called)
-        Inventor secondLeatherInventor = new Inventor(2, 3, InventionType.LEATHER);
+        Inventor secondLeatherInventor = new Inventor(2, 3, InventionType.LEATHER.toString());
         secondLeatherInventor.applyEffect(player, game);
 
         // Inventor should be added to tribe
@@ -103,9 +103,9 @@ class InventorTest {
 
     @Test
     void applyEffectMultipleInventors() {
-        Inventor inv1 = new Inventor(2, 1, InventionType.LEATHER);
-        Inventor inv2 = new Inventor(2, 2, InventionType.BOAT);
-        Inventor inv3 = new Inventor(2, 3, InventionType.ARROW);
+        Inventor inv1 = new Inventor(2, 1, InventionType.LEATHER.toString());
+        Inventor inv2 = new Inventor(2, 2, InventionType.BOAT.toString());
+        Inventor inv3 = new Inventor(2, 3, InventionType.ARROW.toString());
 
         inv1.applyEffect(player, game);
         inv2.applyEffect(player, game);
@@ -120,14 +120,14 @@ class InventorTest {
     @Test
     void applyEffectWithMultipleMatchingInventorsAndBuildings() {
         // Add multiple inventors of the same type
-        Inventor inv1 = new Inventor(2, 1, InventionType.LEATHER);
-        Inventor inv2 = new Inventor(2, 2, InventionType.BOAT);
+        Inventor inv1 = new Inventor(2, 1, InventionType.LEATHER.toString());
+        Inventor inv2 = new Inventor(2, 2, InventionType.BOAT.toString());
         player.getTribe().addInventor(inv1);
         player.getTribe().addInventor(inv2);
         player.getTribe().addBuilding(inventorsBuilding);
 
         // Apply effect with a matching inventor (triggers checkInventorPairBuilding)
-        Inventor inv3 = new Inventor(2, 5, InventionType.LEATHER);
+        Inventor inv3 = new Inventor(2, 5, InventionType.LEATHER.toString());
 
         inv3.applyEffect(player, game);
 
@@ -141,7 +141,7 @@ class InventorTest {
         player.getTribe().addBuilding(inventorsBuilding);
 
         // Apply effect with an inventor that doesn't match any existing one
-        Inventor leatherInventor = new Inventor(2, 2, InventionType.LEATHER);
+        Inventor leatherInventor = new Inventor(2, 2, InventionType.LEATHER.toString());
         leatherInventor.applyEffect(player, game);
 
         // Inventor should be added anyway
@@ -174,8 +174,8 @@ class InventorTest {
         Player player1 = new Player("Player1", TotemColor.RED);
         Player player2 = new Player("Player2", TotemColor.BLUE);
 
-        Inventor inv1 = new Inventor(2, 1, InventionType.LEATHER);
-        Inventor inv2 = new Inventor(2, 2, InventionType.BOAT);
+        Inventor inv1 = new Inventor(2, 1, InventionType.LEATHER.toString());
+        Inventor inv2 = new Inventor(2, 2, InventionType.BOAT.toString());
 
         inv1.applyEffect(player1, game);
         inv2.applyEffect(player2, game);
@@ -189,7 +189,7 @@ class InventorTest {
     @Test
     void allInventionTypesSupported() {
         for (InventionType type : InventionType.values()) {
-            Inventor inv = new Inventor(2, 1, type);
+            Inventor inv = new Inventor(2, 1, type.toString());
             assertEquals(type, inv.getInvention());
             assertTrue(inv.isPickable(player));
             inv.applyEffect(player, game);
@@ -221,7 +221,7 @@ class InventorTest {
         assertEquals(0, board.getBottomDeckableRow().size());
 
         // Step 6: Create another inventor and verify independence
-        Inventor inv2 = new Inventor(3, 100, InventionType.BOAT);
+        Inventor inv2 = new Inventor(3, 100, InventionType.BOAT.toString());
         assertEquals(3, inv2.getAge());
         assertEquals(100, inv2.getId());
         assertTrue(inv2.isPickable(player));

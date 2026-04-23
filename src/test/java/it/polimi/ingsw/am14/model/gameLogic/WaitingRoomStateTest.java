@@ -33,7 +33,7 @@ public class WaitingRoomStateTest {
                 new ArrayList<EventCard>()
         );
 
-        return new Game(new WaitingRoomState(), new ArrayList<>(), board, 0, numPlayers, 1, 1);
+        return new Game(new WaitingRoomState(), new ArrayList<>(), board, 0, numPlayers, 1, 1,1);
     }
 
     @Test

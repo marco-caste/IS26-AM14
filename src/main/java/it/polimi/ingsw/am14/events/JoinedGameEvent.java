@@ -4,8 +4,10 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import it.polimi.ingsw.am14.model.boardComponents.Board;
 import it.polimi.ingsw.am14.model.cards.Card;
+import it.polimi.ingsw.am14.view.ClientModel;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.stream.Collectors;
 
 public class JoinedGameEvent extends ServerEvent {
@@ -31,28 +33,27 @@ public class JoinedGameEvent extends ServerEvent {
         this.numPlayers = numPlayers;
         // the offersPath will be built by the View using numPlayers.
 
-        this.board = new ArrayList<>();
-        this.board.set(TOP_DECKABLE_ROW,
+        this.board = new ArrayList<>(4);
+        this.board.add(TOP_DECKABLE_ROW,
                 initialBoard.getTopDeckableRow().stream()
                         .map(Card::getId)
                         .collect(Collectors.toCollection(ArrayList::new))
         );
-        this.board.set(TOP_BUILDING_ROW,
+        this.board.add(TOP_BUILDING_ROW,
                 initialBoard.getTopBuildingRow().stream()
                         .map(Card::getId)
                         .collect(Collectors.toCollection(ArrayList::new))
         );
-        this.board.set(BOTTOM_DECKABLE_ROW,
+        this.board.add(BOTTOM_DECKABLE_ROW,
                 initialBoard.getBottomDeckableRow().stream()
                         .map(Card::getId)
                         .collect(Collectors.toCollection(ArrayList::new))
         );
-        this.board.set(BOTTOM_BUILDING_ROW,
-                initialBoard.getBottomDeckableRow().stream()
+        this.board.add(BOTTOM_BUILDING_ROW,
+                initialBoard.getBottomBuildingRow().stream()
                         .map(Card::getId)
                         .collect(Collectors.toCollection(ArrayList::new))
         );
-
         this.description = "Player \"" + playerNickname + "\" has joined game [" + gameId + "].";
     }
 
@@ -72,6 +73,15 @@ public class JoinedGameEvent extends ServerEvent {
         this.board = board;
     }
 
+
+    @Override
+    public void effect(ClientModel model) {
+        model.setPlayerNickname(playerNickname);
+        model.setGameId(gameId);
+        model.setTurnOrderCardIndex(turnOrderCardIndex);
+        model.setNumPlayers(numPlayers);
+
+    }
     /*
     HOW TO USE:
 

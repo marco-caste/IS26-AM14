@@ -31,4 +31,11 @@ public class TotemPlacedEvent extends UpdateEvent{
         this.trackCardName = trackCardName;
         this.removedTotemIndex = removedTotemIndex;
     }
+
+
+    @Override
+    public void effect(it.polimi.ingsw.am14.view.ClientModel model) {
+        model.updateTotemPlacedEvent(description, playerNickname, trackCardName, removedTotemIndex);
+    }
+
 }
