@@ -2,18 +2,22 @@ package it.polimi.ingsw.am14.view;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class ClientModel {
 
     List<ClientView> observers;
     ClientPlayer homePlayer;
     ArrayList<ClientPlayer> otherPlayers;
-    ArrayList<String> playerOrder;
+    ArrayList<String> playerOrderInTurnOrderCard;
     ArrayList<ArrayList<Integer>> board;;
 
     int turnOrderCardIndex; // it's needed to build the right TurnorderCard in the view, it depends on this index.
     int gameId;
     int numPlayers; // it's needed to build the right offersPath in the View.
+    String message;
+
+
 
     public void registerObserver(ClientView view) {
         observers.add(view);
@@ -25,8 +29,13 @@ public class ClientModel {
         }
     }
 
-    public void setPlayerOrder(ArrayList<String> playerOrder) {
-        this.playerOrder = playerOrder;
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public void setPlayerOrderInTurnOrderCard(ArrayList<String> playerOrderInTurnOrderCard) {
+        this.playerOrderInTurnOrderCard = playerOrderInTurnOrderCard;
     }
 
     public void setTurnOrderCardIndex(int turnOrderCardIndex) {
@@ -40,6 +49,7 @@ public class ClientModel {
     public void setNumPlayers(int numPlayers) {
         this.numPlayers = numPlayers;
     }
+
 
     private ClientPlayer getPlayerByNickname(String nickname) {
         if (homePlayer.getNickname().equals(nickname)) {
@@ -57,23 +67,64 @@ public class ClientModel {
         ClientPlayer player = getPlayerByNickname(nickname);
         if (player != null) {
             player.setNumFood(numFood);
-            notifyObservers();
         }
     }
+
 
     public void updatePlayerPrestigePoints(String nickname, int numPrestigePoints) {
         ClientPlayer player = getPlayerByNickname(nickname);
         if (player != null) {
             player.setNumPrestigePoints(numPrestigePoints);
+        }
+    }
+
+    public void updateHomePlayerNickname(String nickname) {
+        homePlayer.setTotemColor(nickname);
+    }
+
+
+
+    public void updatePlayerPosition(String nickname, char playerPosition) {
+        ClientPlayer player = getPlayerByNickname(nickname);
+        if (player != null) {
+            player.setPlayerPosition(playerPosition);
             notifyObservers();
         }
     }
 
-    public void addPlayerTribeElement(String nickname, Integer tribeElement) {
+
+     public void updatePlayerTribe(String nickname,int CardID ) {
         ClientPlayer player = getPlayerByNickname(nickname);
         if (player != null) {
-            player.addToPlayerTribe(tribeElement);
-            notifyObservers();
+            player.addToPlayerTribe(CardID);
         }
     }
+
+    public void removePickedCardFromBoard(int row, int cardID){
+        board.get(row).remove(cardID);
+    }
+
+
+
+     public void setBoard(ArrayList<ArrayList<Integer>> board) {
+        this.board = board;
+    }
+
+
+    public void updatePlayerRoundAttributes(Map<String, ArrayList<Integer>> playersAttributes) {
+        for (String playerNickname : playersAttributes.keySet()) {
+            ArrayList<Integer> attributes = playersAttributes.get(playerNickname);
+            updatePlayerFood(playerNickname, attributes.get(0));
+            updatePlayerPrestigePoints(playerNickname, attributes.get(1));
+        }
+    }
+
+
+
+
+
+
+
+
+
 }

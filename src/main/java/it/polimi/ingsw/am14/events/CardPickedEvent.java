@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class CardPickedEvent extends UpdateEvent{
+public class CardPickedEvent extends UpdateEvent {
 
     String playerNickname;
     int cardID;
@@ -25,13 +25,13 @@ public class CardPickedEvent extends UpdateEvent{
         int ID = card == null ? -1 : card.getId();
 
         updatedTurnOrderCard.ifPresentOrElse(
-            (turnOrder) -> {
-                this.updatedTurnOrderCard = turnOrder.stream().
-                        map(Player::getNickname).
-                        collect(Collectors.toCollection(ArrayList::new));
-                this.description += "Was " + playerNickname + "'s last pick, turnOrderCard has been updated\n";
-            },
-            () -> this.updatedTurnOrderCard = null
+                (turnOrder) -> {
+                    this.updatedTurnOrderCard = turnOrder.stream().
+                            map(Player::getNickname).
+                            collect(Collectors.toCollection(ArrayList::new));
+                    this.description += "Was " + playerNickname + "'s last pick, turnOrderCard has been updated\n";
+                },
+                () -> this.updatedTurnOrderCard = null
         );
 
         if (ID < 0) {
@@ -69,7 +69,7 @@ public class CardPickedEvent extends UpdateEvent{
             @JsonProperty("playerFood") int playerFood,
             @JsonProperty("playerPrestigePoints") int playerPrestigePoints,
             @JsonProperty("updatedTurnOrderCard") ArrayList<String> updatedTurnOrderCard,
-            @JsonProperty("description") String description){
+            @JsonProperty("description") String description) {
         super(description);
         this.playerNickname = playerNickname;
         this.cardID = cardID;
@@ -83,10 +83,13 @@ public class CardPickedEvent extends UpdateEvent{
     // method effect to update the client model
 
     @Override
-    public void effect(ClientModel model){
-
+    public void effect(ClientModel model) {
+        model.updatePlayerTribe(playerNickname, cardID);
+        model.removePickedCardFromBoard(row, cardID);
+        model.updatePlayerFood(playerNickname, playerFood);
+        model.updatePlayerPrestigePoints(playerNickname, playerPrestigePoints);
+        model.setPlayerOrderInTurnOrderCard(updatedTurnOrderCard);
     }
-
 
 
 }

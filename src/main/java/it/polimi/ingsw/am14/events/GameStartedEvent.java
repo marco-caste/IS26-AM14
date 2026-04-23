@@ -34,7 +34,7 @@ public class GameStartedEvent extends ServerEvent {
 
     @Override
     public void effect(ClientModel model) {
-        model.setPlayerOrder(playerOrder);
+        model.setPlayerOrderInTurnOrderCard(playerOrder);
         model.
         model.notifyObservers();
     }

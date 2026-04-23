@@ -76,12 +76,16 @@ public class JoinedGameEvent extends ServerEvent {
 
     @Override
     public void effect(ClientModel model) {
-        model.setPlayerNickname(playerNickname);
+        model.updateHomePlayerNickname(playerNickname);
         model.setGameId(gameId);
         model.setTurnOrderCardIndex(turnOrderCardIndex);
         model.setNumPlayers(numPlayers);
+        model.setBoard(board);
 
+        model.notifyObservers(); // we notify the player view
     }
+
+
     /*
     HOW TO USE:
 

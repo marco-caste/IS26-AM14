@@ -27,8 +27,14 @@ public class EndGameEvent extends UpdateEvent {
 
     @Override
     public void effect(ClientModel model) {
-        endRoundEvent.effect(model);
-        model.updateEndGameEvent(description);
+        model.setBoard(endRoundEvent.getBoard());
+        model.updatePlayerRoundAttributes(endRoundEvent.getPlayerAttributes());
+        model.setMessage(description);
+        model.notifyObservers();
     }
+
+
+
+
 
 }

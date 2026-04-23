@@ -75,8 +75,28 @@ public class EndRoundEvent extends UpdateEvent {
 
     @Override
     public void effect(ClientModel model) {
-        model.setPlayerT
+        model.setBoard(board);
+        model.updatePlayerRoundAttributes(playersAttributes);
+        model.setMessage(description);
+        model.notifyObservers();
     }
+
+
+    //getter
+    public ArrayList<ArrayList<Integer>>  getBoard() {
+        return board;
+    }
+
+    public String getMessage(){
+        return description;
+    }
+
+    public Map<String,ArrayList<Integer>> getPlayerAttributes()  {
+        return playersAttributes;
+    }
+
+
+
 
     /*
     HOW TO USE:
