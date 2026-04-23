@@ -8,8 +8,12 @@ public class ClientPlayer {
     private String totemColor;
     private int numFood;
     private int numPrestigePoints;
-    private char playerPosition;
+    private Character playerPosition;
     private List<Integer> playerTribe = new ArrayList<Integer>();
+
+    public ClientPlayer(String nickname) {
+        this.nickname = nickname;
+    }
 
     public void setNickname(String nickname) {
         this.nickname = nickname;
@@ -27,7 +31,7 @@ public class ClientPlayer {
         this.numPrestigePoints = numPrestigePoints;
     }
 
-    public void setPlayerPosition(char playerPosition) {
+    public void setPlayerPosition(Character playerPosition) {
         this.playerPosition = playerPosition;
     }
 
@@ -51,7 +55,7 @@ public class ClientPlayer {
         return numPrestigePoints;
     }
 
-    public char getPlayerPosition() {
+    public Character getPlayerPosition() {
         return playerPosition;
     }
 

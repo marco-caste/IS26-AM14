@@ -8,7 +8,7 @@ public class ClientModel {
 
     List<ClientView> observers;
     ClientPlayer homePlayer;
-    ArrayList<ClientPlayer> otherPlayers;
+    ArrayList<ClientPlayer> otherPlayers =  new ArrayList<>();
     ArrayList<String> playerOrderInTurnOrderCard;
     ArrayList<ArrayList<Integer>> board;;
 
@@ -50,8 +50,15 @@ public class ClientModel {
         this.numPlayers = numPlayers;
     }
 
+    public void setHomePlayer(ClientPlayer homePlayer) {
+        this.homePlayer = homePlayer;
+    }
 
-    private ClientPlayer getPlayerByNickname(String nickname) {
+    public void setOtherPlayers(ArrayList<ClientPlayer> otherPlayers) {
+        this.otherPlayers = otherPlayers;
+    }
+
+    public ClientPlayer getPlayerByNickname(String nickname) {
         if (homePlayer.getNickname().equals(nickname)) {
             return homePlayer;
         }
@@ -63,13 +70,19 @@ public class ClientModel {
         return null;
     }
 
+    public void updatePlayerPosition(String nickname, Character playerPosition) {
+        ClientPlayer player = getPlayerByNickname(nickname);
+        if (player != null) {
+            player.setPlayerPosition(playerPosition);
+        }
+    }
+
     public void updatePlayerFood(String nickname, int numFood) {
         ClientPlayer player = getPlayerByNickname(nickname);
         if (player != null) {
             player.setNumFood(numFood);
         }
     }
-
 
     public void updatePlayerPrestigePoints(String nickname, int numPrestigePoints) {
         ClientPlayer player = getPlayerByNickname(nickname);
@@ -78,22 +91,7 @@ public class ClientModel {
         }
     }
 
-    public void updateHomePlayerNickname(String nickname) {
-        homePlayer.setTotemColor(nickname);
-    }
-
-
-
-    public void updatePlayerPosition(String nickname, char playerPosition) {
-        ClientPlayer player = getPlayerByNickname(nickname);
-        if (player != null) {
-            player.setPlayerPosition(playerPosition);
-            notifyObservers();
-        }
-    }
-
-
-     public void updatePlayerTribe(String nickname,int CardID ) {
+    public void updatePlayerTribe(String nickname,int CardID ) {
         ClientPlayer player = getPlayerByNickname(nickname);
         if (player != null) {
             player.addToPlayerTribe(CardID);
@@ -104,12 +102,13 @@ public class ClientModel {
         board.get(row).remove(cardID);
     }
 
-
+    public void addPlayer(ClientPlayer player) {
+        otherPlayers.add(player);
+    }
 
      public void setBoard(ArrayList<ArrayList<Integer>> board) {
         this.board = board;
     }
-
 
     public void updatePlayerRoundAttributes(Map<String, ArrayList<Integer>> playersAttributes) {
         for (String playerNickname : playersAttributes.keySet()) {
@@ -118,13 +117,4 @@ public class ClientModel {
             updatePlayerPrestigePoints(playerNickname, attributes.get(1));
         }
     }
-
-
-
-
-
-
-
-
-
 }
