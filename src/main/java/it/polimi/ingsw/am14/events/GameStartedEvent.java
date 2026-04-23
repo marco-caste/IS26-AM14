@@ -36,6 +36,7 @@ public class GameStartedEvent extends ServerEvent {
 
     @Override
     public void effect(ClientModel model) {
+        model.setMessage(description);
         int[] initialFood = {2, 3, 3, 4, 4};
         ClientPlayer player;
         model.setPlayerOrderInTurnOrderCard(playerOrder);

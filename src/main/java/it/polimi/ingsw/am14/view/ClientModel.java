@@ -6,6 +6,7 @@ import java.util.Map;
 
 public class ClientModel {
 
+    //TODO: Serve replicare la macchina a stati? Come gestiamo i vari turni? aggiungiamo agli eventi qualcosa?
     List<ClientView> observers;
     ClientPlayer homePlayer;
     ArrayList<ClientPlayer> otherPlayers =  new ArrayList<>();
@@ -17,8 +18,7 @@ public class ClientModel {
     int numPlayers; // it's needed to build the right offersPath in the View.
     String message;
 
-
-
+    //Observer methods
     public void registerObserver(ClientView view) {
         observers.add(view);
     }
@@ -29,7 +29,7 @@ public class ClientModel {
         }
     }
 
-
+    //setters
     public void setMessage(String message) {
         this.message = message;
     }
@@ -116,5 +116,10 @@ public class ClientModel {
             updatePlayerFood(playerNickname, attributes.get(0));
             updatePlayerPrestigePoints(playerNickname, attributes.get(1));
         }
+    }
+
+    //We put null if the player choose the position because if we remove we move all the other totem upwards
+    public void removePlayerFromTurnOrderCard(int index) {
+        this.playerOrderInTurnOrderCard.set(index, null);
     }
 }

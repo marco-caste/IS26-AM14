@@ -84,13 +84,14 @@ public class CardPickedEvent extends UpdateEvent {
 
     @Override
     public void effect(ClientModel model) {
-        model.updatePlayerTribe(playerNickname, cardID);
-        model.removePickedCardFromBoard(row, cardID);
-        model.updatePlayerFood(playerNickname, playerFood);
-        model.updatePlayerPrestigePoints(playerNickname, playerPrestigePoints);
+        model.setMessage(description);
+        if (cardID != -1) {
+            model.updatePlayerTribe(playerNickname, cardID);
+            model.removePickedCardFromBoard(row, cardID);
+            model.updatePlayerFood(playerNickname, playerFood);
+            model.updatePlayerPrestigePoints(playerNickname, playerPrestigePoints);
+        }
         model.setPlayerOrderInTurnOrderCard(updatedTurnOrderCard);
         model.notifyObservers();
     }
-
-
 }

@@ -32,9 +32,4 @@ public class EndGameEvent extends UpdateEvent {
         model.setMessage(description);
         model.notifyObservers();
     }
-
-
-
-
-
 }
