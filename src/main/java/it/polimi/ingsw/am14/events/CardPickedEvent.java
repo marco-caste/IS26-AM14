@@ -2,6 +2,7 @@ package it.polimi.ingsw.am14.events;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import it.polimi.ingsw.am14.NetworkLayer;
 import it.polimi.ingsw.am14.model.cards.Card;
 import it.polimi.ingsw.am14.model.gameLogic.Player;
 
@@ -11,15 +12,16 @@ import java.util.stream.Collectors;
 
 public class CardPickedEvent extends UpdateEvent{
 
-    String playerNickname;
-    int cardID;
-    int row;
-    int playerFood;
-    int playerPrestigePoints;
-    ArrayList<String> updatedTurnOrderCard;
+    private String playerNickname;
+    private int cardID;
+    private int row;
+    private int playerFood;
+    private int playerPrestigePoints;
+    private ArrayList<String> updatedTurnOrderCard;
+    private int gameId; // only used for bufferization, will not be sent to the client
 
     // called by the model
-    public CardPickedEvent(String playerNickname, Card card, int row, int playerFood, int playerPrestigePoints, Optional<ArrayList<Player>> updatedTurnOrderCard) {
+    public CardPickedEvent(String playerNickname, Card card, int row, int playerFood, int playerPrestigePoints, Optional<ArrayList<Player>> updatedTurnOrderCard, int gameId) {
         super("");
         int ID = card == null ? -1 : card.getId();
 
@@ -56,6 +58,7 @@ public class CardPickedEvent extends UpdateEvent{
         this.row = row;
         this.playerFood = playerFood;
         this.playerPrestigePoints = playerPrestigePoints;
+        this.gameId = gameId;
         this.description += "Player " + playerNickname + " has picked card with ID " + cardID + " from " + rowName;
     }
 
@@ -76,5 +79,9 @@ public class CardPickedEvent extends UpdateEvent{
         this.playerFood = playerFood;
         this.playerPrestigePoints = playerPrestigePoints;
         this.updatedTurnOrderCard = updatedTurnOrderCard;
+    }
+
+    public void bufferize(NetworkLayer networkLayer) {
+        networkLayer.broadcastUpdate(this, gameId);
     }
 }

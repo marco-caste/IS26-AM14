@@ -1,5 +1,7 @@
 package it.polimi.ingsw.am14.utils;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -45,6 +47,7 @@ public class JsonCodec implements Codec {
     @Override
     public ClientRequest parseClientRequest(String input) {
         ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
 
         try {
             return objectMapper.readValue(input, new TypeReference<ClientRequest>(){});

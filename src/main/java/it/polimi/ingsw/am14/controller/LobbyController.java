@@ -111,6 +111,7 @@ public class LobbyController {
                 addPlayerToLobby(nickname);
                 //update(PlayerConnectedEvent(X));
             }
+            // TODO: LOGIN SUCCESFUL EVENT
         }
     }
 

@@ -44,6 +44,14 @@ public class SocketClientHandler implements VirtualClientSocket{
         output.flush();
     }
 
+    /**
+     * @param event not null - the event to add to the buffer of the client
+     */
+    @Override
+    public void addToEventBuffer(Event event) {
+        this.eventBuffer.addEvent(event);
+    }
+
     public EventBuffer getEventBuffer() {
         return eventBuffer;
     }

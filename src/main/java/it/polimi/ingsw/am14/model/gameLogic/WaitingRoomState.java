@@ -11,10 +11,6 @@ class WaitingRoomState extends GameState {
         Player p = new Player(nickname, TotemColor.valueOf(totemColor));
         game.addPlayer(p);
         game.getBoard().getTurnOrderCard().addPlayer(p);
-        if (game.playersSize() == game.getNumPlayers()) {
-            this.nextState(game);
-            return;
-        }
 
         // observer pattern: sends event to event buffer
         game.notifyObservers(
@@ -26,6 +22,10 @@ class WaitingRoomState extends GameState {
                 )
         );
 
+        if (game.playersSize() == game.getNumPlayers()) {
+            this.nextState(game);
+        }
+
     }
 
     @Override
@@ -36,7 +36,8 @@ class WaitingRoomState extends GameState {
         // observer pattern: sends event to event buffer
         context.notifyObservers(
                 new GameStartedEvent(
-                        context.getBoard().getTurnOrderCard().getPlayerOrder()
+                        context.getBoard().getTurnOrderCard().getPlayerOrder(),
+                        context.getGameId()
                 )
         );
     }

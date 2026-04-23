@@ -86,7 +86,7 @@ class EndGameState extends GameState {
 
         // observer pattern: sends event to event buffer
         context.notifyObservers(
-                new EndGameEvent(context.getBoard(), ranking)
+                new EndGameEvent(context.getBoard(), ranking, context.getGameId())
         );
 
         // at the end, we will display a ranking of players, in the form of

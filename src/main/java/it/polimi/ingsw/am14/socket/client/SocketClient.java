@@ -42,5 +42,4 @@ public class SocketClient {
             event.effect(this.model);
         }
     }
-
 }

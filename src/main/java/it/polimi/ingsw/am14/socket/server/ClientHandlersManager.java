@@ -5,6 +5,7 @@ import it.polimi.ingsw.am14.controller.LobbyController;
 import it.polimi.ingsw.am14.events.ClientRequest;
 import it.polimi.ingsw.am14.events.Event;
 import it.polimi.ingsw.am14.events.ExceptionEvent;
+import it.polimi.ingsw.am14.events.ServerPing;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -17,13 +18,11 @@ public class ClientHandlersManager {
     private final LobbyController controller = new LobbyController();
     private final NetworkLayer networkLayer;
 
-    private final Map<Integer, Set<SocketClientHandler>> gameIdToClients;
     private final Set<SocketClientHandler> waitingClients;
 
     public ClientHandlersManager(ServerSocket listenSocket) {
         this.listenSocket = listenSocket;
         this.waitingClients = new HashSet<>();
-        this.gameIdToClients = new HashMap<>();
         this.networkLayer = new NetworkLayer();
     }
 
@@ -57,32 +56,44 @@ public class ClientHandlersManager {
 
             new Thread(() -> {
 
+                long lastPingTime = 0;
+
                 while (true) {
-                    synchronized (handler.getEventBuffer()) {       // possibile?
+                    synchronized (handler) {
                         while (handler.getEventBuffer().isEmpty()) {
+                            // TODO: ping verso il client per capire se è ancora connesso.
+                            handler.update(
+                                    new ServerPing("ping")
+                            );
+
                             try {
-                                handler.getEventBuffer().wait();    // lazy wait
-                            } catch (InterruptedException e) {}
+                                handler.wait();    // lazy wait
+                            } catch (InterruptedException _) {}
                         }
                         List<Event> eventsToSend = handler.getEventBuffer().flushBuffer();
                         for (Event event : eventsToSend) {
                             handler.update(event);
                         }
+//                        if (handler.hasDisconnected())
+//                            break;
                     }
-                    // must break at some point, e.g. when client disconnects.
                 }
 
             }).start();
-
-            // TODO: thread that pings clients to check if they are still alive
         }
     }
 
-    public void receiveRequest(ClientRequest request, SocketClientHandler sender){
+    public void receiveRequest(ClientRequest request, SocketClientHandler sender) {
         try {
             request.dispatchRequest(this.controller);
-            int gameId = this.controller.getGameIdByNickname(request.getNickname()).get();
-            networkLayer.updateMap(gameId, sender);
+            int gameId = 0;
+            try {
+                gameId = this.controller.getGameIdByNickname(request.getNickname()).get();
+            } catch (NoSuchElementException e) {
+                throw new RuntimeException("[ClientHandlersManager] Nickname not found in any game");
+            }
+            networkLayer.updateMap(gameId, sender, request.getNickname());
+            waitingClients.remove(sender);
         }
         catch (Exception e){
             sender.reportError(new ExceptionEvent(e.getMessage()));

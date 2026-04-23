@@ -2,6 +2,7 @@ package it.polimi.ingsw.am14.events;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import it.polimi.ingsw.am14.NetworkLayer;
 import it.polimi.ingsw.am14.model.boardComponents.Board;
 import it.polimi.ingsw.am14.model.cards.Card;
 
@@ -17,12 +18,13 @@ public class JoinedGameEvent extends ServerEvent {
 
     // attributes
     private final String playerNickname;
-    private final String gameId;
+    // TODO: totemColor
+    private final int gameId;
     private final int turnOrderCardIndex;
     private final int numPlayers;
     private final ArrayList<ArrayList<Integer>> board;
 
-    public JoinedGameEvent(String playerNickname, String gameId, final Board initialBoard, int numPlayers) {
+    public JoinedGameEvent(String playerNickname, int gameId, final Board initialBoard, int numPlayers) {
         super("");
         this.playerNickname = playerNickname;
         this.gameId = gameId;
@@ -60,7 +62,7 @@ public class JoinedGameEvent extends ServerEvent {
     public JoinedGameEvent(
             @JsonProperty("description") String description,
             @JsonProperty("nickname") String playerNickname,
-            @JsonProperty("gameID") String gameId,
+            @JsonProperty("gameID") int gameId,
             @JsonProperty("turnOrderCard") int turnOrderCardIndex,
             @JsonProperty("numPlayers") int numPlayers,
             @JsonProperty("board") ArrayList<ArrayList<Integer>> board) {
@@ -79,4 +81,9 @@ public class JoinedGameEvent extends ServerEvent {
     Se il giocatore destinatario è il giocatore che si è appena unito, inizializza clientBoard
     altrimenti, aggiunge un nuovo nickName alla lista dei giocatori e inizializza i suoi attributi (numFood, numPrestigePoints) a 0.
      */
+
+    @Override
+    public void bufferize(NetworkLayer network) {
+        network.getClientBy(this.playerNickname).addToEventBuffer(this);
+    }
 }
