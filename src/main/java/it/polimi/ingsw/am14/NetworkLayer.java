@@ -1,7 +1,6 @@
 package it.polimi.ingsw.am14;
 
 import it.polimi.ingsw.am14.events.Event;
-import it.polimi.ingsw.am14.socket.server.SocketClientHandler;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,13 +24,16 @@ public class NetworkLayer implements Observer{
         }
     }
 
-    public void updateMap(int gameId, SocketClientHandler client, String nickname) {
+    public void updateClients(int gameId, VirtualView client) {
         synchronized (this.clients) {
             if (!this.clients.containsKey(gameId)) {
                 this.clients.put(gameId, new java.util.HashSet<>());
             }
             this.clients.get(gameId).add(client);
         }
+    }
+
+    public void updateMap(String nickname, VirtualView client) {
         synchronized (this.nicknameToClient) {
             this.nicknameToClient.put(nickname, client);
         }

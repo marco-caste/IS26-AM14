@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am14.controller;
 
+import it.polimi.ingsw.am14.NetworkLayer;
 import it.polimi.ingsw.am14.exceptions.*;
 import it.polimi.ingsw.am14.model.gameLogic.Game;
 import it.polimi.ingsw.am14.model.gameLogic.GameFactory;
@@ -14,14 +15,16 @@ public class LobbyController {
     private final Map<Integer, GameController> gameIdToGameController;
     private final Map<String, Integer> nicknameToGameId;
     private final Set<String> activeNicknames;
+    private final NetworkLayer networkLayer;
     //TODO: quando andremo a salvare questi dati salveremo solo nicknameToGameId,
     //      mentre gli altri no, perchè i nickname non saranno attivi e i controller
     //      si ricreano solo se si riconnettono gli user della partita crashata
 
-    public LobbyController() {
+    public LobbyController(NetworkLayer networkLayer) {
         this.gameIdToGameController = new HashMap<>();
         this.nicknameToGameId = new HashMap<>();
         this.activeNicknames = new HashSet<>();
+        this.networkLayer = networkLayer;
     }
 
     private void addGameController(int gameId, GameController gameController) {
@@ -109,6 +112,7 @@ public class LobbyController {
             else {
                 //Player is connecting for the first time, add to lobby
                 addPlayerToLobby(nickname);
+
                 //update(PlayerConnectedEvent(X));
             }
             // TODO: LOGIN SUCCESFUL EVENT
@@ -117,6 +121,7 @@ public class LobbyController {
 
     public void createGame(String nickname, int numPlayers, String totemColor) throws IllegalSetupException, WrongStateException {
         Game game = GameFactory.setup(numPlayers);
+        game.addObserver(networkLayer);
         GameController gameController = new GameController(game);
         addGameController(game.getGameId(), gameController);
         assignPlayerToGame(nickname, game.getGameId());

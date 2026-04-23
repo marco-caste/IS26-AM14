@@ -13,6 +13,7 @@ public class EventBuffer {
 
     public synchronized void addEvent(Event event) {
         this.buffer.addLast(event);
+        notify();
     }
 
     public synchronized List<Event> flushBuffer() {

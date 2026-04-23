@@ -5,7 +5,6 @@ import it.polimi.ingsw.am14.controller.LobbyController;
 import it.polimi.ingsw.am14.events.ClientRequest;
 import it.polimi.ingsw.am14.events.Event;
 import it.polimi.ingsw.am14.events.ExceptionEvent;
-import it.polimi.ingsw.am14.events.ServerPing;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -15,7 +14,7 @@ import java.util.*;
 public class ClientHandlersManager {
 
     private final ServerSocket listenSocket;
-    private final LobbyController controller = new LobbyController();
+    private final LobbyController controller;
     private final NetworkLayer networkLayer;
 
     private final Set<SocketClientHandler> waitingClients;
@@ -23,7 +22,9 @@ public class ClientHandlersManager {
     public ClientHandlersManager(ServerSocket listenSocket) {
         this.listenSocket = listenSocket;
         this.waitingClients = new HashSet<>();
+        // TODO: COSTRUZIONE DA FARE NEL MAIN
         this.networkLayer = new NetworkLayer();
+        this.controller = new LobbyController(networkLayer);
     }
 
     public void runServer() throws IOException {
@@ -59,15 +60,15 @@ public class ClientHandlersManager {
                 long lastPingTime = 0;
 
                 while (true) {
-                    synchronized (handler) {
+                    synchronized (handler.getEventBuffer()) {
                         while (handler.getEventBuffer().isEmpty()) {
                             // TODO: ping verso il client per capire se è ancora connesso.
-                            handler.update(
-                                    new ServerPing("ping")
-                            );
+//                            handler.update(
+//                                    new ServerPing("ping")
+//                            );
 
                             try {
-                                handler.wait();    // lazy wait
+                                handler.getEventBuffer().wait();    // lazy wait
                             } catch (InterruptedException _) {}
                         }
                         List<Event> eventsToSend = handler.getEventBuffer().flushBuffer();
@@ -85,15 +86,19 @@ public class ClientHandlersManager {
 
     public void receiveRequest(ClientRequest request, SocketClientHandler sender){
         try {
+            // if sender is still in waiting room, the only possible request is to connect to the server (meaning: to declare a nickname).
+            if (waitingClients.contains(sender))
+                networkLayer.updateMap(request.getNickname(), sender);
+
             request.dispatchRequest(this.controller);
-            int gameId = 0;
-            try {
-                gameId = this.controller.getGameIdByNickname(request.getNickname()).get();
-            } catch (NoSuchElementException e) {
-                throw new RuntimeException("[ClientHandlersManager] Nickname not found in any game");
-            }
-            networkLayer.updateMap(gameId, sender, request.getNickname());
-            waitingClients.remove(sender);
+
+            this.controller.getGameIdByNickname(request.getNickname()).ifPresentOrElse(
+                    (id) -> {
+                        networkLayer.updateClients(id, sender);
+                        waitingClients.remove(sender);
+                    },
+                    () -> { }
+            );
         }
         catch (Exception e){
             sender.reportError(new ExceptionEvent(e.getMessage()));
