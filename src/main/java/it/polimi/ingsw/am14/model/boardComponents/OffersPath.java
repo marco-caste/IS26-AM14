@@ -1,9 +1,7 @@
 package it.polimi.ingsw.am14.model.boardComponents;
 
 import it.polimi.ingsw.am14.utils.JsonCodec;
-import it.polimi.ingsw.am14.utils.TrackCardManager;
 
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;

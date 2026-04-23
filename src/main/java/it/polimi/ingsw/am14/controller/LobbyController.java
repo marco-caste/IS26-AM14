@@ -88,7 +88,7 @@ public class LobbyController {
         }
         return players;
     }
-
+/*
     public void connectUser(String nickname) throws IllegalNicknameException, IllegalGameIdException, WrongStateException {
         synchronized (activeNicknames) {
             if (isPlayerActive(nickname)) {
@@ -118,7 +118,7 @@ public class LobbyController {
             }
         }
     }
-
+*/
     public void createGame(String nickname, int numPlayers, String totemColor) throws IllegalSetupException, WrongStateException {
         Game game = GameFactory.setup(numPlayers);
         GameController gameController = new GameController(game);

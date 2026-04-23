@@ -1,6 +1,5 @@
 package it.polimi.ingsw.am14.socket.server;
 
-import it.polimi.ingsw.am14.NetworkLayer;
 import it.polimi.ingsw.am14.controller.LobbyController;
 import it.polimi.ingsw.am14.events.ClientRequest;
 import it.polimi.ingsw.am14.events.Event;
@@ -9,25 +8,22 @@ import it.polimi.ingsw.am14.events.ExceptionEvent;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ClientHandlersManager {
 
     private final ServerSocket listenSocket;
     private final LobbyController controller = new LobbyController();
-    private final NetworkLayer networkLayer;
-
-    private final Map<Integer, Set<SocketClientHandler>> gameIdToClients;
-    private final Set<SocketClientHandler> waitingClients;
+    private static final List<SocketClientHandler> clients = new ArrayList<>();
 
     public ClientHandlersManager(ServerSocket listenSocket) {
         this.listenSocket = listenSocket;
-        this.waitingClients = new HashSet<>();
-        this.gameIdToClients = new HashMap<>();
-        this.networkLayer = new NetworkLayer();
     }
 
-    private void runServer() throws IOException {
+    public void runServer() throws IOException {
         Socket clientSocket = null;
         while ((clientSocket = this.listenSocket.accept()) != null) {
             InputStreamReader socketRx = new InputStreamReader(clientSocket.getInputStream());
@@ -39,8 +35,8 @@ public class ClientHandlersManager {
                     new PrintWriter(socketTx)
             );
 
-            synchronized(this.waitingClients) {
-                waitingClients.add(handler);
+            synchronized(this.clients) {
+                clients.add(handler);
             }
 
             new Thread(() -> {
@@ -56,11 +52,19 @@ public class ClientHandlersManager {
     public void receiveRequest(ClientRequest request, SocketClientHandler sender){
         try {
             request.dispatchRequest(this.controller);
-            int gameId = this.controller.getGameIdByNickname(request.getNickname()).get();
-            networkLayer.updateMap(gameId, sender);
+            //TODO broadcast update to all clients: passare il game id nella creazione del clientrequest
         }
         catch (Exception e){
             sender.reportError(new ExceptionEvent(e.getMessage()));
         }
     }
+
+    public static void broadcastUpdate(Event update) {
+        synchronized (clients) {
+            for (var client : clients) {
+                client.update(update);
+            }
+        }
+    }
+
 }

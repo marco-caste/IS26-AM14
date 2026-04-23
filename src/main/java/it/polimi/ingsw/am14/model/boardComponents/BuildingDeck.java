@@ -1,11 +1,9 @@
 package it.polimi.ingsw.am14.model.boardComponents;
 
 
-import it.polimi.ingsw.am14.utils.BuildingManager;
 import it.polimi.ingsw.am14.model.cards.buildings.Building;
 import it.polimi.ingsw.am14.utils.JsonCodec;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 

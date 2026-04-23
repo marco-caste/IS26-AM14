@@ -18,7 +18,7 @@ public class Game implements Observable {
     private final int numPlayers;
     private int currentRound;
     private int currentAge;
-    private final String gameId;
+    private final int gameId;
 
     private final List<Observer> observers = new ArrayList<>();
 
@@ -35,7 +35,7 @@ public class Game implements Observable {
      * </p>
      * @param numPlayers between 2 and 5
      */
-    public Game(int numPlayers, String gameId) {
+    public Game(int numPlayers, int gameId) {
         this.gameId             = gameId;
         this.currentState       = new WaitingRoomState();
         this.players            = new ArrayList<>();
@@ -54,7 +54,7 @@ public class Game implements Observable {
                    int numPlayers,
                    int currentRound,
                    int currentAge,
-                   String gameId) {
+                   int gameId) {
         this.currentState       = lastCurrentState;
         this.players            = lastPlayers;
         this.board              = lastBoard;
@@ -174,7 +174,7 @@ public class Game implements Observable {
     public int getCurrentPlayerIndex() {
         return currentPlayerIndex;
     }
-    public String getGameId() {
+    public int getGameId() {
         return gameId;
     }
 

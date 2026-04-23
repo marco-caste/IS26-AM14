@@ -2,7 +2,6 @@ package it.polimi.ingsw.am14.utils;
 
 import it.polimi.ingsw.am14.model.cards.buildings.Building;
 import it.polimi.ingsw.am14.model.cards.buildings.types.*;
-import it.polimi.ingsw.am14.utils.BuildingManager;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.InvocationTargetException;

@@ -1,10 +1,8 @@
 package it.polimi.ingsw.am14.model.boardComponents;
 
-import it.polimi.ingsw.am14.utils.CardManager;
 import it.polimi.ingsw.am14.model.cards.deckCards.*;
 import it.polimi.ingsw.am14.utils.JsonCodec;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
