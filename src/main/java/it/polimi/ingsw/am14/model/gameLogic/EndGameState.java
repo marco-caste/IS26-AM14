@@ -11,6 +11,8 @@ import it.polimi.ingsw.am14.model.cards.deckCards.Inventor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import it.polimi.ingsw.am14.socket.*;
+import it.polimi.ingsw.am14.socket.server.ClientHandlersManager;
 
 class EndGameState extends GameState {
 

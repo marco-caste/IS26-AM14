@@ -17,13 +17,13 @@ public class SocketClient {
     private final JsonCodec jsonWriter = new JsonCodec();
 
 
-    protected SocketClient(BufferedReader input, BufferedWriter output, ClientModel model) {
+    public SocketClient(BufferedReader input, BufferedWriter output, ClientModel model) {
         this.input = input;
         this.output = new SocketServerHandler(output);
         this.model = model;
     }
 
-    private void run() {
+    public void run() {
         new Thread(() -> {
             try {
                 runVirtualServer();

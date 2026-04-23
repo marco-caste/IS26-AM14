@@ -33,9 +33,9 @@ public class SocketClientHandler implements VirtualClientSocket{
 
     @Override
     public void update(Event update){
-         String updateString = jsonCodec.writeEvent(update);
-         output.println(updateString);
-         output.flush();
+        String updateString = jsonCodec.writeEvent(update);
+        output.println(updateString);
+        output.flush();
     }
     @Override
     public void reportError(ExceptionEvent error){

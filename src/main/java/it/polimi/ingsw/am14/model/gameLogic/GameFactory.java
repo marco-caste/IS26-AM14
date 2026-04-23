@@ -19,10 +19,10 @@ public abstract class GameFactory {
     public static Game setup(int numPlayers) throws IllegalSetupException {
 
         if (numPlayers > 5 || numPlayers < 2) {
-            throw new IllegalSetupException("A game with that number of players is not possible");
+            throw new IllegalSetupException("[GameFactory] A game with that number of players [" + numPlayers + "] is not possible");
         }
         // create gameObjects:
-        Game newGame = new Game(numPlayers, "Game" + gameIdCounter);
+        Game newGame = new Game(numPlayers, gameIdCounter);
         DeckCard d;
 
         Board currentBoard = newGame.getBoard();

@@ -1,10 +1,8 @@
 package it.polimi.ingsw.am14.model.boardComponents;
 
-import it.polimi.ingsw.am14.utils.CardManager;
 import it.polimi.ingsw.am14.model.cards.deckCards.*;
 import it.polimi.ingsw.am14.utils.JsonCodec;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -22,7 +20,7 @@ public class TribeDeck {
      * </p>
      * @param numPlayers between 2 and 5, included
      */
-    public TribeDeck(int numPlayers) {
+    public TribeDeck(int numPlayers){
         this.deckableDeck = new Stack<>();
         // reads values from JSON data file, puts DeckCards in the corresponding eras;
         Map<Integer, ArrayList<DeckCard>> decks = new HashMap<>();

@@ -65,6 +65,7 @@ public class PositionStateTest {
                 currentPlayerIndex,
                 2,
                 1,
+                1,
                 1
         );
 

@@ -35,4 +35,8 @@ public abstract class Event {
     }
 
     public void bufferize(NetworkLayer network) {}
+
+    public String getDescription() {
+        return description;
+    }
 }

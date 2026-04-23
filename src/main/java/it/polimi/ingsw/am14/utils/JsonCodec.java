@@ -52,7 +52,7 @@ public class JsonCodec implements Codec {
         try {
             return objectMapper.readValue(input, new TypeReference<ClientRequest>(){});
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("[JsonCodec] Failed to parse ClientRequest from input string");
         }
     }
 
@@ -63,11 +63,12 @@ public class JsonCodec implements Codec {
     @Override
     public String writeClientRequest(ClientRequest request) {
         ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
 
         try {
             return objectMapper.writeValueAsString(request);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("[JsonCodec] Failed to serialize ClientRequest to string");
         }
     }
 
@@ -78,11 +79,12 @@ public class JsonCodec implements Codec {
     @Override
     public Event parseEvent(String input) {
         ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
 
         try {
             return objectMapper.readValue(input, new TypeReference<Event>(){});
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("[JsonCodec] Failed to parse Event from input string");
         }
     }
 
@@ -93,11 +95,12 @@ public class JsonCodec implements Codec {
     @Override
     public String writeEvent(Event event) {
         ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
 
         try {
             return objectMapper.writeValueAsString(event);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("[JsonCodec] Failed to serialize Event to string");
         }
     }
 
@@ -118,9 +121,9 @@ public class JsonCodec implements Codec {
 
         try {
             return objectMapper.readValue(new File(filePath), new TypeReference<List<List<DeckCard>>>(){}).stream().
-                    limit(numPlayers - 2).flatMap(Collection::stream).toList();
+                    limit(numPlayers - 1).flatMap(Collection::stream).toList();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("[JsonCodec] Failed to read deck cards from file: " + filePath);
         }
     }
 
@@ -144,7 +147,7 @@ public class JsonCodec implements Codec {
                     flatMap(Collection::stream).
                     toList();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("[JsonCodec] Failed to read building cards from file: " + filePath);
         }
     }
 
@@ -167,11 +170,11 @@ public class JsonCodec implements Codec {
 
         try {
             return objectMapper.readValue(new File(filePath), new TypeReference<List<List<TrackCard>>>(){}).stream().
-                    limit(numPlayers - 2).
+                    limit(numPlayers - 1).
                     flatMap(Collection::stream).
                     collect(Collectors.toMap(TrackCard::getName, trackCard -> trackCard));
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("[JsonCodec] Failed to read track cards from file: " + filePath);
         }
     }
 }

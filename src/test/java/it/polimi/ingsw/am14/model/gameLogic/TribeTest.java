@@ -76,15 +76,15 @@ public class TribeTest {
 
     @Test
     public void testAddInventor() {
-        Inventor inventor = new Inventor(2, 1, InventionType.LEATHER);
+        Inventor inventor = new Inventor(2, 1, InventionType.LEATHER.toString());
         tribe.addInventor(inventor);
         assertEquals(1, tribe.getInventorsSize());
     }
 
     @Test
     public void testAddMultipleInventors() {
-        Inventor inventor1 = new Inventor(2, 1, InventionType.LEATHER);
-        Inventor inventor2 = new Inventor(3, 2, InventionType.BOAT);
+        Inventor inventor1 = new Inventor(2, 1, InventionType.LEATHER.toString());
+        Inventor inventor2 = new Inventor(3, 2, InventionType.BOAT.toString());
         tribe.addInventor(inventor1);
         tribe.addInventor(inventor2);
         assertEquals(2, tribe.getInventorsSize());
@@ -93,8 +93,8 @@ public class TribeTest {
     @Test
     public void testSetInventors() {
         ArrayList<Inventor> inventors = new ArrayList<>();
-        Inventor inventor1 = new Inventor(2, 1, InventionType.LEATHER);
-        Inventor inventor2 = new Inventor(3, 2, InventionType.BOAT);
+        Inventor inventor1 = new Inventor(2, 1, InventionType.LEATHER.toString());
+        Inventor inventor2 = new Inventor(3, 2, InventionType.BOAT.toString());
         inventors.add(inventor1);
         inventors.add(inventor2);
         tribe.setInventors(inventors);
@@ -103,7 +103,7 @@ public class TribeTest {
 
     @Test
     public void testGetInventors() {
-        Inventor inventor = new Inventor(2, 1, InventionType.LEATHER);
+        Inventor inventor = new Inventor(2, 1, InventionType.LEATHER.toString());
         tribe.addInventor(inventor);
         ArrayList<Inventor> inventors = tribe.getInventors();
         assertEquals(1, inventors.size());
@@ -112,9 +112,9 @@ public class TribeTest {
 
     @Test
     public void testGetMultipleInventors() {
-        Inventor inventor1 = new Inventor(2, 1, InventionType.LEATHER);
-        Inventor inventor2 = new Inventor(3, 2, InventionType.BOAT);
-        Inventor inventor3 = new Inventor(4, 3, InventionType.ARROW);
+        Inventor inventor1 = new Inventor(2, 1, InventionType.LEATHER.toString());
+        Inventor inventor2 = new Inventor(3, 2, InventionType.BOAT.toString());
+        Inventor inventor3 = new Inventor(4, 3, InventionType.ARROW.toString());
         tribe.addInventor(inventor1);
         tribe.addInventor(inventor2);
         tribe.addInventor(inventor3);
@@ -393,7 +393,7 @@ public class TribeTest {
     public void testAllAttributesAfterMultipleOperations() {
         // Add multiple character types
         Hunter hunter = new Hunter(2, 1, true);
-        Inventor inventor = new Inventor(2, 2, InventionType.LEATHER);
+        Inventor inventor = new Inventor(2, 2, InventionType.LEATHER.toString());
         Shaman shaman = new Shaman(2, 3, 4);
         Gatherer gatherer = new Gatherer(2, 4, 2);
         Artist artist = new Artist(2, 5);
@@ -419,7 +419,7 @@ public class TribeTest {
     public void testIndependentCharacterTypes() {
         // Verify that adding one character type doesn't affect others
         Hunter hunter = new Hunter(2, 1, true);
-        Inventor inventor = new Inventor(2, 2, InventionType.LEATHER);
+        Inventor inventor = new Inventor(2, 2, InventionType.LEATHER.toString());
         tribe.addHunter(hunter);
         tribe.addInventor(inventor);
 
@@ -449,7 +449,7 @@ public class TribeTest {
     @Test
     public void testGettersReturnCopies() {
         // Verify that getters return defensive copies
-        tribe.addInventor(new Inventor(2, 1, InventionType.LEATHER));
+        tribe.addInventor(new Inventor(2, 1, InventionType.LEATHER.toString()));
         ArrayList<Inventor> inventors1 = tribe.getInventors();
         ArrayList<Inventor> inventors2 = tribe.getInventors();
 

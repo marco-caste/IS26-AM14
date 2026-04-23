@@ -96,13 +96,13 @@ public class LobbyController {
                 activatePlayer(nickname);
                 //update(PlayerReconnectedEvent(X));
                 int gameId = getGameIdByNickname(nickname).orElseThrow();
-                if (!hasGameAController(gameId)) {
-                    //First person to connect to this game after the crash, need to set it up again
-                    //TODO: nuovo metodo di setup in GameFactory che si basa sul gameId?
-                    //Game game = GameFactory.setup(gameId);
-                    GameController gameController = new GameController(game);
-                    addGameController(game.getGameId(), gameController);
-                }
+//                if (!hasGameAController(gameId)) {
+//                    //First person to connect to this game after the crash, need to set it up again
+//                    //TODO: nuovo metodo di setup in GameFactory che si basa sul gameId?
+//                    //Game game = GameFactory.setup(gameId);
+//                    GameController gameController = new GameController(game);
+//                    addGameController(game.getGameId(), gameController);
+//                }
                 //TODO: nuovo stato di WaitingRoomAfterCrash in Game onPlayerConncetion?
                 //joinGame(nickname, gameId, null);
             }

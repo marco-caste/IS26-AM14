@@ -27,7 +27,7 @@ class ShamanEventCardTest {
     @BeforeEach
     void setUp() {
         shamanEvent = new ShamanEvent(2, 99);
-        game = new Game(2);
+        game = new Game(2,  1);
         board = game.getBoard();
         playerOne = new Player("P1", TotemColor.WHITE);
         playerTwo = new Player("P2", TotemColor.BLUE);

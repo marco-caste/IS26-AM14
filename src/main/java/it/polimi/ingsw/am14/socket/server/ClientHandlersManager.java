@@ -26,7 +26,7 @@ public class ClientHandlersManager {
         this.networkLayer = new NetworkLayer();
     }
 
-    private void runServer() throws IOException {
+    public void runServer() throws IOException {
         Socket clientSocket = null;
         while ((clientSocket = this.listenSocket.accept()) != null) {
             InputStreamReader socketRx = new InputStreamReader(clientSocket.getInputStream());
@@ -83,7 +83,7 @@ public class ClientHandlersManager {
         }
     }
 
-    public void receiveRequest(ClientRequest request, SocketClientHandler sender) {
+    public void receiveRequest(ClientRequest request, SocketClientHandler sender){
         try {
             request.dispatchRequest(this.controller);
             int gameId = 0;
