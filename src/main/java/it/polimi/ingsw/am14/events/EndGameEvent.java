@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import it.polimi.ingsw.am14.model.boardComponents.Board;
 import it.polimi.ingsw.am14.model.gameLogic.Player;
+import it.polimi.ingsw.am14.view.ClientModel;
 
 import java.util.List;
 
@@ -23,4 +24,11 @@ public class EndGameEvent extends UpdateEvent {
         super(description);
         this.endRoundEvent = endRoundEvent;
     }
+
+    @Override
+    public void effect(ClientModel model) {
+        endRoundEvent.effect(model);
+        model.updateEndGameEvent(description);
+    }
+
 }

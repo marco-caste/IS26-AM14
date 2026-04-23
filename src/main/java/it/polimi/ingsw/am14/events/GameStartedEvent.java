@@ -3,6 +3,7 @@ package it.polimi.ingsw.am14.events;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import it.polimi.ingsw.am14.model.gameLogic.Player;
+import it.polimi.ingsw.am14.view.ClientModel;
 
 import java.util.ArrayList;
 import java.util.stream.Collectors;
@@ -25,4 +26,10 @@ public class GameStartedEvent extends ServerEvent {
         super(description);
         this.playerOrder = playerOrder;
     }
+
+    @Override
+    public void effect(ClientModel model) {
+        model.updateGameStartedEvent(description, playerOrder);
+    }
+
 }

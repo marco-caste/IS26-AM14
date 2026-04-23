@@ -54,6 +54,7 @@ class PickState extends GameState {
         if (safeCard.isEmpty()) {
             handlePlayerSkipAction(player, context, availableTopCharacters, availableBottomCharacters, playerTotemPosition);
             return;
+            //TODO : metterelo qui
         }
 
         Card selectedCard = safeCard.get();
@@ -64,6 +65,7 @@ class PickState extends GameState {
         // exceptional pick due to additional pick building
         if (isExceptionalAddTopPickTurn(player, context)) {
             handleExceptionalPick(selectedCard, row, context, player);
+            //TODO : metterelo qui per la fine del add top pick
             return;
         }
 

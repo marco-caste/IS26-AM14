@@ -2,6 +2,7 @@ package it.polimi.ingsw.am14.events;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import it.polimi.ingsw.am14.view.ClientModel;
 
 public class PlayerReconnectedEvent extends ServerEvent {
 
@@ -19,5 +20,10 @@ public class PlayerReconnectedEvent extends ServerEvent {
             @JsonProperty("event") JoinedGameEvent reconnectedEvent) {
         super(description);
         this.reconnectedEvent = reconnectedEvent;
+    }
+
+    @Override
+    public void effect(ClientModel model) {
+        model.updatePlayerReconnectedEvent(description, reconnectedEvent);
     }
 }

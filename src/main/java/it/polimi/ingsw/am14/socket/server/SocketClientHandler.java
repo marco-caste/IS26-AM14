@@ -13,6 +13,7 @@ public class SocketClientHandler implements VirtualClientSocket{
     final BufferedReader input;
     final PrintWriter output;
     private final JsonCodec jsonCodec = new JsonCodec();
+    private final String clientNikcname;
 
     public SocketClientHandler(ClientHandlersManager server, BufferedReader input, PrintWriter output) {
         this.server = server;

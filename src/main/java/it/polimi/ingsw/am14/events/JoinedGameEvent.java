@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import it.polimi.ingsw.am14.model.boardComponents.Board;
 import it.polimi.ingsw.am14.model.cards.Card;
+import it.polimi.ingsw.am14.view.ClientModel;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -72,6 +73,15 @@ public class JoinedGameEvent extends ServerEvent {
         this.board = board;
     }
 
+
+    @Override
+    public void effect(ClientModel model) {
+        model.setPlayerNickname(playerNickname);
+        model.setGameId(gameId);
+        model.setTurnOrderCardIndex(turnOrderCardIndex);
+        model.setNumPlayers(numPlayers);
+
+    }
     /*
     HOW TO USE:
 
