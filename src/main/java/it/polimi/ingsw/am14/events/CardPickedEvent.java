@@ -89,6 +89,7 @@ public class CardPickedEvent extends UpdateEvent {
         model.updatePlayerFood(playerNickname, playerFood);
         model.updatePlayerPrestigePoints(playerNickname, playerPrestigePoints);
         model.setPlayerOrderInTurnOrderCard(updatedTurnOrderCard);
+        model.notifyObservers();
     }
 
 
