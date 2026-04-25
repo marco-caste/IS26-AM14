@@ -15,8 +15,9 @@ public class GameStartedEvent extends ServerEvent {
     private final ArrayList<String> playerOrder;
     private int gameId; // only used for bufferization, will not be sent to the client
     private final ArrayList<String> totemOrder;
+    private String lastPlayerConnectedNickname;
 
-    public GameStartedEvent(final ArrayList<Player> players, int gameId) {
+    public GameStartedEvent(final ArrayList<Player> players, int gameId, String lastPlayerConnectedNickname) {
         super("The game has started");
         this.playerOrder = players.stream()
                 .map(Player::getNickname)
@@ -25,6 +26,7 @@ public class GameStartedEvent extends ServerEvent {
                         .map(player -> player.getTotemColor().name())
                         .collect(Collectors.toCollection(ArrayList::new));
         this.gameId = gameId;
+        this.lastPlayerConnectedNickname = lastPlayerConnectedNickname;
     }
 
     @JsonCreator
@@ -61,6 +63,7 @@ public class GameStartedEvent extends ServerEvent {
     }
 
     public void bufferize(NetworkLayer networkLayer) {
+        networkLayer.getClientBy(this.lastPlayerConnectedNickname).addToEventBuffer(this);
         networkLayer.broadcastUpdate(this, gameId);
     }
 }

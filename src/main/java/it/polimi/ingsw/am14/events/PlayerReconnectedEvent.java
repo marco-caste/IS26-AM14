@@ -22,8 +22,5 @@ public class PlayerReconnectedEvent extends ServerEvent {
         this.reconnectedEvent = reconnectedEvent;
     }
 
-    @Override
-    public void effect(ClientModel model) {
-        model.updatePlayerReconnectedEvent(description, reconnectedEvent);
-    }
+    // TODO: da fare effect
 }
