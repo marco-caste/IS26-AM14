@@ -121,9 +121,9 @@ public class PositionStateTest {
     public void testTwoValidPlacementsOnDifferentTrackCardsSetTotemsAndAdvanceIndex() throws Exception {
         TestFixture fixture = buildFixture(0);
 
-        fixture.state.placeTotem(fixture.game, fixture.p1, 'B');
+        fixture.game.placeTotem(fixture.p1.getNickname(), 'B');
 
-        fixture.state.placeTotem(fixture.game, fixture.p2, 'C');
+        fixture.game.placeTotem(fixture.p2.getNickname(), 'C');
 
         assertEquals(fixture.p1, fixture.game.getBoard().getOffersPath().offersPathGet('B').getPlayerTotem());
         assertEquals(fixture.p2, fixture.game.getBoard().getOffersPath().offersPathGet('C').getPlayerTotem());

@@ -13,23 +13,17 @@ public class GameController {
         synchronized (game) {
             game.pickCard(nickname, cardId, row);
         }
-
-        //update(CardPickedEvent(X));
     }
 
     public void placeTotem(String nickname, char position) throws WrongStateException, WrongTurnException, UnknownPositionException, IllegalPlacementException, UnknownNicknameException {
         synchronized (game) {
             game.placeTotem(nickname, position);
         }
-
-        //update(TotemPlacedEvent(X));
     }
 
     public void onPlayerConnection(String nickname, String totemColor) throws WrongStateException {
         synchronized (game) {
             game.onPlayerConnection(nickname, totemColor);
         }
-
-        //update(PlayerConnectedEvent(X));
     }
 }

@@ -34,7 +34,7 @@ class PositionState extends GameState {
             throw new UnknownPositionException("There is no such trackCard with name " + trackCardName);
         }
 
-        Player expectedCurrentPlayer = context.getBoard().getTurnOrderCard().getPlayer(currentPlayerIdx);
+        Player expectedCurrentPlayer = context.getBoard().getTurnOrderCard().getPlayer(0);
         if (!expectedCurrentPlayer.equals(p)) {
             throw new WrongTurnException("It's not " + p.getNickname() + "'s turn");
         }

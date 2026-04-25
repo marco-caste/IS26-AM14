@@ -29,7 +29,7 @@ public class TotemPlacedEvent extends UpdateEvent {
             @JsonProperty("description") String description,
             @JsonProperty("nickname") String playerNickname,
             @JsonProperty("trackCardName") char trackCardName,
-            @JsonProperty("removedTotemIdx") int removedTotemIndex) {
+            @JsonProperty("removedTotemIndex") int removedTotemIndex) {
         super(description);
         this.playerNickname = playerNickname;
         this.trackCardName = trackCardName;

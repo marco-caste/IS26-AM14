@@ -287,12 +287,12 @@ public class PickStateTest {
         fixture.game.getBoard().setTopDeckableRow(new ArrayList<>(List.of(p1Hunter, p2Hunter)));
 
         // First player picks a hunter
-        fixture.state.pickCard(fixture.game, fixture.p1, Optional.of(p1Hunter), 0);
+        fixture.game.pickCard(fixture.p1.getNickname(), 81, 0);
         assertEquals(0, fixture.p1.getNumTopPicksLeft());
         assertEquals(1, fixture.p1.getTribe().getHuntersSize());
 
         // Second player picks a hunter
-        fixture.state.pickCard(fixture.game, fixture.p2, Optional.of(p2Hunter), 0);
+        fixture.game.pickCard(fixture.p2.getNickname(), 82, 0);
 
         // Verify second player picked successfully
         assertEquals(1, fixture.p2.getTribe().getHuntersSize());

@@ -1,6 +1,7 @@
 package it.polimi.ingsw.am14.events;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import it.polimi.ingsw.am14.NetworkLayer;
 import it.polimi.ingsw.am14.model.boardComponents.Board;
@@ -32,23 +33,23 @@ public class EndRoundEvent extends UpdateEvent {
 
         // board is updated for everyone
         this.board = new ArrayList<>();
-        this.board.set(TOP_DECKABLE_ROW,
+        this.board.add(
                 board.getTopDeckableRow().stream()
                         .map(Card::getId)
                         .collect(Collectors.toCollection(ArrayList::new))
         );
-        this.board.set(TOP_BUILDING_ROW,
+        this.board.add(
                 board.getTopBuildingRow().stream()
                         .map(Card::getId)
                         .collect(Collectors.toCollection(ArrayList::new))
         );
-        this.board.set(BOTTOM_DECKABLE_ROW,
+        this.board.add(
                 board.getBottomDeckableRow().stream()
                         .map(Card::getId)
                         .collect(Collectors.toCollection(ArrayList::new))
         );
-        this.board.set(BOTTOM_BUILDING_ROW,
-                board.getBottomDeckableRow().stream()
+        this.board.add(
+                board.getBottomBuildingRow().stream()
                         .map(Card::getId)
                         .collect(Collectors.toCollection(ArrayList::new))
         );
@@ -69,13 +70,14 @@ public class EndRoundEvent extends UpdateEvent {
     @JsonCreator
     public EndRoundEvent(
             @JsonProperty("board") ArrayList<ArrayList<Integer>> board,
-            @JsonProperty("playersAttribute") Map<String, ArrayList<Integer>> playersAttributes,
+            @JsonProperty("playersAttributes") Map<String, ArrayList<Integer>> playersAttributes,
             @JsonProperty("description") String description){
         super(description);
         this.board = board;
         this.playersAttributes = playersAttributes;
     }
 
+    @JsonIgnore
     public int getGameId() {
         return gameId;
     }
@@ -98,10 +100,12 @@ public class EndRoundEvent extends UpdateEvent {
         return board;
     }
 
+    @JsonIgnore
     public String getMessage(){
         return description;
     }
 
+    @JsonIgnore
     public Map<String,ArrayList<Integer>> getPlayerAttributes()  {
         return playersAttributes;
     }

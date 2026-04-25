@@ -60,7 +60,7 @@ public class JoinedGameEvent extends ServerEvent {
     @JsonCreator
     public JoinedGameEvent(
             @JsonProperty("description") String description,
-            @JsonProperty("gameID") int gameId,
+            @JsonProperty("gameId") int gameId,
             @JsonProperty("turnOrderCard") int turnOrderCardIndex,
             @JsonProperty("numPlayers") int numPlayers,
             @JsonProperty("board") ArrayList<ArrayList<Integer>> board) {

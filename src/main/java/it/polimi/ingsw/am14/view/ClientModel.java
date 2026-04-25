@@ -18,6 +18,18 @@ public class ClientModel {
     int numPlayers; // it's needed to build the right offersPath in the View.
     String message;
 
+    public ClientModel() {
+        this.observers = new ArrayList<>();
+        this.homePlayer = null;
+        this.otherPlayers = new ArrayList<>();
+        this.playerOrderInTurnOrderCard = new ArrayList<>();
+        this.board = new ArrayList<>();
+        this.turnOrderCardIndex = 0;
+        this.gameId = 0;
+        this.numPlayers = 0;
+        this.message = "";
+    }
+
     //Observer methods
     public void registerObserver(ClientView view) {
         observers.add(view);
@@ -59,7 +71,7 @@ public class ClientModel {
     }
 
     public ClientPlayer getPlayerByNickname(String nickname) {
-        if (homePlayer.getNickname().equals(nickname)) {
+        if (homePlayer != null && homePlayer.getNickname().equals(nickname)) {
             return homePlayer;
         }
         for (ClientPlayer player : otherPlayers) {
@@ -68,6 +80,10 @@ public class ClientModel {
             }
         }
         return null;
+    }
+
+    public ArrayList<ArrayList<Integer>> getBoard() {
+        return board;
     }
 
     public void updatePlayerPosition(String nickname, Character playerPosition) {
@@ -99,7 +115,7 @@ public class ClientModel {
     }
 
     public void removePickedCardFromBoard(int row, int cardID){
-        board.get(row).remove(cardID);
+        board.get(row).remove(Integer.valueOf(cardID));
     }
 
     public void addPlayer(ClientPlayer player) {
