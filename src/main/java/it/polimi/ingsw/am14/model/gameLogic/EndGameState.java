@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am14.model.gameLogic;
 
+import it.polimi.ingsw.am14.MyJDBC;
 import it.polimi.ingsw.am14.events.EndGameEvent;
 import it.polimi.ingsw.am14.model.boardComponents.Board;
 import it.polimi.ingsw.am14.model.cards.buildings.Building;
@@ -8,11 +9,13 @@ import it.polimi.ingsw.am14.model.cards.buildings.visitors.PaintEventVisitor;
 import it.polimi.ingsw.am14.model.cards.deckCards.Builder;
 import it.polimi.ingsw.am14.model.cards.deckCards.Inventor;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import it.polimi.ingsw.am14.socket.*;
 import it.polimi.ingsw.am14.socket.server.ClientHandlersManager;
+
 
 class EndGameState extends GameState {
 
@@ -30,7 +33,7 @@ class EndGameState extends GameState {
      * @param context not null
      */
     @Override
-    protected void endRound(Game context) {
+    protected void endRound(Game context) throws SQLException {
         Board currentBoard = context.getBoard();
 
         currentBoard.getTurnOrderCard().resolveBonusOrMalus();
@@ -94,5 +97,12 @@ class EndGameState extends GameState {
         // at the end, we will display a ranking of players, in the form of
         // player - prestigePoints - foodAvailable
         // sorted by prestigePoints and food.
+
+        //database saving and showing of the global ranking
+        for(Player p : players) {
+            MyJDBC.saveToDB(p.getNickname(), p.getNumPrestigePoints(), context.getNumPlayers());
+        }
+        List<String> rank = MyJDBC.readRanking(context.getNumPlayers());
+        //TODO capire come vogliamo che venga mostrata la classifica globale, se con un evento o con un altro metodo
     }
 }

@@ -8,6 +8,7 @@ import it.polimi.ingsw.am14.exceptions.WrongStateException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -68,7 +69,7 @@ class EndGameStateTest {
     }
 
     @Test
-    void endRoundAppliesEndGameVisitorEffects() {
+    void endRoundAppliesEndGameVisitorEffects() throws SQLException {
         p1.getTribe().addBuilder(new Builder(1, 31, 0, 3));
         p1.getTribe().addBuilder(new Builder(1, 32, 0, 3));
         p1.getTribe().addBuilding(new EndGameBuilding(0, 3, 1, 33, new ScoringBuilders()));
@@ -79,7 +80,7 @@ class EndGameStateTest {
     }
 
     @Test
-    void endRoundAddsPrestigeFromBuildersBuildingsArtistsAndInventors() {
+    void endRoundAddsPrestigeFromBuildersBuildingsArtistsAndInventors() throws SQLException {
         p1.getTribe().addBuilder(new Builder(1, 41, 0, 3));
         p1.getTribe().addBuilder(new Builder(1, 42, 0, 4));
         p1.getTribe().addBuilding(new EndGameBuilding(0, 25, 1, 43, new Flat25Prestige()));
@@ -98,7 +99,7 @@ class EndGameStateTest {
     }
 
     @Test
-    void endRoundProcessesDeckablesAndClearsEventQueues() {
+    void endRoundProcessesDeckablesAndClearsEventQueues() throws SQLException {
         gameStub.getBoard().setTopDeckableRow(new ArrayList<>(List.of(
                 new Hunter(1, 51, false),
                 new SustenanceEvent(1, 52)
@@ -113,7 +114,7 @@ class EndGameStateTest {
     }
 
     @Test
-    void endRoundProcessesOtherEventsQueue() {
+    void endRoundProcessesOtherEventsQueue() throws SQLException {
         p1.getTribe().addHunter(new Hunter(1, 60, false));
         gameStub.getBoard().setTopDeckableRow(new ArrayList<>(List.of(
                 new HuntEvent(1, 61)
