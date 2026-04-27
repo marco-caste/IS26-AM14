@@ -11,7 +11,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.*;
 
-public class ClientHandlersManager {
+public class SocketClientHandlersManager {
 
     private final ServerSocket listenSocket;
     private final LobbyController controller;
@@ -19,7 +19,7 @@ public class ClientHandlersManager {
 
     private final Set<SocketClientHandler> waitingClients;
 
-    public ClientHandlersManager(ServerSocket listenSocket) {
+    public SocketClientHandlersManager(ServerSocket listenSocket) {
         this.listenSocket = listenSocket;
         this.waitingClients = new HashSet<>();
         // TODO: COSTRUZIONE DA FARE NEL MAIN

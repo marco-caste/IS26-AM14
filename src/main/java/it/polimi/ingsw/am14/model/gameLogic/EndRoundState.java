@@ -2,7 +2,6 @@ package it.polimi.ingsw.am14.model.gameLogic;
 
 import it.polimi.ingsw.am14.events.EndRoundEvent;
 import it.polimi.ingsw.am14.model.boardComponents.Board;
-import it.polimi.ingsw.am14.socket.server.ClientHandlersManager;
 
 
 class EndRoundState extends GameState {

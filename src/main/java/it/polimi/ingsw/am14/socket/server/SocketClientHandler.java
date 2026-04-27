@@ -10,13 +10,13 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 public class SocketClientHandler implements VirtualClientSocket{
-    final ClientHandlersManager server;
+    final SocketClientHandlersManager server;
     final BufferedReader input;
     final PrintWriter output;
     private final JsonCodec jsonCodec = new JsonCodec();
     private final EventBuffer eventBuffer = new EventBuffer();
 
-    public SocketClientHandler(ClientHandlersManager server, BufferedReader input, PrintWriter output) {
+    public SocketClientHandler(SocketClientHandlersManager server, BufferedReader input, PrintWriter output) {
         this.server = server;
         this.input = input;
         this.output = output;

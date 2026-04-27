@@ -5,7 +5,6 @@ import it.polimi.ingsw.am14.events.EndGameEvent;
 import it.polimi.ingsw.am14.model.boardComponents.Board;
 import it.polimi.ingsw.am14.model.cards.buildings.Building;
 import it.polimi.ingsw.am14.model.cards.buildings.visitors.EndGameVisitor;
-import it.polimi.ingsw.am14.model.cards.buildings.visitors.PaintEventVisitor;
 import it.polimi.ingsw.am14.model.cards.deckCards.Builder;
 import it.polimi.ingsw.am14.model.cards.deckCards.Inventor;
 
@@ -13,8 +12,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import it.polimi.ingsw.am14.socket.*;
-import it.polimi.ingsw.am14.socket.server.ClientHandlersManager;
 
 
 class EndGameState extends GameState {
