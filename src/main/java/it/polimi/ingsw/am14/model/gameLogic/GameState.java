@@ -3,6 +3,7 @@ package it.polimi.ingsw.am14.model.gameLogic;
 import it.polimi.ingsw.am14.exceptions.*;
 import it.polimi.ingsw.am14.model.cards.Card;
 
+import java.sql.SQLException;
 import java.util.Optional;
 
 abstract class GameState {
@@ -57,6 +58,6 @@ abstract class GameState {
      *
      * @param context not null
      */
-    protected void endRound(Game context) {
+    protected void endRound(Game context) throws SQLException {
     }
 }
