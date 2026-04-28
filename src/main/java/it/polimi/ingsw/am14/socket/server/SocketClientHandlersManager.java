@@ -17,11 +17,9 @@ public class SocketClientHandlersManager {
     private final LobbyController controller;
     private final NetworkLayer networkLayer;
 
-    private final Set<SocketClientHandler> waitingClients;
 
     public SocketClientHandlersManager(ServerSocket listenSocket) {
         this.listenSocket = listenSocket;
-        this.waitingClients = new HashSet<>();
         // TODO: COSTRUZIONE DA FARE NEL MAIN
         this.networkLayer = new NetworkLayer();
         this.controller = new LobbyController(networkLayer);
@@ -39,10 +37,7 @@ public class SocketClientHandlersManager {
                     new PrintWriter(socketTx)
             );
 
-            synchronized(this.waitingClients) {
-                waitingClients.add(handler);
-            }
-
+            networkLayer.addWaitingClient(handler);
 
             // whenever a new client connects, two threads are created:
             // one listens for the client's requests
@@ -87,7 +82,7 @@ public class SocketClientHandlersManager {
     public void receiveRequest(ClientRequest request, SocketClientHandler sender){
         try {
             // if sender is still in waiting room, the only possible request is to connect to the server (meaning: to declare a nickname).
-            if (waitingClients.contains(sender))
+            if (networkLayer.containsWaiting(sender))
                 networkLayer.updateMap(request.getNickname(), sender);
 
             request.dispatchRequest(this.controller);
@@ -95,7 +90,7 @@ public class SocketClientHandlersManager {
             this.controller.getGameIdByNickname(request.getNickname()).ifPresentOrElse(
                     (id) -> {
                         networkLayer.updateClients(id, sender);
-                        waitingClients.remove(sender);
+                        networkLayer.removeFromWaiting(sender);
                     },
                     () -> { }
             );
