@@ -3,6 +3,7 @@ package it.polimi.ingsw.am14.model.gameLogic;
 import it.polimi.ingsw.am14.exceptions.*;
 import it.polimi.ingsw.am14.model.cards.Card;
 
+import java.sql.SQLException;
 import java.util.Optional;
 
 abstract class GameState {
@@ -31,7 +32,7 @@ abstract class GameState {
      * @throws ForcedPickException if an override call throws it
      * @throws WrongTurnException if an override call throws it
      */
-    protected void pickCard(Game context, Player player, Optional<Card> card, int row) throws WrongStateException, IllegalPickException, ForcedPickException, WrongTurnException {
+    protected void pickCard(Game context, Player player, Optional<Card> card, int row) throws WrongStateException, IllegalPickException, ForcedPickException, WrongTurnException, SQLException {
         throw new WrongStateException("Not in the right state to pick a card");
     }
 
@@ -50,13 +51,13 @@ abstract class GameState {
      *
      * @param context not null
      */
-    protected abstract void nextState(Game context);
+    protected abstract void nextState(Game context) throws SQLException;
     // does nothing because only the model controls calls to this method
 
     /**
      *
      * @param context not null
      */
-    protected void endRound(Game context) {
+    protected void endRound(Game context) throws SQLException {
     }
 }

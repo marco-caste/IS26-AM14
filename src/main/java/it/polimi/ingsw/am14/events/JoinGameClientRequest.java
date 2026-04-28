@@ -16,7 +16,7 @@ public class JoinGameClientRequest extends ClientRequest {
     public JoinGameClientRequest(
             @JsonProperty("nickname") String nickname,
             @JsonProperty("totemColor") String totemColor,
-            @JsonProperty("gameID") int gameId) {
+            @JsonProperty("gameId") int gameId) {
         super("join game client request", nickname);
         this.gameId = gameId;
         this.totemColor = totemColor;

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import it.polimi.ingsw.am14.NetworkLayer;
 import it.polimi.ingsw.am14.model.boardComponents.Board;
 import it.polimi.ingsw.am14.model.cards.Card;
+import it.polimi.ingsw.am14.view.ClientModel;
 
 import java.util.ArrayList;
 import java.util.stream.Collectors;
@@ -17,8 +18,7 @@ public class JoinedGameEvent extends ServerEvent {
     private static final int BOTTOM_BUILDING_ROW = 3;
 
     // attributes
-    private final String playerNickname;
-    // TODO: totemColor
+    private String playerNickname;
     private final int gameId;
     private final int turnOrderCardIndex;
     private final int numPlayers;
@@ -60,17 +60,26 @@ public class JoinedGameEvent extends ServerEvent {
     @JsonCreator
     public JoinedGameEvent(
             @JsonProperty("description") String description,
-            @JsonProperty("nickname") String playerNickname,
-            @JsonProperty("gameID") int gameId,
+            @JsonProperty("gameId") int gameId,
             @JsonProperty("turnOrderCard") int turnOrderCardIndex,
             @JsonProperty("numPlayers") int numPlayers,
             @JsonProperty("board") ArrayList<ArrayList<Integer>> board) {
         super(description);
-        this.playerNickname = playerNickname;
         this.gameId = gameId;
         this.turnOrderCardIndex = turnOrderCardIndex;
         this.numPlayers = numPlayers;
         this.board = board;
+    }
+
+
+    @Override
+    public void effect(ClientModel model) {
+        model.setMessage(description);
+        model.setGameId(gameId);
+        model.setTurnOrderCardIndex(turnOrderCardIndex);
+        model.setNumPlayers(numPlayers);
+        model.setBoard(board);
+        model.notifyObservers(); // we notify the player view
     }
 
     /*

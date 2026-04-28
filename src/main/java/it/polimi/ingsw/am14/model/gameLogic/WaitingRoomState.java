@@ -28,21 +28,20 @@ class WaitingRoomState extends GameState {
 
         if (game.playersSize() == game.getNumPlayers()) {
             this.nextState(game);
+            // observer pattern: sends event to event buffer
+            game.notifyObservers(
+                    new GameStartedEvent(
+                            game.getBoard().getTurnOrderCard().getPlayerOrder(),
+                            game.getGameId(),
+                            nickname
+                    )
+            );
         }
-
     }
 
     @Override
     protected void nextState(Game context) {
         context.setCurrentState(new PositionState());
         context.getBoard().getTurnOrderCard().setupPhaseTen();
-
-        // observer pattern: sends event to event buffer
-        context.notifyObservers(
-                new GameStartedEvent(
-                        context.getBoard().getTurnOrderCard().getPlayerOrder(),
-                        context.getGameId()
-                )
-        );
     }
 }

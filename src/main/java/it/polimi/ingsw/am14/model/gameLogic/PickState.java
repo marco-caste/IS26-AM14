@@ -8,8 +8,8 @@ import it.polimi.ingsw.am14.model.cards.buildings.visitors.SetVisitor;
 import it.polimi.ingsw.am14.exceptions.ForcedPickException;
 import it.polimi.ingsw.am14.exceptions.IllegalPickException;
 import it.polimi.ingsw.am14.exceptions.WrongTurnException;
-import it.polimi.ingsw.am14.socket.server.ClientHandlersManager;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Optional;
 
@@ -34,7 +34,7 @@ class PickState extends GameState {
 
     @Override
     protected void pickCard(Game context, Player player, Optional<Card> card, int row)
-            throws IllegalPickException, ForcedPickException, WrongTurnException {
+            throws IllegalPickException, ForcedPickException, WrongTurnException, SQLException {
 
         // In questo progetto `null` equivale a skip: lo normalizziamo a Optional vuoto.
         Optional<Card> safeCard = Optional.ofNullable(card).orElse(Optional.empty());
@@ -54,6 +54,7 @@ class PickState extends GameState {
         if (safeCard.isEmpty()) {
             handlePlayerSkipAction(player, context, availableTopCharacters, availableBottomCharacters, playerTotemPosition);
             return;
+            //TODO : metterelo qui
         }
 
         Card selectedCard = safeCard.get();
@@ -64,6 +65,7 @@ class PickState extends GameState {
         // exceptional pick due to additional pick building
         if (isExceptionalAddTopPickTurn(player, context)) {
             handleExceptionalPick(selectedCard, row, context, player);
+            //TODO : metterelo qui per la fine del add top pick
             return;
         }
 
@@ -136,7 +138,7 @@ class PickState extends GameState {
                             Game context,
                             int availableTopCharacters,
                             int availableBottomCharacters,
-                            Character playerTotemPosition) throws ForcedPickException {
+                            Character playerTotemPosition) throws ForcedPickException, SQLException {
         if (!((availableTopCharacters == 0 || player.getNumTopPicksLeft() == 0)
                 && (availableBottomCharacters == 0 || player.getNumBottomPicksLeft() == 0))) {
             throw new ForcedPickException("You can't skip the turn you have to pick the remaining character Card First");
@@ -163,7 +165,7 @@ class PickState extends GameState {
     }
 
 
-    private void handleExceptionalPick(Card card, int row, Game context, Player player) throws IllegalPickException {
+    private void handleExceptionalPick(Card card, int row, Game context, Player player) throws IllegalPickException, SQLException {
         switch (row) {
             case TOP_DECKABLE_ROW:
                 pickDeckCardAndApplyEffects(card, context, player);
@@ -221,7 +223,7 @@ class PickState extends GameState {
         return availableBottomCharacters > 0 && player.getNumBottomPicksLeft() > 0;
     }
 
-    private boolean determineIfCurrentPlayerCanContinuePickingFromBothRows(Player player, Game context, int availableTopCharacters, int availableBottomCharacters, Character playerTotem) {
+    private boolean determineIfCurrentPlayerCanContinuePickingFromBothRows(Player player, Game context, int availableTopCharacters, int availableBottomCharacters, Character playerTotem) throws SQLException {
         boolean canPickFromTopRow = canPlayerAffordAnyBuildingInTopRow(player, context, availableTopCharacters);
         boolean canPickFromBottomRow = canPlayerAffordAnyBuildingInBottomRow(player, context, availableBottomCharacters);
 
@@ -234,7 +236,7 @@ class PickState extends GameState {
     }
 
 
-    private void findAndActivateNextPlayerInTurnOrder(Game context, int availableTopCharacters, int availableBottomCharacters, Character playerTotemPosition) {
+    private void findAndActivateNextPlayerInTurnOrder(Game context, int availableTopCharacters, int availableBottomCharacters, Character playerTotemPosition) throws SQLException {
         Character currentTotemPosition = playerTotemPosition;
         while (context.getCurrentPlayerIndex() < context.getNumPlayers()) {
             TotemSlot nextSlot = findNextPlayerTotemAfterPosition(context, currentTotemPosition);
@@ -301,7 +303,7 @@ class PickState extends GameState {
         applyBuildingEffectsIfSetsCompleted(player, context);
     }
 
-    private boolean handleAllPlayersFinishedTheirPicksPhase(Game context, int availableTopCharacters) {
+    private boolean handleAllPlayersFinishedTheirPicksPhase(Game context, int availableTopCharacters) throws SQLException {
         // Quando tutti i player hanno finito i loro pick normali, cerchiamo se c'è un player con pick aggiuntivo
         // Se lo troviamo e può ancora pickare dalla riga superiore, gli diamo la possibilità di farlo
         // Altrimenti, passiamo alla fase successiva (fine del turno di pick)
@@ -310,18 +312,15 @@ class PickState extends GameState {
                     .filter(player -> player.getAddTopPick() == 1)
                     .findFirst();
 
-            playerWithAdditionalTopPick.ifPresentOrElse(
-                    playerWithExtraTop -> {
-                        if (!canPlayerAffordAnyBuildingInTopRow(playerWithExtraTop, context, availableTopCharacters)) {
-                            // Il player con pick aggiuntivo non ha più nulla da pickare, transizione
-                            nextState(context);
-                        }
-                    },
-                    () -> {
-                        // Nessun player ha pick aggiuntivo, transizione direttamente
-                        nextState(context);
-                    }
-            );
+            if (playerWithAdditionalTopPick.isPresent()) {
+                Player playerWithExtraTop = playerWithAdditionalTopPick.get();
+                if (!canPlayerAffordAnyBuildingInTopRow(playerWithExtraTop, context, availableTopCharacters)) {
+                    nextState(context);
+                }
+            } else {
+                nextState(context);
+            }
+
 
             return true;
         }
@@ -348,7 +347,7 @@ class PickState extends GameState {
     }
 
     @Override
-    protected void nextState(Game context) {
+    protected void nextState(Game context) throws SQLException {
         context.setCurrentPlayerIndex(0);
         if (context.getCurrentRound() == 10) {
             context.setCurrentState(new EndGameState());

@@ -13,6 +13,7 @@ public class ExceptionEvent extends Event {
     }
 
     public void effect(ClientModel model) {
-        System.out.println("Error: " + this.description);
+        model.setMessage(description);
+        model.notifyObservers();
     }
 }

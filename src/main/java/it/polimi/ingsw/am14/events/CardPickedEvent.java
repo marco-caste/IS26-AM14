@@ -5,12 +5,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import it.polimi.ingsw.am14.NetworkLayer;
 import it.polimi.ingsw.am14.model.cards.Card;
 import it.polimi.ingsw.am14.model.gameLogic.Player;
+import it.polimi.ingsw.am14.view.ClientModel;
 
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class CardPickedEvent extends UpdateEvent{
+public class CardPickedEvent extends UpdateEvent {
 
     private String playerNickname;
     private int cardID;
@@ -71,7 +72,7 @@ public class CardPickedEvent extends UpdateEvent{
             @JsonProperty("playerFood") int playerFood,
             @JsonProperty("playerPrestigePoints") int playerPrestigePoints,
             @JsonProperty("updatedTurnOrderCard") ArrayList<String> updatedTurnOrderCard,
-            @JsonProperty("description") String description){
+            @JsonProperty("description") String description) {
         super(description);
         this.playerNickname = playerNickname;
         this.cardID = cardID;
@@ -83,5 +84,21 @@ public class CardPickedEvent extends UpdateEvent{
 
     public void bufferize(NetworkLayer networkLayer) {
         networkLayer.broadcastUpdate(this, gameId);
+    }
+
+
+    // method effect to update the client model
+
+    @Override
+    public void effect(ClientModel model) {
+        model.setMessage(description);
+        if (cardID != -1) {
+            model.updatePlayerTribe(playerNickname, cardID);
+            model.removePickedCardFromBoard(row, cardID);
+            model.updatePlayerFood(playerNickname, playerFood);
+            model.updatePlayerPrestigePoints(playerNickname, playerPrestigePoints);
+        }
+        model.setPlayerOrderInTurnOrderCard(updatedTurnOrderCard);
+        model.notifyObservers();
     }
 }

@@ -29,7 +29,7 @@ public class TotemPlacedEvent extends UpdateEvent {
             @JsonProperty("description") String description,
             @JsonProperty("nickname") String playerNickname,
             @JsonProperty("trackCardName") char trackCardName,
-            @JsonProperty("removedTotemIdx") int removedTotemIndex) {
+            @JsonProperty("removedTotemIndex") int removedTotemIndex) {
         super(description);
         this.playerNickname = playerNickname;
         this.trackCardName = trackCardName;
@@ -39,4 +39,14 @@ public class TotemPlacedEvent extends UpdateEvent {
     public void bufferize(NetworkLayer networkLayer) {
         networkLayer.broadcastUpdate(this, gameId);
     }
+
+
+    @Override
+    public void effect(it.polimi.ingsw.am14.view.ClientModel model) {
+        model.setMessage(description);
+        model.updatePlayerPosition(playerNickname, trackCardName);
+        model.removePlayerFromTurnOrderCard(removedTotemIndex);
+        model.notifyObservers();
+    }
+
 }

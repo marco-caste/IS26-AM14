@@ -7,7 +7,7 @@ import it.polimi.ingsw.am14.view.ClientView;
 import java.io.*;
 import java.net.Socket;
 
-public class ClientMain {
+public class SocketClientMain {
     public static final String host = "localhost";
     public static final int port = 12345;
 

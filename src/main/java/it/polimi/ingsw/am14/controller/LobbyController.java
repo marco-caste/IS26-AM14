@@ -5,6 +5,7 @@ import it.polimi.ingsw.am14.exceptions.*;
 import it.polimi.ingsw.am14.model.gameLogic.Game;
 import it.polimi.ingsw.am14.model.gameLogic.GameFactory;
 
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -23,6 +24,13 @@ public class LobbyController {
     public LobbyController(NetworkLayer networkLayer) {
         this.gameIdToGameController = new HashMap<>();
         this.nicknameToGameId = new HashMap<>();
+        this.activeNicknames = new HashSet<>();
+        this.networkLayer = networkLayer;
+    }
+
+    public LobbyController(Map<String, Integer> nicknameToGameId, NetworkLayer networkLayer) {
+        this.gameIdToGameController = new HashMap<>();
+        this.nicknameToGameId = nicknameToGameId;
         this.activeNicknames = new HashSet<>();
         this.networkLayer = networkLayer;
     }
@@ -86,7 +94,7 @@ public class LobbyController {
         return players;
     }
 
-    public void connectUser(String nickname) throws IllegalNicknameException, IllegalGameIdException, WrongStateException {
+    public void connectUser(String nickname) throws IllegalNicknameException {
         if (isPlayerActive(nickname)) {
             throw new IllegalNicknameException("Nickname is already in use in an active game");
         }
@@ -119,7 +127,10 @@ public class LobbyController {
         }
     }
 
-    public void createGame(String nickname, int numPlayers, String totemColor) throws IllegalSetupException, WrongStateException {
+    public void createGame(String nickname, int numPlayers, String totemColor) throws IllegalSetupException, WrongStateException, IllegalNicknameException {
+        if(isPlayerActive(nickname)) {
+            throw new IllegalNicknameException("Nickname is already in use in an active game");
+        }
         Game game = GameFactory.setup(numPlayers);
         game.addObserver(networkLayer);
         GameController gameController = new GameController(game);
@@ -140,23 +151,30 @@ public class LobbyController {
                 .placeTotem(nickname, position);
     }
 
-    public void pickCard(String nickname, int cardId, int row) throws IllegalNicknameException, WrongStateException, WrongTurnException, UnknownPositionException, IllegalPickException, ForcedPickException, IllegalPlacementException, UnknownNicknameException {
+    public void pickCard(String nickname, int cardId, int row) throws IllegalNicknameException, WrongStateException, WrongTurnException, UnknownPositionException, IllegalPickException, ForcedPickException, IllegalPlacementException, UnknownNicknameException, SQLException {
         getGameController(getGameIdByNickname(nickname).orElseThrow(() -> new IllegalNicknameException("Player with the specified nickname is not in the lobby")))
                 .orElseThrow(() -> new IllegalNicknameException("Player with the specified nickname is not assigned to any game"))
                 .pickCard(nickname, cardId, row);
     }
 
     public void disconnectUser(String nickname) {
-        if (hasPlayerAGameAssigned(nickname)) {
-            int gameId = getGameIdByNickname(nickname).orElseThrow();
-            removeGameController(gameId);
-            deactivatePlayer(nickname);
+        synchronized (activeNicknames) {
+            if (hasPlayerAGameAssigned(nickname)) {
+                int gameId = getGameIdByNickname(nickname).orElseThrow();
+                removeGameController(gameId);
+                removePlayerFromLobby(nickname);
+                getPlayersByGameId(gameId).forEach(this::addPlayerToLobby);
+                // TODO: TERMINATES THE THREAD THAT FLUSHES THE UPDATE QUEUE TO THIS CLIENT.
+                //update(PlayerDisconnectedEvent(X));
+                return;
+            }
             removePlayerFromLobby(nickname);
-            getPlayersByGameId(gameId).forEach(this::addPlayerToLobby);
-            // TODO: TERMINATES THE THREAD THAT FLUSHES THE UPDATE QUEUE TO THIS CLIENT.
-            //update(PlayerDisconnectedEvent(X));
-            return;
+            deactivatePlayer(nickname);
         }
-        removePlayerFromLobby(nickname);
+    }
+
+    // Called automatically after a certain timeout if server pings are not answered to
+    public void disconnectServer() {
+        activeNicknames.clear();
     }
 }

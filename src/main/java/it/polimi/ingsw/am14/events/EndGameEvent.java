@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import it.polimi.ingsw.am14.NetworkLayer;
 import it.polimi.ingsw.am14.model.boardComponents.Board;
 import it.polimi.ingsw.am14.model.gameLogic.Player;
+import it.polimi.ingsw.am14.view.ClientModel;
 
 import java.util.List;
 
@@ -28,5 +29,13 @@ public class EndGameEvent extends UpdateEvent {
 
     public void bufferize(NetworkLayer networkLayer) {
         networkLayer.broadcastUpdate(this, endRoundEvent.getGameId());
+    }
+
+    @Override
+    public void effect(ClientModel model) {
+        model.setBoard(endRoundEvent.getBoard());
+        model.updatePlayerRoundAttributes(endRoundEvent.getPlayerAttributes());
+        model.setMessage(description);
+        model.notifyObservers();
     }
 }

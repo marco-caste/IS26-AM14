@@ -8,6 +8,7 @@ import it.polimi.ingsw.am14.exceptions.*;
 import it.polimi.ingsw.am14.model.boardComponents.Board;
 import it.polimi.ingsw.am14.model.cards.Card;
 
+import java.sql.SQLException;
 import java.util.*;
 
 public class Game implements Observable {
@@ -94,7 +95,7 @@ public class Game implements Observable {
      * @throws ForcedPickException if this.currentState.pickCard() throws it
      * @throws UnknownNicknameException if the nickname is not found
      */
-    public void pickCard(String nickname, int cardId, int row) throws WrongStateException, WrongTurnException, IllegalPickException, ForcedPickException, UnknownNicknameException {
+    public void pickCard(String nickname, int cardId, int row) throws WrongStateException, WrongTurnException, IllegalPickException, ForcedPickException, UnknownNicknameException, SQLException {
         // Find player by nickname
         Player player = findPlayerByNickname(nickname);
         
