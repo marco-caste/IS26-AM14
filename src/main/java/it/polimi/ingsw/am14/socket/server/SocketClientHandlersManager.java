@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am14.socket.server;
 
+import it.polimi.ingsw.am14.EventBuffer;
 import it.polimi.ingsw.am14.NetworkLayer;
 import it.polimi.ingsw.am14.controller.LobbyController;
 import it.polimi.ingsw.am14.events.ClientRequest;
@@ -17,9 +18,11 @@ public class SocketClientHandlersManager {
     private final LobbyController controller;
     private final NetworkLayer networkLayer;
 
+    private final Set<SocketClientHandler> waitingClients;
 
     public SocketClientHandlersManager(ServerSocket listenSocket) {
         this.listenSocket = listenSocket;
+        this.waitingClients = new HashSet<>();
         // TODO: COSTRUZIONE DA FARE NEL MAIN
         this.networkLayer = new NetworkLayer();
         this.controller = new LobbyController(networkLayer);
@@ -37,7 +40,11 @@ public class SocketClientHandlersManager {
                     new PrintWriter(socketTx)
             );
 
-            networkLayer.addWaitingClient(handler);
+            synchronized(this.waitingClients) {
+                waitingClients.add(handler);
+            }
+
+            networkLayer.updateBufferMap(handler);
 
             // whenever a new client connects, two threads are created:
             // one listens for the client's requests
@@ -55,18 +62,18 @@ public class SocketClientHandlersManager {
                 long lastPingTime = 0;
 
                 while (true) {
-                    synchronized (handler.getEventBuffer()) {
-                        while (handler.getEventBuffer().isEmpty()) {
+                    synchronized (networkLayer.getBuffer(handler)) {
+                        while (networkLayer.getBuffer(handler).isEmpty()) {
                             // TODO: ping verso il client per capire se è ancora connesso.
 //                            handler.update(
 //                                    new ServerPing("ping")
 //                            );
 
                             try {
-                                handler.getEventBuffer().wait();    // lazy wait
+                                networkLayer.getBuffer(handler).wait();    // lazy wait
                             } catch (InterruptedException _) {}
                         }
-                        List<Event> eventsToSend = handler.getEventBuffer().flushBuffer();
+                        List<Event> eventsToSend = networkLayer.getBuffer(handler).flushBuffer();
                         for (Event event : eventsToSend) {
                             handler.update(event);
                         }
@@ -82,15 +89,17 @@ public class SocketClientHandlersManager {
     public void receiveRequest(ClientRequest request, SocketClientHandler sender){
         try {
             // if sender is still in waiting room, the only possible request is to connect to the server (meaning: to declare a nickname).
-            if (networkLayer.containsWaiting(sender))
-                networkLayer.updateMap(request.getNickname(), sender);
+            if (waitingClients.contains(sender))
+                networkLayer.updateNicknameMap(request.getNickname(), sender);
 
             request.dispatchRequest(this.controller);
+
+            if (waitingClients.contains(sender))
+                waitingClients.remove(sender);
 
             this.controller.getGameIdByNickname(request.getNickname()).ifPresentOrElse(
                     (id) -> {
                         networkLayer.updateClients(id, sender);
-                        networkLayer.removeFromWaiting(sender);
                     },
                     () -> { }
             );

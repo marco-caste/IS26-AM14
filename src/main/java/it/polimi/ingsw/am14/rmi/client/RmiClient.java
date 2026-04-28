@@ -9,7 +9,6 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
 public class RmiClient extends UnicastRemoteObject implements VirtualClientRmi {
-    private final EventBuffer eventBuffer = new EventBuffer();
 
     protected RmiClient() throws RemoteException {
     }
@@ -22,15 +21,5 @@ public class RmiClient extends UnicastRemoteObject implements VirtualClientRmi {
     @Override
     public void reportError(ExceptionEvent error) {
 
-    }
-
-    @Override
-    public void addToEventBuffer(Event event) {
-
-    }
-
-    @Override
-    public EventBuffer getEventBuffer() {
-        return eventBuffer;
     }
 }

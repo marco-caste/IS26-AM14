@@ -9,23 +9,25 @@ import java.util.Set;
 
 public class NetworkLayer implements Observer{
 
-    private final Map<Integer, Set<VirtualView>> clients;
-    private final Map<String, VirtualView> nicknameToClient;
+    private final Map<Integer, Set<VirtualClient>> clients;
+    private final Map<String, VirtualClient> nicknameToClient;
+    private final Map<VirtualClient, EventBuffer> clientToBuffer;
 
     public NetworkLayer() {
         this.clients = new HashMap<>();
         this.nicknameToClient = new HashMap<>();
+        this.clientToBuffer = new HashMap<>();
     }
 
     public void broadcastUpdate(Event update, int gameId) {
         synchronized (this.clients) {
-            for (VirtualView client : this.clients.get(gameId)) {
-                client.addToEventBuffer(update);
+            for (VirtualClient client : this.clients.get(gameId)) {
+                addToEventBuffer(client, update);
             }
         }
     }
 
-    public void updateClients(int gameId, VirtualView client) {
+    public void updateClients(int gameId, VirtualClient client) {
         synchronized (this.clients) {
             if (!this.clients.containsKey(gameId)) {
                 this.clients.put(gameId, new java.util.HashSet<>());
@@ -34,13 +36,25 @@ public class NetworkLayer implements Observer{
         }
     }
 
-    public void updateMap(String nickname, VirtualView client) throws IllegalNicknameException {
+    public void updateNicknameMap(String nickname, VirtualClient client) throws IllegalNicknameException {
         synchronized (this.nicknameToClient) {
-            if (!this.nicknameToClient.containsKey(nickname)) {
+            if (this.nicknameToClient.containsKey(nickname)) {
                 throw new IllegalNicknameException("Nickname already in use");
             }
             this.nicknameToClient.put(nickname, client);
         }
+    }
+
+    public void updateBufferMap (VirtualClient client) {
+        this.clientToBuffer.put(client, new EventBuffer());
+    }
+
+    public void addToEventBuffer(VirtualClient client, Event event) {
+        this.clientToBuffer.get(client).addEvent(event);
+    }
+
+    public EventBuffer getBuffer(VirtualClient client) {
+        return this.clientToBuffer.get(client);
     }
 
     /**
@@ -56,7 +70,7 @@ public class NetworkLayer implements Observer{
         event.bufferize(this);
     }
 
-    public VirtualView getClientBy(String nickname) {
+    public VirtualClient getClientBy(String nickname) {
         synchronized (this.nicknameToClient) {
             return this.nicknameToClient.get(nickname);
         }

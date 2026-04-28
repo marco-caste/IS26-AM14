@@ -14,7 +14,6 @@ public class SocketClientHandler implements VirtualClientSocket{
     final BufferedReader input;
     final PrintWriter output;
     private final JsonCodec jsonCodec = new JsonCodec();
-    private final EventBuffer eventBuffer = new EventBuffer();
 
     public SocketClientHandler(SocketClientHandlersManager server, BufferedReader input, PrintWriter output) {
         this.server = server;
@@ -42,17 +41,5 @@ public class SocketClientHandler implements VirtualClientSocket{
         String errorString = jsonCodec.writeEvent(error);
         output.println(errorString);
         output.flush();
-    }
-
-    /**
-     * @param event not null - the event to add to the buffer of the client
-     */
-    @Override
-    public void addToEventBuffer(Event event) {
-        this.eventBuffer.addEvent(event);
-    }
-
-    public EventBuffer getEventBuffer() {
-        return eventBuffer;
     }
 }

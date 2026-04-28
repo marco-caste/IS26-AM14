@@ -63,7 +63,7 @@ public class GameStartedEvent extends ServerEvent {
     }
 
     public void bufferize(NetworkLayer networkLayer) {
-        networkLayer.getClientBy(this.lastPlayerConnectedNickname).addToEventBuffer(this);
+        networkLayer.addToEventBuffer(networkLayer.getClientBy(lastPlayerConnectedNickname), this);
         networkLayer.broadcastUpdate(this, gameId);
     }
 }

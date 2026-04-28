@@ -2,7 +2,6 @@ package it.polimi.ingsw.am14.model.gameLogic;
 
 import it.polimi.ingsw.am14.Observable;
 import it.polimi.ingsw.am14.Observer;
-import it.polimi.ingsw.am14.VirtualView;
 import it.polimi.ingsw.am14.events.Event;
 import it.polimi.ingsw.am14.exceptions.*;
 import it.polimi.ingsw.am14.model.boardComponents.Board;
@@ -273,6 +272,7 @@ public class Game implements Observable {
      */
     @Override
     public void notifyObservers(Event event) {
+        //TODO: è solo uno, togliere for
         for (Observer observer : observers) {
             observer.update(event);
         }

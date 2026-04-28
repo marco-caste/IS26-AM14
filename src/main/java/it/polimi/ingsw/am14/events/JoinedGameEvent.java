@@ -92,6 +92,6 @@ public class JoinedGameEvent extends ServerEvent {
 
     @Override
     public void bufferize(NetworkLayer network) {
-        network.getClientBy(this.playerNickname).addToEventBuffer(this);
+        network.addToEventBuffer(network.getClientBy(playerNickname), this);
     }
 }
