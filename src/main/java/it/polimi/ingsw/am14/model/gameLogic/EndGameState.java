@@ -100,9 +100,10 @@ class EndGameState extends GameState {
 
         //database saving and showing of the global ranking
         for(Player p : players) {
-            MyJDBC.saveToDB(p.getNickname(), p.getNumPrestigePoints(), context.getNumPlayers());
+            MyJDBC.saveToDB(context.getGameId(), p.getNickname(), p.getNumPrestigePoints(), context.getNumPlayers());
         }
         List<String> rank = MyJDBC.readRanking(context.getNumPlayers());
+
         //TODO capire come vogliamo che venga mostrata la classifica globale, se con un evento o con un altro metodo
     }
 }

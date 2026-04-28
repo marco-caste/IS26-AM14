@@ -12,26 +12,28 @@ public class MyJDBC {
     private static final String username = "root";
     private static final String password = "mesos14";
 
-    public static void saveToDB(String nickname, int finalScore, int numPlayers) throws SQLException {
-        String query = "INSERT INTO mesos_db (nickname, final_score, date, num_players) " +
-                       "VALUES (?, ?, ?, ?)";
+    public static void saveToDB(int game_id, String nickname, int finalScore, int numPlayers) throws SQLException {
+        String query = "INSERT INTO mesos_db (game_id, nickname, final_score, date, num_players) " +
+                "VALUES (?, ?, ?, ?, ?)";
         Connection connection = DriverManager.getConnection(url, username, password);
         PreparedStatement ps = connection.prepareStatement(query);
 
-        ps.setString(1, nickname);
-        ps.setInt(2, finalScore);
-        ps.setDate(3, new Date(System.currentTimeMillis()));
-        ps.setInt(4, numPlayers);
+        ps.setInt(1, game_id);
+        ps.setString(2, nickname);
+        ps.setInt(3, finalScore);
+        ps.setDate(4, new Date(System.currentTimeMillis()));
+        ps.setInt(5, numPlayers);
 
         ps.executeUpdate();
 
     }
+
     public static ArrayList<String> readRanking(int numPlayers) throws SQLException {
         String query = "SELECT nickname, SUM(final_score) AS total_score " +
-                       "FROM mesos_db " +
-                       "WHERE num_players = ? " +
-                       "GROUP BY nickname " +
-                       "ORDER BY total_score DESC ";
+                "FROM mesos_db " +
+                "WHERE num_players = ? " +
+                "GROUP BY nickname " +
+                "ORDER BY total_score DESC ";
 
         ArrayList<String> rank = new ArrayList<>();
 
@@ -43,13 +45,28 @@ public class MyJDBC {
         int place = 1;
         while (rs.next()) {
             String tuple = place + ") " +
-                           rs.getString("nickname") +
-                           " - " +
-                           rs.getInt("total_score") + " punti ";
+                    rs.getString("nickname") +
+                    " - " +
+                    rs.getInt("total_score") + " punti ";
             rank.add(tuple);
             place++;
         }
         return rank;
     }
 }
+//    public static void main(String[] args) throws SQLException {
+//
+//        saveToDB(1,"michael", 1, 4);
+//        saveToDB(1,"lorenzo", 15, 4);
+//        saveToDB(1,"marco", 12, 4);
+//        saveToDB(1,"matteo", 10, 4);
+//
+//
+//
+//        ArrayList<String> ranking = readRanking(4);
+//        for (String entry : ranking) {
+//            System.out.println(entry);
+//        }
+//    }
+//}
 

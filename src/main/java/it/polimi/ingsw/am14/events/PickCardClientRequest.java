@@ -6,6 +6,8 @@ import it.polimi.ingsw.am14.exceptions.*;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.sql.SQLException;
+
 public class PickCardClientRequest extends ClientRequest {
 
     private final int cardId;
@@ -21,7 +23,7 @@ public class PickCardClientRequest extends ClientRequest {
         this.row = row;
     }
 
-    public void dispatchRequest(LobbyController controller) throws IllegalNicknameException, WrongStateException, WrongTurnException, UnknownPositionException, IllegalPickException, ForcedPickException, IllegalPlacementException, UnknownNicknameException{
+    public void dispatchRequest(LobbyController controller) throws IllegalNicknameException, WrongStateException, WrongTurnException, UnknownPositionException, IllegalPickException, ForcedPickException, IllegalPlacementException, UnknownNicknameException, SQLException {
         controller.pickCard(this.nickname, this.cardId, this.row);
     }
 }
