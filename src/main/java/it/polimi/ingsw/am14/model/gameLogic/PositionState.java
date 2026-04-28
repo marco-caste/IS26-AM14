@@ -27,14 +27,21 @@ class PositionState extends GameState {
     protected void placeTotem(Game context, Player p, char trackCardName) throws UnknownPositionException, WrongTurnException, IllegalPlacementException {
 
         // retrieves data from the context
-        TrackCard destinationTrackCard = context.getBoard().getOffersPath().offersPathGet(trackCardName);
+        TrackCard destinationTrackCard = context.getBoard().getOffersPath().offersPathGet(Character.toUpperCase(trackCardName));
         int currentPlayerIdx = context.getCurrentPlayerIndex();
 
         if (destinationTrackCard == null) {
             throw new UnknownPositionException("There is no such trackCard with name " + trackCardName);
         }
 
-        Player expectedCurrentPlayer = context.getBoard().getTurnOrderCard().getPlayer(currentPlayerIdx);
+        Player expectedCurrentPlayer;
+        try {
+             expectedCurrentPlayer = context.getBoard().getTurnOrderCard().getPlayer(currentPlayerIdx);
+        } catch (NullPointerException e) {
+            // never actually thrown, but needed for debug purposes
+            throw new RuntimeException("[PositionState] " + e.getMessage());
+        }
+
         if (!expectedCurrentPlayer.equals(p)) {
             throw new WrongTurnException("It's not " + p.getNickname() + "'s turn");
         }
@@ -47,7 +54,7 @@ class PositionState extends GameState {
         destinationTrackCard.setPlayerTotem(p);
         destinationTrackCard.effect();
         // removes p from the TurnOrderCard
-        context.getBoard().getTurnOrderCard().removePlayer(p);
+        context.getBoard().getTurnOrderCard().removePlayer(currentPlayerIdx);
         // increases the currentPlayerIndex
         context.incrementCurrentPlayerIndexBy(1);
 
@@ -79,6 +86,8 @@ class PositionState extends GameState {
     protected void nextState(Game context) {
         // updatest current state
         context.setCurrentState(new PickState());
+        // empties TurnOrderCard
+        context.getBoard().getTurnOrderCard().clearPlayerOrder();
         // sets currentPlayerIndex = 0
         context.setCurrentPlayerIndex(0);
     }
