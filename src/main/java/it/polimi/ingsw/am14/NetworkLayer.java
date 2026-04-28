@@ -1,10 +1,9 @@
 package it.polimi.ingsw.am14;
 
 import it.polimi.ingsw.am14.events.Event;
-import it.polimi.ingsw.am14.socket.server.SocketClientHandler;
+import it.polimi.ingsw.am14.exceptions.IllegalNicknameException;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -12,13 +11,10 @@ public class NetworkLayer implements Observer{
 
     private final Map<Integer, Set<VirtualView>> clients;
     private final Map<String, VirtualView> nicknameToClient;
-    private final Set<VirtualView> waitingClients;
-
 
     public NetworkLayer() {
         this.clients = new HashMap<>();
         this.nicknameToClient = new HashMap<>();
-        this.waitingClients = new HashSet<>();
     }
 
     public void broadcastUpdate(Event update, int gameId) {
@@ -38,8 +34,11 @@ public class NetworkLayer implements Observer{
         }
     }
 
-    public void updateMap(String nickname, VirtualView client) {
+    public void updateMap(String nickname, VirtualView client) throws IllegalNicknameException {
         synchronized (this.nicknameToClient) {
+            if (!this.nicknameToClient.containsKey(nickname)) {
+                throw new IllegalNicknameException("Nickname already in use");
+            }
             this.nicknameToClient.put(nickname, client);
         }
     }
@@ -60,24 +59,6 @@ public class NetworkLayer implements Observer{
     public VirtualView getClientBy(String nickname) {
         synchronized (this.nicknameToClient) {
             return this.nicknameToClient.get(nickname);
-        }
-    }
-
-    public void addWaitingClient(VirtualView handler) {
-        synchronized (this.waitingClients) {
-            this.waitingClients.add(handler);
-        }
-    }
-
-    public boolean containsWaiting(SocketClientHandler sender) {
-        synchronized (this.waitingClients) {
-            return this.waitingClients.contains(sender);
-        }
-    }
-
-    public void removeFromWaiting(SocketClientHandler sender) {
-        synchronized (this.waitingClients) {
-            this.waitingClients.remove(sender);
         }
     }
 }

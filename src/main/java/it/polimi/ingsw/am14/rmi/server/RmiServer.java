@@ -2,82 +2,104 @@ package it.polimi.ingsw.am14.rmi.server;
 
 import it.polimi.ingsw.am14.NetworkLayer;
 import it.polimi.ingsw.am14.controller.LobbyController;
-import it.polimi.ingsw.am14.exceptions.*;
+import it.polimi.ingsw.am14.events.Event;
+import it.polimi.ingsw.am14.events.ExceptionEvent;
 import it.polimi.ingsw.am14.rmi.client.VirtualServerRmi;
 
-import java.rmi.RemoteException;
-import java.rmi.server.UnicastRemoteObject;
-import java.sql.SQLException;
+import java.util.*;
 
-public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
-
+public class RmiServer implements VirtualServerRmi {
     private final LobbyController lobbyController;
     private final NetworkLayer networkLayer;
 
-    public RmiServer(LobbyController lobbyController, NetworkLayer networkLayer) throws RemoteException {
+    public RmiServer(LobbyController lobbyController, NetworkLayer networkLayer) {
         this.lobbyController = lobbyController;
         this.networkLayer = networkLayer;
     }
 
     @Override
-    public void connect(VirtualClientRmi client) throws RemoteException {
-        new Thread(() -> networkLayer.addWaitingClient(client)).start();
-    }
+    public void connect(VirtualClientRmi client, String nickname) throws java.rmi.RemoteException {
+        try {
+            networkLayer.updateMap(nickname, client);
 
-    @Override
-    public void connectUser(String nickname) {
-        new Thread(() -> {
-            try {
-                lobbyController.connectUser(nickname);
-            } catch (IllegalNicknameException e) {
-                throw new RuntimeException(e.getMessage());
-            }
-        }).start();
+            // New thread in order to let Rmi Server handle multiple clients at the same time for the output flow
+            new Thread(() -> {
+
+                long lastPingTime = 0;
+
+                while (true) {
+                    synchronized (client.getEventBuffer()) {
+                        while (client.getEventBuffer().isEmpty()) {
+                            // TODO: ping verso il client per capire se è ancora connesso.
+//                            handler.update(
+//                                    new ServerPing("ping")
+//                            );
+
+                            try {
+                                client.getEventBuffer().wait();    // lazy wait
+                            } catch (InterruptedException _) {}
+                        }
+                        List<Event> eventsToSend = client.getEventBuffer().flushBuffer();
+                        for (Event event : eventsToSend) {
+                            client.update(event);
+                        }
+//                        if (handler.hasDisconnected())
+//                            break;
+                    }
+                }
+            }).start();
+
+            lobbyController.connectUser(nickname);
+        } catch (Exception e) {
+            client.reportError(new ExceptionEvent(e.getMessage()));
+        }
     }
 
     @Override
     public void createGame(String nickname, int numPlayers, String totemColor) {
-        new Thread(() -> {
-            try {
-                lobbyController.createGame(nickname, numPlayers, totemColor);
-            } catch (IllegalSetupException | WrongStateException | IllegalNicknameException e) {
-                throw new RuntimeException(e.getMessage());
-            }
-        }).start();
+        try {
+            lobbyController.createGame(nickname, numPlayers, totemColor);
+            lobbyController.getGameIdByNickname(nickname).ifPresentOrElse(
+                    (id) -> {
+                        networkLayer.updateClients(id, networkLayer.getClientBy(nickname));
+                    },
+                    () -> { }
+            );
+        } catch (Exception e) {
+            networkLayer.getClientBy(nickname).reportError(new ExceptionEvent(e.getMessage()));
+        }
     }
 
     @Override
     public void joinGame(String nickname, int gameId, String totemColor) {
-        new Thread(() -> {
-            try {
-                lobbyController.joinGame(nickname, gameId, totemColor);
-            } catch (WrongStateException | IllegalGameIdException e) {
-                throw new RuntimeException(e.getMessage());
-            }
-        }).start();
+        try {
+            lobbyController.joinGame(nickname, gameId, totemColor);
+            lobbyController.getGameIdByNickname(nickname).ifPresentOrElse(
+                    (id) -> {
+                        networkLayer.updateClients(id, networkLayer.getClientBy(nickname));
+                    },
+                    () -> { }
+            );
+        } catch (Exception e) {
+            networkLayer.getClientBy(nickname).reportError(new ExceptionEvent(e.getMessage()));
+        }
     }
 
     @Override
     public void placeTotem(String nickname, char position) {
-        new Thread(() -> {
-                try {
-                    lobbyController.placeTotem(nickname, position);
-                } catch (IllegalNicknameException | WrongStateException | WrongTurnException | UnknownPositionException | IllegalPlacementException | UnknownNicknameException e) {
-                    throw new RuntimeException(e.getMessage());
-                }
-        }).start();
+        try {
+            lobbyController.placeTotem(nickname, position);
+        } catch (Exception e) {
+            networkLayer.getClientBy(nickname).reportError(new ExceptionEvent(e.getMessage()));
+        }
     }
 
     @Override
     public void pickCard(String nickname, int cardId, int row) {
-        new Thread(() -> {
-            try {
-                lobbyController.pickCard(nickname, cardId, row);
-            } catch (IllegalNicknameException | WrongStateException | WrongTurnException | UnknownPositionException | IllegalPickException | ForcedPickException | IllegalPlacementException | UnknownNicknameException |
-                     SQLException e) {
-                throw new RuntimeException(e.getMessage());
-            }
-        }).start();
+        try {
+            lobbyController.pickCard(nickname, cardId, row);
+        } catch (Exception e) {
+            networkLayer.getClientBy(nickname).reportError(new ExceptionEvent(e.getMessage()));
+        }
     }
-
 }

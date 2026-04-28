@@ -15,7 +15,7 @@ import java.util.Set;
 public class LobbyController {
     private final Map<Integer, GameController> gameIdToGameController;
     private final Map<String, Integer> nicknameToGameId;
-    private final Set<String> activeNicknames;
+    private final Set<String> activeNicknames; //TODO: Da rimuovere se si tiene così l'update in Network layer
     private final NetworkLayer networkLayer;
     //TODO: quando andremo a salvare questi dati salveremo solo nicknameToGameId,
     //      mentre gli altri no, perchè i nickname non saranno attivi e i controller
@@ -105,7 +105,6 @@ public class LobbyController {
             if (hasPlayerAGameAssigned(nickname)) {
                 //Player is reconnecting after a server crash
                 activatePlayer(nickname);
-                //update(PlayerReconnectedEvent(X));
                 int gameId = getGameIdByNickname(nickname).orElseThrow();
 //                if (!hasGameAController(gameId)) {
 //                    //First person to connect to this game after the crash, need to set it up again
@@ -116,6 +115,7 @@ public class LobbyController {
 //                }
                 //TODO: nuovo stato di WaitingRoomAfterCrash in Game onPlayerConncetion?
                 //joinGame(nickname, gameId, null);
+                //update(PlayerReconnectedEvent(X));
             }
             else {
                 //Player is connecting for the first time, add to lobby
