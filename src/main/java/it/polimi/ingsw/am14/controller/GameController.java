@@ -3,13 +3,15 @@ package it.polimi.ingsw.am14.controller;
 import it.polimi.ingsw.am14.exceptions.*;
 import it.polimi.ingsw.am14.model.gameLogic.Game;
 
+import java.sql.SQLException;
+
 public class GameController {
     private Game game;
     public GameController(Game game) {
         this.game = game;
     }
 
-    public void pickCard(String nickname, int cardId, int row) throws WrongStateException, WrongTurnException, UnknownPositionException, IllegalPlacementException, UnknownNicknameException, IllegalPickException, ForcedPickException {
+    public void pickCard(String nickname, int cardId, int row) throws WrongStateException, WrongTurnException, UnknownPositionException, IllegalPlacementException, UnknownNicknameException, IllegalPickException, ForcedPickException, SQLException {
         synchronized (game) {
             game.pickCard(nickname, cardId, row);
         }
