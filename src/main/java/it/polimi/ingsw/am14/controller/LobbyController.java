@@ -94,7 +94,7 @@ public class LobbyController {
         return players;
     }
 
-    public void connectUser(String nickname) throws IllegalNicknameException, IllegalGameIdException, WrongStateException {
+    public void connectUser(String nickname) throws IllegalNicknameException {
         if (isPlayerActive(nickname)) {
             throw new IllegalNicknameException("Nickname is already in use in an active game");
         }
@@ -127,7 +127,10 @@ public class LobbyController {
         }
     }
 
-    public void createGame(String nickname, int numPlayers, String totemColor) throws IllegalSetupException, WrongStateException {
+    public void createGame(String nickname, int numPlayers, String totemColor) throws IllegalSetupException, WrongStateException, IllegalNicknameException {
+        if(isPlayerActive(nickname)) {
+            throw new IllegalNicknameException("Nickname is already in use in an active game");
+        }
         Game game = GameFactory.setup(numPlayers);
         game.addObserver(networkLayer);
         GameController gameController = new GameController(game);

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import it.polimi.ingsw.am14.controller.LobbyController;
+import it.polimi.ingsw.am14.exceptions.IllegalNicknameException;
 import it.polimi.ingsw.am14.exceptions.IllegalSetupException;
 import it.polimi.ingsw.am14.exceptions.WrongStateException;
 
@@ -22,7 +23,7 @@ public class CreateGameClientRequest extends ClientRequest {
         this.totemColor = totemColor;
     }
 
-    public void dispatchRequest(LobbyController controller) throws IllegalSetupException, WrongStateException {
+    public void dispatchRequest(LobbyController controller) throws IllegalSetupException, WrongStateException, IllegalNicknameException {
         controller.createGame(this.nickname, this.numPlayers, this.totemColor);
     }
 }
