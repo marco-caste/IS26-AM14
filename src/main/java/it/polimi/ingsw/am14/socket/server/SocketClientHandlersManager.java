@@ -17,6 +17,8 @@ public class SocketClientHandlersManager {
     private final LobbyController controller;
     private final NetworkLayer networkLayer;
 
+    private static int Thread_number = 0;
+
 
     public SocketClientHandlersManager(ServerSocket listenSocket) {
         this.listenSocket = listenSocket;
@@ -48,7 +50,7 @@ public class SocketClientHandlersManager {
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
-            }).start();
+            }, "ServerThread-Listener" + Thread_number).start();
 
             new Thread(() -> {
 
@@ -75,7 +77,8 @@ public class SocketClientHandlersManager {
                     }
                 }
 
-            }).start();
+            }, "ServerThread-Buffering" + Thread_number).start();
+            Thread_number++;
         }
     }
 

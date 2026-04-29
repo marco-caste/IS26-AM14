@@ -1,6 +1,6 @@
 package it.polimi.ingsw.am14.view;
 
-public class ClientView {
+public class ClientView implements ModelObserver {
 
     public void update(ClientModel model) {
         // Update the view based on the changes in the model

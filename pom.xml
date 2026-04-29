@@ -51,6 +51,16 @@
           <artifactId>annotations</artifactId>
           <version>24.1.0</version>
       </dependency>
+      <dependency>
+          <groupId>org.jline</groupId>
+          <artifactId>jline</artifactId>
+          <version>3.30.0</version>
+      </dependency>
+      <dependency>
+          <groupId>org.jline</groupId>
+          <artifactId>jline-terminal-ffm</artifactId>
+          <version>3.30.0</version>
+      </dependency>
   </dependencies>
   <build>
     <plugins>
@@ -85,6 +95,11 @@
             </goals>
           </execution>
         </executions>
+      </plugin>
+      <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>exec-maven-plugin</artifactId>
+          <version>3.1.0</version>
       </plugin>
     </plugins>
   </build>

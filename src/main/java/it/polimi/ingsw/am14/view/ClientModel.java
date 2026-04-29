@@ -1,5 +1,7 @@
 package it.polimi.ingsw.am14.view;
 
+import it.polimi.ingsw.am14.ViewType;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -7,7 +9,7 @@ import java.util.Map;
 public class ClientModel {
 
     //TODO: Serve replicare la macchina a stati? Come gestiamo i vari turni? aggiungiamo agli eventi qualcosa?
-    List<ClientView> observers;
+    List<ViewType> observers;
     ClientPlayer homePlayer;
     ArrayList<ClientPlayer> otherPlayers =  new ArrayList<>();
     ArrayList<String> playerOrderInTurnOrderCard;
@@ -31,12 +33,12 @@ public class ClientModel {
     }
 
     //Observer methods
-    public void registerObserver(ClientView view) {
+    public void registerObserver(ViewType view) {
         observers.add(view);
     }
 
     public void notifyObservers(){
-        for(ClientView observer : observers){
+        for(ViewType observer : observers){
             observer.update(this);
         }
     }
@@ -70,6 +72,10 @@ public class ClientModel {
         this.otherPlayers = otherPlayers;
     }
 
+    public void setBoard(ArrayList<ArrayList<Integer>> board) {
+        this.board = board;
+    }
+
     public ClientPlayer getPlayerByNickname(String nickname) {
         if (homePlayer != null && homePlayer.getNickname().equals(nickname)) {
             return homePlayer;
@@ -84,6 +90,10 @@ public class ClientModel {
 
     public ArrayList<ArrayList<Integer>> getBoard() {
         return board;
+    }
+
+    public String getMessage() {
+        return message;
     }
 
     public void updatePlayerPosition(String nickname, Character playerPosition) {
@@ -120,10 +130,6 @@ public class ClientModel {
 
     public void addPlayer(ClientPlayer player) {
         otherPlayers.add(player);
-    }
-
-     public void setBoard(ArrayList<ArrayList<Integer>> board) {
-        this.board = board;
     }
 
     public void updatePlayerRoundAttributes(Map<String, ArrayList<Integer>> playersAttributes) {
