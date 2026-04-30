@@ -1,7 +1,7 @@
 package it.polimi.ingsw.am14;
 
 import it.polimi.ingsw.am14.rmi.RmiClientLauncher;
-import it.polimi.ingsw.am14.rmi.client.VirtualServerRmi;
+import it.polimi.ingsw.am14.rmi.client.RmiClient;
 import it.polimi.ingsw.am14.socket.SocketClientLauncher;
 import it.polimi.ingsw.am14.socket.client.VirtualServerSocket;
 import it.polimi.ingsw.am14.view.ClientModel;
@@ -11,10 +11,12 @@ import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStyle;
-import org.jline.utils.InfoCmp;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.rmi.RemoteException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TUIView implements ViewType {
 
@@ -23,6 +25,7 @@ public class TUIView implements ViewType {
     Terminal terminal;
     LineReader lineReader;
     PrintWriter writer;
+    private static final String[] colors = {"white", "purple", "yellow", "red", "blue"};
 
     @Override
     public void run() throws IOException {
@@ -57,14 +60,16 @@ public class TUIView implements ViewType {
                 switch (tokens[0].toLowerCase()) {
                     case "help" -> {
                         writer.println("Available commands:");
-                        writer.println("  exit                  - Exit the application");
-                        writer.println("  help                  - Show this list");
-                        writer.println("  connect [socket|rmi]  - Specify the networking technology to use");
+                        writer.println("  exit                                          - Exit the application");
+                        writer.println("  help                                          - Show this list");
+                        writer.println("  connect [socket|rmi]                          - Specify the networking technology to use");
+                        writer.println("  create [nickname] [numPlayers] [totemColor]   - Create a new game");
+                        writer.println("  join [nickname] [gameId] [totemColor]         - Join an existing game");
                         terminal.flush();
                     }
                     case "connect" -> {
                         try {
-                            connect(tokens);
+                            this.connect(tokens);
                         } catch (IllegalArgumentException e) {
                             writer.println(e.getMessage());
                         }
@@ -73,6 +78,21 @@ public class TUIView implements ViewType {
                     case "exit" -> {
                         terminal.flush();
                         terminal.close();
+                    }
+                    case "create" -> {
+                        try {
+                            this.createGame(tokens);
+                        } catch (RuntimeException e) {
+                            writer.println(e.getMessage());
+                        }
+                        terminal.flush();
+                    }
+                    case "join" -> {
+                        try {
+                            this.joinGame(tokens);
+                        } catch (RuntimeException e) {
+                            writer.println(e.getMessage());
+                        }
                     }
                     default -> {
                         writer.println("Invalid option. Please type 'help' for a list of available commands.");
@@ -107,7 +127,7 @@ public class TUIView implements ViewType {
 
     private void connect(String[] args) throws IllegalArgumentException {
         if (args[1].equalsIgnoreCase("socket")) {
-            VirtualServerSocket serverSocket;
+            VirtualServerSocket socketServerEntryPoint;
             writer.println("please specify the server IP and port");
             terminal.flush();
             String IP = lineReader.readLine("IP: ");
@@ -115,7 +135,7 @@ public class TUIView implements ViewType {
             writer.println("Launching Socket Client...");
             terminal.flush();
             try {
-                serverSocket = SocketClientLauncher.launch(new String[]{IP, port}, this);
+                socketServerEntryPoint = SocketClientLauncher.launch(new String[]{IP, port}, this);
             } catch (IOException e) {
                 writer.println("Failed to connect to server: " + e.getMessage());
                 terminal.flush();
@@ -127,20 +147,20 @@ public class TUIView implements ViewType {
             chosenNickname = lineReader.readLine("Nickname: ");
             writer.println("Connecting to server...");
             terminal.flush();
-            serverSocket.connectUser(chosenNickname);
+            socketServerEntryPoint.connectUser(chosenNickname);
             // no need to wait for a response from the server up to this date (29/4),
             // it does not yet send any ConnectionReceived event.
             writer.println("Connected to server successfully!");
             writer.println("Launching TUI...");
             terminal.flush();
-            this.server = serverSocket;
+            this.server = socketServerEntryPoint;
         }
         else if (args[1].equalsIgnoreCase("rmi")) {
-            VirtualServerRmi serverRmi;
+            RmiClient serverEntryPoint;
             writer.println("Launching RMI Client...");
             terminal.flush();
             try {
-                serverRmi = RmiClientLauncher.launch(this);
+                serverEntryPoint = (RmiClient) RmiClientLauncher.launch(this);
             } catch (Exception e) {
                 writer.println("Failed to connect to server: " + e.getMessage());
                 terminal.flush();
@@ -150,10 +170,12 @@ public class TUIView implements ViewType {
             writer.println("Please enter your nickname");
             terminal.flush();
             chosenNickname = lineReader.readLine("Nickname: ");
+            String IP = lineReader.readLine("IP: ");
+            String port = lineReader.readLine("Port: ");
             writer.println("Connecting to server...");
             terminal.flush();
             try {
-                serverRmi.connect(RmiClientLauncher.getLastClient(), chosenNickname);
+                serverEntryPoint.connect(serverEntryPoint, chosenNickname, IP, Integer.parseInt(port));
             } catch (Exception e) {
                 writer.println("Failed to connect user: " + e.getMessage());
                 terminal.flush();
@@ -162,10 +184,55 @@ public class TUIView implements ViewType {
             writer.println("Connected to server successfully!");
             writer.println("Launching TUI...");
             terminal.flush();
-            this.server = serverRmi;
+            this.server = serverEntryPoint;
         }
         else
             throw new IllegalArgumentException("Invalid connection type. Please specify 'socket' or 'rmi'.");
+    }
+
+    private void createGame(String[] args) throws IllegalArgumentException {
+        if (server == null) {
+            throw new IllegalArgumentException("You must connect to a server before creating a game.");
+        }
+        if (!chosenNickname.equals(args[1])) {
+            // avoids coherence issues between the nickname used to connect to the server and the one used to create the game
+            // TODO: è possibile che diventi necessario un controllo lato server
+            // TODO 2: suspicious: è strano dover specificare il nickname anche nella create, quando già lo si è specificato nella connect.
+            throw new IllegalArgumentException("You must use the same nickname as written on the prompt.");
+        }
+        if (!List.of(colors).contains(args[3].toLowerCase())) {
+            // avoids sending an invalid totem color to the server,
+            // which would cause the server to reject the game creation request and send an error message back to the client
+            // there is a check on server side only for colors already selected by other players (necessarily on there)
+            // TL;DR: preemptive check for speed reasons
+            throw new IllegalArgumentException("Invalid totem color. Available colors: white, purple, yellow, red, blue.");
+        }
+        try {
+            server.createGame(args[1], Integer.parseInt(args[2]), args[3].toLowerCase());
+        } catch (Exception e) {
+            throw new RuntimeException("[Client] A network error occurred while sending your request\nDetails: " + e.getMessage());
+        }
+        writer.println("Game creation request sent successfully!");
+        terminal.flush();
+    }
+
+    private void joinGame(String[] args) throws IllegalArgumentException {
+        if (server == null) {
+            throw new IllegalArgumentException("You must connect to a server before joining a game.");
+        }
+        if (!chosenNickname.equals(args[1])) {
+            throw new IllegalArgumentException("You must use the same nickname as written on the prompt.");
+        }
+        if (!List.of(colors).contains(args[3].toLowerCase())) {
+            throw new IllegalArgumentException("Invalid totem color. Available colors: white, purple, yellow, red, blue.");
+        }
+        try {
+            server.joinGame(args[1], Integer.parseInt(args[2]), args[3].toLowerCase());
+        } catch (Exception e) {
+            throw new RuntimeException("[Client] A network error occurred while sending your request\nDetails: " + e.getMessage());
+        }
+        writer.println("Game join request sent successfully!");
+        terminal.flush();
     }
 
     private void printGameTitle() {

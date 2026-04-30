@@ -11,7 +11,7 @@ import java.rmi.registry.Registry;
 
 public class RmiServerLauncher {
     // TODO: nome server
-    private static final String serverName = "PlaceHolder";
+    private static final String serverName = "AM14MesosServer";
 
     public static void launch(String[] args, Object[] technicalObjects) {
         try {
@@ -21,7 +21,7 @@ public class RmiServerLauncher {
             );
             Registry registry = LocateRegistry.createRegistry(Integer.parseInt(args[1]));
             registry.rebind(serverName, server);
-            System.err.println("[Server] RMI server launched and bound to registry with name: " + serverName);
+            System.err.println("[Server] RMI server launched and bound to registry with name " + serverName + " on port " + args[1]);
         } catch (RemoteException e) {
             System.err.println("[Server] Fatal error launching RMI server: " + e.getMessage());
         }

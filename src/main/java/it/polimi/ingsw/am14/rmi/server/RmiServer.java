@@ -14,6 +14,7 @@ public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
     private final LobbyController lobbyController;
     private final NetworkLayer networkLayer;
 
+
     public RmiServer(LobbyController lobbyController, NetworkLayer networkLayer) throws RemoteException {
         super();
         this.lobbyController = lobbyController;
@@ -23,6 +24,7 @@ public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
     @Override
     public void connect(VirtualClientRmi client, String nickname) throws RemoteException {
         try {
+            // TODO: tutto ciò deve essere assegnato ad un ulteriore thread
             networkLayer.updateNicknameMap(nickname, client);
 
             // New thread in order to let Rmi Server handle multiple clients at the same time for the output flow
@@ -44,13 +46,20 @@ public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
                         }
                         List<Event> eventsToSend = networkLayer.getBuffer(client).flushBuffer();
                         for (Event event : eventsToSend) {
-                            client.update(event);
+                            // TODO: gestione delle RemoteException
+                            //==================================================================
+                            try {
+                                client.update(event);
+                            } catch (RemoteException e) {
+                                throw new RuntimeException(e.getMessage());
+                            }
+                            //==================================================================
                         }
 //                        if (handler.hasDisconnected())
 //                            break;
                     }
                 }
-            }).start();
+            }, "RMIConnect-" + nickname).start();
 
             lobbyController.connectUser(nickname);
         } catch (Exception e) {
@@ -70,9 +79,16 @@ public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
                         () -> { }
                 );
             } catch (Exception e) {
-                networkLayer.getClientBy(nickname).reportError(new ExceptionEvent(e.getMessage()));
+                // TODO: gestione delle RemoteException
+                //======================================================================================================
+                try {
+                    networkLayer.getClientBy(nickname).reportError(new ExceptionEvent(e.getMessage()));
+                } catch (Exception ex) {
+                    throw new RuntimeException(ex);
+                }
+                //======================================================================================================
             }
-        }).start();
+        }, "RMICreate-" + nickname).start();
     }
 
     @Override
@@ -87,9 +103,16 @@ public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
                         () -> { }
                 );
             } catch (Exception e) {
-                networkLayer.getClientBy(nickname).reportError(new ExceptionEvent(e.getMessage()));
+                // TODO: gestione delle RemoteException
+                //======================================================================================================
+                try {
+                    networkLayer.getClientBy(nickname).reportError(new ExceptionEvent(e.getMessage()));
+                } catch (Exception ex) {
+                    throw new RuntimeException(ex);
+                }
+                //======================================================================================================
             }
-        }).start();
+        }, "RMIJoin-" + nickname).start();
     }
 
     @Override
@@ -98,9 +121,16 @@ public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
             try {
                 lobbyController.placeTotem(nickname, position);
             } catch (Exception e) {
-                networkLayer.getClientBy(nickname).reportError(new ExceptionEvent(e.getMessage()));
+                // TODO: gestione delle RemoteException
+                //======================================================================================================
+                try {
+                    networkLayer.getClientBy(nickname).reportError(new ExceptionEvent(e.getMessage()));
+                } catch (Exception ex) {
+                    throw new RuntimeException(ex);
+                }
+                //======================================================================================================
             }
-        }).start();
+        }, "RMIPlace-" + nickname).start();
     }
 
     @Override
@@ -109,8 +139,15 @@ public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
             try {
                 lobbyController.pickCard(nickname, cardId, row);
             } catch (Exception e) {
-                networkLayer.getClientBy(nickname).reportError(new ExceptionEvent(e.getMessage()));
+                // TODO: gestione delle RemoteException
+                //======================================================================================================
+                try {
+                    networkLayer.getClientBy(nickname).reportError(new ExceptionEvent(e.getMessage()));
+                } catch (Exception ex) {
+                    throw new RuntimeException(ex);
+                }
+                //======================================================================================================
             }
-        }).start();
+        }, "RMIPick-" + nickname).start();
     }
 }
