@@ -22,12 +22,12 @@ public class SocketClientHandlersManager {
 
     private final Set<SocketClientHandler> waitingClients;
 
-    public SocketClientHandlersManager(ServerSocket listenSocket) {
+    public SocketClientHandlersManager(ServerSocket listenSocket, LobbyController controller, NetworkLayer networkLayer) {
         this.listenSocket = listenSocket;
         this.waitingClients = new HashSet<>();
         // TODO: COSTRUZIONE DA FARE NEL MAIN
-        this.networkLayer = new NetworkLayer();
-        this.controller = new LobbyController(networkLayer);
+        this.networkLayer = networkLayer;
+        this.controller = controller;
     }
 
     public void runServer() throws IOException {

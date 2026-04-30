@@ -6,19 +6,22 @@ import it.polimi.ingsw.am14.events.Event;
 import it.polimi.ingsw.am14.events.ExceptionEvent;
 import it.polimi.ingsw.am14.rmi.client.VirtualServerRmi;
 
+import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 
-public class RmiServer implements VirtualServerRmi {
+public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
     private final LobbyController lobbyController;
     private final NetworkLayer networkLayer;
 
-    public RmiServer(LobbyController lobbyController, NetworkLayer networkLayer) {
+    public RmiServer(LobbyController lobbyController, NetworkLayer networkLayer) throws RemoteException {
+        super();
         this.lobbyController = lobbyController;
         this.networkLayer = networkLayer;
     }
 
     @Override
-    public void connect(VirtualClientRmi client, String nickname) throws java.rmi.RemoteException {
+    public void connect(VirtualClientRmi client, String nickname) throws RemoteException {
         try {
             networkLayer.updateNicknameMap(nickname, client);
 
@@ -56,7 +59,7 @@ public class RmiServer implements VirtualServerRmi {
     }
 
     @Override
-    public void createGame(String nickname, int numPlayers, String totemColor) {
+    public void createGame(String nickname, int numPlayers, String totemColor) throws RemoteException {
         new Thread(() -> {
             try {
                 lobbyController.createGame(nickname, numPlayers, totemColor);
@@ -73,7 +76,7 @@ public class RmiServer implements VirtualServerRmi {
     }
 
     @Override
-    public void joinGame(String nickname, int gameId, String totemColor) {
+    public void joinGame(String nickname, int gameId, String totemColor) throws RemoteException {
         new Thread(() -> {
             try {
                 lobbyController.joinGame(nickname, gameId, totemColor);
@@ -90,7 +93,7 @@ public class RmiServer implements VirtualServerRmi {
     }
 
     @Override
-    public void placeTotem(String nickname, char position) {
+    public void placeTotem(String nickname, char position) throws RemoteException {
         new Thread(() -> {
             try {
                 lobbyController.placeTotem(nickname, position);
@@ -101,7 +104,7 @@ public class RmiServer implements VirtualServerRmi {
     }
 
     @Override
-    public void pickCard(String nickname, int cardId, int row) {
+    public void pickCard(String nickname, int cardId, int row) throws RemoteException {
         new Thread(() -> {
             try {
                 lobbyController.pickCard(nickname, cardId, row);

@@ -13,6 +13,7 @@ public class EventBuffer {
 
     public synchronized void addEvent(Event event) {
         this.buffer.addLast(event);
+        // essentially sends an event as soon as it is added to the buffer
         notify();
     }
 
