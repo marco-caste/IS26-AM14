@@ -5,7 +5,7 @@ import it.polimi.ingsw.am14.socket.server.SocketClientHandlersManager;
 import java.io.IOException;
 import java.net.ServerSocket;
 
-public class SocketServerMain {
+public class SocketServerLauncher {
     public static final int port = 12345;
 
     public static void main(String[] args) {

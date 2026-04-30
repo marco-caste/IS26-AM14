@@ -102,7 +102,9 @@ public class TurnOrderCard {
      * @param index >= 0
      * @return this.playerOrder.get(index)
      */
-    public Player getPlayer(int index) {
+    public Player getPlayer(int index) throws NullPointerException{
+        if (this.playerOrder.get(index) == null)
+            throw new NullPointerException("Player at index " + index + " has already been removed from the TurnOrderCard");
         return this.playerOrder.get(index);
     }
 
@@ -110,7 +112,7 @@ public class TurnOrderCard {
         return new ArrayList<>(playerOrder);
     }
 
-    public void removePlayer(Player p) {
-        this.playerOrder.remove(p);
+    public void removePlayer(int playerIndex) {
+        this.playerOrder.set(playerIndex, null);
     }
 }
