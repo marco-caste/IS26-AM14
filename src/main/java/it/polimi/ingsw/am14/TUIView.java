@@ -139,13 +139,30 @@ public class TUIView implements ViewType {
             VirtualServerRmi serverRmi;
             writer.println("Launching RMI Client...");
             terminal.flush();
-            // TODO: does the client->server communication need to cross the RMI client?
-            // if so, the RMI client should also implement the virtualServer interface,
-            // and forward the calls to the real RMI server
-//            serverRmi = RmiClientLauncher.launch(new String[]{});
-            // connect[...]
-
-//            this.server = serverRmi;
+            try {
+                serverRmi = RmiClientLauncher.launch(this);
+            } catch (Exception e) {
+                writer.println("Failed to connect to server: " + e.getMessage());
+                terminal.flush();
+                return;
+            }
+            writer.println("RMI Client launched successfully!");
+            writer.println("Please enter your nickname");
+            terminal.flush();
+            chosenNickname = lineReader.readLine("Nickname: ");
+            writer.println("Connecting to server...");
+            terminal.flush();
+            try {
+                serverRmi.connect(RmiClientLauncher.getLastClient(), chosenNickname);
+            } catch (Exception e) {
+                writer.println("Failed to connect user: " + e.getMessage());
+                terminal.flush();
+                return;
+            }
+            writer.println("Connected to server successfully!");
+            writer.println("Launching TUI...");
+            terminal.flush();
+            this.server = serverRmi;
         }
         else
             throw new IllegalArgumentException("Invalid connection type. Please specify 'socket' or 'rmi'.");
