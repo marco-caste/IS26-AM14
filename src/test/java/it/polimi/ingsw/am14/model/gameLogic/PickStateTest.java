@@ -17,6 +17,7 @@ import it.polimi.ingsw.am14.model.cards.deckCards.InventionType;
 import it.polimi.ingsw.am14.model.cards.deckCards.Shaman;
 import org.junit.jupiter.api.Test;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -830,7 +831,7 @@ public class PickStateTest {
     }
 
     @Test
-    public void testTransitionFalse() throws WrongTurnException, IllegalPickException, ForcedPickException {
+    public void testTransitionFalse() throws WrongTurnException, IllegalPickException, ForcedPickException, SQLException {
         TestFixture fixture = buildFixture();
         putTotem(fixture, 'B', fixture.p1);
         putTotem(fixture, 'C', fixture.p2);
@@ -856,7 +857,7 @@ public class PickStateTest {
     }
 
     @Test
-    public void testAddTopPickSkipMandatory() throws IllegalPickException, ForcedPickException, WrongStateException, WrongTurnException, UnknownNicknameException {
+    public void testAddTopPickSkipMandatory() throws IllegalPickException, ForcedPickException, WrongStateException, WrongTurnException, UnknownNicknameException, SQLException {
         TestFixture fixture = buildFixture();
         putTotem(fixture, 'B', fixture.p1);
         putTotem(fixture, 'C', fixture.p2);

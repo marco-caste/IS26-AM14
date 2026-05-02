@@ -1,8 +1,9 @@
 package it.polimi.ingsw.am14;
 
+import it.polimi.ingsw.am14.network.NetworkLayer;
 import it.polimi.ingsw.am14.controller.LobbyController;
-import it.polimi.ingsw.am14.rmi.RmiServerLauncher;
-import it.polimi.ingsw.am14.socket.SocketServerLauncher;
+import it.polimi.ingsw.am14.network.rmi.RmiServerLauncher;
+import it.polimi.ingsw.am14.network.socket.SocketServerLauncher;
 
 public class ServerLauncher {
 //    args[0] = socket port

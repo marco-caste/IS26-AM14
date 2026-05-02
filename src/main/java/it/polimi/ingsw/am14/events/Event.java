@@ -1,10 +1,12 @@
 package it.polimi.ingsw.am14.events;
 
-import it.polimi.ingsw.am14.NetworkLayer;
-import it.polimi.ingsw.am14.view.ClientModel;
+import it.polimi.ingsw.am14.network.NetworkLayer;
+import it.polimi.ingsw.am14.clientModel.ClientModel;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
+import java.io.Serializable;
 
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
@@ -23,7 +25,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
         @JsonSubTypes.Type(value = ExceptionEvent.class, name = "ExceptionEvent")
 })
 
-public abstract class Event {
+public abstract class Event implements Serializable {
     // a brief description of the event, for logging purposes
     protected String description;
 

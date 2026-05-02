@@ -1,6 +1,6 @@
 package it.polimi.ingsw.am14.model.gameLogic;
 
-import it.polimi.ingsw.am14.MyJDBC;
+import it.polimi.ingsw.am14.utils.MyJDBC;
 import it.polimi.ingsw.am14.events.EndGameEvent;
 import it.polimi.ingsw.am14.model.boardComponents.Board;
 import it.polimi.ingsw.am14.model.cards.buildings.Building;

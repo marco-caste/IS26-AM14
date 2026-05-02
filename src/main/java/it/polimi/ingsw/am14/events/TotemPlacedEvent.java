@@ -2,7 +2,7 @@ package it.polimi.ingsw.am14.events;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import it.polimi.ingsw.am14.NetworkLayer;
+import it.polimi.ingsw.am14.network.NetworkLayer;
 
 
 public class TotemPlacedEvent extends UpdateEvent {
@@ -42,7 +42,7 @@ public class TotemPlacedEvent extends UpdateEvent {
 
 
     @Override
-    public void effect(it.polimi.ingsw.am14.view.ClientModel model) {
+    public void effect(it.polimi.ingsw.am14.clientModel.ClientModel model) {
         model.setMessage(description);
         model.updatePlayerPosition(playerNickname, trackCardName);
         model.removePlayerFromTurnOrderCard(removedTotemIndex);

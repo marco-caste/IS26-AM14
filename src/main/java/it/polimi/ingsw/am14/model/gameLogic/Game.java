@@ -1,7 +1,6 @@
 package it.polimi.ingsw.am14.model.gameLogic;
 
-import it.polimi.ingsw.am14.Observable;
-import it.polimi.ingsw.am14.Observer;
+import it.polimi.ingsw.am14.network.Observer;
 import it.polimi.ingsw.am14.events.Event;
 import it.polimi.ingsw.am14.exceptions.*;
 import it.polimi.ingsw.am14.model.boardComponents.Board;

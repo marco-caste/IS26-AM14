@@ -1,6 +1,6 @@
 package it.polimi.ingsw.am14.controller;
 
-import it.polimi.ingsw.am14.NetworkLayer;
+import it.polimi.ingsw.am14.network.NetworkLayer;
 import it.polimi.ingsw.am14.exceptions.*;
 import it.polimi.ingsw.am14.model.gameLogic.Game;
 import it.polimi.ingsw.am14.model.gameLogic.GameFactory;
