@@ -25,6 +25,7 @@ public class EndRoundEvent extends UpdateEvent {
     // attributes
     private final ArrayList<ArrayList<Integer>> board;
     private final Map<String, ArrayList<Integer>> playersAttributes;          // pos0 = numFood, pos1 = numPrestigePoints
+    @JsonIgnore
     private int gameId; // only used for bufferization, will not be sent to the client
 
     public EndRoundEvent(final Board board,final List<Player> players, int gameId) {
@@ -71,13 +72,13 @@ public class EndRoundEvent extends UpdateEvent {
     public EndRoundEvent(
             @JsonProperty("board") ArrayList<ArrayList<Integer>> board,
             @JsonProperty("playersAttributes") Map<String, ArrayList<Integer>> playersAttributes,
-            @JsonProperty("description") String description){
+            @JsonProperty("description") String description) {
         super(description);
         this.board = board;
         this.playersAttributes = playersAttributes;
     }
 
-    @JsonIgnore
+
     public int getGameId() {
         return gameId;
     }
@@ -100,12 +101,6 @@ public class EndRoundEvent extends UpdateEvent {
         return board;
     }
 
-    @JsonIgnore
-    public String getMessage(){
-        return description;
-    }
-
-    @JsonIgnore
     public Map<String,ArrayList<Integer>> getPlayerAttributes()  {
         return playersAttributes;
     }

@@ -53,12 +53,17 @@
       </dependency>
       <dependency>
           <groupId>org.jline</groupId>
-          <artifactId>jline</artifactId>
+          <artifactId>jline-terminal-ffm</artifactId>
           <version>3.30.0</version>
       </dependency>
       <dependency>
           <groupId>org.jline</groupId>
-          <artifactId>jline-terminal-ffm</artifactId>
+          <artifactId>jline-terminal</artifactId>
+          <version>3.30.0</version>
+      </dependency>
+      <dependency>
+          <groupId>org.jline</groupId>
+          <artifactId>jline-reader</artifactId>
           <version>3.30.0</version>
       </dependency>
   </dependencies>

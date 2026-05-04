@@ -19,6 +19,7 @@ import java.util.List;
 
 public class TUIView implements ViewType {
 
+    ClientModel model;
     VirtualServer server;
     String chosenNickname = null;
     Terminal terminal;
@@ -36,7 +37,7 @@ public class TUIView implements ViewType {
 
             terminal = TerminalBuilder.builder()
                     .system(true)
-                    .provider("ffm")
+                    .ffm(true)
                     .build();
 
             lineReader = LineReaderBuilder.builder()
@@ -64,6 +65,9 @@ public class TUIView implements ViewType {
                         writer.println("  connect [socket|rmi]                          - Specify the networking technology to use");
                         writer.println("  create [nickname] [numPlayers] [totemColor]   - Create a new game");
                         writer.println("  join [nickname] [gameId] [totemColor]         - Join an existing game");
+                        writer.println("  pick [nickname] [cardID] [row]                - Pick the specified card");
+                        writer.println("  place [nickname] [position]                   - Place the totem on the specified position");
+                        writer.println("  show                                          - Show the current game state");
                         terminal.flush();
                     }
                     case "connect" -> {
@@ -83,14 +87,39 @@ public class TUIView implements ViewType {
                             this.createGame(tokens);
                         } catch (RuntimeException e) {
                             writer.println(e.getMessage());
+                            terminal.flush();
                         }
-                        terminal.flush();
                     }
                     case "join" -> {
                         try {
                             this.joinGame(tokens);
                         } catch (RuntimeException e) {
                             writer.println(e.getMessage());
+                            terminal.flush();
+                        }
+                    }
+                    case "pick" -> {
+                        try {
+                            this.pickCard(tokens);
+                        } catch (IllegalArgumentException e) {
+                            writer.println(e.getMessage());
+                            terminal.flush();
+                        }
+                    }
+                    case "place" -> {
+                        try {
+                            this.placeTotem(tokens);
+                        } catch (IllegalArgumentException e) {
+                            writer.println(e.getMessage());
+                            terminal.flush();
+                        }
+                    }
+                    case "show" -> {
+                        try {
+                            this.show();
+                        } catch (IllegalArgumentException e) {
+                            writer.println(e.getMessage());
+                            terminal.flush();
                         }
                     }
                     default -> {
@@ -112,19 +141,72 @@ public class TUIView implements ViewType {
         // it will also display the updated representation of the game state.
 
         // for now, it simply displays the message received from the server, but in the future it will also display the updated game state.
-//        writer.println(model.getMessage());
+//        writer.println(model.getDescription());
 //        terminal.flush();
 
         // TODO: potrebbe essere comodo un buffer in ricezione per evitare race conditions su writer (e quindi terminal)
         // in questo modo, quando arriva un evento, lo aggiungo al buffer e poi lo stampo da lì, così evito di avere più thread che scrivono contemporaneamente su terminal.
         // e evito che venga esposto il prompt "nickname> " in mezzo a messaggi di aggiornamento del modello.
 
-        // SOLUZIONE: reader.printAbove(model.getMessage());
+        // SOLUZIONE: reader.printAbove(model.getDescription());
         // allows to print a received message above the current prompt, avoiding the race conditions on writer (?)
-        lineReader.printAbove("[Server]: " + model.getMessage());
+        lineReader.printAbove("[Server]: " + model.getMessage() + "\n" + model.getBoard().toString());
+    }
+
+    private void show() {
+        writer.println("TODO");
+        /*
+        template: show [nickname|cardId|turnOrderCard|offersPath] <nickname> <cardId>
+
+        use a alternate_ca_mode for showing:
+        - on the left, the 4 rows in the board filled with card ids
+        - on the right, the details queried by user
+            - stats of a player
+            - details of a card
+            - details of the offers path
+            - the turn order card
+         */
+    }
+
+    private void pickCard(String[] args) throws IllegalArgumentException {
+        if (server == null) {
+            throw new IllegalArgumentException("You must connect to a server before picking a card.");
+        }
+        if (!chosenNickname.equals(args[1])) {
+            throw new IllegalArgumentException("You must use the same nickname as written on the prompt.");
+        }
+        try {
+            server.pickCard(args[1], Integer.parseInt(args[2]), Integer.parseInt(args[3]));
+        } catch (Exception e) {
+            throw new RuntimeException("[Client] A network error occurred while sending your request\nDetails: " + e.getMessage());
+        }
+        writer.println("Card pick request sent successfully!");
+        terminal.flush();
+    }
+
+    private void placeTotem(String[] args) throws IllegalArgumentException {
+        if (server == null) {
+            throw new IllegalArgumentException("You must connect to a server before placing the totem.");
+        }
+        if (!chosenNickname.equals(args[1])) {
+            throw new IllegalArgumentException("You must use the same nickname as written on the prompt.");
+        }
+        try {
+            server.placeTotem(args[1], args[2].charAt(0));
+        } catch (Exception e) {
+            throw new RuntimeException("[Client] A network error occurred while sending your request\nDetails: " + e.getMessage());
+        }
+        writer.println("Totem placement request sent successfully!");
+        terminal.flush();
     }
 
     private void connect(String[] args) throws IllegalArgumentException {
+        // instantiates new model
+        this.model = new ClientModel();
+        this.model.registerObserver(this);
+
+        // checks connection type
+        // TODO: factory pattern
         if (args[1].equalsIgnoreCase("socket")) {
             VirtualServerSocket socketServerEntryPoint;
             writer.println("please specify the server IP and port");
@@ -134,7 +216,7 @@ public class TUIView implements ViewType {
             writer.println("Launching Socket Client...");
             terminal.flush();
             try {
-                socketServerEntryPoint = SocketClientLauncher.launch(new String[]{IP, port}, this);
+                socketServerEntryPoint = SocketClientLauncher.launch(new String[]{IP, port}, this, this.model);
             } catch (IOException e) {
                 writer.println("Failed to connect to server: " + e.getMessage());
                 terminal.flush();
@@ -159,7 +241,7 @@ public class TUIView implements ViewType {
             writer.println("Launching RMI Client...");
             terminal.flush();
             try {
-                serverEntryPoint = (RmiClient) RmiClientLauncher.launch(this);
+                serverEntryPoint = (RmiClient) RmiClientLauncher.launch(this, this.model);
             } catch (Exception e) {
                 writer.println("Failed to connect to server: " + e.getMessage());
                 terminal.flush();

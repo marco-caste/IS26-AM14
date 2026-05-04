@@ -26,16 +26,6 @@ public class CardPickedEvent extends UpdateEvent {
         super("");
         int ID = card == null ? -1 : card.getId();
 
-        updatedTurnOrderCard.ifPresentOrElse(
-            (turnOrder) -> {
-                this.updatedTurnOrderCard = turnOrder.stream().
-                        map(Player::getNickname).
-                        collect(Collectors.toCollection(ArrayList::new));
-                this.description += "Was " + playerNickname + "'s last pick, turnOrderCard has been updated\n";
-            },
-            () -> this.updatedTurnOrderCard = null
-        );
-
         if (ID < 0) {
             this.description += "Player " + playerNickname + " has skipped the turn";
             this.playerNickname = playerNickname;
@@ -61,6 +51,16 @@ public class CardPickedEvent extends UpdateEvent {
         this.playerPrestigePoints = playerPrestigePoints;
         this.gameId = gameId;
         this.description += "Player " + playerNickname + " has picked card with ID " + cardID + " from " + rowName;
+
+        updatedTurnOrderCard.ifPresentOrElse(
+                (turnOrder) -> {
+                    this.updatedTurnOrderCard = turnOrder.stream().
+                            map(Player::getNickname).
+                            collect(Collectors.toCollection(ArrayList::new));
+                    this.description += "Was " + playerNickname + "'s last pick, turnOrderCard has been updated\n";
+                },
+                () -> this.updatedTurnOrderCard = null
+        );
     }
 
     // called by the JSON parser

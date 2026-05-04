@@ -13,7 +13,7 @@ public class ClientModel {
     ClientPlayer homePlayer;
     ArrayList<ClientPlayer> otherPlayers =  new ArrayList<>();
     ArrayList<String> playerOrderInTurnOrderCard;
-    ArrayList<ArrayList<Integer>> board;;
+    ArrayList<ArrayList<Integer>> board;
 
     int turnOrderCardIndex; // it's needed to build the right TurnorderCard in the view, it depends on this index.
     int gameId;

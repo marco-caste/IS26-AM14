@@ -10,7 +10,7 @@ import java.net.Socket;
 
 public class SocketClientLauncher {
 
-    public static SocketServerHandler launch(String[] args, ViewType view) throws IOException {
+    public static SocketServerHandler launch(String[] args, ViewType view, ClientModel model) throws IOException {
         String IP = args[0];
         int port = Integer.parseInt(args[1]);
         Socket socket = new Socket(IP, port);
@@ -19,9 +19,6 @@ public class SocketClientLauncher {
         BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 
         SocketServerHandler serverHandler = new SocketServerHandler(out);
-
-        ClientModel model = new ClientModel();
-        model.registerObserver(view);
 
         SocketClient client = new SocketClient(in, out, model, serverHandler);
 

@@ -19,6 +19,7 @@ public class RmiClient extends UnicastRemoteObject implements VirtualClientRmi, 
     private VirtualServerRmi server;
 
     public RmiClient(ClientModel model) throws RemoteException {
+        super();
         this.model = model;
     }
 
@@ -42,10 +43,10 @@ public class RmiClient extends UnicastRemoteObject implements VirtualClientRmi, 
         Registry registry = LocateRegistry.getRegistry(ipAddress, port);
         try {
             this.server = (VirtualServerRmi) registry.lookup(serverName);
+            server.connect(this, nickname);
         } catch (NotBoundException e) {
             throw new RuntimeException(e.getMessage());
         }
-        server.connect(this, nickname);
     }
 
     /**

@@ -11,13 +11,7 @@ import java.rmi.RemoteException;
 
 public class RmiClientLauncher {
 
-    // Configurazione RMI - Valori statici
-    private static final String SERVER_NAME = "AM14MesosServer";
-
-    public static VirtualServer launch(ViewType view) throws IOException, NotBoundException, RemoteException {
-
-        ClientModel model = new ClientModel();
-        model.registerObserver(view);
+    public static VirtualServer launch(ViewType view, ClientModel model) throws IOException, NotBoundException, RemoteException {
 
         return new RmiClient(model);
 
