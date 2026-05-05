@@ -8,11 +8,11 @@ import java.util.Map;
 
 public class ClientModel {
 
-    //TODO: Serve replicare la macchina a stati? Come gestiamo i vari turni? aggiungiamo agli eventi qualcosa?
     List<ViewType> observers;
     ClientPlayer homePlayer;
     ArrayList<ClientPlayer> otherPlayers =  new ArrayList<>();
     ArrayList<String> playerOrderInTurnOrderCard;
+    // TODO: turnOrderCard e TrackCard
     ArrayList<ArrayList<Integer>> board;
 
     int turnOrderCardIndex; // it's needed to build the right TurnorderCard in the view, it depends on this index.

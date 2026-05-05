@@ -305,6 +305,56 @@
       "id": 82,
       "age": 3,
       "numStars": 3
+    },
+    {
+      "type": "huntEvent",
+      "id": 84,
+      "age": 1
+    },
+    {
+      "type": "sustenanceEvent",
+      "id": 85,
+      "age": 1
+    },
+    {
+      "type": "shamanEvent",
+      "id": 86,
+      "age": 1
+    },
+    {
+      "type": "paintEvent",
+      "id": 87,
+      "age": 1
+    },
+    {
+      "type": "huntEvent",
+      "id": 88,
+      "age": 2
+    },
+    {
+      "type": "sustenanceEvent",
+      "id": 89,
+      "age": 2
+    },
+    {
+      "type": "shamanEvent",
+      "id": 90,
+      "age": 2
+    },
+    {
+      "type": "paintEvent",
+      "id": 91,
+      "age": 2
+    },
+    {
+      "type": "huntEvent",
+      "id": 92,
+      "age": 3
+    },
+    {
+      "type": "paintEvent",
+      "id": 93,
+      "age": 3
     }
   ],
   [
@@ -439,56 +489,6 @@
       "id": 83,
       "age": 3,
       "numStars": 2
-    },
-    {
-      "type": "huntEvent",
-      "id": 84,
-      "age": 1
-    },
-    {
-      "type": "sustenanceEvent",
-      "id": 85,
-      "age": 1
-    },
-    {
-      "type": "shamanEvent",
-      "id": 86,
-      "age": 1
-    },
-    {
-      "type": "paintEvent",
-      "id": 87,
-      "age": 1
-    },
-    {
-      "type": "huntEvent",
-      "id": 88,
-      "age": 2
-    },
-    {
-      "type": "sustenanceEvent",
-      "id": 89,
-      "age": 2
-    },
-    {
-      "type": "shamanEvent",
-      "id": 90,
-      "age": 2
-    },
-    {
-      "type": "paintEvent",
-      "id": 91,
-      "age": 2
-    },
-    {
-      "type": "huntEvent",
-      "id": 92,
-      "age": 3
-    },
-    {
-      "type": "paintEvent",
-      "id": 93,
-      "age": 3
     }
   ],
   [

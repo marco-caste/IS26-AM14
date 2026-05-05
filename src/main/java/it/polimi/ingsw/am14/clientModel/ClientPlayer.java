@@ -62,4 +62,13 @@ public class ClientPlayer {
     public List<Integer> getPlayerTribe() {
         return playerTribe;
     }
+
+    @Override
+    public String toString() {
+        return  "nickname='" + nickname + '\'' +
+                ", totemColor='" + totemColor + '\'' +
+                ", numFood=" + numFood +
+                ", numPrestigePoints=" + numPrestigePoints +
+                ", playerPosition=" + playerPosition;
+    }
 }

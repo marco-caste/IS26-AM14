@@ -19,11 +19,12 @@ import java.util.List;
 
 public class TUIView implements ViewType {
 
-    VirtualServer server;
-    String chosenNickname = null;
-    Terminal terminal;
-    LineReader lineReader;
-    PrintWriter writer;
+    private ClientModel modelReference = null;
+    private VirtualServer server;
+    private String chosenNickname = null;
+    private Terminal terminal;
+    private LineReader lineReader;
+    private PrintWriter writer;
     private static final String[] colors = {"white", "purple", "yellow", "red", "blue"};
 
     @Override
@@ -137,13 +138,16 @@ public class TUIView implements ViewType {
     @Override
     public void update(ClientModel model) {
 
+        if (this.modelReference == null)
+            this.modelReference = model;
         // SOLUZIONE: reader.printAbove(model.getDescription());
         // allows to print a received message above the current prompt, avoiding the race conditions on writer (?)
         lineReader.printAbove("[Server]: " + model.getMessage() + "\nBoard:\n" + model.getBoard().toString());
     }
 
     private void show() {
-        writer.println("TODO");
+        writer.println(modelReference.getPlayerByNickname(chosenNickname).toString());
+
         /*
         template: show [nickname|cardId|turnOrderCard|offersPath] <nickname> <cardId>
 
