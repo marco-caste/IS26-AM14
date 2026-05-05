@@ -162,6 +162,7 @@ public class LobbyController {
                 removePlayerFromLobby(nickname);
                 getPlayersByGameId(gameId).forEach(this::addPlayerToLobby);
                 // TODO: TERMINATES THE THREAD THAT FLUSHES THE UPDATE QUEUE TO THIS CLIENT.
+
                 //update(PlayerDisconnectedEvent(X));
                 return;
             }

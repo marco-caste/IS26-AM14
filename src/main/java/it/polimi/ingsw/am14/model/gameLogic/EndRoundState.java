@@ -15,6 +15,9 @@ class EndRoundState extends GameState {
      */
     @Override
     protected void nextState(Game context) {
+        context.notifyObservers(
+                new EndRoundEvent(context.getBoard(), context.getPlayers(), context.getGameId())
+        );
         context.setCurrentState(new PositionState());
     }
 
@@ -78,9 +81,6 @@ class EndRoundState extends GameState {
         }
 
         // observer pattern: sends event to event buffer
-        context.notifyObservers(
-                new EndRoundEvent(context.getBoard(), context.getPlayers(), context.getGameId())
-        );
 
         this.nextState(context);
     }

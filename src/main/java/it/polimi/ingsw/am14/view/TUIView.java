@@ -60,14 +60,14 @@ public class TUIView implements ViewType {
                 switch (tokens[0].toLowerCase()) {
                     case "help" -> {
                         writer.println("Available commands:");
-                        writer.println("  exit                                          - Exit the application");
-                        writer.println("  help                                          - Show this list");
-                        writer.println("  connect [socket|rmi]                          - Specify the networking technology to use");
-                        writer.println("  create [nickname] [numPlayers] [totemColor]   - Create a new game");
-                        writer.println("  join [nickname] [gameId] [totemColor]         - Join an existing game");
-                        writer.println("  pick [nickname] [cardID] [row]                - Pick the specified card");
-                        writer.println("  place [nickname] [position]                   - Place the totem on the specified position");
-                        writer.println("  show                                          - Show the current game state");
+                        writer.println("  exit\n\n\t- Exit the application");
+                        writer.println("  help\n\n\t- Show this list");
+                        writer.println("  connect [socket|rmi]\n\n\t- Specify the networking technology to use");
+                        writer.println("  create [nickname] [numPlayers] [totemColor]\n\n\t- Create a new game");
+                        writer.println("  join [nickname] [gameId] [totemColor]\n\n\t- Join an existing game");
+                        writer.println("  pick [nickname] [cardID] [row]\n\n\t- Pick the specified card");
+                        writer.println("  place [nickname] [position]\n\n\t- Place the totem on the specified position");
+                        writer.println("  show [nickname|cardId|turnOrderCard|offersPath] <nickname> | <cardId row>\n\n\t- Show the current game state");
                         terminal.flush();
                     }
                     case "connect" -> {
@@ -116,7 +116,7 @@ public class TUIView implements ViewType {
                     }
                     case "show" -> {
                         try {
-                            this.show();
+                            this.show(tokens);
                         } catch (IllegalArgumentException e) {
                             writer.println(e.getMessage());
                             terminal.flush();
@@ -145,11 +145,38 @@ public class TUIView implements ViewType {
         lineReader.printAbove("[Server]: " + model.getMessage() + "\nBoard:\n" + model.getBoard().toString());
     }
 
-    private void show() {
-        writer.println(modelReference.getPlayerByNickname(chosenNickname).toString());
+    private void show(String[] args) throws IllegalArgumentException{
+        if (args.length < 2) {
+            throw new IllegalArgumentException("Invalid command format. Usage: show [nickname|cardId|turnOrderCard|offersPath] <nickname> | <cardId row>");
+        }
+
+//        template: show [nickname|cardId|turnOrderCard|offersPath] <nickname> | <cardId row>
+
+        switch (args[1]) {
+            case "nickname" -> {
+                if (args.length < 3) {
+                    throw new IllegalArgumentException("Invalid command format. Usage: show nickname [nickname]");
+                }
+                writer.println(modelReference.getPlayerByNickname(args[2]).toString());
+                terminal.flush();
+            }
+            case "cardId" -> {
+                if (args.length < 4) {
+                    throw new IllegalArgumentException("Invalid command format. Usage: show cardId [cardId] [row]");
+                }
+                writer.println("fetches a card description from a json file");
+            }
+            case "turnOrderCard" -> {
+                writer.println("fetches the turnOrderCard from client model");
+            }
+            case "offersPath" -> {
+                writer.println("fetches the offers path from client model");
+            }
+            default -> throw new IllegalArgumentException("Invalid show option. Available options: nickname, cardId, turnOrderCard, offersPath.");
+        }
 
         /*
-        template: show [nickname|cardId|turnOrderCard|offersPath] <nickname> <cardId>
+
 
         use a alternate_ca_mode for showing:
         - on the left, the 4 rows in the board filled with card ids
@@ -162,6 +189,9 @@ public class TUIView implements ViewType {
     }
 
     private void pickCard(String[] args) throws IllegalArgumentException {
+        if (args.length < 4) {
+            throw new IllegalArgumentException("Invalid command format. Usage: pick [nickname] [cardID] [row]");
+        }
         if (server == null) {
             throw new IllegalArgumentException("You must connect to a server before picking a card.");
         }
@@ -178,6 +208,9 @@ public class TUIView implements ViewType {
     }
 
     private void placeTotem(String[] args) throws IllegalArgumentException {
+        if (args.length < 3) {
+            throw new IllegalArgumentException("Invalid command format. Usage: place [nickname] [position]");
+        }
         if (server == null) {
             throw new IllegalArgumentException("You must connect to a server before placing the totem.");
         }
@@ -193,8 +226,12 @@ public class TUIView implements ViewType {
         terminal.flush();
     }
 
+    // TODO: RIVEDERE PROMPT
     private void connect(String[] args) throws IllegalArgumentException {
 
+        if (args.length < 2) {
+            throw new IllegalArgumentException("Invalid command format. Usage: connect [socket|rmi]");
+        }
         // checks connection type
         // TODO: factory pattern
         if (args[1].equalsIgnoreCase("socket")) {
@@ -215,7 +252,7 @@ public class TUIView implements ViewType {
             writer.println("Socket Client launched successfully!");
             writer.println("Please enter your nickname");
             terminal.flush();
-            chosenNickname = lineReader.readLine("Nickname: ");
+            chosenNickname = lineReader.readLine("Nickname: ").trim();
             writer.println("Connecting to server...");
             terminal.flush();
             socketServerEntryPoint.connectUser(chosenNickname);
@@ -240,7 +277,7 @@ public class TUIView implements ViewType {
             writer.println("RMI Client launched successfully!");
             writer.println("Please enter your nickname");
             terminal.flush();
-            chosenNickname = lineReader.readLine("Nickname: ");
+            chosenNickname = lineReader.readLine("Nickname: ").trim();
             String IP = lineReader.readLine("IP: ");
             String port = lineReader.readLine("Port: ");
             writer.println("Connecting to server...");
@@ -262,6 +299,9 @@ public class TUIView implements ViewType {
     }
 
     private void createGame(String[] args) throws IllegalArgumentException {
+        if (args.length < 4) {
+            throw new IllegalArgumentException("Invalid command format. Usage: create [nickname] [numPlayers] [totemColor]");
+        }
         if (server == null) {
             throw new IllegalArgumentException("You must connect to a server before creating a game.");
         }
@@ -288,6 +328,9 @@ public class TUIView implements ViewType {
     }
 
     private void joinGame(String[] args) throws IllegalArgumentException {
+        if (args.length < 4) {
+            throw new IllegalArgumentException("Invalid command format. Usage: join [nickname] [gameId] [totemColor]");
+        }
         if (server == null) {
             throw new IllegalArgumentException("You must connect to a server before joining a game.");
         }
