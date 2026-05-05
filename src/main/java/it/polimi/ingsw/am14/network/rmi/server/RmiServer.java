@@ -47,7 +47,6 @@ public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
                         }
                         List<Event> eventsToSend = networkLayer.getBuffer(client).flushBuffer();
                         for (Event event : eventsToSend) {
-                            // TODO: gestione delle RemoteException
                             //==================================================================
                             try {
                                 client.update(event);
@@ -80,7 +79,6 @@ public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
                         () -> { }
                 );
             } catch (Exception e) {
-                // TODO: gestione delle RemoteException
                 //======================================================================================================
                 try {
                     networkLayer.getClientBy(nickname).reportError(new ExceptionEvent(e.getMessage()));
@@ -104,7 +102,6 @@ public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
                         () -> { }
                 );
             } catch (Exception e) {
-                // TODO: gestione delle RemoteException
                 //======================================================================================================
                 try {
                     networkLayer.getClientBy(nickname).reportError(new ExceptionEvent(e.getMessage()));
@@ -122,7 +119,6 @@ public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
             try {
                 lobbyController.placeTotem(nickname, position);
             } catch (Exception e) {
-                // TODO: gestione delle RemoteException
                 //======================================================================================================
                 try {
                     networkLayer.getClientBy(nickname).reportError(new ExceptionEvent(e.getMessage()));
@@ -140,7 +136,6 @@ public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
             try {
                 lobbyController.pickCard(nickname, cardId, row);
             } catch (Exception e) {
-                // TODO: gestione delle RemoteException
                 //======================================================================================================
                 try {
                     networkLayer.getClientBy(nickname).reportError(new ExceptionEvent(e.getMessage()));

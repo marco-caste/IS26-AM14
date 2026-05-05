@@ -19,7 +19,6 @@ import java.util.List;
 
 public class TUIView implements ViewType {
 
-    ClientModel model;
     VirtualServer server;
     String chosenNickname = null;
     Terminal terminal;
@@ -137,20 +136,10 @@ public class TUIView implements ViewType {
 
     @Override
     public void update(ClientModel model) {
-        // This method will be called when the model updates. It will display the event message received from the server.
-        // it will also display the updated representation of the game state.
-
-        // for now, it simply displays the message received from the server, but in the future it will also display the updated game state.
-//        writer.println(model.getDescription());
-//        terminal.flush();
-
-        // TODO: potrebbe essere comodo un buffer in ricezione per evitare race conditions su writer (e quindi terminal)
-        // in questo modo, quando arriva un evento, lo aggiungo al buffer e poi lo stampo da lì, così evito di avere più thread che scrivono contemporaneamente su terminal.
-        // e evito che venga esposto il prompt "nickname> " in mezzo a messaggi di aggiornamento del modello.
 
         // SOLUZIONE: reader.printAbove(model.getDescription());
         // allows to print a received message above the current prompt, avoiding the race conditions on writer (?)
-        lineReader.printAbove("[Server]: " + model.getMessage() + "\n" + model.getBoard().toString());
+        lineReader.printAbove("[Server]: " + model.getMessage() + "\nBoard:\n" + model.getBoard().toString());
     }
 
     private void show() {
@@ -201,9 +190,6 @@ public class TUIView implements ViewType {
     }
 
     private void connect(String[] args) throws IllegalArgumentException {
-        // instantiates new model
-        this.model = new ClientModel();
-        this.model.registerObserver(this);
 
         // checks connection type
         // TODO: factory pattern
@@ -216,7 +202,7 @@ public class TUIView implements ViewType {
             writer.println("Launching Socket Client...");
             terminal.flush();
             try {
-                socketServerEntryPoint = SocketClientLauncher.launch(new String[]{IP, port}, this, this.model);
+                socketServerEntryPoint = SocketClientLauncher.launch(new String[]{IP, port}, this);
             } catch (IOException e) {
                 writer.println("Failed to connect to server: " + e.getMessage());
                 terminal.flush();
@@ -241,7 +227,7 @@ public class TUIView implements ViewType {
             writer.println("Launching RMI Client...");
             terminal.flush();
             try {
-                serverEntryPoint = (RmiClient) RmiClientLauncher.launch(this, this.model);
+                serverEntryPoint = (RmiClient) RmiClientLauncher.launch(this);
             } catch (Exception e) {
                 writer.println("Failed to connect to server: " + e.getMessage());
                 terminal.flush();
@@ -342,5 +328,9 @@ public class TUIView implements ViewType {
         }
         // oss: se avviene un resize della finestra, il titolo non viene centrato
         terminal.flush();
+    }
+
+    private void printBoard() {
+
     }
 }

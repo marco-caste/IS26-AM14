@@ -10,7 +10,6 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
 public class RmiServerLauncher {
-    // TODO: nome server
     private static final String serverName = "AM14MesosServer";
 
     public static void launch(String[] args, Object[] technicalObjects) {

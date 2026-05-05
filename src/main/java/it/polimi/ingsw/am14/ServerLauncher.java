@@ -9,7 +9,6 @@ public class ServerLauncher {
 //    args[0] = socket port
 //    args[1] = rmi port
     public static void main(String[] args) {
-        // TODO: eseguirli su più thread?
 
         NetworkLayer networkLayer = new NetworkLayer();
         LobbyController lobbyController = new LobbyController(networkLayer);

@@ -11,7 +11,10 @@ import java.rmi.RemoteException;
 
 public class RmiClientLauncher {
 
-    public static VirtualServer launch(ViewType view, ClientModel model) throws IOException, NotBoundException, RemoteException {
+    public static VirtualServer launch(ViewType view) throws IOException, NotBoundException, RemoteException {
+
+        ClientModel model = new ClientModel();
+        model.registerObserver(view);
 
         return new RmiClient(model);
 
