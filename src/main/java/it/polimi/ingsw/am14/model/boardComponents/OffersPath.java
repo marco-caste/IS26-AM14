@@ -18,7 +18,7 @@ public class OffersPath {
     public OffersPath(int numPlayers) {
         JsonCodec jsonCodec = new JsonCodec();
 
-        this.offersPath = jsonCodec.readTrackCards("resources/trackCards.json", numPlayers);
+        this.offersPath = jsonCodec.readTrackCards("src/main/resources/trackCards.json", numPlayers);
     }
 
     /**

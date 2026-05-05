@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am14.model.gameLogic;
 
+import it.polimi.ingsw.am14.model.cards.deckCards.DeckCard;
 import it.polimi.ingsw.am14.model.cards.deckCards.Shaman;
 import it.polimi.ingsw.am14.model.cards.deckCards.Hunter;
 import it.polimi.ingsw.am14.exceptions.WrongStateException;
@@ -119,6 +120,42 @@ class EndRoundStateTest {
     void nextState() {
         endRoundStateStub.nextState(gameStub);
 
+        assertInstanceOf(PositionState.class, gameStub.getCurrentState());
+    }
+    @Test
+    void endRoundWithSpecificBoardSetupDoesNotTreatCharactersAsEvents() {
+        // IDs: top row [13,15,21,19,6]
+        ArrayList<DeckCard> topRow = new ArrayList<>(List.of(
+                new Hunter(13, 1, false),
+                new Hunter(15, 1, false),
+                new Hunter(21, 1, false),
+                new Hunter(19, 1, false),
+                new Hunter(6, 1, false)
+        ));
+        gameStub.getBoard().setTopDeckableRow(topRow);
+
+        // IDs: bottom row [20,86,87,9]
+        DeckCard card20 = new Hunter(20, 1, false);
+        DeckCard event86 = new Shaman(86, 1, 1);
+        DeckCard event87 = new Shaman(87, 1, 1);
+        DeckCard card9 = new Hunter(9, 1, false);
+
+        ArrayList<DeckCard> bottomRow = new ArrayList<>(List.of(card20, event86, event87, card9));
+        gameStub.getBoard().setBottomDeckableRow(bottomRow);
+
+        // Assicura che l'intera procedura di End Round (scarto personaggi, risoluzione eventi, switch e riempimento)
+        // venga eseguita senza lanciare una NullPointerException con player = null
+        assertDoesNotThrow(() -> {
+            endRoundStateStub.endRound(gameStub);
+        });
+
+        // Verifica che il round sia stato incrementato correttamente
+        assertEquals(2, gameStub.getCurrentRound());
+
+        // Verifica che la vecchia top row (dimensione 5) sia stata spostata nella bottom row tramite switchDeckablesFromTop()
+        assertEquals(5, gameStub.getBoard().bottomDeckableRowSize());
+
+        // Verifica che lo stato finale sia corretto
         assertInstanceOf(PositionState.class, gameStub.getCurrentState());
     }
 }
