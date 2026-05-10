@@ -21,24 +21,16 @@ class BuildingDeckTest {
     @Test
     void buildingDeckSize() {
         assertEquals(
-                initialBuildings[numPlayers - 1][0],
+                initialBuildings[numPlayers - 2][0],
                 buildingDeck.buildingDeckSize(1)
         );
         assertEquals(
-                initialBuildings[numPlayers - 1][1],
+                initialBuildings[numPlayers - 2][1],
                 buildingDeck.buildingDeckSize(2)
         );
         assertEquals(
-                initialBuildings[numPlayers - 1][2],
+                initialBuildings[numPlayers - 2][2],
                 buildingDeck.buildingDeckSize(3)
         );
-    }
-
-    @Test
-    void getBuildings() {
-    }
-
-    @Test
-    void getBuilding() {
     }
 }

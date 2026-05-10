@@ -151,10 +151,7 @@ public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
     @Override
     public void pingServer(String nickname) throws RemoteException {
         new Thread(() -> {
-            // timing logic;
-            // in case timer has expired, calls lobbyController.disconnectUser(nickname);
-            // TODO somewhere, another thread will search the lists in lobbyController and, if all are empty, will
-            // manage server crash.
+            lobbyController.handlePingRequest(nickname);
         }, "RMIPingClient-" + nickname).start();
     }
 }

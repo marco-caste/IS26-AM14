@@ -13,6 +13,6 @@ public class PingClientRequest extends ClientRequest {
 
     @Override
     public void dispatchRequest(LobbyController controller) throws Exception {
-        // send a pingServer response to this.nickname (look it up in controller)
+        controller.handlePingRequest(getNickname());
     }
 }

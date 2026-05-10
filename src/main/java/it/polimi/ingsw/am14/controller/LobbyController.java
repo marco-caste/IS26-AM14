@@ -17,16 +17,20 @@ public class LobbyController {
     private final Map<String, Integer> nicknameToGameId;
     private final Set<String> activeNicknames; //TODO: Da rimuovere se si tiene così l'update in Network layer
     private final NetworkLayer networkLayer;
+    private final Map<String, Long> lastPingReceivedTime;
     private final Object dataLock = new Object();
     //TODO: quando andremo a salvare questi dati salveremo solo nicknameToGameId,
     //      mentre gli altri no, perchè i nickname non saranno attivi e i controller
     //      si ricreano solo se si riconnettono gli user della partita crashata
+
+    private static final long PING_TIMEOUT = 30_000; // 30 secondi
 
     public LobbyController(NetworkLayer networkLayer) {
         this.gameIdToGameController = new HashMap<>();
         this.nicknameToGameId = new HashMap<>();
         this.activeNicknames = new HashSet<>();
         this.networkLayer = networkLayer;
+        this.lastPingReceivedTime = new HashMap<>();
     }
 
     public LobbyController(Map<String, Integer> nicknameToGameId, NetworkLayer networkLayer) {
@@ -34,6 +38,7 @@ public class LobbyController {
         this.nicknameToGameId = nicknameToGameId;
         this.activeNicknames = new HashSet<>();
         this.networkLayer = networkLayer;
+        this.lastPingReceivedTime = new HashMap<>();
     }
 
     private void addGameController(int gameId, GameController gameController) {
@@ -94,6 +99,10 @@ public class LobbyController {
             }
         }
         return players;
+    }
+
+    private void setLastPingReceivedTime(String nickname) {
+        lastPingReceivedTime.put(nickname, System.currentTimeMillis());
     }
 
     public void connectUser(String nickname) throws IllegalNicknameException {
@@ -185,8 +194,40 @@ public class LobbyController {
 
     // Called automatically after a certain timeout if server pings are not answered to
     public void disconnectServer() {
+        activeNicknames.clear();
+    }
+
+    public void handlePingRequest(String nickname) {
         synchronized (dataLock) {
-            activeNicknames.clear();
+            setLastPingReceivedTime(nickname);
+        }
+    }
+
+    public void handlePingTimeOut() {
+        synchronized (dataLock) {
+            long currentTime = System.currentTimeMillis();
+            for (String nickname : lastPingReceivedTime.keySet()) {
+                long lastPingTime = lastPingReceivedTime.get(nickname);
+                //TODO: Rimuovere da qua timeout
+                if (currentTime - lastPingTime <= PING_TIMEOUT) {
+                    //server può essere crashato entro questi 30 secondi, ma un giocatore ha effettuato un ping meno di 30s fa
+                    //aspetto un altro timeout
+                    //rifaccio il check
+                    this.handleUserDisconnected(currentTime);
+                    return;
+                }
+            }
+            this.disconnectServer();
+        }
+    }
+
+    public void handleUserDisconnected(long currentTime) {
+        for (String nickname : lastPingReceivedTime.keySet()) {
+            long lastPingTime = lastPingReceivedTime.get(nickname);
+            //TODO: Rimuovere da qua timeout
+            if (currentTime - lastPingTime > PING_TIMEOUT) {
+                this.disconnectUser(nickname);
+            }
         }
     }
 }
