@@ -13,4 +13,7 @@ public interface VirtualClientRmi extends VirtualClient, Remote {
 
     @Override
     void reportError(ExceptionEvent error) throws RemoteException;
+
+    @Override
+    void pingClient() throws RemoteException;
 }

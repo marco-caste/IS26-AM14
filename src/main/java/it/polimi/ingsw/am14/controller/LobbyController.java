@@ -17,6 +17,7 @@ public class LobbyController {
     private final Map<String, Integer> nicknameToGameId;
     private final Set<String> activeNicknames; //TODO: Da rimuovere se si tiene così l'update in Network layer
     private final NetworkLayer networkLayer;
+    private final Object dataLock = new Object();
     //TODO: quando andremo a salvare questi dati salveremo solo nicknameToGameId,
     //      mentre gli altri no, perchè i nickname non saranno attivi e i controller
     //      si ricreano solo se si riconnettono gli user della partita crashata
@@ -86,7 +87,8 @@ public class LobbyController {
 
     private Set<String> getPlayersByGameId(int gameId) {
         Set<String> players = new HashSet<>();
-        for (Map.Entry<String, Integer> entry : nicknameToGameId.entrySet()) {
+        Set<Map.Entry<String, Integer>> entries = nicknameToGameId.entrySet();
+        for (Map.Entry<String, Integer> entry : entries) {
             if (entry.getValue() != null && entry.getValue() == gameId) {
                 players.add(entry.getKey());
             }
@@ -95,6 +97,7 @@ public class LobbyController {
     }
 
     public void connectUser(String nickname) throws IllegalNicknameException {
+        // TODO: ANCHE SINCRONIZZARE
         if (isPlayerActive(nickname)) {
             throw new IllegalNicknameException("Nickname is already in use in an active game");
         }
@@ -108,8 +111,10 @@ public class LobbyController {
                 int gameId = getGameIdByNickname(nickname).orElseThrow();
 //                if (!hasGameAController(gameId)) {
 //                    //First person to connect to this game after the crash, need to set it up again
-//                    //TODO: nuovo metodo di setup in GameFactory che si basa sul gameId?
+//                    //TODO: restoreState da src/main/saves/gameId.json
 //                    //Game game = GameFactory.setup(gameId);
+//                        game.setCurrentState(new WaitingRoomAfterCrash(game));
+//                            game.addObserver(networkLayer);
 //                    GameController gameController = new GameController(game);
 //                    addGameController(game.getGameId(), gameController);
 //                }
@@ -128,18 +133,25 @@ public class LobbyController {
     }
 
     public void createGame(String nickname, int numPlayers, String totemColor) throws IllegalSetupException, WrongStateException, IllegalNicknameException {
-        Game game = GameFactory.setup(numPlayers);
-        game.addObserver(networkLayer);
-        GameController gameController = new GameController(game);
-        addGameController(game.getGameId(), gameController);
-        assignPlayerToGame(nickname, game.getGameId());
-        gameController.onPlayerConnection(nickname, totemColor);
+        synchronized (dataLock) {
+            // synchronizing on dataLock allows the creation of one game at a time, which is necessary in order to keep
+            // gameIDs unique.
+
+            Game game = GameFactory.setup(numPlayers);
+            game.addObserver(networkLayer);
+            GameController gameController = new GameController(game);
+            addGameController(game.getGameId(), gameController);
+            assignPlayerToGame(nickname, game.getGameId());
+            gameController.onPlayerConnection(nickname, totemColor);
+        }
     }
 
     public void joinGame(String nickname, int gameId, String totemColor) throws WrongStateException, IllegalGameIdException {
         getGameController(gameId).orElseThrow(() -> new IllegalGameIdException("Game with the specified ID does not exist"))
                 .onPlayerConnection(nickname, totemColor);
-        assignPlayerToGame(nickname, gameId);
+        synchronized (dataLock) {
+            assignPlayerToGame(nickname, gameId);
+        }
     }
 
     public void placeTotem(String nickname, char position) throws IllegalNicknameException, WrongStateException, WrongTurnException, UnknownPositionException, IllegalPlacementException, UnknownNicknameException {
@@ -155,7 +167,7 @@ public class LobbyController {
     }
 
     public void disconnectUser(String nickname) {
-        synchronized (activeNicknames) {
+        synchronized (dataLock) {
             if (hasPlayerAGameAssigned(nickname)) {
                 int gameId = getGameIdByNickname(nickname).orElseThrow();
                 removeGameController(gameId);
@@ -173,6 +185,8 @@ public class LobbyController {
 
     // Called automatically after a certain timeout if server pings are not answered to
     public void disconnectServer() {
-        activeNicknames.clear();
+        synchronized (dataLock) {
+            activeNicknames.clear();
+        }
     }
 }

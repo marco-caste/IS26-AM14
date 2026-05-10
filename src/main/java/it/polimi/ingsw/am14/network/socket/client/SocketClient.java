@@ -30,6 +30,7 @@ public class SocketClient {
                 throw new RuntimeException(e);
             }
         }, "ClientThread-listener" + Thread_number).start();
+
         Thread_number++;
     }
 

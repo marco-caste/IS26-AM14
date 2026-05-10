@@ -46,6 +46,9 @@ public class SocketClientLauncher {
 
         SocketClient client = new SocketClient(in, out, model, serverHandler);
 
+        // args[2] = nickname
+        serverHandler.pingServer(args[2]);
+
         client.run();
 
         return serverHandler;

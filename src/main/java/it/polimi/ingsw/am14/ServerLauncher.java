@@ -10,8 +10,20 @@ public class ServerLauncher {
 //    args[1] = rmi port
     public static void main(String[] args) {
 
+        /*
+        if (there is save data) {
+            prima opzione - ricostruiamo QUI tutti gli oggetti (Game, ecc)
+            seconda opzione - ricostruiamo SOLO il LobbyController dal parser, a cui è poi delegata la
+                ricostruzione della partita e di tutto il resto.
+        }
+        else
+        */
+
+        // costruzione degli oggetti tecnici
         NetworkLayer networkLayer = new NetworkLayer();
         LobbyController lobbyController = new LobbyController(networkLayer);
+
+
         Object[] technicalObjects = {
                 lobbyController,
                 networkLayer

@@ -5,6 +5,10 @@ import it.polimi.ingsw.am14.events.Event;
 import it.polimi.ingsw.am14.events.ExceptionEvent;
 
 public interface VirtualClientSocket extends VirtualClient {
-    public void update(Event update);
-    public void reportError(ExceptionEvent error);
+    @Override
+    void update(Event update);
+    @Override
+    void reportError(ExceptionEvent error);
+    @Override
+    void pingClient();
 }

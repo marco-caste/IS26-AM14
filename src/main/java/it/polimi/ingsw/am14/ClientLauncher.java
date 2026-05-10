@@ -17,6 +17,8 @@ public class ClientLauncher {
                     throw new RuntimeException(e.getMessage());
                 } catch (RuntimeException e) {
                     System.out.println("Exiting...");
+//                    system exit;
+//                    grateful shutdown...
                 }
             } else if (mode.equalsIgnoreCase("gui")) {
                 // GUI viewType = GUI

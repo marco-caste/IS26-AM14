@@ -236,54 +236,52 @@ public class TUIView implements ViewType {
         // TODO: factory pattern
         if (args[1].equalsIgnoreCase("socket")) {
             VirtualServerSocket socketServerEntryPoint;
-            writer.println("please specify the server IP and port");
+            writer.println("please specify the server IP, port and your nickname");
             terminal.flush();
             String IP = lineReader.readLine("IP: ");
             String port = lineReader.readLine("Port: ");
+            chosenNickname = lineReader.readLine("Nickname: ").trim();
             writer.println("Launching Socket Client...");
             terminal.flush();
             try {
-                socketServerEntryPoint = SocketClientLauncher.launch(new String[]{IP, port}, this);
+                socketServerEntryPoint = SocketClientLauncher.launch(new String[]{IP, port, chosenNickname}, this);
             } catch (IOException e) {
                 writer.println("Failed to connect to server: " + e.getMessage());
                 terminal.flush();
                 return;
             }
             writer.println("Socket Client launched successfully!");
-            writer.println("Please enter your nickname");
-            terminal.flush();
-            chosenNickname = lineReader.readLine("Nickname: ").trim();
             writer.println("Connecting to server...");
             terminal.flush();
             socketServerEntryPoint.connectUser(chosenNickname);
             // no need to wait for a response from the server up to this date (29/4),
-            // it does not yet send any ConnectionReceived event.
+            // it does not yet send any LoginSuccessful event.
             writer.println("Connected to server successfully!");
             writer.println("Launching TUI...");
             terminal.flush();
             this.server = socketServerEntryPoint;
         }
         else if (args[1].equalsIgnoreCase("rmi")) {
-            RmiClient serverEntryPoint;
+            RmiClient RMIserverEntryPoint;
+            writer.println("Please enter the server IP, port and your nickname");
+            terminal.flush();
+            String IP = lineReader.readLine("IP: ");
+            String port = lineReader.readLine("Port: ");
+            chosenNickname = lineReader.readLine("Nickname: ").trim();
             writer.println("Launching RMI Client...");
             terminal.flush();
             try {
-                serverEntryPoint = (RmiClient) RmiClientLauncher.launch(this);
+                RMIserverEntryPoint = (RmiClient) RmiClientLauncher.launch(this);
             } catch (Exception e) {
                 writer.println("Failed to connect to server: " + e.getMessage());
                 terminal.flush();
                 return;
             }
             writer.println("RMI Client launched successfully!");
-            writer.println("Please enter your nickname");
-            terminal.flush();
-            chosenNickname = lineReader.readLine("Nickname: ").trim();
-            String IP = lineReader.readLine("IP: ");
-            String port = lineReader.readLine("Port: ");
             writer.println("Connecting to server...");
             terminal.flush();
             try {
-                serverEntryPoint.connect(serverEntryPoint, chosenNickname, IP, Integer.parseInt(port));
+                RMIserverEntryPoint.connect(RMIserverEntryPoint, chosenNickname, IP, Integer.parseInt(port));
             } catch (Exception e) {
                 writer.println("Failed to connect user: " + e.getMessage());
                 terminal.flush();
@@ -292,7 +290,7 @@ public class TUIView implements ViewType {
             writer.println("Connected to server successfully!");
             writer.println("Launching TUI...");
             terminal.flush();
-            this.server = serverEntryPoint;
+            this.server = RMIserverEntryPoint;
         }
         else
             throw new IllegalArgumentException("Invalid connection type. Please specify 'socket' or 'rmi'.");

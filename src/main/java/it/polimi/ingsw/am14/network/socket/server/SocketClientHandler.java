@@ -41,4 +41,9 @@ public class SocketClientHandler implements VirtualClientSocket{
         output.println(errorString);
         output.flush();
     }
+
+    @Override
+    public void pingClient() {
+
+    }
 }

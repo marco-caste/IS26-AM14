@@ -17,6 +17,9 @@ public class RmiClient extends UnicastRemoteObject implements VirtualClientRmi, 
     private final ClientModel model;
     private static final String serverName = "AM14MesosServer";
     private VirtualServerRmi server;
+    private final static long PING_INTERVAL = 10_000; // 10 secondi
+    private final static long PING_TIMEOUT = 30_000; // 30 secondi
+    private static long lastPingReceived;
 
     public RmiClient(ClientModel model) throws RemoteException {
         super();
@@ -37,6 +40,22 @@ public class RmiClient extends UnicastRemoteObject implements VirtualClientRmi, 
         }).start();
     }
 
+    @Override
+    public void pingClient() throws RemoteException {
+        // TODO: receiving pings from server
+        // if timer expires, disconnect from server and notify the view
+        // TODO: how to disconnect rmi client from server?
+        // current solution: will call again connect, which overwrites the server reference
+        long now = System.currentTimeMillis();
+        if (now - lastPingReceived > PING_TIMEOUT) {
+            // timeout, disconnect from server and notify the view
+            model.setMessage("Connection lost: server is not responding. Please try to connect again.");
+            model.notifyObservers();
+            return;
+        }
+        lastPingReceived = now;
+    }
+
     // METHODS EXPOSED TO THE VIEW
 
     public void connect(VirtualClientRmi client, String nickname, String ipAddress, int port) throws RemoteException {
@@ -44,7 +63,8 @@ public class RmiClient extends UnicastRemoteObject implements VirtualClientRmi, 
         try {
             this.server = (VirtualServerRmi) registry.lookup(serverName);
             server.connect(this, nickname);
-        } catch (NotBoundException e) {
+            this.pingServer(nickname);
+        } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
     }
@@ -90,5 +110,21 @@ public class RmiClient extends UnicastRemoteObject implements VirtualClientRmi, 
     @Override
     public void pickCard(String nickname, int cardId, int row) throws RemoteException {
         server.pickCard(nickname, cardId, row);
+    }
+
+    @Override
+    public void pingServer(String nickname) throws Exception {
+        // starts sending pings to the server
+        new Thread(() -> {
+            try {
+                while (true) {
+                    Thread.sleep(PING_INTERVAL); // PING_INTERVAL
+
+                    server.pingServer(nickname);
+                }
+            } catch (InterruptedException | RemoteException e) {
+                Thread.currentThread().interrupt();
+            }
+        }).start();
     }
 }

@@ -8,8 +8,9 @@ import java.io.PrintWriter;
 
 public class SocketServerHandler implements VirtualServerSocket{
 
-    final PrintWriter output;
+    private final PrintWriter output;
     private final JsonCodec jsonWriter = new JsonCodec();
+    private final static long PING_INTERVAL = 10_000; // 10 secondi
 
     public SocketServerHandler(BufferedWriter output) {
         this.output = new PrintWriter(output);
@@ -19,35 +20,65 @@ public class SocketServerHandler implements VirtualServerSocket{
     public void connectUser(String nickname) {
         ConnectClientRequest request = new ConnectClientRequest(nickname);
         String message = jsonWriter.writeClientRequest(request);
-        output.println(message);
-        output.flush();
+        synchronized (output) {     // tecnicamente non serve, println e flush si sincronizzano su un lock interno
+            output.println(message);
+            output.flush();
+        }
     }
     @Override
     public void createGame(String nickname, int numPlayers, String totemColor){
         CreateGameClientRequest request = new CreateGameClientRequest(nickname, numPlayers, totemColor);
         String message = jsonWriter.writeClientRequest(request);
-        output.println(message);
-        output.flush();
+        synchronized (output) {
+            output.println(message);
+            output.flush();
+        }
     }
     @Override
     public void joinGame(String nickname, int gameId, String totemColor){
         JoinGameClientRequest request = new JoinGameClientRequest(nickname, totemColor, gameId);
         String message = jsonWriter.writeClientRequest(request);
-        output.println(message);
-        output.flush();
+        synchronized (output) {
+            output.println(message);
+            output.flush();
+        }
     }
     @Override
     public void placeTotem(String nickname, char position){
         PlaceTotemClientRequest request = new PlaceTotemClientRequest(nickname, position);
         String message = jsonWriter.writeClientRequest(request);
-        output.println(message);
-        output.flush();
+        synchronized (output) {
+            output.println(message);
+            output.flush();
+        }
     }
     @Override
     public void pickCard(String nickname, int cardId, int row){
         PickCardClientRequest request = new PickCardClientRequest(nickname, cardId, row);
         String message = jsonWriter.writeClientRequest(request);
-        output.println(message);
-        output.flush();
+        synchronized (output) {
+            output.println(message);
+            output.flush();
+        }
+    }
+
+
+    public void pingServer(String nickname) {
+        new Thread(() -> {
+            try {
+                while (true) {
+                    Thread.sleep(PING_INTERVAL);
+
+                    PingClientRequest request = new PingClientRequest(nickname);
+                    String message = jsonWriter.writeClientRequest(request);
+                    synchronized (output) {
+                        output.println(message);
+                        output.flush();
+                    }
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }).start();
     }
 }
