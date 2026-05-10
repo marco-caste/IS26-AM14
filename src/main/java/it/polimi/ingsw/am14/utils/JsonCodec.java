@@ -59,7 +59,7 @@ public class JsonCodec implements Codec {
         }
 
         try {
-            Files.writeString(Path.of("save.json"), jsonFile.toString());
+            Files.writeString(Path.of("src/main/Saves/save.json"), jsonFile.toString());
         } catch (IOException e) {
             throw new RuntimeException("[JsonCodec] Failed to write save data to file: " + filePath + ": " + e.getMessage());
         }
