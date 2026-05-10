@@ -16,11 +16,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class EndRoundEvent extends UpdateEvent {
-    // constants
-    private static final int TOP_DECKABLE_ROW = 0;
-    private static final int TOP_BUILDING_ROW = 1;
-    private static final int BOTTOM_DECKABLE_ROW = 2;
-    private static final int BOTTOM_BUILDING_ROW = 3;
 
     // attributes
     private final ArrayList<ArrayList<Integer>> board;

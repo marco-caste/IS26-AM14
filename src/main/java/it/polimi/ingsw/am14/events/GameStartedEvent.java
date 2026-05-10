@@ -10,6 +10,8 @@ import it.polimi.ingsw.am14.clientModel.ClientPlayer;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
+import static it.polimi.ingsw.am14.utils.Constants.initialFood;
+
 public class GameStartedEvent extends ServerEvent {
 
     private final ArrayList<String> playerOrder;
@@ -42,7 +44,7 @@ public class GameStartedEvent extends ServerEvent {
     @Override
     public void effect(ClientModel model) {
         model.setMessage(description);
-        int[] initialFood = {2, 3, 3, 4, 4};
+
         ClientPlayer player;
         model.setPlayerOrderInTurnOrderCard(playerOrder);
         for (int i = 0; i < playerOrder.size(); i++) {

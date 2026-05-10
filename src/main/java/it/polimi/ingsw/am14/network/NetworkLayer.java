@@ -75,4 +75,16 @@ public class NetworkLayer implements Observer {
             return this.nicknameToClient.get(nickname);
         }
     }
+
+    public void pingAllClients() {
+        synchronized (this.nicknameToClient) {
+            for (VirtualClient client : this.nicknameToClient.values()) {
+                try {
+                    client.pingClient();
+                } catch (Exception e) {
+                    throw new RuntimeException(e.getMessage());
+                }
+            }
+        }
+    }
 }

@@ -5,7 +5,7 @@ import it.polimi.ingsw.am14.controller.LobbyController;
 import it.polimi.ingsw.am14.network.rmi.RmiServerLauncher;
 import it.polimi.ingsw.am14.network.socket.SocketServerLauncher;
 
-import java.rmi.RemoteException;
+import static it.polimi.ingsw.am14.utils.Constants.PING_TIMEOUT;
 
 public class ServerLauncher {
 //    args[0] = socket port
@@ -40,6 +40,17 @@ public class ServerLauncher {
             RmiServerLauncher.launch(args, technicalObjects);
         },
                 "RMIServer-launcher").start();
+
+        new Thread(() -> {
+            while (true) {
+                try {
+                    Thread.sleep(PING_TIMEOUT);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e.getMessage());
+                }
+                networkLayer.pingAllClients();
+            }
+        }, "Server-pinger").start();
 
         new Thread(() -> {
             try {

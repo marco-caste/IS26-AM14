@@ -17,6 +17,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
 
+import static it.polimi.ingsw.am14.utils.Constants.TotemColors;
+
 public class TUIView implements ViewType {
 
     private ClientModel modelReference = null;
@@ -25,7 +27,6 @@ public class TUIView implements ViewType {
     private Terminal terminal;
     private LineReader lineReader;
     private PrintWriter writer;
-    private static final String[] colors = {"white", "purple", "yellow", "red", "blue"};
 
     @Override
     public void run() throws IOException {
@@ -309,7 +310,7 @@ public class TUIView implements ViewType {
             // TODO 2: suspicious: è strano dover specificare il nickname anche nella create, quando già lo si è specificato nella connect.
             throw new IllegalArgumentException("You must use the same nickname as written on the prompt.");
         }
-        if (!List.of(colors).contains(args[3].toLowerCase())) {
+        if (!List.of(TotemColors).contains(args[3].toLowerCase())) {
             // avoids sending an invalid totem color to the server,
             // which would cause the server to reject the game creation request and send an error message back to the client
             // there is a check on server side only for colors already selected by other players (necessarily on there)
@@ -335,7 +336,7 @@ public class TUIView implements ViewType {
         if (!chosenNickname.equals(args[1])) {
             throw new IllegalArgumentException("You must use the same nickname as written on the prompt.");
         }
-        if (!List.of(colors).contains(args[3].toLowerCase())) {
+        if (!List.of(TotemColors).contains(args[3].toLowerCase())) {
             throw new IllegalArgumentException("Invalid totem color. Available colors: white, purple, yellow, red, blue.");
         }
         try {

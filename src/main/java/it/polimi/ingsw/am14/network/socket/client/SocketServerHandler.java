@@ -6,11 +6,12 @@ import it.polimi.ingsw.am14.utils.JsonCodec;
 import java.io.BufferedWriter;
 import java.io.PrintWriter;
 
+import static it.polimi.ingsw.am14.utils.Constants.PING_INTERVAL;
+
 public class SocketServerHandler implements VirtualServerSocket{
 
     private final PrintWriter output;
     private final JsonCodec jsonWriter = new JsonCodec();
-    private final static long PING_INTERVAL = 10_000; // 10 secondi
 
     public SocketServerHandler(BufferedWriter output) {
         this.output = new PrintWriter(output);

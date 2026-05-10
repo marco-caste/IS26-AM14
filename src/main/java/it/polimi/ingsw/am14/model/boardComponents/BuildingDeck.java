@@ -7,15 +7,15 @@ import it.polimi.ingsw.am14.utils.JsonCodec;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static it.polimi.ingsw.am14.utils.Constants.initialBuildings;
+
 public class BuildingDeck {
     private final Map<Integer, ArrayList<Building>> buildingDecks;
 
     // organizes the number of buildings to use in the game according
     // to the number of players: initialBuildings[numPlayers - 1][age - 1]
     // is the number of age "age" buildings for a game of "numPlayers" players
-    private static final int[][] initialBuildings = {
-            {1, 2, 3}, {2, 2, 4}, {2, 3, 4}, {2, 3, 5}
-    };
+
 
     /**
      * <p>

@@ -9,8 +9,10 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
+import static it.polimi.ingsw.am14.utils.Constants.serverName;
+
 public class RmiServerLauncher {
-    private static final String serverName = "AM14MesosServer";
+
 
     public static void launch(String[] args, Object[] technicalObjects) {
         try {
