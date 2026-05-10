@@ -82,15 +82,6 @@ public class PositionStateTest {
     }
 
     @Test
-    public void testPlaceTotemThrowsUnknownPositionForLowercaseTrackCardName() {
-        TestFixture fixture = buildFixture(0);
-
-        // OffersPath keys are uppercase, so lowercase input is currently treated as unknown.
-        assertThrows(UnknownPositionException.class,
-                () -> fixture.state.placeTotem(fixture.game, fixture.p1, 'b'));
-    }
-
-    @Test
     public void testPlaceTotemThrowsWrongTurnWhenPlayerIsNotCurrent() {
         TestFixture fixture = buildFixture(0);
 

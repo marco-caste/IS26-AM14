@@ -3,6 +3,7 @@ package it.polimi.ingsw.am14.controller;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.mysql.cj.xdevapi.JsonParser;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import it.polimi.ingsw.am14.network.NetworkLayer;
 import it.polimi.ingsw.am14.exceptions.*;
 import it.polimi.ingsw.am14.model.gameLogic.Game;
@@ -16,6 +17,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import static it.polimi.ingsw.am14.utils.Constants.PING_TIMEOUT;
+
 public class LobbyController {
     public Map<Integer, GameController> getGameIdToGameController() {
         return gameIdToGameController;
@@ -28,6 +31,8 @@ public class LobbyController {
     @JsonIgnore
     private final NetworkLayer networkLayer;
     @JsonIgnore
+    private final Map<String, Long> lastPingReceivedTime;
+    @JsonIgnore
     private final Object dataLock = new Object();
     //TODO: quando andremo a salvare questi dati salveremo solo nicknameToGameId,
     //      mentre gli altri no, perchè i nickname non saranno attivi e i controller
@@ -38,6 +43,7 @@ public class LobbyController {
         this.nicknameToGameId = new HashMap<>();
         this.activeNicknames = new HashSet<>();
         this.networkLayer = networkLayer;
+        this.lastPingReceivedTime = new HashMap<>();
     }
 
     @JsonCreator
@@ -46,6 +52,7 @@ public class LobbyController {
         this.nicknameToGameId = nicknameToGameId;
         this.activeNicknames = new HashSet<>();
         this.networkLayer = new NetworkLayer();
+        this.lastPingReceivedTime = new HashMap<>();
     }
 
     private void addGameController(int gameId, GameController gameController) {
@@ -106,6 +113,10 @@ public class LobbyController {
             }
         }
         return players;
+    }
+
+    private void setLastPingReceivedTime(String nickname) {
+        lastPingReceivedTime.put(nickname, System.currentTimeMillis());
     }
 
     public void connectUser(String nickname) throws IllegalNicknameException {
@@ -181,26 +192,54 @@ public class LobbyController {
     }
 
     public void disconnectUser(String nickname) {
-        synchronized (dataLock) {
-            if (hasPlayerAGameAssigned(nickname)) {
-                int gameId = getGameIdByNickname(nickname).orElseThrow();
-                removeGameController(gameId);
-                removePlayerFromLobby(nickname);
-                getPlayersByGameId(gameId).forEach(this::addPlayerToLobby);
-                // TODO: TERMINATES THE THREAD THAT FLUSHES THE UPDATE QUEUE TO THIS CLIENT.
-
-                //update(PlayerDisconnectedEvent(X));
-                return;
-            }
+        if (hasPlayerAGameAssigned(nickname)) {
+            int gameId = getGameIdByNickname(nickname).orElseThrow();
+            removeGameController(gameId);
             removePlayerFromLobby(nickname);
-            deactivatePlayer(nickname);
+            getPlayersByGameId(gameId).forEach(this::addPlayerToLobby);
+            // TODO: TERMINATES THE THREAD THAT FLUSHES THE UPDATE QUEUE TO THIS CLIENT.
+
+            //update(PlayerDisconnectedEvent(X));
+            return;
         }
+        removePlayerFromLobby(nickname);
+        deactivatePlayer(nickname);
     }
 
     // Called automatically after a certain timeout if server pings are not answered to
     public void disconnectServer() {
+        activeNicknames.clear();
+    }
+
+    public void handlePingRequest(String nickname) {
         synchronized (dataLock) {
-            activeNicknames.clear();
+            setLastPingReceivedTime(nickname);
+        }
+    }
+
+    public void handlePingTimeOut() {
+        synchronized (dataLock) {
+            long currentTime = System.currentTimeMillis();
+            for (String nickname : lastPingReceivedTime.keySet()) {
+                long lastPingTime = lastPingReceivedTime.get(nickname);
+                if (currentTime - lastPingTime <= PING_TIMEOUT) {
+                    //One player has a valid ping, but server could have crashed after
+                    this.disconnectUserThatAreForReallyDisconnected(currentTime);
+                    return;
+                }
+            }
+            //All players are disconnected
+            this.disconnectServer();
+        }
+    }
+
+    private void disconnectUserThatAreForReallyDisconnected(long currentTime) {
+        for (String nickname : lastPingReceivedTime.keySet()) {
+            long lastPingTime = lastPingReceivedTime.get(nickname);
+            if (currentTime - lastPingTime > 2*PING_TIMEOUT) {
+                //I disconnect a user when I'm sure that the server didn't crash meanwhile
+                disconnectUser(nickname);
+            }
         }
     }
 }

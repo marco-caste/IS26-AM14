@@ -5,6 +5,7 @@ import it.polimi.ingsw.am14.controller.LobbyController;
 import it.polimi.ingsw.am14.network.rmi.RmiServerLauncher;
 import it.polimi.ingsw.am14.network.socket.SocketServerLauncher;
 
+import static it.polimi.ingsw.am14.utils.Constants.PING_INTERVAL;
 import static it.polimi.ingsw.am14.utils.Constants.PING_TIMEOUT;
 
 public class ServerLauncher {
@@ -44,12 +45,24 @@ public class ServerLauncher {
         new Thread(() -> {
             while (true) {
                 try {
-                    Thread.sleep(PING_TIMEOUT);
+                    Thread.sleep(PING_INTERVAL);
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e.getMessage());
                 }
                 networkLayer.pingAllClients();
             }
         }, "Server-pinger").start();
+
+        new Thread(() -> {
+            while (true) {
+                try {
+                    Thread.sleep(PING_TIMEOUT);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e.getMessage());
+                }
+                lobbyController.handlePingTimeOut();
+            }
+        },
+                "TimeOut-Handler").start();
     }
 }
