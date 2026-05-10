@@ -8,6 +8,8 @@ import it.polimi.ingsw.am14.clientModel.ClientModel;
 import java.io.*;
 import java.net.Socket;
 
+import static it.polimi.ingsw.am14.utils.Constants.PING_TIMEOUT;
+
 public class SocketClientLauncher {
 
     public static SocketServerHandler launch(String[] args, ViewType view) throws IOException {
@@ -36,6 +38,8 @@ public class SocketClientLauncher {
          */
 
         Socket socket = new Socket(IP, port);
+        socket.setSoTimeout(PING_TIMEOUT);
+
         BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 
@@ -44,7 +48,7 @@ public class SocketClientLauncher {
         ClientModel model = new ClientModel();
         model.registerObserver(view);
 
-        SocketClient client = new SocketClient(in, out, model, serverHandler);
+        SocketClient client = new SocketClient(in, out, model, serverHandler, socket);
 
         // args[2] = nickname
         serverHandler.pingServer(args[2]);

@@ -6,19 +6,19 @@ import it.polimi.ingsw.am14.events.ExceptionEvent;
 import it.polimi.ingsw.am14.network.rmi.server.VirtualClientRmi;
 import it.polimi.ingsw.am14.clientModel.ClientModel;
 
-import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+
+import static it.polimi.ingsw.am14.utils.Constants.PING_INTERVAL;
+import static it.polimi.ingsw.am14.utils.Constants.PING_TIMEOUT;
 
 public class RmiClient extends UnicastRemoteObject implements VirtualClientRmi, VirtualServer {
 
     private final ClientModel model;
     private static final String serverName = "AM14MesosServer";
     private VirtualServerRmi server;
-    private final static long PING_INTERVAL = 10_000; // 10 secondi
-    private final static long PING_TIMEOUT = 30_000; // 30 secondi
     private static long lastPingReceived;
 
     public RmiClient(ClientModel model) throws RemoteException {
@@ -46,14 +46,7 @@ public class RmiClient extends UnicastRemoteObject implements VirtualClientRmi, 
         // if timer expires, disconnect from server and notify the view
         // TODO: how to disconnect rmi client from server?
         // current solution: will call again connect, which overwrites the server reference
-        long now = System.currentTimeMillis();
-        if (now - lastPingReceived > PING_TIMEOUT) {
-            // timeout, disconnect from server and notify the view
-            model.setMessage("Connection lost: server is not responding. Please try to connect again.");
-            model.notifyObservers();
-            return;
-        }
-        lastPingReceived = now;
+        lastPingReceived = System.currentTimeMillis();
     }
 
     // METHODS EXPOSED TO THE VIEW
@@ -124,6 +117,21 @@ public class RmiClient extends UnicastRemoteObject implements VirtualClientRmi, 
                 }
             } catch (InterruptedException | RemoteException e) {
                 Thread.currentThread().interrupt();
+            }
+        }).start();
+
+        new Thread (() -> {
+            try {
+                Thread.sleep(PING_TIMEOUT);
+
+                long now = System.currentTimeMillis();
+                if (now - lastPingReceived > PING_TIMEOUT) {
+                    // timeout expired, disconnect from server and notify the view
+                    model.setMessage("[Client] Network error: server is not responding. Try to reconnect later.\nShutting down connection...");
+                    model.notifyObservers();
+                }
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e.getMessage());
             }
         }).start();
     }

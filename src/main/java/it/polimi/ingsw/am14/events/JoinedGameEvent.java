@@ -10,12 +10,9 @@ import it.polimi.ingsw.am14.clientModel.ClientModel;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
+import static it.polimi.ingsw.am14.utils.Constants.*;
+
 public class JoinedGameEvent extends ServerEvent {
-    // constants
-    private static final int TOP_DECKABLE_ROW = 0;
-    private static final int TOP_BUILDING_ROW = 1;
-    private static final int BOTTOM_DECKABLE_ROW = 2;
-    private static final int BOTTOM_BUILDING_ROW = 3;
 
     // attributes
     private String playerNickname;

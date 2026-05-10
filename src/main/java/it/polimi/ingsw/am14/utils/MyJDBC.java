@@ -3,19 +3,18 @@ package it.polimi.ingsw.am14.utils;
 import java.sql.*;
 import java.util.ArrayList;
 
+import static it.polimi.ingsw.am14.utils.Constants.*;
+
 //we are going to add a tuple for each player after each game saving the results
 //after this we will show to the client the ranking based on a group by nickname and the sum of the final score
 // ordered by the final score in descending order
 
 public class MyJDBC {
-    private static final String url = "jdbc:mysql://localhost:3306/mesos_am_14";
-    private static final String username = "root";
-    private static final String password = "mesos14";
 
     public static void saveToDB(int game_id, String nickname, int finalScore, int numPlayers) throws SQLException {
         String query = "INSERT INTO mesos_db (game_id, nickname, final_score, date, num_players) " +
                 "VALUES (?, ?, ?, ?, ?)";
-        Connection connection = DriverManager.getConnection(url, username, password);
+        Connection connection = DriverManager.getConnection(DBurl, DBusername, DBpassword);
         PreparedStatement ps = connection.prepareStatement(query);
 
         ps.setInt(1, game_id);
@@ -37,7 +36,7 @@ public class MyJDBC {
 
         ArrayList<String> rank = new ArrayList<>();
 
-        Connection connection = DriverManager.getConnection(url, username, password);
+        Connection connection = DriverManager.getConnection(DBurl, DBusername, DBpassword);
         PreparedStatement ps = connection.prepareStatement(query);
         ps.setInt(1, numPlayers);
         ResultSet rs = ps.executeQuery();
