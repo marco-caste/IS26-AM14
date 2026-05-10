@@ -1,5 +1,8 @@
 package it.polimi.ingsw.am14.model.gameLogic;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import it.polimi.ingsw.am14.network.Observer;
 import it.polimi.ingsw.am14.events.Event;
 import it.polimi.ingsw.am14.exceptions.*;
@@ -11,6 +14,8 @@ import java.util.*;
 
 public class Game implements Observable {
     private GameState currentState;
+    @JsonIgnore
+    private GameState previouslySavedState;
     private final List<Player> players;
     private final Board board;
     private int currentPlayerIndex;
@@ -19,6 +24,7 @@ public class Game implements Observable {
     private int currentAge;
     private final int gameId;
 
+    @JsonIgnore
     private final List<Observer> observers = new ArrayList<>();
 
 
@@ -46,15 +52,19 @@ public class Game implements Observable {
     }
 
     // called if the server shuts down, gets the arguments from the latest JSON snapshot
-    public Game(GameState lastCurrentState,
-                   List<Player> lastPlayers,
-                   Board lastBoard,
-                   int lastCurrentPlayerIndex,
-                   int numPlayers,
-                   int currentRound,
-                   int currentAge,
-                   int gameId) {
+    @JsonCreator
+    public Game(
+            @JsonProperty("lastState") GameState lastCurrentState,
+            @JsonProperty("players") List<Player> lastPlayers,
+            @JsonProperty("board") Board lastBoard,
+            @JsonProperty("currentPlayerIdx") int lastCurrentPlayerIndex,
+            @JsonProperty("numPlayers") int numPlayers,
+            @JsonProperty("currentRound") int currentRound,
+            @JsonProperty("currentAge") int currentAge,
+            @JsonProperty("gameId") int gameId) {
+//        this.currentState       = new WaitingRoomAfterCrashState();
         this.currentState       = lastCurrentState;
+        this.previouslySavedState = lastCurrentState;
         this.players            = lastPlayers;
         this.board              = lastBoard;
         this.currentPlayerIndex = lastCurrentPlayerIndex;

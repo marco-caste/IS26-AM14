@@ -27,13 +27,13 @@ public class TribeDeck {
 
         JsonCodec jsonCodec = new JsonCodec();
 
-        decks.put(1, jsonCodec.readDeckCards("resources/DeckCards.json", numPlayers).stream().
+        decks.put(1, jsonCodec.readDeckCards("src/main/resources/DeckCards.json", numPlayers).stream().
                 filter(c -> c.getAge() == 1).
                 collect(Collectors.toCollection(ArrayList::new)));
-        decks.put(2, jsonCodec.readDeckCards("resources/DeckCards.json", numPlayers).stream().
+        decks.put(2, jsonCodec.readDeckCards("src/main/resources/DeckCards.json", numPlayers).stream().
                 filter(c -> c.getAge() == 2).
                 collect(Collectors.toCollection(ArrayList::new)));
-        decks.put(3, jsonCodec.readDeckCards("resources/DeckCards.json", numPlayers).stream().
+        decks.put(3, jsonCodec.readDeckCards("src/main/resources/DeckCards.json", numPlayers).stream().
                 filter(c -> c.getAge() == 3).
                 collect(Collectors.toCollection(ArrayList::new)));
 

@@ -14,7 +14,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
         @JsonSubTypes.Type(value = CreateGameClientRequest.class, name = "CreateGameClientRequest"),
         @JsonSubTypes.Type(value = JoinGameClientRequest.class, name = "JoinGameClientRequest"),
         @JsonSubTypes.Type(value = PickCardClientRequest.class, name = "PickCardClientRequest"),
-        @JsonSubTypes.Type(value = PlaceTotemClientRequest.class, name = "PlaceTotemClientRequest")
+        @JsonSubTypes.Type(value = PlaceTotemClientRequest.class, name = "PlaceTotemClientRequest"),
+        @JsonSubTypes.Type(value = PingClientRequest.class, name = "PingClientRequest")
 })
 
 public abstract class ClientRequest extends Event {

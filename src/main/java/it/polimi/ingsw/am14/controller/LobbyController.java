@@ -1,9 +1,13 @@
 package it.polimi.ingsw.am14.controller;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.mysql.cj.xdevapi.JsonParser;
 import it.polimi.ingsw.am14.network.NetworkLayer;
 import it.polimi.ingsw.am14.exceptions.*;
 import it.polimi.ingsw.am14.model.gameLogic.Game;
 import it.polimi.ingsw.am14.model.gameLogic.GameFactory;
+import it.polimi.ingsw.am14.utils.JsonCodec;
 
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -13,10 +17,17 @@ import java.util.Optional;
 import java.util.Set;
 
 public class LobbyController {
+    public Map<Integer, GameController> getGameIdToGameController() {
+        return gameIdToGameController;
+    }
+
     private final Map<Integer, GameController> gameIdToGameController;
     private final Map<String, Integer> nicknameToGameId;
+    @JsonIgnore
     private final Set<String> activeNicknames; //TODO: Da rimuovere se si tiene così l'update in Network layer
+    @JsonIgnore
     private final NetworkLayer networkLayer;
+    @JsonIgnore
     private final Object dataLock = new Object();
     //TODO: quando andremo a salvare questi dati salveremo solo nicknameToGameId,
     //      mentre gli altri no, perchè i nickname non saranno attivi e i controller
@@ -29,11 +40,12 @@ public class LobbyController {
         this.networkLayer = networkLayer;
     }
 
-    public LobbyController(Map<String, Integer> nicknameToGameId, NetworkLayer networkLayer) {
+    @JsonCreator
+    public LobbyController(Map<String, Integer> nicknameToGameId) {
         this.gameIdToGameController = new HashMap<>();
         this.nicknameToGameId = nicknameToGameId;
         this.activeNicknames = new HashSet<>();
-        this.networkLayer = networkLayer;
+        this.networkLayer = new NetworkLayer();
     }
 
     private void addGameController(int gameId, GameController gameController) {
@@ -158,6 +170,8 @@ public class LobbyController {
         getGameController(getGameIdByNickname(nickname).orElseThrow(() -> new IllegalNicknameException("Player with the specified nickname is not in the lobby")))
                 .orElseThrow(() -> new IllegalNicknameException("Player with the specified nickname is not assigned to any game"))
                 .placeTotem(nickname, position);
+        JsonCodec parser = new JsonCodec();
+        parser.writeSaveData(this, "src/main/Saves/save.json");
     }
 
     public void pickCard(String nickname, int cardId, int row) throws IllegalNicknameException, WrongStateException, WrongTurnException, UnknownPositionException, IllegalPickException, ForcedPickException, IllegalPlacementException, UnknownNicknameException, SQLException {

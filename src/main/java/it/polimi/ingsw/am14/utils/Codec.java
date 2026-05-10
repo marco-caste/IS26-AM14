@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am14.utils;
 
+import it.polimi.ingsw.am14.controller.LobbyController;
 import it.polimi.ingsw.am14.events.ClientRequest;
 import it.polimi.ingsw.am14.events.Event;
 import it.polimi.ingsw.am14.model.boardComponents.TrackCard;
@@ -37,10 +38,10 @@ public interface Codec {
 
     /**
      *
-     * @param game not null, the Game object to be saved
+     * @param controller not null, the LobbyController object to be saved
      * @param filePath not null, path of the file where the save data will be stored
      */
-    void writeSaveData(Game game, String filePath);
+    void writeSaveData(LobbyController controller, String filePath);
 
     /**
      *

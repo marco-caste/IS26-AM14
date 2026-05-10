@@ -1,6 +1,7 @@
 package it.polimi.ingsw.am14.events;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import it.polimi.ingsw.am14.network.NetworkLayer;
 import it.polimi.ingsw.am14.model.boardComponents.Board;
@@ -15,6 +16,7 @@ import static it.polimi.ingsw.am14.utils.Constants.*;
 public class JoinedGameEvent extends ServerEvent {
 
     // attributes
+    @JsonIgnore
     private String playerNickname;
     private final int gameId;
     private final int turnOrderCardIndex;

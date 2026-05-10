@@ -1,15 +1,23 @@
 package it.polimi.ingsw.am14.utils;
 
+import it.polimi.ingsw.am14.controller.GameController;
+import it.polimi.ingsw.am14.controller.LobbyController;
 import it.polimi.ingsw.am14.events.EndGameEvent;
 import it.polimi.ingsw.am14.events.EndRoundEvent;
 import it.polimi.ingsw.am14.events.Event;
 import it.polimi.ingsw.am14.events.ExceptionEvent;
 import it.polimi.ingsw.am14.events.GameStartedEvent;
 import it.polimi.ingsw.am14.events.TotemPlacedEvent;
+import it.polimi.ingsw.am14.model.gameLogic.Game;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -22,6 +30,141 @@ class JsonCodecTest {
     @BeforeEach
     void setUp() {
         jsonCodec = new JsonCodec();
+    }
+
+    // ===== STUB CLASSES (no Mockito needed) =====
+
+    private static class StubGame extends Game {
+        public StubGame(int gameId) {
+            super(2, gameId);  // Crea Game con 2 giocatori
+        }
+    }
+
+    private static class StubGameController {
+        private final StubGame game;
+
+        public StubGameController(StubGame game) {
+            this.game = game;
+        }
+
+        public Game getGame() {
+            return game;
+        }
+    }
+
+    // ===== TESTS =====
+
+    @Test
+    void writeSaveData_shouldWriteGameDataToFile() throws IOException {
+        // Setup
+        StubGame game = new StubGame(1);
+        StubGameController gameController = new StubGameController(game);
+        Map<Integer, StubGameController> gameMap = Map.of(1, gameController);
+
+        // Create a wrapper that implements the interface
+        LobbyController lobbyController = new LobbyController(new HashMap<>()) {
+            @Override
+            public Map<Integer, GameController> getGameIdToGameController() {
+                return gameMap.entrySet().stream()
+                        .collect(java.util.stream.Collectors.toMap(
+                                Map.Entry::getKey,
+                                e -> new GameController(e.getValue().getGame())
+                        ));
+            }
+        };
+
+        String filePath = "test_save.json";
+
+        // Execute
+        jsonCodec.writeSaveData(lobbyController, filePath);
+
+        // Verify - controlla che il file sia stato creato
+        assertTrue(Files.exists(Path.of("save.json")),
+                "Il file save.json dovrebbe essere stato creato");
+    }
+
+    @Test
+    void writeSaveData_shouldSerializeMultipleGames() throws IOException {
+        // Setup
+        StubGame game1 = new StubGame(1);
+        StubGame game2 = new StubGame(2);
+        StubGameController gameController1 = new StubGameController(game1);
+        StubGameController gameController2 = new StubGameController(game2);
+        Map<Integer, StubGameController> gameMap = Map.of(1, gameController1, 2, gameController2);
+
+        LobbyController lobbyController = new LobbyController(new HashMap<>()) {
+            @Override
+            public Map<Integer, GameController> getGameIdToGameController() {
+                return gameMap.entrySet().stream()
+                        .collect(java.util.stream.Collectors.toMap(
+                                Map.Entry::getKey,
+                                e -> new GameController(e.getValue().getGame())
+                        ));
+            }
+        };
+
+        String filePath = "test_save.json";
+
+        // Execute
+        jsonCodec.writeSaveData(lobbyController, filePath);
+
+        // Verify
+        String fileContent = Files.readString(Path.of("save.json"));
+        assertNotNull(fileContent, "Il contenuto del file non dovrebbe essere nullo");
+        assertFalse(fileContent.isEmpty(), "Il contenuto del file non dovrebbe essere vuoto");
+        assertTrue(fileContent.contains("[1,2]") || fileContent.contains("[1, 2]"),
+                "Il file dovrebbe contenere i game IDs");
+    }
+
+    @Test
+    void writeSaveData_shouldHandleEmptyGameMap() throws IOException {
+        // Setup
+        LobbyController lobbyController = new LobbyController(new HashMap<>()) {
+            @Override
+            public Map<Integer, GameController> getGameIdToGameController() {
+                return new HashMap<>();
+            }
+        };
+
+        String filePath = "test_save.json";
+
+        // Execute
+        jsonCodec.writeSaveData(lobbyController, filePath);
+
+        // Verify - verifica che il file sia stato creato anche con mappa vuota
+        assertTrue(Files.exists(Path.of("save.json")),
+                "Il file dovrebbe essere creato anche con nessuna partita");
+
+        String fileContent = Files.readString(Path.of("save.json"));
+        assertTrue(fileContent.contains("[]"),
+                "Il file dovrebbe contenere un array vuoto");
+    }
+
+    @Test
+    void writeSaveData_shouldCreateValidJsonFormat() throws IOException {
+        // Setup
+        StubGame game = new StubGame(5);
+        StubGameController gameController = new StubGameController(game);
+        Map<Integer, StubGameController> gameMap = Map.of(5, gameController);
+
+        LobbyController lobbyController = new LobbyController(new HashMap<>()) {
+            @Override
+            public Map<Integer, GameController> getGameIdToGameController() {
+                return gameMap.entrySet().stream()
+                        .collect(java.util.stream.Collectors.toMap(
+                                Map.Entry::getKey,
+                                e -> new GameController(e.getValue().getGame())
+                        ));
+            }
+        };
+
+        // Execute
+        jsonCodec.writeSaveData(lobbyController, "test_save.json");
+
+        // Verify
+        String fileContent = Files.readString(Path.of("save.json"));
+        assertTrue(fileContent.startsWith("[") && fileContent.contains("{"),
+                "Il file dovrebbe contenere JSON valido");
     }
 
     @Test
@@ -171,6 +314,12 @@ class JsonCodecTest {
                         "Alice", List.of(10, 20),
                         "Bob", List.of(5, 15)),
                 readField(event, "playersAttributes", Map.class));
+    }
+
+    // Cleanup dopo i test
+    @AfterEach
+    void tearDown() throws IOException {
+        Files.deleteIfExists(Path.of("save.json"));
     }
 
     private static <T> T readField(Object target, String fieldName, Class<T> fieldType) {

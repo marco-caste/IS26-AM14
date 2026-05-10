@@ -37,13 +37,13 @@ public class BuildingDeck {
 
         Map<Integer, ArrayList<Building>> completeDecks = new HashMap<>();
 
-        completeDecks.put(1, jsonCodec.readBuildings("resources/Buildings.json").stream().
+        completeDecks.put(1, jsonCodec.readBuildings("src/main/resources/Buildings.json").stream().
                 filter(b -> b.getAge() == 1).
                 collect(Collectors.toCollection(ArrayList::new)));
-        completeDecks.put(2, jsonCodec.readBuildings("resources/Buildings.json").stream().
+        completeDecks.put(2, jsonCodec.readBuildings("src/main/resources/Buildings.json").stream().
                 filter(b -> b.getAge() == 2).
                 collect(Collectors.toCollection(ArrayList::new)));
-        completeDecks.put(3, jsonCodec.readBuildings("resources/Buildings.json").stream().
+        completeDecks.put(3, jsonCodec.readBuildings("src/main/resources/Buildings.json").stream().
                 filter(b -> b.getAge() == 3).
                 collect(Collectors.toCollection(ArrayList::new)));
 

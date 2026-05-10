@@ -34,4 +34,8 @@ public class GameController {
 //            String json = parser.writeSaveData(game, path);
         }
     }
+
+    public Game getGame() {
+        return game;
+    }
 }

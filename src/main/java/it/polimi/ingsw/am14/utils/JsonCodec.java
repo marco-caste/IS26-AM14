@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import it.polimi.ingsw.am14.controller.GameController;
+import it.polimi.ingsw.am14.controller.LobbyController;
 import it.polimi.ingsw.am14.events.ClientRequest;
 import it.polimi.ingsw.am14.events.Event;
 import it.polimi.ingsw.am14.model.boardComponents.TrackCard;
@@ -14,14 +16,14 @@ import it.polimi.ingsw.am14.model.gameLogic.Game;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 public class JsonCodec implements Codec {
-
-
     /**
      * @param filePath not null, path of the file where the save data is stored
      * @return the saved Game object
@@ -32,12 +34,35 @@ public class JsonCodec implements Codec {
     }
 
     /**
-     * @param game     not null, the Game object to be saved
-     * @param filePath not null, path of the file where the save data will be stored
+     * @param controller    not null, the Game object to be saved
+     * @param filePath      not null, path of the file where the save data will be stored
      */
     @Override
-    public void writeSaveData(Game game, String filePath) {
+    public void writeSaveData(LobbyController controller, String filePath) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
 
+        StringBuilder jsonFile = new StringBuilder();
+
+        try {
+            jsonFile.append(objectMapper.writeValueAsString(controller.getGameIdToGameController().keySet()));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("[JsonCodec] Failed to write save data to file: " + filePath + ": " + e.getMessage());
+        }
+
+        for (Map.Entry<Integer, GameController> entries: controller.getGameIdToGameController().entrySet()) {
+            try {
+                jsonFile.append(objectMapper.writeValueAsString(entries.getValue().getGame()));
+            } catch (IOException e) {
+                throw new RuntimeException("[JsonCodec] Failed to write save data to file: " + filePath + ": " + e.getMessage());
+            }
+        }
+
+        try {
+            Files.writeString(Path.of("save.json"), jsonFile.toString());
+        } catch (IOException e) {
+            throw new RuntimeException("[JsonCodec] Failed to write save data to file: " + filePath + ": " + e.getMessage());
+        }
     }
 
     /**

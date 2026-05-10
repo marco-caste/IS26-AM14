@@ -11,13 +11,11 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 
-import static it.polimi.ingsw.am14.utils.Constants.PING_INTERVAL;
-import static it.polimi.ingsw.am14.utils.Constants.PING_TIMEOUT;
+import static it.polimi.ingsw.am14.utils.Constants.*;
 
 public class RmiClient extends UnicastRemoteObject implements VirtualClientRmi, VirtualServer {
 
     private final ClientModel model;
-    private static final String serverName = "AM14MesosServer";
     private VirtualServerRmi server;
     private static long lastPingReceived;
 
