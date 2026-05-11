@@ -220,7 +220,7 @@
       "type": "hunter",
       "id": 60,
       "age": 3,
-      "hasHam": false
+      "hasHam": true
     },
     {
       "type": "builder",
