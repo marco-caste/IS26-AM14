@@ -3,10 +3,18 @@ package it.polimi.ingsw.am14.clientModel;
 import it.polimi.ingsw.am14.view.ViewType;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class ClientModel {
+
+    Map<Integer, List<Character>> offersPath = Map.of(
+            2, List.of('B','C','E','F'),
+            3, List.of('B','C','D','E','F'),
+            4, List.of('B','C','D','E','F','G'),
+            5, List.of('A','B','C','D','E','F','G')
+            );
 
     List<ViewType> observers;
     ClientPlayer homePlayer;
@@ -14,11 +22,11 @@ public class ClientModel {
     ArrayList<String> playerOrderInTurnOrderCard;
     // TODO: turnOrderCard e TrackCard
     ArrayList<ArrayList<Integer>> board;
-
     int turnOrderCardIndex; // it's needed to build the right TurnorderCard in the view, it depends on this index.
     int gameId;
     int numPlayers; // it's needed to build the right offersPath in the View.
     String message;
+    int age;
 
     public ClientModel() {
         this.observers = new ArrayList<>();
@@ -144,4 +152,22 @@ public class ClientModel {
     public void removePlayerFromTurnOrderCard(int index) {
         this.playerOrderInTurnOrderCard.set(index, null);
     }
+
+    public int getAge() {
+        return this.age;
+    }
+
+    public void updateAge(int age){
+        this.age = age;
+    }
+
+
+    public int getNumPlayers(){
+        return this.numPlayers;
+    }
+
+    public ArrayList<Character> getOffersPath() {
+        return new ArrayList<>(offersPath.get(numPlayers));
+    }
+
 }
