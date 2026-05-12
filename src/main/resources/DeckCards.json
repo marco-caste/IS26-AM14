@@ -20,130 +20,130 @@
     },
     {
       "type": "builder",
-      "id": 5,
+      "id": 15,
       "age": 1,
       "buildDiscount": 1,
       "prestigePoints": 3
     },
     {
       "type": "builder",
-      "id": 6,
+      "id": 16,
       "age": 1,
       "buildDiscount": 2,
       "prestigePoints": 0
     },
     {
       "type": "builder",
-      "id": 8,
+      "id": 18,
       "age": 1,
       "buildDiscount": 1,
       "prestigePoints": 2
     },
     {
       "type": "gatherer",
-      "id": 9,
+      "id": 27,
       "age": 1,
       "discount": 3
     },
     {
       "type": "gatherer",
-      "id": 10,
+      "id": 28,
       "age": 1,
       "discount": 3
     },
     {
       "type": "artist",
-      "id": 13,
+      "id": 38,
       "age": 1
     },
     {
       "type": "artist",
-      "id": 14,
+      "id": 39,
       "age": 1
     },
     {
       "type": "artist",
-      "id": 15,
+      "id": 40,
       "age": 1
     },
     {
       "type": "inventor",
-      "id": 18,
+      "id": 51,
       "age": 1,
       "inventionType": "leather"
     },
     {
       "type": "inventor",
-      "id": 19,
+      "id": 52,
       "age": 1,
       "inventionType": "boat"
     },
     {
       "type": "inventor",
-      "id": 20,
+      "id": 53,
       "age": 1,
       "inventionType": "arrow"
     },
     {
       "type": "inventor",
-      "id": 21,
+      "id": 54,
       "age": 1,
       "inventionType": "bread"
     },
     {
       "type": "shaman",
-      "id": 26,
+      "id": 72,
       "age": 1,
       "numStars": 2
     },
     {
       "type": "shaman",
-      "id": 27,
+      "id": 73,
       "age": 1,
       "numStars": 1
     },
     {
       "type": "hunter",
-      "id": 29,
+      "id": 5,
       "age": 2,
       "hasHam": false
     },
     {
       "type": "hunter",
-      "id": 30,
+      "id": 6,
       "age": 2,
       "hasHam": false
     },
     {
       "type": "hunter",
-      "id": 32,
+      "id": 8,
       "age": 2,
       "hasHam": true
     },
     {
       "type": "builder",
-      "id": 35,
+      "id": 19,
       "age": 2,
       "buildDiscount": 1,
       "prestigePoints": 4
     },
     {
       "type": "builder",
-      "id": 36,
+      "id": 20,
       "age": 2,
       "buildDiscount": 2,
       "prestigePoints": 1
     },
     {
       "type": "builder",
-      "id": 38,
+      "id": 22,
       "age": 2,
       "buildDiscount": 2,
       "prestigePoints": 3
     },
     {
       "type": "gatherer",
-      "id": 39,
+      "id": 31,
       "age": 2,
       "discount": 3
     },
@@ -164,127 +164,127 @@
     },
     {
       "type": "inventor",
-      "id": 47,
+      "id": 58,
       "age": 2,
       "inventionType": "vodoo"
     },
     {
       "type": "inventor",
-      "id": 49,
+      "id": 60,
       "age": 2,
       "inventionType": "rope"
     },
     {
       "type": "inventor",
-      "id": 50,
+      "id": 61,
       "age": 2,
       "inventionType": "flute"
     },
     {
       "type": "inventor",
-      "id": 51,
+      "id": 62,
       "age": 2,
       "inventionType": "bowl"
     },
     {
       "type": "inventor",
-      "id": 52,
+      "id": 63,
       "age": 2,
       "inventionType": "leather"
     },
     {
       "type": "shaman",
-      "id": 53,
+      "id": 75,
       "age": 2,
       "numStars": 2
     },
     {
       "type": "shaman",
-      "id": 53,
+      "id": 76,
       "age": 2,
       "numStars": 2
     },
     {
       "type": "hunter",
-      "id": 58,
+      "id": 12,
       "age": 3,
       "hasHam": false
     },
     {
       "type": "hunter",
-      "id": 59,
+      "id": 13,
       "age": 3,
       "hasHam": false
     },
     {
       "type": "hunter",
-      "id": 60,
+      "id": 14,
       "age": 3,
       "hasHam": true
     },
     {
       "type": "builder",
-      "id": 61,
+      "id":23,
       "age": 3,
       "buildDiscount": 1,
       "prestigePoints": 5
     },
     {
       "type": "builder",
-      "id": 62,
+      "id": 24,
       "age": 3,
       "buildDiscount": 2,
       "prestigePoints": 3
     },
     {
       "type": "builder",
-      "id": 64,
+      "id": 26,
       "age": 3,
       "buildDiscount": 2,
       "prestigePoints": 2
     },
     {
       "type": "gatherer",
-      "id": 67,
+      "id": 37,
       "age": 3,
       "discount": 3
     },
     {
       "type": "artist",
-      "id": 69,
+      "id": 48,
       "age": 3
     },
     {
       "type": "artist",
-      "id": 70,
+      "id": 49,
       "age": 3
     },
     {
       "type": "artist",
-      "id": 71,
+      "id": 50,
       "age": 3
     },
     {
       "type": "inventor",
-      "id": 75,
+      "id": 67,
       "age": 3,
       "inventionType": "vodoo"
     },
     {
       "type": "inventor",
-      "id": 76,
+      "id": 68,
       "age": 3,
       "inventionType": "hook"
     },
     {
       "type": "inventor",
-      "id": 77,
+      "id": 69,
       "age": 3,
       "inventionType": "jewel"
     },
     {
       "type": "inventor",
-      "id": 78,
+      "id": 70,
       "age": 3,
       "inventionType": "bread"
     },
@@ -372,31 +372,31 @@
     },
     {
       "type": "gatherer",
-      "id": 11,
+      "id": 29,
       "age": 1,
       "discount": 3
     },
     {
       "type": "artist",
-      "id": 16,
+      "id": 41,
       "age": 1
     },
     {
       "type": "hunter",
-      "id": 31,
+      "id": 7,
       "age": 2,
       "hasHam": true
     },
     {
       "type": "builder",
-      "id": 37,
+      "id": 21,
       "age": 2,
       "buildDiscount": 1,
       "prestigePoints": 2
     },
     {
       "type": "gatherer",
-      "id": 40,
+      "id": 32,
       "age": 2,
       "discount": 3
     },
@@ -407,13 +407,13 @@
     },
     {
       "type": "inventor",
-      "id": 73,
+      "id": 65,
       "age": 3,
       "inventionType": "boat"
     },
     {
       "type": "inventor",
-      "id": 74,
+      "id": 66,
       "age": 3,
       "inventionType": "arrow"
     },
@@ -427,60 +427,60 @@
   [
     {
       "type": "artist",
-      "id": 17,
+      "id": 42,
       "age": 1
     },
     {
       "type": "inventor",
-      "id": 22,
+      "id": 55,
       "age": 1,
       "inventionType": "rope"
     },
     {
       "type": "inventor",
-      "id": 23,
+      "id": 56,
       "age": 1,
       "inventionType": "flute"
     },
     {
       "type": "inventor",
-      "id": 24,
+      "id": 57,
       "age": 1,
       "inventionType": "bowl"
     },
     {
       "type": "shaman",
-      "id": 28,
+      "id": 74,
       "age": 1,
       "numStars": 1
     },
     {
       "type": "hunter",
-      "id": 33,
+      "id": 9,
       "age": 2,
       "hasHam": true
     },
     {
       "type": "gatherer",
-      "id": 41,
+      "id": 33,
       "age": 2,
       "discount": 3
     },
     {
       "type": "inventor",
-      "id": 48,
+      "id": 59,
       "age": 2,
       "inventionType": "hook"
     },
     {
       "type": "gatherer",
-      "id": 68,
+      "id": 36,
       "age": 3,
       "discount": 3
     },
     {
       "type": "inventor",
-      "id": 72,
+      "id": 64,
       "age": 3,
       "inventionType": "jewel"
     },
@@ -494,69 +494,69 @@
   [
     {
       "type": "builder",
-      "id": 7,
+      "id": 17,
       "age": 1,
       "buildDiscount": 2,
       "prestigePoints": 1
     },
     {
       "type": "gatherer",
-      "id": 12,
+      "id": 30,
       "age": 1,
       "discount": 3
     },
     {
       "type": "shaman",
-      "id": 25,
+      "id": 71,
       "age": 1,
       "numStars": 2
     },
     {
       "type": "hunter",
-      "id": 34,
+      "id": 10,
       "age": 2,
       "hasHam": false
     },
     {
       "type": "gatherer",
-      "id": 42,
+      "id": 34,
       "age": 2,
       "discount": 3
     },
     {
       "type": "shaman",
-      "id": 55,
+      "id":77,
       "age": 2,
       "numStars": 1
     },
     {
       "type": "shaman",
-      "id": 56,
+      "id": 78,
       "age": 2,
       "numStars": 2
     },
     {
       "type": "hunter",
-      "id": 57,
+      "id": 11,
       "age": 3,
       "hasHam": true
     },
     {
       "type": "builder",
-      "id": 63,
+      "id": 25,
       "age": 3,
       "buildDiscount": 1,
       "prestigePoints": 4
     },
     {
       "type": "gatherer",
-      "id": 65,
+      "id": 35,
       "age": 3,
       "discount": 3
     },
     {
       "type": "artist",
-      "id": 68,
+      "id": 47,
       "age": 3
     }
   ]

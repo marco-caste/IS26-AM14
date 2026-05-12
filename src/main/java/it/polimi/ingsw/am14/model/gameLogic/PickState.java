@@ -20,7 +20,7 @@ class PickState extends GameState {
     private static final int BOTTOM_DECKABLE_ROW = 2;
     private static final int BOTTOM_BUILDING_ROW = 3;
 
-    private static final class TotemSlot {
+    public static final class TotemSlot {
         private final Player player;
         private final char position;
 
@@ -54,7 +54,6 @@ class PickState extends GameState {
         if (safeCard.isEmpty()) {
             handlePlayerSkipAction(player, context, availableTopCharacters, availableBottomCharacters, playerTotemPosition);
             return;
-            //TODO : metterelo qui
         }
 
         Card selectedCard = safeCard.get();
@@ -65,7 +64,6 @@ class PickState extends GameState {
         // exceptional pick due to additional pick building
         if (isExceptionalAddTopPickTurn(player, context)) {
             handleExceptionalPick(selectedCard, row, context, player);
-            //TODO : metterelo qui per la fine del add top pick
             return;
         }
 
@@ -341,7 +339,11 @@ class PickState extends GameState {
                         player.getNumFood(),
                         player.getNumPrestigePoints(),
                         currentTurnOrderCard,
-                        context.getGameId()
+                        context.getGameId(),
+                        player.getTotalBuildingDiscount(),
+                        player.getTotalGatheringDiscount(),
+                        player.getNumStars()
+
                 )
         );
     }

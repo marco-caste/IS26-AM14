@@ -8,7 +8,11 @@ public class ClientPlayer {
     private String totemColor;
     private int numFood;
     private int numPrestigePoints;
+    private int numStars;
+    private int totalBuildingDiscount;
+    private int totalGatheringDiscount;
     private Character playerPosition;
+
     private List<Integer> playerTribe = new ArrayList<Integer>();
 
     public ClientPlayer(String nickname) {
@@ -63,6 +67,12 @@ public class ClientPlayer {
         return playerTribe;
     }
 
+    public int getNumStars() {return numStars;}
+
+    public int getTotalBuildingDiscount() {return totalBuildingDiscount;}
+
+    public int getTotalGatheringDiscount() {return totalGatheringDiscount;}
+
     @Override
     public String toString() {
         return  "nickname='" + nickname + '\'' +
@@ -70,5 +80,18 @@ public class ClientPlayer {
                 ", numFood=" + numFood +
                 ", numPrestigePoints=" + numPrestigePoints +
                 ", playerPosition=" + playerPosition;
+    }
+
+    public void setNumStars(int numStars) {
+        this.numStars = numStars;
+    }
+
+    public void setTotalBuildingDiscount(int buildingDiscount) {
+        this.totalBuildingDiscount = buildingDiscount;
+
+    }
+
+    public void setTotalGatheringDiscount(int gatheringDiscount) {
+        this.totalGatheringDiscount = gatheringDiscount;
     }
 }

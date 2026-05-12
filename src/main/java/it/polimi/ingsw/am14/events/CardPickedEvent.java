@@ -18,11 +18,14 @@ public class CardPickedEvent extends UpdateEvent {
     private int row;
     private int playerFood;
     private int playerPrestigePoints;
+    private int playerNumStars;
+    private int playerBuildingDiscount;
+    private int playerGatheringDiscount;
     private ArrayList<String> updatedTurnOrderCard;
     private int gameId; // only used for bufferization, will not be sent to the client
 
     // called by the model
-    public CardPickedEvent(String playerNickname, Card card, int row, int playerFood, int playerPrestigePoints, Optional<ArrayList<Player>> updatedTurnOrderCard, int gameId) {
+    public CardPickedEvent(String playerNickname, Card card, int row, int playerFood, int playerPrestigePoints, Optional<ArrayList<Player>> updatedTurnOrderCard, int gameId, int playerBuildingDiscount, int playerGatheringDiscount, int playerNumStars) {
         super("");
         int ID = card == null ? -1 : card.getId();
 
@@ -33,6 +36,9 @@ public class CardPickedEvent extends UpdateEvent {
             this.row = -1;
             this.playerFood = playerFood;
             this.playerPrestigePoints = playerPrestigePoints;
+            this.playerBuildingDiscount = playerBuildingDiscount;
+            this.playerNumStars = playerNumStars;
+            this.playerGatheringDiscount = playerGatheringDiscount;
             return;
         }
 
@@ -72,7 +78,11 @@ public class CardPickedEvent extends UpdateEvent {
             @JsonProperty("playerFood") int playerFood,
             @JsonProperty("playerPrestigePoints") int playerPrestigePoints,
             @JsonProperty("updatedTurnOrderCard") ArrayList<String> updatedTurnOrderCard,
-            @JsonProperty("description") String description) {
+            @JsonProperty("description") String description,
+            @JsonProperty("playerBuildingDiscount") int playerBuildingDiscount,
+            @JsonProperty("playerGatheringDiscount") int  playerGatheringDiscount,
+            @JsonProperty("playerNumStars") int playerNumStars)
+    {
         super(description);
         this.playerNickname = playerNickname;
         this.cardID = cardID;
@@ -80,6 +90,9 @@ public class CardPickedEvent extends UpdateEvent {
         this.playerFood = playerFood;
         this.playerPrestigePoints = playerPrestigePoints;
         this.updatedTurnOrderCard = updatedTurnOrderCard;
+        this.playerGatheringDiscount = playerGatheringDiscount;
+        this.playerNumStars = playerNumStars;
+        this.playerBuildingDiscount = playerBuildingDiscount;
     }
 
     public void bufferize(NetworkLayer networkLayer) {
@@ -95,8 +108,7 @@ public class CardPickedEvent extends UpdateEvent {
         if (cardID != -1) {
             model.updatePlayerTribe(playerNickname, cardID);
             model.removePickedCardFromBoard(row, cardID);
-            model.updatePlayerFood(playerNickname, playerFood);
-            model.updatePlayerPrestigePoints(playerNickname, playerPrestigePoints);
+            model.updatePickPlayerStats(playerNickname, playerFood, playerPrestigePoints, playerBuildingDiscount, playerGatheringDiscount, playerNumStars);
         }
         model.setPlayerOrderInTurnOrderCard(updatedTurnOrderCard);
         model.notifyObservers();

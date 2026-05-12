@@ -17,10 +17,9 @@ public class ClientModel {
             );
 
     List<ViewType> observers;
-    ClientPlayer homePlayer;
-    ArrayList<ClientPlayer> otherPlayers =  new ArrayList<>();
+    ClientPlayer homePlayer ;
+    ArrayList<ClientPlayer> otherPlayers ;
     ArrayList<String> playerOrderInTurnOrderCard;
-    // TODO: turnOrderCard e TrackCard
     ArrayList<ArrayList<Integer>> board;
     int turnOrderCardIndex; // it's needed to build the right TurnorderCard in the view, it depends on this index.
     int gameId;
@@ -169,5 +168,25 @@ public class ClientModel {
     public ArrayList<Character> getOffersPath() {
         return new ArrayList<>(offersPath.get(numPlayers));
     }
+
+    public ClientPlayer getHomePlayer (){
+        return this.homePlayer;
+    }
+
+    public ArrayList<ClientPlayer> getOtherPlayers() {
+        return this.otherPlayers;
+    }
+
+    public void updatePickPlayerStats(String nickname , int numFodd, int numPrestigePoints, int numStars, int buildingDiscount, int gatheringDiscount){
+        ClientPlayer player = getPlayerByNickname(nickname);
+        if (player != null) {
+            updatePlayerFood(nickname, numFodd);
+            updatePlayerPrestigePoints(nickname, numPrestigePoints);
+            player.setNumStars(numStars);
+            player.setTotalBuildingDiscount(buildingDiscount);
+            player.setTotalGatheringDiscount(gatheringDiscount);
+        }
+    }
+
 
 }
