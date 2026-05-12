@@ -2,6 +2,7 @@ package it.polimi.ingsw.am14.controller;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.mysql.cj.xdevapi.JsonParser;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import it.polimi.ingsw.am14.network.NetworkLayer;
@@ -47,8 +48,10 @@ public class LobbyController {
     }
 
     @JsonCreator
-    public LobbyController(Map<String, Integer> nicknameToGameId) {
-        this.gameIdToGameController = new HashMap<>();
+    public LobbyController(
+            @JsonProperty("nicknameToGameId") Map<String, Integer> nicknameToGameId,
+            @JsonProperty("gameIdToGameController") Map<Integer, GameController> gameIdToGameController) {
+        this.gameIdToGameController = gameIdToGameController;
         this.nicknameToGameId = nicknameToGameId;
         this.activeNicknames = new HashSet<>();
         this.networkLayer = new NetworkLayer();

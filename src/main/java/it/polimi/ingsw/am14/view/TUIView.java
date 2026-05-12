@@ -139,11 +139,17 @@ public class TUIView implements ViewType {
     @Override
     public void update(ClientModel model) {
 
-        if (this.modelReference == null)
+        if (model != null && this.modelReference == null)
             this.modelReference = model;
         // SOLUZIONE: reader.printAbove(model.getDescription());
         // allows to print a received message above the current prompt, avoiding the race conditions on writer (?)
-        lineReader.printAbove("[Server]: " + model.getMessage() + "\nBoard:\n" + model.getBoard().toString());
+        lineReader.printAbove("[Server]: " + this.modelReference.getMessage() + "\nBoard:\n" + this.modelReference.getBoard().toString());
+    }
+
+    @Override
+    public void disconnect() {
+        server = null;
+        this.update(null);
     }
 
     private void show(String[] args) throws IllegalArgumentException{

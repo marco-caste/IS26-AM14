@@ -144,4 +144,17 @@ public class ClientModel {
     public void removePlayerFromTurnOrderCard(int index) {
         this.playerOrderInTurnOrderCard.set(index, null);
     }
+
+    public void disconnect() {
+        this.homePlayer = null;
+        this.otherPlayers = new ArrayList<>();
+        this.playerOrderInTurnOrderCard = new ArrayList<>();
+        this.board = new ArrayList<>();
+        this.turnOrderCardIndex = 0;
+        this.gameId = 0;
+        this.numPlayers = 0;
+        for (ViewType observer : observers) {
+            observer.disconnect();
+        }
+    }
 }
