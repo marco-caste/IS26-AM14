@@ -78,6 +78,7 @@ public class SocketClientHandler implements VirtualClientSocket{
         try {
             if (!socket.isClosed()) {
                 socket.close();
+                // TODO: socket = null?
             }
         } catch (IOException e) {
             System.err.println("[Server] Error closing socket: " + e.getMessage());

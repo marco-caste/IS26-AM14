@@ -44,6 +44,6 @@ public class PlayerDisconnectedEvent extends ServerEvent{
 
     @Override
     public void effect(ClientModel model) {
-        //TODO
+
     }
 }

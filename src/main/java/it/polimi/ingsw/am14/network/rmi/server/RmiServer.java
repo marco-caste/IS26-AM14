@@ -23,7 +23,7 @@ public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
     }
 
     @Override
-    public void connect(VirtualClientRmi client, String nickname) throws RemoteException {
+    public void connect(VirtualClientRmi client, String nickname) {
         new Thread(() -> {
             try {
                 networkLayer.updateNicknameMap(nickname, client);
@@ -34,7 +34,6 @@ public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
                     try {
                         while (!Thread.currentThread().isInterrupted()) {
                             synchronized (networkLayer.getBuffer(client)) {
-                                // Double-check interruption PRIMA di aspettare
                                 if (Thread.currentThread().isInterrupted()) {
                                     return;
                                 }
@@ -59,7 +58,7 @@ public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
                                             // Client disconnected during event send - do full cleanup
                                             System.err.println("[RMI Server] Client '" + nickname + "' unreachable during update: " + e.getMessage());
                                             System.err.println("[RMI Server] Performing cleanup for '" + nickname + "'");
-                                            cleanupRmiClient(nickname, client);
+                                            cleanupClient(nickname, client);
                                             Thread.currentThread().interrupt();
                                             return;
                                         }
@@ -85,13 +84,13 @@ public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
             } catch (Exception e) {
                 // connectUser() failed
                 System.err.println("[RMI Server] Error during client connection for '" + nickname + "': " + e.getMessage());
-                cleanupRmiClient(nickname, client);
+                cleanupClient(nickname, client);
             }
         }, "RMIConnect-" + nickname).start();
     }
 
     @Override
-    public void createGame(String nickname, int numPlayers, String totemColor) throws RemoteException {
+    public void createGame(String nickname, int numPlayers, String totemColor) {
         new Thread(() -> {
             try {
                 lobbyController.createGame(nickname, numPlayers, totemColor);
@@ -117,7 +116,7 @@ public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
     }
 
     @Override
-    public void joinGame(String nickname, int gameId, String totemColor) throws RemoteException {
+    public void joinGame(String nickname, int gameId, String totemColor) {
         new Thread(() -> {
             try {
                 lobbyController.joinGame(nickname, gameId, totemColor);
@@ -143,7 +142,7 @@ public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
     }
 
     @Override
-    public void placeTotem(String nickname, char position) throws RemoteException {
+    public void placeTotem(String nickname, char position) {
         new Thread(() -> {
             try {
                 lobbyController.placeTotem(nickname, position);
@@ -163,7 +162,7 @@ public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
     }
 
     @Override
-    public void pickCard(String nickname, int cardId, int row) throws RemoteException {
+    public void pickCard(String nickname, int cardId, int row) {
         new Thread(() -> {
             try {
                 lobbyController.pickCard(nickname, cardId, row);
@@ -182,17 +181,15 @@ public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
         }, "RMIPick-" + nickname).start();
     }
 
-
     @Override
-    public void pingServer(String nickname) throws RemoteException {
+    public void pingServer(String nickname) {
         new Thread(() -> {
             lobbyController.handlePingRequest(nickname);
         }, "RMIPingClient-" + nickname).start();
     }
 
-    private void cleanupRmiClient(String nickname, VirtualClientRmi client) {
+    private void cleanupClient(String nickname, VirtualClientRmi client) {
         try {
-            networkLayer.notifyBufferForClient(client);
             networkLayer.removeThreadsByClient(client);
             networkLayer.removeBuffer(client);
             networkLayer.removeClientBy(nickname);

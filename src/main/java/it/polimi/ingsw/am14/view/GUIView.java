@@ -14,7 +14,7 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class GUIView extends Application implements ViewType {
+/*public class GUIView extends Application implements ViewType {
 
     private ClientModel modelReference = null;
     private BorderPane root;
@@ -274,3 +274,4 @@ public class GUIView extends Application implements ViewType {
         launch(args);
     }
 }
+*/

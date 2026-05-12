@@ -35,9 +35,6 @@ public class LobbyController {
     private final Map<String, Long> lastPingReceivedTime;
     @JsonIgnore
     private final Object dataLock = new Object();
-    //TODO: quando andremo a salvare questi dati salveremo solo nicknameToGameId,
-    //      mentre gli altri no, perchè i nickname non saranno attivi e i controller
-    //      si ricreano solo se si riconnettono gli user della partita crashata
 
     public LobbyController(NetworkLayer networkLayer) {
         this.gameIdToGameController = new HashMap<>();

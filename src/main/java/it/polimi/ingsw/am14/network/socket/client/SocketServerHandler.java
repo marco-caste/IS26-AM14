@@ -80,6 +80,6 @@ public class SocketServerHandler implements VirtualServerSocket{
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
-        }).start();
+        }, nickname + "'s pinger client side").start();
     }
 }
