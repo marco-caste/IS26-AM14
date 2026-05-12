@@ -17,13 +17,13 @@ public class ClientLauncher {
                     throw new RuntimeException(e.getMessage());
                 } catch (RuntimeException e) {
                     System.out.println("Exiting...");
+//                    system exit;
+//                    grateful shutdown...
                 }
             } else if (mode.equalsIgnoreCase("gui")) {
                 // GUI viewType = GUI
-            } else if (mode.equalsIgnoreCase("gui-fxml")) {
-                // GUI FXML viewType = GUI_FXML
             } else {
-                // ERROR
+                // TODO: ERROR
             }
         } catch (Exception e) {
             e.printStackTrace();

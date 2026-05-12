@@ -65,9 +65,9 @@ public class SocketClientHandlersManager {
                 while (true) {
                     synchronized (networkLayer.getBuffer(handler)) {
                         while (networkLayer.getBuffer(handler).isEmpty()) {
-                            // TODO: ping verso il client per capire se è ancora connesso.
+                            // TODO: pingServer verso il client per capire se è ancora connesso.
 //                            handler.update(
-//                                    new ServerPing("ping")
+//                                    new ServerPing("pingServer")
 //                            );
 
                             try {

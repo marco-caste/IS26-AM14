@@ -1,12 +1,32 @@
 package it.polimi.ingsw.am14.model.gameLogic;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import it.polimi.ingsw.am14.exceptions.*;
 import it.polimi.ingsw.am14.model.cards.Card;
 
 import java.sql.SQLException;
 import java.util.Optional;
 
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.NAME,
+        include = JsonTypeInfo.As.PROPERTY,
+        property = "type"
+)
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = WaitingRoomState.class, name = "waitingRoomState"),
+        @JsonSubTypes.Type(value = PositionState.class, name = "positionState"),
+        @JsonSubTypes.Type(value = PickState.class, name = "pickState"),
+        @JsonSubTypes.Type(value = EndRoundState.class, name = "endRoundState"),
+        @JsonSubTypes.Type(value = EndGameState.class, name = "endGameState")
+})
+
 abstract class GameState {
+
+    @JsonCreator
+    public GameState() {
+    }
 
     /**
      *

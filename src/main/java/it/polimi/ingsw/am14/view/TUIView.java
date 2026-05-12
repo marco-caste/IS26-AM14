@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am14.view;
 
+import it.polimi.ingsw.am14.network.EntryPointFactory;
 import it.polimi.ingsw.am14.network.VirtualServer;
 import it.polimi.ingsw.am14.network.rmi.RmiClientLauncher;
 import it.polimi.ingsw.am14.network.rmi.client.RmiClient;
@@ -17,6 +18,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
 
+import static it.polimi.ingsw.am14.utils.Constants.TotemColors;
+
 public class TUIView implements ViewType {
 
     private ClientModel modelReference = null;
@@ -25,7 +28,6 @@ public class TUIView implements ViewType {
     private Terminal terminal;
     private LineReader lineReader;
     private PrintWriter writer;
-    private static final String[] colors = {"white", "purple", "yellow", "red", "blue"};
 
     @Override
     public void run() throws IOException {
@@ -60,14 +62,14 @@ public class TUIView implements ViewType {
                 switch (tokens[0].toLowerCase()) {
                     case "help" -> {
                         writer.println("Available commands:");
-                        writer.println("  exit                                          - Exit the application");
-                        writer.println("  help                                          - Show this list");
-                        writer.println("  connect [socket|rmi]                          - Specify the networking technology to use");
-                        writer.println("  create [nickname] [numPlayers] [totemColor]   - Create a new game");
-                        writer.println("  join [nickname] [gameId] [totemColor]         - Join an existing game");
-                        writer.println("  pick [nickname] [cardID] [row]                - Pick the specified card");
-                        writer.println("  place [nickname] [position]                   - Place the totem on the specified position");
-                        writer.println("  show                                          - Show the current game state");
+                        writer.println("  exit\n\n\t- Exit the application");
+                        writer.println("  help\n\n\t- Show this list");
+                        writer.println("  connect [socket|rmi]\n\n\t- Specify the networking technology to use");
+                        writer.println("  create [nickname] [numPlayers] [totemColor]\n\n\t- Create a new game");
+                        writer.println("  join [nickname] [gameId] [totemColor]\n\n\t- Join an existing game");
+                        writer.println("  pick [nickname] [cardID] [row]\n\n\t- Pick the specified card");
+                        writer.println("  place [nickname] [position]\n\n\t- Place the totem on the specified position");
+                        writer.println("  show [nickname|cardId|turnOrderCard|offersPath] <nickname> | <cardId row>\n\n\t- Show the current game state");
                         terminal.flush();
                     }
                     case "connect" -> {
@@ -116,7 +118,7 @@ public class TUIView implements ViewType {
                     }
                     case "show" -> {
                         try {
-                            this.show();
+                            this.show(tokens);
                         } catch (IllegalArgumentException e) {
                             writer.println(e.getMessage());
                             terminal.flush();
@@ -138,18 +140,51 @@ public class TUIView implements ViewType {
     @Override
     public void update(ClientModel model) {
 
-        if (this.modelReference == null)
+        if (model != null && this.modelReference == null)
             this.modelReference = model;
         // SOLUZIONE: reader.printAbove(model.getDescription());
         // allows to print a received message above the current prompt, avoiding the race conditions on writer (?)
-        lineReader.printAbove("[Server]: " + model.getMessage() + "\nBoard:\n" + model.getBoard().toString());
+        lineReader.printAbove("[Server]: " + this.modelReference.getMessage() + "\nBoard:\n" + this.modelReference.getBoard().toString());
     }
 
-    private void show() {
-        writer.println(modelReference.getPlayerByNickname(chosenNickname).toString());
+    @Override
+    public void disconnect() {
+        server = null;
+        this.update(null);
+    }
+
+    private void show(String[] args) throws IllegalArgumentException{
+        if (args.length < 2) {
+            throw new IllegalArgumentException("Invalid command format. Usage: show [nickname|cardId|turnOrderCard|offersPath] <nickname> | <cardId row>");
+        }
+
+//        template: show [nickname|cardId|turnOrderCard|offersPath] <nickname> | <cardId row>
+
+        switch (args[1]) {
+            case "nickname" -> {
+                if (args.length < 3) {
+                    throw new IllegalArgumentException("Invalid command format. Usage: show nickname [nickname]");
+                }
+                writer.println(modelReference.getPlayerByNickname(args[2]).toString());
+                terminal.flush();
+            }
+            case "cardId" -> {
+                if (args.length < 4) {
+                    throw new IllegalArgumentException("Invalid command format. Usage: show cardId [cardId] [row]");
+                }
+                writer.println("fetches a card description from a json file");
+            }
+            case "turnOrderCard" -> {
+                writer.println("fetches the turnOrderCard from client model");
+            }
+            case "offersPath" -> {
+                writer.println("fetches the offers path from client model");
+            }
+            default -> throw new IllegalArgumentException("Invalid show option. Available options: nickname, cardId, turnOrderCard, offersPath.");
+        }
 
         /*
-        template: show [nickname|cardId|turnOrderCard|offersPath] <nickname> <cardId>
+
 
         use a alternate_ca_mode for showing:
         - on the left, the 4 rows in the board filled with card ids
@@ -162,6 +197,9 @@ public class TUIView implements ViewType {
     }
 
     private void pickCard(String[] args) throws IllegalArgumentException {
+        if (args.length < 4) {
+            throw new IllegalArgumentException("Invalid command format. Usage: pick [nickname] [cardID] [row]");
+        }
         if (server == null) {
             throw new IllegalArgumentException("You must connect to a server before picking a card.");
         }
@@ -178,6 +216,9 @@ public class TUIView implements ViewType {
     }
 
     private void placeTotem(String[] args) throws IllegalArgumentException {
+        if (args.length < 3) {
+            throw new IllegalArgumentException("Invalid command format. Usage: place [nickname] [position]");
+        }
         if (server == null) {
             throw new IllegalArgumentException("You must connect to a server before placing the totem.");
         }
@@ -193,75 +234,32 @@ public class TUIView implements ViewType {
         terminal.flush();
     }
 
+    // TODO: RIVEDERE PROMPT
     private void connect(String[] args) throws IllegalArgumentException {
 
-        // checks connection type
-        // TODO: factory pattern
-        if (args[1].equalsIgnoreCase("socket")) {
-            VirtualServerSocket socketServerEntryPoint;
-            writer.println("please specify the server IP and port");
-            terminal.flush();
-            String IP = lineReader.readLine("IP: ");
-            String port = lineReader.readLine("Port: ");
-            writer.println("Launching Socket Client...");
-            terminal.flush();
-            try {
-                socketServerEntryPoint = SocketClientLauncher.launch(new String[]{IP, port}, this);
-            } catch (IOException e) {
-                writer.println("Failed to connect to server: " + e.getMessage());
-                terminal.flush();
-                return;
-            }
-            writer.println("Socket Client launched successfully!");
-            writer.println("Please enter your nickname");
-            terminal.flush();
-            chosenNickname = lineReader.readLine("Nickname: ");
-            writer.println("Connecting to server...");
-            terminal.flush();
-            socketServerEntryPoint.connectUser(chosenNickname);
-            // no need to wait for a response from the server up to this date (29/4),
-            // it does not yet send any ConnectionReceived event.
-            writer.println("Connected to server successfully!");
-            writer.println("Launching TUI...");
-            terminal.flush();
-            this.server = socketServerEntryPoint;
+        if (args.length < 2) {
+            throw new IllegalArgumentException("Invalid command format. Usage: connect [socket|rmi]");
         }
-        else if (args[1].equalsIgnoreCase("rmi")) {
-            RmiClient serverEntryPoint;
-            writer.println("Launching RMI Client...");
-            terminal.flush();
-            try {
-                serverEntryPoint = (RmiClient) RmiClientLauncher.launch(this);
-            } catch (Exception e) {
-                writer.println("Failed to connect to server: " + e.getMessage());
-                terminal.flush();
-                return;
-            }
-            writer.println("RMI Client launched successfully!");
-            writer.println("Please enter your nickname");
-            terminal.flush();
-            chosenNickname = lineReader.readLine("Nickname: ");
-            String IP = lineReader.readLine("IP: ");
-            String port = lineReader.readLine("Port: ");
-            writer.println("Connecting to server...");
-            terminal.flush();
-            try {
-                serverEntryPoint.connect(serverEntryPoint, chosenNickname, IP, Integer.parseInt(port));
-            } catch (Exception e) {
-                writer.println("Failed to connect user: " + e.getMessage());
-                terminal.flush();
-                return;
-            }
-            writer.println("Connected to server successfully!");
-            writer.println("Launching TUI...");
-            terminal.flush();
-            this.server = serverEntryPoint;
-        }
-        else
-            throw new IllegalArgumentException("Invalid connection type. Please specify 'socket' or 'rmi'.");
+        writer.println("please specify the server IP, port and your nickname");
+        terminal.flush();
+        String IP = lineReader.readLine("IP: ");
+        String port = lineReader.readLine("Port: ");
+        chosenNickname = lineReader.readLine("Nickname: ").trim();
+        this.server = EntryPointFactory.connect(new String[]{args[1], IP, port, chosenNickname}, this);
+        writer.println("Client launched successfully!");
+        writer.println("Connecting to server...");
+        terminal.flush();
+        // no need to wait for a response from the server up to this date (29/4),
+        // it does not yet send any LoginSuccessful event.
+        writer.println("Connected to server successfully!");
+        writer.println("Launching TUI...");
+        terminal.flush();
     }
 
     private void createGame(String[] args) throws IllegalArgumentException {
+        if (args.length < 4) {
+            throw new IllegalArgumentException("Invalid command format. Usage: create [nickname] [numPlayers] [totemColor]");
+        }
         if (server == null) {
             throw new IllegalArgumentException("You must connect to a server before creating a game.");
         }
@@ -271,7 +269,7 @@ public class TUIView implements ViewType {
             // TODO 2: suspicious: è strano dover specificare il nickname anche nella create, quando già lo si è specificato nella connect.
             throw new IllegalArgumentException("You must use the same nickname as written on the prompt.");
         }
-        if (!List.of(colors).contains(args[3].toLowerCase())) {
+        if (!List.of(TotemColors).contains(args[3].toLowerCase())) {
             // avoids sending an invalid totem color to the server,
             // which would cause the server to reject the game creation request and send an error message back to the client
             // there is a check on server side only for colors already selected by other players (necessarily on there)
@@ -288,13 +286,16 @@ public class TUIView implements ViewType {
     }
 
     private void joinGame(String[] args) throws IllegalArgumentException {
+        if (args.length < 4) {
+            throw new IllegalArgumentException("Invalid command format. Usage: join [nickname] [gameId] [totemColor]");
+        }
         if (server == null) {
             throw new IllegalArgumentException("You must connect to a server before joining a game.");
         }
         if (!chosenNickname.equals(args[1])) {
             throw new IllegalArgumentException("You must use the same nickname as written on the prompt.");
         }
-        if (!List.of(colors).contains(args[3].toLowerCase())) {
+        if (!List.of(TotemColors).contains(args[3].toLowerCase())) {
             throw new IllegalArgumentException("Invalid totem color. Available colors: white, purple, yellow, red, blue.");
         }
         try {

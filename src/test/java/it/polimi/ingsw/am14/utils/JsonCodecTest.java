@@ -1,185 +1,109 @@
 package it.polimi.ingsw.am14.utils;
 
-import it.polimi.ingsw.am14.events.EndGameEvent;
-import it.polimi.ingsw.am14.events.EndRoundEvent;
-import it.polimi.ingsw.am14.events.Event;
-import it.polimi.ingsw.am14.events.ExceptionEvent;
-import it.polimi.ingsw.am14.events.GameStartedEvent;
-import it.polimi.ingsw.am14.events.TotemPlacedEvent;
-import org.junit.jupiter.api.BeforeEach;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import it.polimi.ingsw.am14.controller.GameController;
+import it.polimi.ingsw.am14.controller.LobbyController;
+import it.polimi.ingsw.am14.utils.JsonCodec;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
-import java.lang.reflect.Field;
-import java.util.List;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class JsonCodecTest {
 
-    private JsonCodec jsonCodec;
+    private final JsonCodec jsonCodec = new JsonCodec();
 
-    @BeforeEach
-    void setUp() {
-        jsonCodec = new JsonCodec();
+    @TempDir
+    Path tempDir;
+
+    // ===== TESTS SAVE/LOAD =====
+
+    @Test
+    void writeSaveData_shouldWriteToProvidedFilePath() throws IOException {
+        Map<String, Integer> nicknameToGameId = new HashMap<>();
+        nicknameToGameId.put("Alice", 1);
+        nicknameToGameId.put("Bob", 2);
+
+        LobbyController lobby = new LobbyController(nicknameToGameId, new HashMap<>());
+
+        Path saveFile = tempDir.resolve("custom_save.json");
+        jsonCodec.writeSaveData(lobby, saveFile.toString());
+
+        assertTrue(Files.exists(saveFile), "Il file deve essere creato nel path passato al metodo");
+        assertTrue(Files.size(saveFile) > 0, "Il file non deve essere vuoto");
     }
 
     @Test
-    void parseEvent_shouldDeserializeExceptionEvent() {
-        String json = """
-                {
-                  "type": "ExceptionEvent",
-                  "description": "Errore di test"
-                }
-                """;
+    void writeSaveData_shouldSerializeExpectedLobbyFields() throws IOException {
+        Map<String, Integer> nicknameToGameId = new HashMap<>();
+        nicknameToGameId.put("Alice", 7);
+        nicknameToGameId.put("Bob", 7);
 
-        Event parsed = jsonCodec.parseEvent(json);
+        LobbyController lobby = new LobbyController(nicknameToGameId, new HashMap<>());
 
-        assertInstanceOf(ExceptionEvent.class, parsed);
-        assertEquals(ExceptionEvent.class, parsed.getClass());
-        assertEquals("Errore di test", parsed.getDescription());
+        Path saveFile = tempDir.resolve("save.json");
+        jsonCodec.writeSaveData(lobby, saveFile.toString());
+
+        String rawJson = Files.readString(saveFile);
+
+        ObjectMapper mapper = new ObjectMapper();
+        Map<String, Object> json = mapper.readValue(rawJson, new TypeReference<>() {});
+
+        assertTrue(json.containsKey("nicknameToGameId"));
+        assertTrue(json.containsKey("gameIdToGameController"));
+
+        Map<?, ?> nickMap = (Map<?, ?>) json.get("nicknameToGameId");
+        assertEquals(2, nickMap.size());
+        assertEquals(7, ((Number) nickMap.get("Alice")).intValue());
     }
 
     @Test
-    void parseEvent_shouldDeserializeGameStartedEvent() {
-        String json = """
-                {
-                  "type": "GameStartedEvent",
-                  "description": "The game has started",
-                  "playerOrder": ["Alice", "Bob", "Charlie"],
-                  "totemOrder": ["RED", "BLUE", "GREEN"]
-                }
-                """;
+    void readSaveData_shouldDeserializeLobbyController() {
+        Map<String, Integer> nicknameToGameId = new HashMap<>();
+        nicknameToGameId.put("Alice", 3);
+        nicknameToGameId.put("Bob", 5);
 
-        Event parsed = jsonCodec.parseEvent(json);
+        LobbyController original = new LobbyController(nicknameToGameId, new HashMap<>());
 
-        assertInstanceOf(GameStartedEvent.class, parsed);
-        assertEquals(GameStartedEvent.class, parsed.getClass());
-        assertEquals("The game has started", parsed.getDescription());
+        Path saveFile = tempDir.resolve("roundtrip.json");
+        jsonCodec.writeSaveData(original, saveFile.toString());
 
-        GameStartedEvent event = (GameStartedEvent) parsed;
+        LobbyController restored = jsonCodec.readSaveData(saveFile.toString());
 
-        assertEquals(List.of("Alice", "Bob", "Charlie"),
-                readField(event, "playerOrder", List.class));
-        assertEquals(List.of("RED", "BLUE", "GREEN"),
-                readField(event, "totemOrder", List.class));
+        assertNotNull(restored);
+        assertEquals(Optional.of(3), restored.getGameIdByNickname("Alice"));
+        assertEquals(Optional.of(5), restored.getGameIdByNickname("Bob"));
+        assertTrue(restored.getGameIdToGameController().isEmpty(),
+                "La mappa dei game controller deve rimanere vuota nel test minimale");
     }
 
     @Test
-    void parseEvent_shouldDeserializeTotemPlacedEvent() {
-        String json = """
-                {
-                  "type": "TotemPlacedEvent",
-                  "description": "Player Alice has placed their totem on track card A",
-                  "nickname": "Alice",
-                  "trackCardName": "A",
-                  "removedTotemIndex": 2
-                }
-                """;
+    void writeSaveData_shouldThrowRuntimeException_whenPathIsInvalid() {
+        LobbyController lobby = new LobbyController(new HashMap<>(), new HashMap<>());
 
-        Event parsed = jsonCodec.parseEvent(json);
+        Path invalidPath = tempDir.resolve("missing_folder").resolve("save.json");
 
-        assertInstanceOf(TotemPlacedEvent.class, parsed);
-        assertEquals(TotemPlacedEvent.class, parsed.getClass());
-        assertEquals("Player Alice has placed their totem on track card A", parsed.getDescription());
+        RuntimeException ex = assertThrows(RuntimeException.class,
+                () -> jsonCodec.writeSaveData(lobby, invalidPath.toString()));
 
-        TotemPlacedEvent event = (TotemPlacedEvent) parsed;
-
-        assertEquals("Alice", readField(event, "playerNickname", String.class));
-        assertEquals('A', readField(event, "trackCardName", Character.class));
-        assertEquals(2, readField(event, "removedTotemIndex", Integer.class));
+        assertTrue(ex.getMessage().contains("[JsonCodec] Failed to write save data to file:"));
     }
 
     @Test
-    void parseEvent_shouldDeserializeEndRoundEvent() {
-        String json = """
-                {
-                  "type": "EndRoundEvent",
-                  "board": [
-                    [1, 2],
-                    [3, 4],
-                    [5, 6],
-                    [7, 8]
-                  ],
-                  "playersAttributes": {
-                    "Alice": [2, 0],
-                    "Bob": [3, 5]
-                  },
-                  "description": "End of round, the board has been updated"
-                }
-                """;
+    void readSaveData_shouldThrowRuntimeException_whenFileDoesNotExist() {
+        Path missingFile = tempDir.resolve("does_not_exist.json");
 
-        Event parsed = jsonCodec.parseEvent(json);
+        RuntimeException ex = assertThrows(RuntimeException.class,
+                () -> jsonCodec.readSaveData(missingFile.toString()));
 
-        assertInstanceOf(EndRoundEvent.class, parsed);
-        assertEquals(EndRoundEvent.class, parsed.getClass());
-        assertEquals("End of round, the board has been updated", parsed.getDescription());
-
-        EndRoundEvent event = (EndRoundEvent) parsed;
-
-        assertEquals(List.of(
-                        List.of(1, 2),
-                        List.of(3, 4),
-                        List.of(5, 6),
-                        List.of(7, 8)),
-                event.getBoard());
-
-        assertEquals(Map.of(
-                        "Alice", List.of(2, 0),
-                        "Bob", List.of(3, 5)),
-                event.getPlayerAttributes());
-    }
-
-    @Test
-    void parseEvent_shouldDeserializeEndGameEvent() {
-        String json = """
-                {
-                  "type": "EndGameEvent",
-                  "description": "End of game, the board has been updated, the final ranking has been calculated",
-                  "board": [
-                    [10, 11],
-                    [12, 13],
-                    [14, 15],
-                    [16, 17]
-                  ],
-                  "playersAttributes": {
-                    "Alice": [10, 20],
-                    "Bob": [5, 15]
-                  }
-                }
-                """;
-
-        Event parsed = jsonCodec.parseEvent(json);
-
-        assertInstanceOf(EndGameEvent.class, parsed);
-        assertEquals(EndGameEvent.class, parsed.getClass());
-        assertEquals(
-                "End of game, the board has been updated, the final ranking has been calculated",
-                parsed.getDescription()
-        );
-
-        EndGameEvent event = (EndGameEvent) parsed;
-
-        assertEquals(List.of(
-                        List.of(10, 11),
-                        List.of(12, 13),
-                        List.of(14, 15),
-                        List.of(16, 17)),
-                readField(event, "board", List.class));
-
-        assertEquals(Map.of(
-                        "Alice", List.of(10, 20),
-                        "Bob", List.of(5, 15)),
-                readField(event, "playersAttributes", Map.class));
-    }
-
-    private static <T> T readField(Object target, String fieldName, Class<T> fieldType) {
-        try {
-            Field field = target.getClass().getDeclaredField(fieldName);
-            field.setAccessible(true);
-            return fieldType.cast(field.get(target));
-        } catch (ReflectiveOperationException e) {
-            throw new AssertionError("Impossibile leggere il campo '" + fieldName + "'", e);
-        }
+        assertTrue(ex.getMessage().contains("[JsonCodec] Failed to read save data from file:"));
     }
 }

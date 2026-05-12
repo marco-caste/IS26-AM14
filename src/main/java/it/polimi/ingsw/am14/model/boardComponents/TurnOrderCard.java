@@ -7,16 +7,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static it.polimi.ingsw.am14.utils.Constants.foodTable;
+import static it.polimi.ingsw.am14.utils.Constants.initialFood;
+
 public class TurnOrderCard {
     private final int numPlayers;
     private final ArrayList<Player> playerOrder;
-    private static final Map<Integer, List<Integer>> foodTable = Map.of(
-            2, List.of(1, -1),
-            3, List.of(2, 0, -1),
-            4, List.of(2, 1, 0, -1),
-            5, List.of(3, 1, 0, 0, -1)
-    );
-    private static final int[] initialFood = {2, 3, 3, 4, 4};
+
 
     /**
      * <p>

@@ -1,5 +1,8 @@
 package it.polimi.ingsw.am14.model.boardComponents;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import it.polimi.ingsw.am14.model.cards.deckCards.*;
 import it.polimi.ingsw.am14.model.cards.Card;
 import it.polimi.ingsw.am14.model.cards.buildings.Building;
@@ -40,16 +43,18 @@ public class Board {
     }
 
     // called in case of a game crash, gets values read from a JSON files (by another method)
-    public Board(TurnOrderCard turnOrderCard,
-                 OffersPath offersPath,
-                 TribeDeck tribeDeck,
-                 BuildingDeck buildingDeck,
-                 ArrayList<DeckCard> topDeckableRow,
-                 ArrayList<Building> topBuildingRow,
-                 ArrayList<DeckCard> bottomDeckableRow,
-                 ArrayList<Building> bottomBuildingRow,
-                 ArrayList<EventCard> toResolveSustenanceEventRow,
-                 ArrayList<EventCard> toResolveOtherEventsRow) {
+    @JsonCreator
+    public Board(
+            @JsonProperty("turnOrderCard") TurnOrderCard turnOrderCard,
+            @JsonProperty("offersPath") OffersPath offersPath,
+            @JsonProperty("tribeDeck") TribeDeck tribeDeck,
+            @JsonProperty("buildingDeck") BuildingDeck buildingDeck,
+            @JsonProperty("topDeckableRow") ArrayList<DeckCard> topDeckableRow,
+            @JsonProperty("topBuildingRow") ArrayList<Building> topBuildingRow,
+            @JsonProperty("bottomDeckableRow") ArrayList<DeckCard> bottomDeckableRow,
+            @JsonProperty("bottomBuildingRow") ArrayList<Building> bottomBuildingRow,
+            @JsonProperty("toResolveSustenanceEventRow") ArrayList<EventCard> toResolveSustenanceEventRow,
+            @JsonProperty("toResolveOtherEventsRow") ArrayList<EventCard> toResolveOtherEventsRow) {
         this.turnOrderCard                  = turnOrderCard;
         this.offersPath                     = offersPath;
         this.tribeDeck                      = tribeDeck;
@@ -130,6 +135,7 @@ public class Board {
      *
      * @return the last Event
      */
+    @JsonIgnore
     public EventCard getLastOtherEvent() {
         return this.toResolveOtherEventsRow.getLast();
     }

@@ -6,17 +6,18 @@ import it.polimi.ingsw.am14.events.ExceptionEvent;
 import it.polimi.ingsw.am14.network.rmi.server.VirtualClientRmi;
 import it.polimi.ingsw.am14.clientModel.ClientModel;
 
-import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 
+import static it.polimi.ingsw.am14.utils.Constants.*;
+
 public class RmiClient extends UnicastRemoteObject implements VirtualClientRmi, VirtualServer {
 
     private final ClientModel model;
-    private static final String serverName = "AM14MesosServer";
     private VirtualServerRmi server;
+    private static long lastPingReceived;
 
     public RmiClient(ClientModel model) throws RemoteException {
         super();
@@ -37,6 +38,15 @@ public class RmiClient extends UnicastRemoteObject implements VirtualClientRmi, 
         }).start();
     }
 
+    @Override
+    public void pingClient() throws RemoteException {
+        // TODO: receiving pings from server
+        // if timer expires, disconnect from server and notify the view
+        // TODO: how to disconnect rmi client from server?
+        // current solution: will call again connect, which overwrites the server reference
+        lastPingReceived = System.currentTimeMillis();
+    }
+
     // METHODS EXPOSED TO THE VIEW
 
     public void connect(VirtualClientRmi client, String nickname, String ipAddress, int port) throws RemoteException {
@@ -44,7 +54,8 @@ public class RmiClient extends UnicastRemoteObject implements VirtualClientRmi, 
         try {
             this.server = (VirtualServerRmi) registry.lookup(serverName);
             server.connect(this, nickname);
-        } catch (NotBoundException e) {
+            this.pingServer(nickname);
+        } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
     }
@@ -90,5 +101,36 @@ public class RmiClient extends UnicastRemoteObject implements VirtualClientRmi, 
     @Override
     public void pickCard(String nickname, int cardId, int row) throws RemoteException {
         server.pickCard(nickname, cardId, row);
+    }
+
+    @Override
+    public void pingServer(String nickname) throws Exception {
+        // starts sending pings to the server
+        new Thread(() -> {
+            try {
+                while (true) {
+                    Thread.sleep(PING_INTERVAL); // PING_INTERVAL
+
+                    server.pingServer(nickname);
+                }
+            } catch (InterruptedException | RemoteException e) {
+                Thread.currentThread().interrupt();
+            }
+        }).start();
+
+        new Thread (() -> {
+            try {
+                Thread.sleep(PING_TIMEOUT);
+
+                long now = System.currentTimeMillis();
+                if (now - lastPingReceived > PING_TIMEOUT) {
+                    // timeout expired, disconnect from server and notify the view
+                    model.setMessage("[Client] Network error: server is not responding. Try to reconnect later.\nShutting down connection...");
+                    model.disconnect();
+                }
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e.getMessage());
+            }
+        }).start();
     }
 }

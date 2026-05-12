@@ -16,4 +16,6 @@ public interface VirtualServerRmi extends VirtualServer, Remote {
         void placeTotem(String nickname, char position) throws RemoteException;
         @Override
         void pickCard(String nickname, int cardId, int row) throws RemoteException;
+        @Override
+        void pingServer(String nickname) throws RemoteException;
 }

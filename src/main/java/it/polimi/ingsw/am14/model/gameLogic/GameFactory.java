@@ -6,7 +6,12 @@ import it.polimi.ingsw.am14.exceptions.IllegalSetupException;
 
 public abstract class GameFactory {
 
+    // TODO: DA SERIALIZZARE
     private static int gameIdCounter = 0;
+    public static int getGameIdCounter() {      // TODO: DA USARE IN SERIALIZZAZIONE
+        return gameIdCounter;
+    }
+
 
     /**
      * <p>

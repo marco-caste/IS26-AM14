@@ -13,12 +13,9 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Optional;
 
-class PickState extends GameState {
+import static it.polimi.ingsw.am14.utils.Constants.*;
 
-    private static final int TOP_DECKABLE_ROW = 0;
-    private static final int TOP_BUILDING_ROW = 1;
-    private static final int BOTTOM_DECKABLE_ROW = 2;
-    private static final int BOTTOM_BUILDING_ROW = 3;
+class PickState extends GameState {
 
     public static final class TotemSlot {
         private final Player player;

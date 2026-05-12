@@ -36,9 +36,9 @@ public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
                 while (true) {
                     synchronized (networkLayer.getBuffer(client)) {
                         while (networkLayer.getBuffer(client).isEmpty()) {
-                            // TODO: ping verso il client per capire se è ancora connesso.
+                            // TODO: pingServer verso il client per capire se è ancora connesso.
 //                            handler.update(
-//                                    new ServerPing("ping")
+//                                    new ServerPing("pingServer")
 //                            );
 
                             try {
@@ -145,5 +145,13 @@ public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
                 //======================================================================================================
             }
         }, "RMIPick-" + nickname).start();
+    }
+
+
+    @Override
+    public void pingServer(String nickname) throws RemoteException {
+        new Thread(() -> {
+            lobbyController.handlePingRequest(nickname);
+        }, "RMIPingClient-" + nickname).start();
     }
 }

@@ -47,7 +47,7 @@ public class PaintEvent extends EventCard {
             else
                 p.addToPrestigePoints(prestigeWin);
 
-            checkBuilding(player, context);
+            checkBuilding(p, context);
 
         }
         removeEvent(context);

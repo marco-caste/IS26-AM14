@@ -5,12 +5,12 @@ import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import it.polimi.ingsw.am14.controller.LobbyController;
 import it.polimi.ingsw.am14.events.ClientRequest;
 import it.polimi.ingsw.am14.events.Event;
 import it.polimi.ingsw.am14.model.boardComponents.TrackCard;
 import it.polimi.ingsw.am14.model.cards.buildings.Building;
 import it.polimi.ingsw.am14.model.cards.deckCards.DeckCard;
-import it.polimi.ingsw.am14.model.gameLogic.Game;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,24 +20,35 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class JsonCodec implements Codec {
-
-
     /**
      * @param filePath not null, path of the file where the save data is stored
      * @return the saved Game object
      */
     @Override
-    public Game readSaveData(String filePath) {
-        return null;
+    public LobbyController readSaveData(String filePath) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+        try {
+            return objectMapper.readValue(new File(filePath), new TypeReference<LobbyController>(){});
+        } catch (IOException e) {
+            throw new RuntimeException("[JsonCodec] Failed to read save data from file: " + filePath);
+        }
     }
 
     /**
-     * @param game     not null, the Game object to be saved
-     * @param filePath not null, path of the file where the save data will be stored
+     * @param controller    not null, the Game object to be saved
+     * @param filePath      not null, path of the file where the save data will be stored
      */
     @Override
-    public void writeSaveData(Game game, String filePath) {
+    public void writeSaveData(LobbyController controller, String filePath) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
 
+        try {
+            objectMapper.writeValue(new File(filePath), controller);
+        } catch (IOException e) {
+            throw new RuntimeException("[JsonCodec] Failed to write save data to file: " + filePath + ": " + e.getMessage());
+        }
     }
 
     /**

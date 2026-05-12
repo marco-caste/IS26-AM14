@@ -22,7 +22,8 @@ import java.io.Serializable;
         @JsonSubTypes.Type(value = LoginSuccesfulEvent.class, name = "LoginSuccesfulEvent"),
         @JsonSubTypes.Type(value = PlayerReconnectedEvent.class, name = "PlayerReconnectedEvent"),
         @JsonSubTypes.Type(value = TotemPlacedEvent.class, name = "TotemPlacedEvent"),
-        @JsonSubTypes.Type(value = ExceptionEvent.class, name = "ExceptionEvent")
+        @JsonSubTypes.Type(value = ExceptionEvent.class, name = "ExceptionEvent"),
+        @JsonSubTypes.Type(value = PingServerEvent.class, name = "PingServerEvent")
 })
 
 public abstract class Event implements Serializable {
