@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am14.view;
 
+import it.polimi.ingsw.am14.network.EntryPointFactory;
 import it.polimi.ingsw.am14.network.VirtualServer;
 import it.polimi.ingsw.am14.network.rmi.RmiClientLauncher;
 import it.polimi.ingsw.am14.network.rmi.client.RmiClient;
@@ -239,68 +240,20 @@ public class TUIView implements ViewType {
         if (args.length < 2) {
             throw new IllegalArgumentException("Invalid command format. Usage: connect [socket|rmi]");
         }
-        // checks connection type
-        // TODO: factory pattern
-        if (args[1].equalsIgnoreCase("socket")) {
-            VirtualServerSocket socketServerEntryPoint;
-            writer.println("please specify the server IP, port and your nickname");
-            terminal.flush();
-            String IP = lineReader.readLine("IP: ");
-            String port = lineReader.readLine("Port: ");
-            chosenNickname = lineReader.readLine("Nickname: ").trim();
-            writer.println("Launching Socket Client...");
-            terminal.flush();
-            try {
-                socketServerEntryPoint = SocketClientLauncher.launch(new String[]{IP, port, chosenNickname}, this);
-            } catch (IOException e) {
-                writer.println("Failed to connect to server: " + e.getMessage());
-                terminal.flush();
-                return;
-            }
-            writer.println("Socket Client launched successfully!");
-            writer.println("Connecting to server...");
-            terminal.flush();
-            socketServerEntryPoint.connectUser(chosenNickname);
-            // no need to wait for a response from the server up to this date (29/4),
-            // it does not yet send any LoginSuccessful event.
-            writer.println("Connected to server successfully!");
-            writer.println("Launching TUI...");
-            terminal.flush();
-            this.server = socketServerEntryPoint;
-        }
-        else if (args[1].equalsIgnoreCase("rmi")) {
-            RmiClient RMIserverEntryPoint;
-            writer.println("Please enter the server IP, port and your nickname");
-            terminal.flush();
-            String IP = lineReader.readLine("IP: ");
-            String port = lineReader.readLine("Port: ");
-            chosenNickname = lineReader.readLine("Nickname: ").trim();
-            writer.println("Launching RMI Client...");
-            terminal.flush();
-            try {
-                RMIserverEntryPoint = (RmiClient) RmiClientLauncher.launch(this);
-            } catch (Exception e) {
-                writer.println("Failed to connect to server: " + e.getMessage());
-                terminal.flush();
-                return;
-            }
-            writer.println("RMI Client launched successfully!");
-            writer.println("Connecting to server...");
-            terminal.flush();
-            try {
-                RMIserverEntryPoint.connect(RMIserverEntryPoint, chosenNickname, IP, Integer.parseInt(port));
-            } catch (Exception e) {
-                writer.println("Failed to connect user: " + e.getMessage());
-                terminal.flush();
-                return;
-            }
-            writer.println("Connected to server successfully!");
-            writer.println("Launching TUI...");
-            terminal.flush();
-            this.server = RMIserverEntryPoint;
-        }
-        else
-            throw new IllegalArgumentException("Invalid connection type. Please specify 'socket' or 'rmi'.");
+        writer.println("please specify the server IP, port and your nickname");
+        terminal.flush();
+        String IP = lineReader.readLine("IP: ");
+        String port = lineReader.readLine("Port: ");
+        chosenNickname = lineReader.readLine("Nickname: ").trim();
+        this.server = EntryPointFactory.connect(new String[]{args[1], IP, port, chosenNickname}, this);
+        writer.println("Client launched successfully!");
+        writer.println("Connecting to server...");
+        terminal.flush();
+        // no need to wait for a response from the server up to this date (29/4),
+        // it does not yet send any LoginSuccessful event.
+        writer.println("Connected to server successfully!");
+        writer.println("Launching TUI...");
+        terminal.flush();
     }
 
     private void createGame(String[] args) throws IllegalArgumentException {
