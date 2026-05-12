@@ -3,36 +3,42 @@ package it.polimi.ingsw.am14.network;
 import it.polimi.ingsw.am14.events.Event;
 import it.polimi.ingsw.am14.exceptions.IllegalNicknameException;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 public class NetworkLayer implements Observer {
 
-    private final Map<Integer, Set<VirtualClient>> clients;
+    private final Map<Integer, Set<VirtualClient>> gameIdToClients;
     private final Map<String, VirtualClient> nicknameToClient;
     private final Map<VirtualClient, EventBuffer> clientToBuffer;
+    private final Map<VirtualClient, ArrayList<Thread>> clientToThreads;
 
     public NetworkLayer() {
-        this.clients = new HashMap<>();
+        this.gameIdToClients = new HashMap<>();
         this.nicknameToClient = new HashMap<>();
         this.clientToBuffer = new HashMap<>();
+        this.clientToThreads = new HashMap<>();
     }
 
     public void broadcastUpdate(Event update, int gameId) {
-        synchronized (this.clients) {
-            for (VirtualClient client : this.clients.get(gameId)) {
-                addToEventBuffer(client, update);
+        synchronized (this.gameIdToClients) {
+            Set<VirtualClient> clients = this.gameIdToClients.get(gameId);
+            if (clients != null) {
+                for (VirtualClient client : clients) {
+                    addToEventBuffer(client, update);
+                }
             }
         }
     }
 
     public void updateClients(int gameId, VirtualClient client) {
-        synchronized (this.clients) {
-            if (!this.clients.containsKey(gameId)) {
-                this.clients.put(gameId, new java.util.HashSet<>());
+        synchronized (this.gameIdToClients) {
+            if (!this.gameIdToClients.containsKey(gameId)) {
+                this.gameIdToClients.put(gameId, new java.util.HashSet<>());
             }
-            this.clients.get(gameId).add(client);
+            this.gameIdToClients.get(gameId).add(client);
         }
     }
 
@@ -45,16 +51,34 @@ public class NetworkLayer implements Observer {
         }
     }
 
+    public void updateClientThreads(VirtualClient client, Thread thread) {
+        synchronized (this.clientToThreads) {
+            if (!this.clientToThreads.containsKey(client)) {
+                this.clientToThreads.put(client, new ArrayList<>());
+            }
+            this.clientToThreads.get(client).add(thread);
+        }
+    }
+
     public void updateBufferMap (VirtualClient client) {
-        this.clientToBuffer.put(client, new EventBuffer());
+        synchronized (this.clientToBuffer) {
+            this.clientToBuffer.put(client, new EventBuffer());
+        }
     }
 
     public void addToEventBuffer(VirtualClient client, Event event) {
-        this.clientToBuffer.get(client).addEvent(event);
+        synchronized (this.clientToBuffer) {
+            EventBuffer buffer = this.clientToBuffer.get(client);
+            if (buffer != null) {
+                buffer.addEvent(event);
+            }
+        }
     }
 
     public EventBuffer getBuffer(VirtualClient client) {
-        return this.clientToBuffer.get(client);
+        synchronized (this.clientToBuffer) {
+            return this.clientToBuffer.get(client);
+        }
     }
 
     /**
@@ -73,6 +97,44 @@ public class NetworkLayer implements Observer {
     public VirtualClient getClientBy(String nickname) {
         synchronized (this.nicknameToClient) {
             return this.nicknameToClient.get(nickname);
+        }
+    }
+
+    public void removeClientBy(String nickname) {
+        synchronized (this.nicknameToClient) {
+            this.nicknameToClient.remove(nickname);
+        }
+    }
+
+    public void removeGame(int gameId) {
+        synchronized (this.gameIdToClients) {
+            this.gameIdToClients.remove(gameId);
+        }
+    }
+
+    public void removeBuffer(VirtualClient client) {
+        synchronized (this.clientToBuffer) {
+            this.clientToBuffer.remove(client);
+        }
+    }
+
+    public void notifyBufferForClient(VirtualClient client) {
+        EventBuffer buffer = getBuffer(client);
+        if (buffer != null) {
+            synchronized (buffer) {
+                buffer.notifyAll();
+            }
+        }
+    }
+
+    public void removeThreadsByClient(VirtualClient client) {
+        synchronized (this.clientToThreads) {
+            if (this.clientToThreads.containsKey(client)) {
+                for (Thread thread : this.clientToThreads.get(client)) {
+                    thread.interrupt();
+                }
+                this.clientToThreads.remove(client);
+            }
         }
     }
 

@@ -18,7 +18,7 @@ public class ClientModel {
 
     List<ViewType> observers;
     ClientPlayer homePlayer;
-    ArrayList<ClientPlayer> otherPlayers =  new ArrayList<>();
+    ArrayList<ClientPlayer> otherPlayers;
     ArrayList<String> playerOrderInTurnOrderCard;
     // TODO: turnOrderCard e TrackCard
     ArrayList<ArrayList<Integer>> board;
@@ -76,6 +76,7 @@ public class ClientModel {
         this.homePlayer = homePlayer;
     }
 
+    //TODO: rendere la join visibile a tutti perchè serve capire il totem color degli altri
     public void setOtherPlayers(ArrayList<ClientPlayer> otherPlayers) {
         this.otherPlayers = otherPlayers;
     }

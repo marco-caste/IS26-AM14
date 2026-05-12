@@ -32,59 +32,83 @@ public class SocketClientHandlersManager {
     public void runServer() throws IOException {
         Socket clientSocket = null;
         while ((clientSocket = this.listenSocket.accept()) != null) {
-            InputStreamReader socketRx = new InputStreamReader(clientSocket.getInputStream());
-            OutputStreamWriter socketTx = new OutputStreamWriter(clientSocket.getOutputStream());
+            try {
+                InputStreamReader socketRx = new InputStreamReader(clientSocket.getInputStream());
+                OutputStreamWriter socketTx = new OutputStreamWriter(clientSocket.getOutputStream());
 
-            SocketClientHandler handler = new SocketClientHandler(
-                    this,
-                    new BufferedReader(socketRx),
-                    new PrintWriter(socketTx)
-            );
+                SocketClientHandler handler = new SocketClientHandler(
+                        this,
+                        new BufferedReader(socketRx),
+                        new PrintWriter(socketTx),
+                        clientSocket
+                );
 
-            synchronized(this.waitingClients) {
-                waitingClients.add(handler);
-            }
-
-            networkLayer.updateBufferMap(handler);
-
-            // whenever a new client connects, two threads are created:
-            // one listens for the client's requests
-            // the other finds the correct time to flush the update queue to the client.
-            new Thread(() -> {
-                try {
-                    handler.runVirtualView();
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
+                synchronized(this.waitingClients) {
+                    waitingClients.add(handler);
                 }
-            }, "ServerThread-Listener" + Thread_number).start();
 
-            new Thread(() -> {
+                networkLayer.updateBufferMap(handler);
 
-                long lastPingTime = 0;
-
-                while (true) {
-                    synchronized (networkLayer.getBuffer(handler)) {
-                        while (networkLayer.getBuffer(handler).isEmpty()) {
-                            // TODO: pingServer verso il client per capire se è ancora connesso.
-//                            handler.update(
-//                                    new ServerPing("pingServer")
-//                            );
-
-                            try {
-                                networkLayer.getBuffer(handler).wait();    // lazy wait
-                            } catch (InterruptedException _) {}
-                        }
-                        List<Event> eventsToSend = networkLayer.getBuffer(handler).flushBuffer();
-                        for (Event event : eventsToSend) {
-                            handler.update(event);
-                        }
-//                        if (handler.hasDisconnected())
-//                            break;
+                // whenever a new client connects, two threads are created:
+                // one listens for the client's requests
+                // the other finds the correct time to flush the update queue to the client.
+                Thread thread1 = new Thread(() -> {
+                    try {
+                        handler.runVirtualView();
+                    } catch (IOException e) {
+                        System.err.println("[Server] Connection lost for client handler: " + e.getMessage());
+                        cleanupClient(handler);
+                    } catch (Exception e) {
+                        System.err.println("[Server] Connection lost or error in listener thread: " + e.getMessage());
+                        cleanupClient(handler);
                     }
-                }
+                }, "ServerThread-Listener" + Thread_number);
+                thread1.start();
 
-            }, "ServerThread-Buffering" + Thread_number).start();
-            Thread_number++;
+                Thread thread2 = new Thread(() -> {
+                    try {
+                        while (!Thread.currentThread().isInterrupted()) {
+                            synchronized (networkLayer.getBuffer(handler)) {
+                                if (Thread.currentThread().isInterrupted()) {
+                                    return;
+                                }
+                                while (networkLayer.getBuffer(handler).isEmpty() 
+                                       && !Thread.currentThread().isInterrupted()) {
+                                    try {
+                                        networkLayer.getBuffer(handler).wait();    // lazy wait
+                                    } catch (InterruptedException e) {
+                                        Thread.currentThread().interrupt();
+                                        return;
+                                    }
+                                }
+                                
+                                if (!networkLayer.getBuffer(handler).isEmpty() 
+                                    && !Thread.currentThread().isInterrupted()) {
+                                    List<Event> eventsToSend = networkLayer.getBuffer(handler).flushBuffer();
+                                    for (Event event : eventsToSend) {
+                                        handler.update(event);
+                                    }
+                                }
+                            }
+                        }
+                    } catch (Exception e) {
+                        System.err.println("[Server] Error in buffering thread: " + e.getMessage());
+                    }
+                }, "ServerThread-Buffering" + Thread_number);
+                thread2.start();
+                Thread_number++;
+
+                networkLayer.updateClientThreads(handler, thread1);
+                networkLayer.updateClientThreads(handler, thread2);
+                
+            } catch (IOException e) {
+                System.err.println("[Server] Error setting up client handler: " + e.getMessage());
+                try {
+                    clientSocket.close();
+                } catch (IOException ex) {
+                    System.err.println("[Server] Error closing socket: " + ex.getMessage());
+                }
+            }
         }
     }
 
@@ -96,8 +120,7 @@ public class SocketClientHandlersManager {
 
             request.dispatchRequest(this.controller);
 
-            if (waitingClients.contains(sender))
-                waitingClients.remove(sender);
+            waitingClients.remove(sender);
 
             this.controller.getGameIdByNickname(request.getNickname()).ifPresentOrElse(
                     (id) -> {
@@ -108,6 +131,21 @@ public class SocketClientHandlersManager {
         }
         catch (Exception e){
             sender.reportError(new ExceptionEvent(e.getMessage()));
+        }
+    }
+
+    private void cleanupClient(SocketClientHandler handler) {
+        try {
+            networkLayer.notifyBufferForClient(handler);
+            networkLayer.removeThreadsByClient(handler);
+            networkLayer.removeBuffer(handler);
+            synchronized(this.waitingClients) {
+                waitingClients.remove(handler);
+            }
+            handler.closeConnection();
+            System.err.println("[Server] Client handler cleaned up successfully");
+        } catch (Exception e) {
+            System.err.println("[Server] Error during client cleanup: " + e.getMessage());
         }
     }
 }
