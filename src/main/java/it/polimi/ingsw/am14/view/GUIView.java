@@ -2,10 +2,11 @@ package it.polimi.ingsw.am14.view;
 
 import it.polimi.ingsw.am14.clientModel.ClientModel;
 import it.polimi.ingsw.am14.clientModel.ClientPlayer;
+import it.polimi.ingsw.am14.model.gameLogic.TotemColor;
 import it.polimi.ingsw.am14.network.EntryPointFactory;
 import it.polimi.ingsw.am14.network.VirtualServer;
 import javafx.application.Application;
-import javafx.application.Platform;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -17,28 +18,30 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.util.*;
 
-import static it.polimi.ingsw.am14.utils.Constants.TotemColors;
-
 public class GUIView extends Application implements ViewType {
 
     private ClientModel modelReference = null;
     private VirtualServer server;
     private Stage primaryStage;
 
+    private Scene gameChoiceScene;
     private Scene lobbyScene;
     private Scene gameScene;
 
     private VBox loginBox;
-    private BorderPane root;
+    private VBox initialChoiceBox;
 
     private Label serverMessage;
-    private Label lobbyMessage;
-    private VBox lobbyPlayersBox;
 
     private VBox centerBoard;
     private ImageView deckView;
 
     private VBox playersStatsBox;
+    private StackPane lobbyRoot;
+    private Pane lobbyTotemLayer;
+    private Label lobbyMessageLabel;
+    private Label lobbyGameIdLabel;
+
 
     private HBox homeTribeBox;
     private final Map<String, TilePane> awayTribePanes = new HashMap<>();
@@ -73,57 +76,8 @@ public class GUIView extends Application implements ViewType {
     @Override
     public void update(ClientModel model) {
         this.modelReference = model;
-
-        Platform.runLater(() -> {
-            if (modelReference == null) return;
-
-            /*
-             * QUI DEVI ADATTARE QUESTA CONDIZIONE AL TUO CLIENTMODEL.
-             *
-             * Se avete un metodo tipo:
-             * modelReference.isGameStarted()
-             * usate quello.
-             *
-             * Se invece avete uno stato tipo:
-             * modelReference.getGameState().equals("PLAYING")
-             * adattalo lì.
-             */
-            if (!isGameStarted()) {
-                updateLobby();
-                showLobbyScene();
-            } else {
-                if (gameScene == null) {
-                    createGameScene();
-                }
-
-                showGameScene();
-
-                updateTop();
-                updateCards();
-                updatePlayerStats();
-                updateHomeTribe(homeTribeBox);
-            }
-        });
     }
 
-    private boolean isGameStarted() {
-        /*
-         * METODO DA ADATTARE.
-         *
-         * Per ora metto una logica provvisoria:
-         * se la board esiste e non è vuota, considero il game iniziato.
-         *
-         * Meglio sarebbe avere nel ClientModel:
-         *
-         * public boolean isGameStarted()
-         *
-         * e poi qui:
-         *
-         * return modelReference.isGameStarted();
-         */
-
-        return modelReference.getBoard() != null && !modelReference.getBoard().isEmpty();
-    }
 
 
     private BorderPane createNicknameRoot() {
@@ -135,21 +89,17 @@ public class GUIView extends Application implements ViewType {
                     """);
 
         Label title = new Label("Mesos");
-        title.setStyle(
-                """
-        -fx-text-fill:
-                white;
-                    -fx-font-size: 46;
-        -f
-                t-weight: bold;
-    """);
+        title.setStyle("""
+        -fx-text-fill: white;
+        -fx-font-size: 46;
+        -fx-font-weight: bold;
+""");
 
         Label subtitle = new Label("Inserisci il tuo nickname");
         subtitle.
                 setStyle("""
-
                 -fx-text-fill: white;
-                    -fx-font-size: 20;
+                -fx-font-size: 20;
     """);
 
         TextField nicknameField = new TextField();
@@ -168,26 +118,22 @@ public class GUIView extends Application implements ViewType {
         -fx-font-size: 16;
     """);
 
-        Label serverIpAddres = new Label("insert server ip address");
-        connectionLabel.
-                setStyle("""
-
-                -fx-text-fill: white;
-                    -fx-font-size: 16;
-    """);
+        Label serverIpAddress = new Label("Insert server IP address");
+        serverIpAddress.setStyle("""
+    -fx-text-fill: white;
+    -fx-font-size: 16;
+""");
 
         TextField ipField = new TextField();
         ipField.setPromptText("ipField");
         ipField.setMaxWidth(300);
 
 
-        Label serverPort = new Label("insert server port");
-        connectionLabel
-                .setStyle("""
-
-                -fx-text-fill: white;
-        -fx-font-size: 16;
-    """);
+        Label serverPort = new Label("Insert server port");
+        serverPort.setStyle("""
+    -fx-text-fill: white;
+    -fx-font-size: 16;
+""");
 
         TextField portField = new TextField();
         portField.setPromptText("serverPort");
@@ -225,26 +171,47 @@ public class GUIView extends Application implements ViewType {
 
             connect(insertedNickname, netProtocol, insertedIp, insertedPort);
 
-            showGameChoiceScene();
         });
 
         nicknameField.setOnAction(event -> connectButton.fire());
 
-        loginBox = new VBox(14);
+        loginBox = new VBox(12);
         loginBox.setAlignment(Pos.CENTER);
+        loginBox.setMaxWidth(420);
+        loginBox.setStyle("""
+    -fx-background-color: rgba(255, 255, 255, 0.12);
+    -fx-background-radius: 16;
+    -fx-padding: 35;
+""");
+
+        nicknameField.setPrefWidth(300);
+        nicknameField.setMaxWidth(300);
+
+        ipField.setPrefWidth(210);
+        ipField.setMaxWidth(210);
+
+        portField.setPrefWidth(80);
+        portField.setMaxWidth(80);
+
+        HBox serverBox = new HBox(10);
+        serverBox.setAlignment(Pos.CENTER);
+        serverBox.getChildren().addAll(ipField, portField);
+
+        connectionTypeBox.setPrefWidth(300);
+        connectionTypeBox.setMaxWidth(300);
+
+        VBox.setMargin(connectButton, new Insets(10, 0, 0, 0));
+
         loginBox.getChildren().addAll(
                 title,
                 subtitle,
                 nicknameField,
-                ipField,
-                portField,
+                serverBox,
                 connectionLabel,
                 connectionTypeBox,
                 connectButton,
                 errorLabel
         );
-
-        root.setCenter(loginBox);
 
         return root;
     }
@@ -260,16 +227,17 @@ public class GUIView extends Application implements ViewType {
     }
 
 
-    private void updateLo gin(){
+    private void updateLogin(){
         if(modelReference.getHomePlayer() != null){ // login succesful
             showGameChoiceScene();
         } else{
          Label error = (Label) loginBox.getChildren().getLast();
-         error
-            .setText(modelReference.getMessage());
+         error.setText(modelReference.getMessage());
         }
 
     }
+
+
 
     private BorderPane createGameChoiceRoot() {
         BorderPane root = new BorderPane();
@@ -281,31 +249,44 @@ public class GUIView extends Application implements ViewType {
                     -fx-padding: 30;
     """);
 
-        Label title = new Label("HELLO, " + modelReference.getHomePlayer() + " B WELCOME TO MESOS");
+        Label title = new Label("HELLO, " + modelReference.getHomePlayer().getNickname() + " WELCOME TO MESOS");
         title.
                 setStyle("""
 
                 -fx-text-fill: white;
-                    -fx-font-size: 38;
-                    -fx-font-weight: bold;
+                -fx-font-size: 38;
+                -fx-font-weight: bold;
     """);
 
         VBox joinBox = new VBox(10);
-
+        VBox createBox = new VBox(10);
 
         Button createGameButton = new Button("Create Game");
         Button joinGameButton = new Button("Join Game");
 
         Label idLabel = new Label("GAME ID");
-                idLabel.setStyle("""
-
+        idLabel.setStyle("""
                 -fx-text-fill: white;
-                    -fx-font-size: 16;
-    """);
+                -fx-font-size: 16;
+ """);
 
-        TextField idField = new TextField("
-        E ID");
-        idField.setPromptText("serverPort");
+        Label errorLabel = new Label();
+        errorLabel.setStyle("-fx-text-fill: #ffb3b3; -fx-font-size: 14;");
+
+
+        ComboBox<Integer> playersNumberBox = new ComboBox<>();
+        playersNumberBox.getItems().addAll(2,3,4,5);
+        playersNumberBox.setValue(2);
+        playersNumberBox.setMaxWidth(300);
+
+        ComboBox<TotemColor> totemBox = new ComboBox<>();
+        totemBox.getItems().addAll(TotemColor.RED, TotemColor.BLUE, TotemColor.PURPLE, TotemColor.WHITE, TotemColor.YELLOW);
+        totemBox.setValue(TotemColor.RED);
+        totemBox.setMaxWidth(300);
+
+
+        TextField idField = new TextField();
+        idField.setPromptText("Game ID");
         idField.setMaxWidth(300);
 
         createGameButton.setPrefWidth(240);
@@ -319,28 +300,54 @@ public class GUIView extends Application implements ViewType {
                     -fx-padding: 10 20 10 20;
     """);
 
-        join
-                utton.setStyle(
+        joinGameButton.setStyle(
                 """
         -fx-font-size: 17;
         -fx-font-weight: bold;
         -fx-padding: 10 20 10 20;
     """);
 
-        createGameButton.setOnAction(event -> {
 
+        createGameButton.setOnAction(event -> {
+            if (totemBox.getValue() == null || playersNumberBox.getValue() == null) {
+                errorLabel.setText("Please fill in the missing fields to create your game.");
+                return;
+            }
+
+            String insertedNickname = modelReference.getHomePlayer().getNickname();
+            String totemColorChoice = totemBox.getValue().toString();
+            int numPlayersChoice = playersNumberBox.getValue();
+
+            createGame(insertedNickname, numPlayersChoice, totemColorChoice);
         });
 
+
         joinGameButton.setOnAction(event -> {
-            /*
-             * Qui chiamerai il controller per joinare una partita.
-             *
-             * Esempio:
-             * controller.joinGame();
-             *
-             * Oppure prima apri una schermata/lista delle partite disponibili.
-             */
-            showLobbyScene();
+
+            // check phase;
+            if (totemBox.getValue() == null) {
+                errorLabel.setText("Please select a totem color.");
+                return;
+            }
+
+            String gameIdText = idField.getText().trim();
+            if (gameIdText.isEmpty()) {
+                errorLabel.setText("Please enter a game ID.");
+                return;
+            }
+
+            int gameId;
+            try {
+                gameId = Integer.parseInt(gameIdText);
+            } catch (NumberFormatException e) {
+                errorLabel.setText("Please enter a valid numeric game ID.");
+                return;
+            }
+
+            String insertedNickname = modelReference.getHomePlayer().getNickname();
+            String totemColorChoice = totemBox.getValue().toString();
+
+            joinGame(insertedNickname, gameId, totemColorChoice);
         });
 
         joinBox.getChildren().addAll(
@@ -348,213 +355,229 @@ public class GUIView extends Application implements ViewType {
                 idLabel,
                 idField
         );
-
-        VBox box = new VBox(22);
-        box.setAlignment(Pos.CENTER);
-        box.getChildren().addAll(
-                title,
+        createBox.getChildren().addAll(
                 createGameButton,
-                joinBox
+                playersNumberBox
         );
 
-        root.setCenter(box);
+        initialChoiceBox = new VBox(22);
+        initialChoiceBox.setAlignment(Pos.CENTER);
+        initialChoiceBox.getChildren().addAll(
+                title,
+                createBox,
+                joinBox,
+                errorLabel
+        );
+
+        root.setCenter(initialChoiceBox);
 
         return root;
     }
 
 
 
+    //TODO: gestione colore già preso, devo verificare se marco ha inserito questo check nella gestione nuova
+    private void updateChoiceScene(){
+        if(modelReference.getMessage().equals("\"Game with the specified ID does not exist\"")){ // Id non esistente --> la join non è andata a buon fine
+            Label error = (Label) initialChoiceBox.getChildren().getLast();
+            error.setText("Il game ID inserito non esiste, controlla di averlo scritto correttamente.");
 
-
-
-
-    private void connect(String chosenNickname, String netProtocol, String IP, String port) {
-            this.server = EntryPointFactory.connect(new String[]{netProtocol, IP, port, chosenNickname}, this);
-    }
-
-
-    private void createGame(String[] args) throws IllegalArgumentException {
-
-        if (!List.of(TotemColors).contains(args[3].toLowerCase())) {
-            // avoids sending an invalid totem color to the server,
-            // which would cause the server to reject the game creation request and send an error message back to the client
-            // there is a check on server side only for colors already selected by other players (necessarily on there)
-            // TL;DR: preemptive check for speed reasons
-            throw new IllegalArgumentException("Invalid totem color. Available colors: white, purple, yellow, red, blue.");
-        }
-        try {
-            server.createGame(args[1], Integer.parseInt(args[2]), args[3].toLowerCase());
-        } catch (Exception e) {
-            throw new RuntimeException("[Client] A network error occurred while sending your request\nDetails: " + e.getMessage());
-        }
-        writer.println("Game creation request sent successfully!");
-        terminal.flush();
+        } else
+            showGameScene(); // se la create o join è andata a buon fine passo alla scena successiva
     }
 
 
 
 
+    private StackPane createLobbyRoot() {
+       lobbyRoot = new StackPane();
 
+        ImageView background = new ImageView("C:/Users/matt0/IdeaProjects/IS26-AM14/src/main/resources/background/lobby.png"); // adding the bg
 
+        background.setPreserveRatio(false);
+        background.fitWidthProperty().bind(lobbyRoot.widthProperty());
+        background.fitHeightProperty().bind(lobbyRoot.heightProperty());
 
+        lobbyTotemLayer = new Pane();
+        lobbyTotemLayer.setPickOnBounds(false);
 
+        VBox topOverlay = createLobbyLabels();
 
+        StackPane.setAlignment(topOverlay, Pos.TOP_CENTER);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    private BorderPane createLobby() {
-        BorderPane lobbyRoot = new BorderPane();
-
-        lobbyRoot.setStyle("""
-            -fx-background-color: linear-gradient(to bottom, #2b1230, #5b1630);
-            -fx-padding: 30;
-        """);
-
-        Label title = new Label("Lobby");
-        title.setStyle("""
-            -fx-text-fill: white;
-            -fx-font-size: 42;
-            -fx-font-weight: bold;
-        """);
-
-        lobbyMessage = new Label("In attesa che la partita inizi...");
-        lobbyMessage.setStyle("""
-            -fx-text-fill: white;
-            -fx-font-size: 18;
-        """);
-
-        lobbyPlayersBox = new VBox(12);
-        lobbyPlayersBox.setAlignment(Pos.CENTER);
-        lobbyPlayersBox.setStyle("""
-            -fx-background-color: rgba(255,255,255,0.15);
-            -fx-background-radius: 14;
-            -fx-padding: 25;
-            -fx-min-width: 350;
-        """);
-
-        Button startButton = new Button("Start Game");
-        startButton.setStyle("""
-            -fx-font-size: 18;
-            -fx-font-weight: bold;
-            -fx-padding: 10 25 10 25;
-        """);
-
-        startButton.setOnAction(event -> {
-            /*
-             * Qui dovete chiamare il controller/client per chiedere al server
-             * di iniziare la partita.
-             *
-             * Esempio:
-             *
-             * clientController.startGame();
-             *
-             * Oppure:
-             *
-             * networkHandler.sendStartGameRequest();
-             */
-        });
-
-        VBox center = new VBox(25);
-        center.setAlignment(Pos.CENTER);
-        center.getChildren().addAll(title, lobbyMessage, lobbyPlayersBox, startButton);
-
-        lobbyRoot.setCenter(center);
+        lobbyRoot.getChildren().addAll(background, lobbyTotemLayer, topOverlay);
 
         return lobbyRoot;
     }
 
-    private void showLobbyScene() {
-        if (primaryStage == null || lobbyScene == null) return;
 
-        if (primaryStage.getScene() != lobbyScene) {
-            primaryStage.setTitle("Lobby");
-            primaryStage.setScene(lobbyScene);
-        }
+
+    private VBox createLobbyLabels() {
+        VBox box = new VBox(8);
+        box.setAlignment(Pos.CENTER);
+        box.setStyle("-fx-padding: 25;");
+
+        Label title = new Label("MESOS LOBBY");
+        title.setStyle("""
+        -fx-text-fill: white;
+        -fx-font-size: 42;
+        -fx-font-weight: bold;
+        -fx-effect: dropshadow(gaussian, black, 8, 0.8, 2, 2);
+    """);
+
+        lobbyGameIdLabel = new Label("Game ID: -");
+        lobbyGameIdLabel.setStyle("""
+        -fx-text-fill: #ffd36b;
+        -fx-font-size: 18;
+        -fx-font-weight: bold;
+        -fx-effect: dropshadow(gaussian, black, 6, 0.8, 1, 1);
+    """);
+
+        lobbyMessageLabel = new Label("Waiting for players...");
+        lobbyMessageLabel.setStyle("""
+        -fx-text-fill: white;
+        -fx-font-size: 16;
+        -fx-effect: dropshadow(gaussian, black, 6, 0.8, 1, 1);
+    """);
+
+        box.getChildren().addAll(title, lobbyGameIdLabel, lobbyMessageLabel);
+
+        return box;
     }
 
-    private void updateLobby() {
-        if (lobbyPlayersBox == null || modelReference == null) return;
 
-        lobbyPlayersBox.getChildren().clear();
+    private void updateLobbyTotems() {
+        if (lobbyTotemLayer == null || modelReference == null) return;
 
-        if (lobbyMessage != null) {
-            lobbyMessage.setText(modelReference.getMessage());
-        }
+        lobbyTotemLayer.getChildren().clear();
 
-        ClientPlayer homePlayer = modelReference.getHomePlayer();
+        ArrayList<ClientPlayer> players = new ArrayList<>();
 
-        if (homePlayer != null) {
-            lobbyPlayersBox.getChildren().add(
-                    createLobbyPlayerLabel(homePlayer.getNickname() + "  (Tu)")
-            );
-        }
+        players.add(modelReference.getHomePlayer());
 
         if (modelReference.getOtherPlayers() != null) {
-            for (ClientPlayer player : modelReference.getOtherPlayers()) {
-                lobbyPlayersBox.getChildren().add(
-                        createLobbyPlayerLabel(player.getNickname())
-                );
-            }
+            players.addAll(modelReference.getOtherPlayers());
+        }
+
+        for (ClientPlayer player : players) {
+            VBox totemBox = createLobbyTotemBox(player);
+            placeTotemByColor(totemBox, player.getTotemColor());
+            lobbyTotemLayer.getChildren().add(totemBox);
         }
     }
 
-    private Label createLobbyPlayerLabel(String nickname) {
-        Label label = new Label(nickname);
+    // metodo serve per adattare i totem quando andiamo a stringere la finestra, moltiplica il loro ratio per un x e y in base a come viene ridotta la finestra( commento in ita in quanto serve a me)
+    private void placeTotemByColor(VBox node, String color) {
+        double xRatio;
+        double yRatio;
 
-        label.setStyle("""
-            -fx-text-fill: white;
-            -fx-font-size: 22;
-            -fx-font-weight: bold;
-            -fx-background-color: rgba(255,255,255,0.18);
-            -fx-background-radius: 10;
-            -fx-padding: 8 20 8 20;
-        """);
+        switch (color) {
+            case "red"-> {
+                xRatio = 0.08;
+                yRatio = 0.38;
+            }
+            case "yellow" -> {
+                xRatio = 0.24;
+                yRatio = 0.36;
+            }
+            case "blue" -> {
+                xRatio = 0.43;
+                yRatio = 0.38;
+            }
+            case "purple" -> {
+                xRatio = 0.61;
+                yRatio = 0.37;
+            }
+            case "white"-> {
+                xRatio = 0.78;
+                yRatio = 0.36;
+            }
+            default -> {
+                xRatio = 0.45;
+                yRatio = 0.38;
+            }
+        }
 
-        return label;
+        node.layoutXProperty().bind(lobbyTotemLayer.widthProperty().multiply(xRatio));
+        node.layoutYProperty().bind(lobbyTotemLayer.heightProperty().multiply(yRatio));
     }
+
+
+
+
+
+    private VBox createLobbyTotemBox(ClientPlayer player) {
+        VBox box = new VBox(6);
+        box.setAlignment(Pos.CENTER);
+
+        ImageView totem = createLobbyTotem(player.getTotemColor());
+
+        Label name = new Label(player.getNickname());
+        name.setStyle("""
+        -fx-text-fill: white;
+        -fx-font-size: 16;
+        -fx-font-weight: bold;
+        -fx-effect: dropshadow(gaussian, black, 6, 0.8, 1, 1);
+    """);
+
+        box.getChildren().addAll(totem, name);
+
+        return box;
+    }
+
+
+
+    private void connect(String chosenNickname, String netProtocol, String IP, String port) {
+        this.server = EntryPointFactory.connect(new String[]{netProtocol, IP, port, chosenNickname}, this);
+    }
+
+
+    private void createGame(String chosenNickname, int numPlayers,String totemColor ) throws IllegalArgumentException {
+
+        try {
+            server.createGame(chosenNickname, numPlayers,totemColor);
+        } catch (Exception e) {
+            Label error = (Label) initialChoiceBox.getChildren().getLast();
+            error.setText("A network error occurred while sending your request. Please try again.");
+        }
+    }
+
+
+    private void joinGame(String nickname, int gameId, String totemColor) throws IllegalArgumentException {
+
+        try {
+            server.joinGame(nickname, gameId, totemColor);
+        } catch (Exception e) {
+            Label error = (Label) initialChoiceBox.getChildren().getLast();
+            error.setText("A network error occurred while sending your request. Please try again.");
+        }
+
+    }
+
+
+
+    private void gameCreation(){
+
+
+
+    }
+
+
+
+
+
+
+
+
 
     // ============================================================
     // GAME SCENE
     // ============================================================
 
     private void createGameScene() {
-        root = new BorderPane();
+        BorderPane root = new BorderPane();
 
-        Image backgroundImage = loadImage("/game_background.png");
+        Image backgroundImage = new Image("C:/Users/matt0/IdeaProjects/IS26-AM14/src/main/resources/background/game.jpeg");
 
         BackgroundImage bgImage = new BackgroundImage(
                 backgroundImage,
@@ -599,8 +622,6 @@ public class GUIView extends Application implements ViewType {
     private void updateTop(){
         serverMessage.setText(modelReference.getMessage());
     }
-
-
 
 
     private StackPane createCenter() {
@@ -974,6 +995,17 @@ public class GUIView extends Application implements ViewType {
         card.setFitWidth(120);
         card.setFitHeight(180);
         return card;
+    }
+
+
+    private ImageView createLobbyTotem(String totemColor) {
+        ImageView totem = new ImageView("C:/Users/matt0/IdeaProjects/IS26-AM14/src/main/resources/totem/" + totemColor+ ".png");
+
+        totem.setFitWidth(220);
+        totem.setPreserveRatio(true);
+        totem.setSmooth(true);
+
+        return totem;
     }
 
 
