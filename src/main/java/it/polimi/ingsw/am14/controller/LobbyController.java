@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.mysql.cj.xdevapi.JsonParser;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import it.polimi.ingsw.am14.events.PlayerDisconnectedEvent;
 import it.polimi.ingsw.am14.network.NetworkLayer;
 import it.polimi.ingsw.am14.exceptions.*;
 import it.polimi.ingsw.am14.model.gameLogic.Game;
@@ -35,9 +36,6 @@ public class LobbyController {
     private final Map<String, Long> lastPingReceivedTime;
     @JsonIgnore
     private final Object dataLock = new Object();
-    //TODO: quando andremo a salvare questi dati salveremo solo nicknameToGameId,
-    //      mentre gli altri no, perchè i nickname non saranno attivi e i controller
-    //      si ricreano solo se si riconnettono gli user della partita crashata
 
     public LobbyController(NetworkLayer networkLayer) {
         this.gameIdToGameController = new HashMap<>();
@@ -122,6 +120,10 @@ public class LobbyController {
         lastPingReceivedTime.put(nickname, System.currentTimeMillis());
     }
 
+    private void removeLastPingReceivedTime(String nickname) {
+        lastPingReceivedTime.remove(nickname);
+    }
+
     public void connectUser(String nickname) throws IllegalNicknameException {
         // TODO: ANCHE SINCRONIZZARE
         if (isPlayerActive(nickname)) {
@@ -195,21 +197,21 @@ public class LobbyController {
     }
 
     public void disconnectUser(String nickname) {
-        if (hasPlayerAGameAssigned(nickname)) {
-            int gameId = getGameIdByNickname(nickname).orElseThrow();
-            removeGameController(gameId);
-            removePlayerFromLobby(nickname);
-            getPlayersByGameId(gameId).forEach(this::addPlayerToLobby);
-            // TODO: TERMINATES THE THREAD THAT FLUSHES THE UPDATE QUEUE TO THIS CLIENT.
-
-            //update(PlayerDisconnectedEvent(X));
-            return;
-        }
+        //Remove player from controller
         removePlayerFromLobby(nickname);
-        deactivatePlayer(nickname);
+        deactivatePlayer(nickname); //TODO: networkLayer
+        removeLastPingReceivedTime(nickname);
+
+        //Remove game if the user was in a game
+        int gameId = getGameIdByNickname(nickname).orElse(-1);
+        if (hasPlayerAGameAssigned(nickname)) {
+            removeGameController(gameId);
+            getPlayersByGameId(gameId).forEach(this::addPlayerToLobby);
+        }
+        networkLayer.update(new PlayerDisconnectedEvent(nickname, gameId));
     }
 
-    // Called automatically after a certain timeout if server pings are not answered to
+    // Called automatically after a certain timeout if server pings are not answered to TODO
     public void disconnectServer() {
         activeNicknames.clear();
     }
@@ -227,7 +229,7 @@ public class LobbyController {
                 long lastPingTime = lastPingReceivedTime.get(nickname);
                 if (currentTime - lastPingTime <= PING_TIMEOUT) {
                     //One player has a valid ping, but server could have crashed after
-                    this.disconnectUserThatAreForReallyDisconnected(currentTime);
+                    this.disconnectUserThatAreSurelyDisconnected(currentTime);
                     return;
                 }
             }
@@ -236,7 +238,7 @@ public class LobbyController {
         }
     }
 
-    private void disconnectUserThatAreForReallyDisconnected(long currentTime) {
+    private void disconnectUserThatAreSurelyDisconnected(long currentTime) {
         for (String nickname : lastPingReceivedTime.keySet()) {
             long lastPingTime = lastPingReceivedTime.get(nickname);
             if (currentTime - lastPingTime > 2*PING_TIMEOUT) {

@@ -21,7 +21,7 @@ import java.util.*;
 
 // TODO: problemi con il clientmodel in fase di login
 
-public class GUIView extends Application implements ViewType {
+/*public class GUIView extends Application implements ViewType {
 
     // sono tutti a null fino a quando non verranno inizializzati
     private ClientModel modelReference;
@@ -1117,3 +1117,4 @@ public class GUIView extends Application implements ViewType {
         launch(args);
     }
 }
+*/

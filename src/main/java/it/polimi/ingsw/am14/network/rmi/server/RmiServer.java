@@ -4,6 +4,7 @@ import it.polimi.ingsw.am14.network.NetworkLayer;
 import it.polimi.ingsw.am14.controller.LobbyController;
 import it.polimi.ingsw.am14.events.Event;
 import it.polimi.ingsw.am14.events.ExceptionEvent;
+import it.polimi.ingsw.am14.exceptions.IllegalNicknameException;
 import it.polimi.ingsw.am14.network.rmi.client.VirtualServerRmi;
 
 import java.rmi.RemoteException;
@@ -22,53 +23,74 @@ public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
     }
 
     @Override
-    public void connect(VirtualClientRmi client, String nickname) throws RemoteException {
-        try {
-            // TODO: tutto ciò deve essere assegnato ad un ulteriore thread
-            networkLayer.updateNicknameMap(nickname, client);
-            networkLayer.updateBufferMap(client);
+    public void connect(VirtualClientRmi client, String nickname) {
+        new Thread(() -> {
+            try {
+                networkLayer.updateNicknameMap(nickname, client);
+                networkLayer.updateBufferMap(client);
 
-            // New thread in order to let Rmi Server handle multiple clients at the same time for the output flow
-            new Thread(() -> {
-
-                long lastPingTime = 0;
-
-                while (true) {
-                    synchronized (networkLayer.getBuffer(client)) {
-                        while (networkLayer.getBuffer(client).isEmpty()) {
-                            // TODO: pingServer verso il client per capire se è ancora connesso.
-//                            handler.update(
-//                                    new ServerPing("pingServer")
-//                            );
-
-                            try {
-                                networkLayer.getBuffer(client).wait();    // lazy wait
-                            } catch (InterruptedException _) {}
-                        }
-                        List<Event> eventsToSend = networkLayer.getBuffer(client).flushBuffer();
-                        for (Event event : eventsToSend) {
-                            //==================================================================
-                            try {
-                                client.update(event);
-                            } catch (RemoteException e) {
-                                throw new RuntimeException(e.getMessage());
+                // New thread in order to let Rmi Server handle multiple clients at the same time for the output flow
+                Thread thread = new Thread(() -> {
+                    try {
+                        while (!Thread.currentThread().isInterrupted()) {
+                            synchronized (networkLayer.getBuffer(client)) {
+                                if (Thread.currentThread().isInterrupted()) {
+                                    return;
+                                }
+                                
+                                while (networkLayer.getBuffer(client).isEmpty() 
+                                       && !Thread.currentThread().isInterrupted()) {
+                                    try {
+                                        networkLayer.getBuffer(client).wait();
+                                    } catch (InterruptedException e) {
+                                        Thread.currentThread().interrupt();
+                                        return;
+                                    }
+                                }
+                                
+                                if (!networkLayer.getBuffer(client).isEmpty() 
+                                    && !Thread.currentThread().isInterrupted()) {
+                                    List<Event> eventsToSend = networkLayer.getBuffer(client).flushBuffer();
+                                    for (Event event : eventsToSend) {
+                                        try {
+                                            client.update(event);
+                                        } catch (RemoteException e) {
+                                            // Client disconnected during event send - do full cleanup
+                                            System.err.println("[RMI Server] Client '" + nickname + "' unreachable during update: " + e.getMessage());
+                                            System.err.println("[RMI Server] Performing cleanup for '" + nickname + "'");
+                                            cleanupClient(nickname, client);
+                                            Thread.currentThread().interrupt();
+                                            return;
+                                        }
+                                    }
+                                }
                             }
-                            //==================================================================
                         }
-//                        if (handler.hasDisconnected())
-//                            break;
+                    } catch (Exception e) {
+                        System.err.println("[RMI Server] Error in buffering thread for " + nickname + ": " + e.getMessage());
                     }
-                }
-            }, "RMIConnect-" + nickname).start();
+                }, "RMIServerBuffer-" + nickname);
+                thread.start();
 
-            lobbyController.connectUser(nickname);
-        } catch (Exception e) {
-            client.reportError(new ExceptionEvent(e.getMessage()));
-        }
+                networkLayer.updateClientThreads(client, thread);
+                lobbyController.connectUser(nickname);
+            } catch (IllegalNicknameException e) {
+                System.err.println("[RMI Server] Connection rejected - nickname '" + nickname + "' already in use");
+                try {
+                    client.reportError(new ExceptionEvent("Nickname already in use"));
+                } catch (RemoteException ex) {
+                    System.err.println("[RMI Server] Failed to notify client about duplicate nickname: " + ex.getMessage());
+                }
+            } catch (Exception e) {
+                // connectUser() failed
+                System.err.println("[RMI Server] Error during client connection for '" + nickname + "': " + e.getMessage());
+                cleanupClient(nickname, client);
+            }
+        }, "RMIConnect-" + nickname).start();
     }
 
     @Override
-    public void createGame(String nickname, int numPlayers, String totemColor) throws RemoteException {
+    public void createGame(String nickname, int numPlayers, String totemColor) {
         new Thread(() -> {
             try {
                 lobbyController.createGame(nickname, numPlayers, totemColor);
@@ -79,19 +101,22 @@ public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
                         () -> { }
                 );
             } catch (Exception e) {
-                //======================================================================================================
                 try {
-                    networkLayer.getClientBy(nickname).reportError(new ExceptionEvent(e.getMessage()));
+                    VirtualClientRmi clientRmi = (VirtualClientRmi) networkLayer.getClientBy(nickname);
+                    if (clientRmi != null) {
+                        clientRmi.reportError(new ExceptionEvent(e.getMessage()));
+                    }
+                } catch (RemoteException ex) {
+                    System.err.println("[RMI Server] Failed to send error to client " + nickname + ": " + ex.getMessage());
                 } catch (Exception ex) {
-                    throw new RuntimeException(ex);
+                    System.err.println("[RMI Server] Unexpected error in createGame for " + nickname + ": " + ex.getMessage());
                 }
-                //======================================================================================================
             }
         }, "RMICreate-" + nickname).start();
     }
 
     @Override
-    public void joinGame(String nickname, int gameId, String totemColor) throws RemoteException {
+    public void joinGame(String nickname, int gameId, String totemColor) {
         new Thread(() -> {
             try {
                 lobbyController.joinGame(nickname, gameId, totemColor);
@@ -102,56 +127,76 @@ public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
                         () -> { }
                 );
             } catch (Exception e) {
-                //======================================================================================================
                 try {
-                    networkLayer.getClientBy(nickname).reportError(new ExceptionEvent(e.getMessage()));
+                    VirtualClientRmi clientRmi = (VirtualClientRmi) networkLayer.getClientBy(nickname);
+                    if (clientRmi != null) {
+                        clientRmi.reportError(new ExceptionEvent(e.getMessage()));
+                    }
+                } catch (RemoteException ex) {
+                    System.err.println("[RMI Server] Failed to send error to client " + nickname + ": " + ex.getMessage());
                 } catch (Exception ex) {
-                    throw new RuntimeException(ex);
+                    System.err.println("[RMI Server] Unexpected error in joinGame for " + nickname + ": " + ex.getMessage());
                 }
-                //======================================================================================================
             }
         }, "RMIJoin-" + nickname).start();
     }
 
     @Override
-    public void placeTotem(String nickname, char position) throws RemoteException {
+    public void placeTotem(String nickname, char position) {
         new Thread(() -> {
             try {
                 lobbyController.placeTotem(nickname, position);
             } catch (Exception e) {
-                //======================================================================================================
                 try {
-                    networkLayer.getClientBy(nickname).reportError(new ExceptionEvent(e.getMessage()));
+                    VirtualClientRmi clientRmi = (VirtualClientRmi) networkLayer.getClientBy(nickname);
+                    if (clientRmi != null) {
+                        clientRmi.reportError(new ExceptionEvent(e.getMessage()));
+                    }
+                } catch (RemoteException ex) {
+                    System.err.println("[RMI Server] Failed to send error to client " + nickname + ": " + ex.getMessage());
                 } catch (Exception ex) {
-                    throw new RuntimeException(ex);
+                    System.err.println("[RMI Server] Unexpected error in placeTotem for " + nickname + ": " + ex.getMessage());
                 }
-                //======================================================================================================
             }
         }, "RMIPlace-" + nickname).start();
     }
 
     @Override
-    public void pickCard(String nickname, int cardId, int row) throws RemoteException {
+    public void pickCard(String nickname, int cardId, int row) {
         new Thread(() -> {
             try {
                 lobbyController.pickCard(nickname, cardId, row);
             } catch (Exception e) {
-                //======================================================================================================
                 try {
-                    networkLayer.getClientBy(nickname).reportError(new ExceptionEvent(e.getMessage()));
+                    VirtualClientRmi clientRmi = (VirtualClientRmi) networkLayer.getClientBy(nickname);
+                    if (clientRmi != null) {
+                        clientRmi.reportError(new ExceptionEvent(e.getMessage()));
+                    }
+                } catch (RemoteException ex) {
+                    System.err.println("[RMI Server] Failed to send error to client " + nickname + ": " + ex.getMessage());
                 } catch (Exception ex) {
-                    throw new RuntimeException(ex);
+                    System.err.println("[RMI Server] Unexpected error in pickCard for " + nickname + ": " + ex.getMessage());
                 }
-                //======================================================================================================
             }
         }, "RMIPick-" + nickname).start();
     }
 
-
     @Override
-    public void pingServer(String nickname) throws RemoteException {
+    public void pingServer(String nickname) {
         new Thread(() -> {
             lobbyController.handlePingRequest(nickname);
         }, "RMIPingClient-" + nickname).start();
+    }
+
+    private void cleanupClient(String nickname, VirtualClientRmi client) {
+        try {
+            networkLayer.removeThreadsByClient(client);
+            networkLayer.removeBuffer(client);
+            networkLayer.removeClientBy(nickname);
+            
+            System.err.println("[RMI Server] RMI client '" + nickname + "' cleaned up successfully");
+        } catch (Exception e) {
+            System.err.println("[RMI Server] Error during RMI client cleanup for '" + nickname + "': " + e.getMessage());
+        }
     }
 }
