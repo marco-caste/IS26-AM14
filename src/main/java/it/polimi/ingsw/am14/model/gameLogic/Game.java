@@ -186,6 +186,9 @@ public class Game implements Observable {
     public int getGameId() {
         return gameId;
     }
+    public GameState getPreviouslySavedState() {
+        return previouslySavedState;
+    }
 
     /**
      *
