@@ -6,5 +6,6 @@ import java.io.IOException;
 
 public interface ViewType extends ModelObserver {
     void run() throws IOException;
-    void update(ClientModel model);
+    void update(ClientModel model,String eventChoice);
+    void disconnect();
 }

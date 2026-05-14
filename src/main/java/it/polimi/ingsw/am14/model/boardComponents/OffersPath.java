@@ -1,7 +1,5 @@
 package it.polimi.ingsw.am14.model.boardComponents;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import it.polimi.ingsw.am14.utils.JsonCodec;
 
 import java.util.HashSet;
@@ -20,13 +18,7 @@ public class OffersPath {
     public OffersPath(int numPlayers) {
         JsonCodec jsonCodec = new JsonCodec();
 
-        this.offersPath = jsonCodec.readTrackCards("src/main/resources/TrackCards.json", numPlayers);
-    }
-
-    @JsonCreator
-    public OffersPath(
-            @JsonProperty("offersPath") Map<Character, TrackCard> offersPath) {
-        this.offersPath = offersPath;
+        this.offersPath = jsonCodec.readTrackCards("src/main/resources/trackCards.json", numPlayers);
     }
 
     /**

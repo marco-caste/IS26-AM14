@@ -3,7 +3,6 @@ package it.polimi.ingsw.am14.clientModel;
 import it.polimi.ingsw.am14.view.ViewType;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -17,10 +16,9 @@ public class ClientModel {
             );
 
     List<ViewType> observers;
-    ClientPlayer homePlayer;
-    ArrayList<ClientPlayer> otherPlayers;
+    ClientPlayer homePlayer ;
+    ArrayList<ClientPlayer> otherPlayers ;
     ArrayList<String> playerOrderInTurnOrderCard;
-    // TODO: turnOrderCard e TrackCard
     ArrayList<ArrayList<Integer>> board;
     int turnOrderCardIndex; // it's needed to build the right TurnorderCard in the view, it depends on this index.
     int gameId;
@@ -40,18 +38,67 @@ public class ClientModel {
         this.message = "";
     }
 
-    //Observer methods
+    //OBSERVER METHODS
     public void registerObserver(ViewType view) {
         observers.add(view);
     }
 
-    public void notifyObservers(){
+    // TODO: parlare con gli altri per verificare insieme quale idea piace di più
+    //  1- Override usando delle classi Update che hanno un riferimento alla Gui e che hanno un metodo update implementato diversamente. Questo oggetto di tipo update dovrà essere passato nel clientModel
+    //  2- case switch
+    //  3-overloading nella GUI,per
+    //  ora fatto switch intanto per provare la GUI con update focalizzato
+    public void notifyObservers(String eventChoice){
         for(ViewType observer : observers){
-            observer.update(this);
+            observer.update(this, eventChoice);
         }
     }
 
-    //setters
+
+    //GETTERS
+    public ClientPlayer getPlayerByNickname(String nickname) {
+        if (homePlayer != null && homePlayer.getNickname().equals(nickname)) {
+            return homePlayer;
+        }
+        for (ClientPlayer player : otherPlayers) {
+            if (player.getNickname().equals(nickname)) {
+                return player;
+            }
+        }
+        return null;
+    }
+
+    public ArrayList<ArrayList<Integer>> getBoard() {
+        return board;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public int getAge() {
+        return this.age;
+    }
+
+    public int getNumPlayers(){
+        return this.numPlayers;
+    }
+
+    public ArrayList<Character> getOffersPath() {
+        return new ArrayList<>(offersPath.get(numPlayers));
+    }
+
+    public ClientPlayer getHomePlayer (){
+        return this.homePlayer;
+    }
+
+    public ArrayList<ClientPlayer> getOtherPlayers() {
+        return this.otherPlayers;
+    }
+
+
+
+    //SETTERS
     public void setMessage(String message) {
         this.message = message;
     }
@@ -76,7 +123,6 @@ public class ClientModel {
         this.homePlayer = homePlayer;
     }
 
-    //TODO: rendere la join visibile a tutti perchè serve capire il totem color degli altri
     public void setOtherPlayers(ArrayList<ClientPlayer> otherPlayers) {
         this.otherPlayers = otherPlayers;
     }
@@ -85,24 +131,22 @@ public class ClientModel {
         this.board = board;
     }
 
-    public ClientPlayer getPlayerByNickname(String nickname) {
-        if (homePlayer != null && homePlayer.getNickname().equals(nickname)) {
-            return homePlayer;
-        }
-        for (ClientPlayer player : otherPlayers) {
-            if (player.getNickname().equals(nickname)) {
-                return player;
-            }
-        }
-        return null;
+
+
+    //UPDATES
+    public void updateAge(int age){
+        this.age = age;
     }
 
-    public ArrayList<ArrayList<Integer>> getBoard() {
-        return board;
-    }
-
-    public String getMessage() {
-        return message;
+    public void updatePickPlayerStats(String nickname , int numFodd, int numPrestigePoints, int numStars, int buildingDiscount, int gatheringDiscount){
+        ClientPlayer player = getPlayerByNickname(nickname);
+        if (player != null) {
+            updatePlayerFood(nickname, numFodd);
+            updatePlayerPrestigePoints(nickname, numPrestigePoints);
+            player.setNumStars(numStars);
+            player.setTotalBuildingDiscount(buildingDiscount);
+            player.setTotalGatheringDiscount(gatheringDiscount);
+        }
     }
 
     public void updatePlayerPosition(String nickname, Character playerPosition) {
@@ -154,21 +198,5 @@ public class ClientModel {
         this.playerOrderInTurnOrderCard.set(index, null);
     }
 
-    public int getAge() {
-        return this.age;
-    }
-
-    public void updateAge(int age){
-        this.age = age;
-    }
-
-
-    public int getNumPlayers(){
-        return this.numPlayers;
-    }
-
-    public ArrayList<Character> getOffersPath() {
-        return new ArrayList<>(offersPath.get(numPlayers));
-    }
 
 }

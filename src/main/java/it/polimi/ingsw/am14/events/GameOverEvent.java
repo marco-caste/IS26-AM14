@@ -19,6 +19,6 @@ public class GameOverEvent extends ServerEvent {
     @Override
     public void effect(ClientModel model) {
         model.setMessage(description);
-        model.notifyObservers();
+        model.notifyObservers("gameOver");
     }
 }

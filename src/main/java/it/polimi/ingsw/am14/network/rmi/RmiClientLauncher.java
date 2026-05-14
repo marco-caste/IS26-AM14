@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am14.network.rmi;
 
+import it.polimi.ingsw.am14.network.rmi.client.VirtualServerRmi;
 import it.polimi.ingsw.am14.view.ViewType;
 import it.polimi.ingsw.am14.network.VirtualServer;
 import it.polimi.ingsw.am14.network.rmi.client.RmiClient;
@@ -11,7 +12,7 @@ import java.rmi.RemoteException;
 
 public class RmiClientLauncher {
 
-    public static VirtualServer launch(ViewType view) throws IOException, NotBoundException, RemoteException {
+    public static RmiClient launch(ViewType view) throws IOException, NotBoundException, RemoteException {
 
         ClientModel model = new ClientModel();
         model.registerObserver(view);

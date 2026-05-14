@@ -22,9 +22,9 @@ public class EndRoundEvent extends UpdateEvent {
     private final Map<String, ArrayList<Integer>> playersAttributes;          // pos0 = numFood, pos1 = numPrestigePoints
     @JsonIgnore
     private int gameId; // only used for bufferization, will not be sent to the client
-    private int age;
+    private final int currentAge;
 
-    public EndRoundEvent(final Board board,final List<Player> players, int gameId, int age) {
+    public EndRoundEvent(final Board board,final List<Player> players, int gameId, int currentAge) {
         this.gameId = gameId;
         super("");
 
@@ -61,7 +61,7 @@ public class EndRoundEvent extends UpdateEvent {
         }
 
         this.description = "End of round, the board has been updated";
-        this.age = age; // TODO: verifica come si comporta con json
+        this.currentAge = currentAge; // TODO: verifica come si comporta con json
 
     }
 
@@ -70,10 +70,12 @@ public class EndRoundEvent extends UpdateEvent {
     public EndRoundEvent(
             @JsonProperty("board") ArrayList<ArrayList<Integer>> board,
             @JsonProperty("playersAttributes") Map<String, ArrayList<Integer>> playersAttributes,
-            @JsonProperty("description") String description) {
+            @JsonProperty("description") String description,
+            @JsonProperty("currentAge") int currentAge) {
         super(description);
         this.board = board;
         this.playersAttributes = playersAttributes;
+        this.currentAge = currentAge;
     }
 
 
@@ -86,12 +88,12 @@ public class EndRoundEvent extends UpdateEvent {
     }
 
     @Override
-    public void effect(ClientModel model) {
+    public void effect(ClientModel model ) {
         model.setBoard(board);
         model.updatePlayerRoundAttributes(playersAttributes);
         model.setMessage(description);
-        model.updateAge(age);
-        model.notifyObservers();
+        model.updateAge(currentAge);
+        model.notifyObservers("endRound");
     }
 
 

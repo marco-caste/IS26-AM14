@@ -9,7 +9,6 @@ import it.polimi.ingsw.am14.model.boardComponents.Board;
 import it.polimi.ingsw.am14.model.gameLogic.Player;
 import it.polimi.ingsw.am14.clientModel.ClientModel;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -82,6 +81,6 @@ public class EndGameEvent extends UpdateEvent {
         model.setBoard(this.board);
         model.updatePlayerRoundAttributes(this.playersAttributes);
         model.setMessage(description);
-        model.notifyObservers();
+        model.notifyObservers( "endGame");
     }
 }

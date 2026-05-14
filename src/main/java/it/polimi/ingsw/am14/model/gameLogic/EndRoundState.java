@@ -15,9 +15,6 @@ class EndRoundState extends GameState {
      */
     @Override
     protected void nextState(Game context) {
-        context.notifyObservers(
-                new EndRoundEvent(context.getBoard(), context.getPlayers(), context.getGameId(), context.getCurrentAge())
-        );
         context.setCurrentState(new PositionState());
     }
 
@@ -79,6 +76,11 @@ class EndRoundState extends GameState {
             // ENDROUND - NEW AGE PHASE 3
             currentBoard.pickBuildingAndAddToTop(context.getCurrentAge());
         }
+
+        // observer pattern: sends event to event buffer
+        context.notifyObservers(
+                new EndRoundEvent(context.getBoard(), context.getPlayers(), context.getGameId(), context.getCurrentAge())
+        );
 
         this.nextState(context);
     }

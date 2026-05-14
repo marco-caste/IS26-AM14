@@ -28,6 +28,6 @@ public class LoginSuccesfulEvent extends ServerEvent {
     public void effect(ClientModel model) {
         model.setHomePlayer(new ClientPlayer(playerNickname));
         model.setMessage(description);
-        model.notifyObservers();
+        model.notifyObservers("login");
     }
 }
