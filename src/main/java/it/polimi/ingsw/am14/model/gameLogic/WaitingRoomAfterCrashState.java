@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am14.model.gameLogic;
 
+import it.polimi.ingsw.am14.events.GameRestartedEvent;
 import it.polimi.ingsw.am14.events.PlayerReconnectedEvent;
 
 public class WaitingRoomAfterCrashState extends GameState {
@@ -14,15 +15,17 @@ public class WaitingRoomAfterCrashState extends GameState {
                         nickname,
                         game.getGameId(),
                         game.getBoard(),
-                        game.getNumPlayers()
+                        game.getNumPlayers(),
+                        game.getPlayers()
                 )
         );
         addNumPlayersConnected();
         if (numPlayersReconnected == game.getNumPlayers()) {
             this.nextState(game);
             game.notifyObservers(
-                    new GameRestartedEvent (
-                            //TODO
+                    new GameRestartedEvent(
+                            game.getGameId(),
+                            nickname
                     )
             );
         }

@@ -110,6 +110,7 @@ public class LobbyController {
     }
 
     public void connectUser(String nickname) throws IllegalNicknameException, IllegalGameIdException, WrongStateException {
+        nickname = nickname.toLowerCase();
         int gameId;
         synchronized (dataLock) {
             if (hasPlayerAGameAssigned(nickname)) {
@@ -117,6 +118,7 @@ public class LobbyController {
             }
             else {
                 addPlayerToLobby(nickname);
+                // TODO: contollare ping
                 gameId = -1;
             }
         }
@@ -175,7 +177,7 @@ public class LobbyController {
         networkLayer.update(new PlayerDisconnectedEvent(nickname, gameId));
     }
 
-    // Called automatically after a certain timeout if server pings are not answered to TODO
+    // Called automatically after a certain timeout if server pings are not answered to TODO: da rimuovere giusto?
     public void disconnectServer() {
 
     }
@@ -191,24 +193,12 @@ public class LobbyController {
             long currentTime = System.currentTimeMillis();
             for (String nickname : lastPingReceivedTime.keySet()) {
                 long lastPingTime = lastPingReceivedTime.get(nickname);
-                if (currentTime - lastPingTime <= PING_TIMEOUT) {
-                    //One player has a valid ping, but server could have crashed after
-                    this.disconnectUserThatAreSurelyDisconnected(currentTime);
-                    return;
+                if (currentTime - lastPingTime > PING_TIMEOUT) {
+                    disconnectUser(nickname);
                 }
             }
-            //All players are disconnected
-            this.disconnectServer();
-        }
-    }
-
-    private void disconnectUserThatAreSurelyDisconnected(long currentTime) {
-        for (String nickname : lastPingReceivedTime.keySet()) {
-            long lastPingTime = lastPingReceivedTime.get(nickname);
-            if (currentTime - lastPingTime > 2*PING_TIMEOUT) {
-                //I disconnect a user when I'm sure that the server didn't crash meanwhile
-                disconnectUser(nickname);
-            }
+            //All players are disconnected TODO: da rimuovere giusto?
+            //this.disconnectServer();
         }
     }
 }

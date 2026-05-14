@@ -92,6 +92,10 @@ public class ClientModel {
         return this.homePlayer;
     }
 
+    public String getHomePlayerNickname(){
+        return this.homePlayer.getNickname();
+    }
+
     public ArrayList<ClientPlayer> getOtherPlayers() {
         return this.otherPlayers;
     }
@@ -121,10 +125,6 @@ public class ClientModel {
 
     public void setHomePlayer(ClientPlayer homePlayer) {
         this.homePlayer = homePlayer;
-    }
-
-    public void setOtherPlayers(ArrayList<ClientPlayer> otherPlayers) {
-        this.otherPlayers = otherPlayers;
     }
 
     public void setBoard(ArrayList<ArrayList<Integer>> board) {
@@ -198,5 +198,13 @@ public class ClientModel {
         this.playerOrderInTurnOrderCard.set(index, null);
     }
 
-
+    public void clearGame() {
+        this.homePlayer = null;
+        this.otherPlayers.clear();
+        this.playerOrderInTurnOrderCard.clear();
+        this.board.clear();
+        this.turnOrderCardIndex = 0;
+        this.gameId = -1;
+        this.numPlayers = 0;
+    }
 }
