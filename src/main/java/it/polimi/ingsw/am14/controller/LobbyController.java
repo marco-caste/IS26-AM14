@@ -4,7 +4,9 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.mysql.cj.xdevapi.JsonParser;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import it.polimi.ingsw.am14.events.LoginSuccesfulEvent;
 import it.polimi.ingsw.am14.events.PlayerDisconnectedEvent;
+import it.polimi.ingsw.am14.events.PlayerReconnectedEvent;
 import it.polimi.ingsw.am14.network.NetworkLayer;
 import it.polimi.ingsw.am14.exceptions.*;
 import it.polimi.ingsw.am14.model.gameLogic.Game;
@@ -28,8 +30,6 @@ public class LobbyController {
     private final Map<Integer, GameController> gameIdToGameController;
     private final Map<String, Integer> nicknameToGameId;
     @JsonIgnore
-    private final Set<String> activeNicknames; //TODO: Da rimuovere se si tiene così l'update in Network layer
-    @JsonIgnore
     private final NetworkLayer networkLayer;
     @JsonIgnore
     private final Map<String, Long> lastPingReceivedTime;
@@ -39,7 +39,6 @@ public class LobbyController {
     public LobbyController(NetworkLayer networkLayer) {
         this.gameIdToGameController = new HashMap<>();
         this.nicknameToGameId = new HashMap<>();
-        this.activeNicknames = new HashSet<>();
         this.networkLayer = networkLayer;
         this.lastPingReceivedTime = new HashMap<>();
     }
@@ -48,7 +47,6 @@ public class LobbyController {
     public LobbyController(Map<String, Integer> nicknameToGameId) {
         this.gameIdToGameController = new HashMap<>();
         this.nicknameToGameId = nicknameToGameId;
-        this.activeNicknames = new HashSet<>();
         this.networkLayer = new NetworkLayer();
         this.lastPingReceivedTime = new HashMap<>();
     }
@@ -59,7 +57,6 @@ public class LobbyController {
 
     private void removeGameController(int gameId) {
         gameIdToGameController.remove(gameId);
-        getPlayersByGameId(gameId).forEach(activeNicknames::remove);
     }
 
     private Optional<GameController> getGameController(int gameId) {
@@ -90,18 +87,6 @@ public class LobbyController {
         return nicknameToGameId.containsKey(nickname) && nicknameToGameId.get(nickname) != null;
     }
 
-    private void activatePlayer(String nickname) {
-        activeNicknames.add(nickname);
-    }
-
-    private void deactivatePlayer(String nickname) {
-        activeNicknames.remove(nickname);
-    }
-
-    private boolean isPlayerActive(String nickname) {
-        return activeNicknames.contains(nickname);
-    }
-
     private Set<String> getPlayersByGameId(int gameId) {
         Set<String> players = new HashSet<>();
         Set<Map.Entry<String, Integer>> entries = nicknameToGameId.entrySet();
@@ -121,47 +106,27 @@ public class LobbyController {
         lastPingReceivedTime.remove(nickname);
     }
 
-    public void connectUser(String nickname) throws IllegalNicknameException {
-        // TODO: ANCHE SINCRONIZZARE
-        if (isPlayerActive(nickname)) {
-            throw new IllegalNicknameException("Nickname is already in use in an active game");
-        }
-        else {
-            //Nickname available, but might have a game assigned if the user is reconnecting after a server crash
-            activatePlayer(nickname);
-            //TODO: chiedere a Lorenzo se c'è un unico update di connessione o un altro per la riconnessione
+    public void connectUser(String nickname) throws IllegalNicknameException, IllegalGameIdException, WrongStateException {
+        int gameId;
+        synchronized (dataLock) {
             if (hasPlayerAGameAssigned(nickname)) {
-                //Player is reconnecting after a server crash
-                activatePlayer(nickname);
-                int gameId = getGameIdByNickname(nickname).orElseThrow();
-//                if (!hasGameAController(gameId)) {
-//                    //First person to connect to this game after the crash, need to set it up again
-//                    //TODO: restoreState da src/main/saves/gameId.json
-//                    //Game game = GameFactory.setup(gameId);
-//                        game.setCurrentState(new WaitingRoomAfterCrash(game));
-//                            game.addObserver(networkLayer);
-//                    GameController gameController = new GameController(game);
-//                    addGameController(game.getGameId(), gameController);
-//                }
-                //TODO: nuovo stato di WaitingRoomAfterCrash in Game onPlayerConncetion?
-                //joinGame(nickname, gameId, null);
-                //update(PlayerReconnectedEvent(X));
+                gameId = getGameIdByNickname(nickname).orElseThrow();
             }
             else {
-                //Player is connecting for the first time, add to lobby
                 addPlayerToLobby(nickname);
-
-                //update(PlayerConnectedEvent(X));
+                gameId = -1;
             }
-            // TODO: LOGIN SUCCESFUL EVENT
+        }
+        if (gameId >=0) {
+            this.joinGame(nickname, gameId, null);
+        }
+        else {
+            networkLayer.update(new LoginSuccesfulEvent(nickname));
         }
     }
 
     public void createGame(String nickname, int numPlayers, String totemColor) throws IllegalSetupException, WrongStateException, IllegalNicknameException {
         synchronized (dataLock) {
-            // synchronizing on dataLock allows the creation of one game at a time, which is necessary in order to keep
-            // gameIDs unique.
-
             Game game = GameFactory.setup(numPlayers);
             game.addObserver(networkLayer);
             GameController gameController = new GameController(game);
@@ -196,7 +161,6 @@ public class LobbyController {
     public void disconnectUser(String nickname) {
         //Remove player from controller
         removePlayerFromLobby(nickname);
-        deactivatePlayer(nickname); //TODO: networkLayer
         removeLastPingReceivedTime(nickname);
 
         //Remove game if the user was in a game
@@ -210,7 +174,7 @@ public class LobbyController {
 
     // Called automatically after a certain timeout if server pings are not answered to TODO
     public void disconnectServer() {
-        activeNicknames.clear();
+
     }
 
     public void handlePingRequest(String nickname) {
