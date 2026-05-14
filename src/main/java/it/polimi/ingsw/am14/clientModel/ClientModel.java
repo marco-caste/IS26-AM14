@@ -88,6 +88,10 @@ public class ClientModel {
         return null;
     }
 
+    public String getHomePlayer() {
+        return homePlayer.getNickname();
+    }
+
     public ArrayList<ArrayList<Integer>> getBoard() {
         return board;
     }
