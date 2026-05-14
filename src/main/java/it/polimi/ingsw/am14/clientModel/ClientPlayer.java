@@ -12,7 +12,6 @@ public class ClientPlayer {
     private int totalBuildingDiscount;
     private int totalGatheringDiscount;
     private Character playerPosition;
-
     private List<Integer> playerTribe = new ArrayList<Integer>();
 
     public ClientPlayer(String nickname) {

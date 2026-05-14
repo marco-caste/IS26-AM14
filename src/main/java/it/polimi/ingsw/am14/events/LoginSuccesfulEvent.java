@@ -8,7 +8,7 @@ import it.polimi.ingsw.am14.network.NetworkLayer;
 
 public class LoginSuccesfulEvent extends ServerEvent {
 
-    String playerNickname;
+    private final String playerNickname;
 
     public LoginSuccesfulEvent(String playerNickname) {
         super("");
@@ -24,7 +24,6 @@ public class LoginSuccesfulEvent extends ServerEvent {
         this.playerNickname = playerNickname;
     }
 
-    // update Client Model
     @Override
     public void effect(ClientModel model) {
         model.setHomePlayer(new ClientPlayer(playerNickname));

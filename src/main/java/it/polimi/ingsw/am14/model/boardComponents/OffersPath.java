@@ -4,6 +4,7 @@ import it.polimi.ingsw.am14.utils.JsonCodec;
 
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 public class OffersPath {
@@ -36,5 +37,14 @@ public class OffersPath {
      */
     public TrackCard offersPathGet(Character trackCardName){
         return this.offersPath.get(trackCardName);
+    }
+
+    public Optional<Character> findPlayerPosition(String nickname) {
+        for (Map.Entry<Character, TrackCard> entry : offersPath.entrySet()) {
+            if (entry.getValue().getPlayerNickname() != null && entry.getValue().getPlayerNickname().equals(nickname)) {
+                return Optional.of(entry.getKey());
+            }
+        }
+        return Optional.empty();
     }
 }

@@ -83,7 +83,9 @@ public class Player {
     public Tribe getTribe() {
         return tribe;
     }
-
+    public int [] getAllIds() {
+        return tribe.getAllIds();
+    }
 
     // SETTERS:
     public void setNumFood(int numFood) {

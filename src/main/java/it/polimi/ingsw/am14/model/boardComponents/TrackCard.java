@@ -53,6 +53,9 @@ public class TrackCard {
         return name;
     }
 
+    public String getPlayerNickname() {
+        return playerTotem.getNickname();
+    }
 
     /**
      * <p>

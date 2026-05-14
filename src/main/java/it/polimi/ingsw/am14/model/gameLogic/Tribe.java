@@ -213,4 +213,38 @@ public class Tribe {
     public int getBuildersSize() {
         return builders.size();
     }
+
+    public int getBuildingsSize() {
+        return buildings.size();
+    }
+
+    public int[] getAllIds() {
+        int[] ids = new int[getHuntersSize() + getInventorsSize() +
+                getShamansSize() + getGatherersSize() + getArtistsSize() + getBuildersSize() +  getBuildingsSize()];
+        for (int i = 0; i < getHuntersSize(); i++) {
+            ids[i] = hunters.get(i).getId();
+        }
+        for (int i = 0; i < getInventorsSize(); i++) {
+            ids[i + getHuntersSize()] = inventors.get(i).getId();
+        }
+        for (int i = 0; i < getShamansSize(); i++) {
+            ids[i + getHuntersSize() + getInventorsSize()] = shamans.get(i).getId();
+        }
+        for (int i = 0; i < getGatherersSize(); i++) {
+            ids[i + getHuntersSize() + getInventorsSize() + getShamansSize()] = gatherers.get(i).getId();
+        }
+        for (int i = 0; i < getArtistsSize(); i++) {
+            ids[i + getHuntersSize() + getInventorsSize() + getShamansSize()
+                    + getGatherersSize()] = artists.get(i).getId();
+        }
+        for (int i = 0; i < getBuildersSize(); i++) {
+            ids[i + getHuntersSize() + getInventorsSize() + getShamansSize()
+                    + getGatherersSize() + getArtistsSize()] = builders.get(i).getId();
+        }
+        for (int i = 0; i < getBuildingsSize(); i++) {
+            ids[i + getHuntersSize() + getInventorsSize() + getShamansSize()
+                    + getGatherersSize() + getArtistsSize() + getBuildersSize()] = buildings.get(i).getId();
+        }
+        return ids;
+    }
 }

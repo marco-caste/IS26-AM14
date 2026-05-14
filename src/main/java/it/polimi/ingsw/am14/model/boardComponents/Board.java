@@ -395,4 +395,8 @@ public class Board {
     public void pickBuildingAndAddToTop(int currentAge) {
         this.topBuildingRow.addAll(buildingDeck.getBuildings(currentAge));
     }
+
+    public Optional<Character> findPlayerPosition(String nickname) {
+        return this.offersPath.findPlayerPosition(nickname);
+    }
 }
