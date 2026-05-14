@@ -14,15 +14,21 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
+import javafx.application.Platform;
 
 import java.io.IOException;
 import java.util.*;
 
+// TODO: problemi con il clientmodel in fase di login
+
 public class GUIView extends Application implements ViewType {
 
-    private ClientModel modelReference = null;
+    // sono tutti a null fino a quando non verranno inizializzati
+    private ClientModel modelReference;
     private VirtualServer server;
     private Stage primaryStage;
+
+    //TODO: fatto per prova al posto del getter sul model
 
     private Scene gameChoiceScene;
     private Scene lobbyScene;
@@ -33,16 +39,12 @@ public class GUIView extends Application implements ViewType {
 
     private Label serverMessage;
 
-    private VBox centerBoard;
+    private VBox centerBox;
+    private VBox topBox;
     private ImageView deckView;
 
     private VBox playersStatsBox;
-    private StackPane lobbyRoot;
     private Pane lobbyTotemLayer;
-    private Label lobbyMessageLabel;
-    private Label lobbyGameIdLabel;
-
-
     private HBox homeTribeBox;
     private final Map<String, TilePane> awayTribePanes = new HashMap<>();
 
@@ -56,14 +58,15 @@ public class GUIView extends Application implements ViewType {
 
     private final Map<String, Map<StatType, Label>> playerStatLabels = new HashMap<>();
 
+
     @Override
     public void start(Stage primaryStage) {
         this.primaryStage = primaryStage;
 
-        lobbyScene = new Scene(createLobby(), 1400, 900);
+        Scene loginScene = new Scene(createNicknameRoot(), 1400, 900);
 
-        primaryStage.setTitle("Lobby");
-        primaryStage.setScene(lobbyScene);
+        primaryStage.setTitle("Login");
+        primaryStage.setScene(loginScene);
         primaryStage.show();
     }
 
@@ -74,10 +77,58 @@ public class GUIView extends Application implements ViewType {
     }
 
     @Override
-    public void update(ClientModel model) {
+    public void update(ClientModel model, String eventChoice) {
         this.modelReference = model;
+
+        System.out.println("GUI update received: " + eventChoice);
+        System.out.println("message = " + model.getMessage());
+
+
+        javafx.application.Platform.runLater(() -> {
+        switch (eventChoice) {
+            case "login" -> updateLogin();
+            case "gameChoice" -> updateChoiceScene();
+            case "lobbyUpdate" -> updateLobbyTotems();
+            case "gameStart" -> gameCreation();
+            case "pickUpdate" -> {
+                updateBoard();
+                updateTribes();
+                updateTop();
+                updatePlayerStats();
+            }
+            case "positionUpdate" -> {
+                updateBoard();
+                updateTop();
+            }
+            case "endRound", "endGame" -> {
+                updateBoard();
+                updateTop();
+                updatePlayerStats();
+            }
+            //case "gameOver" -> showEndGameScene(); da fare ancora
+            case "exception" -> {
+                    updateTop(); // controllo di esistenza della scena nei singoli metodi
+                    updateChoiceScene();
+                    updateLogin();
+                // verificare con Marco e Lorenzo
+                // if (model.getMessage().equals("The connection with the server has been lost. Please try to reconnect.")) {
+                    //disconnect();
+
+                // mi updeta il messaggio di exception nelle varie scene. IN lobby non serve in quanto non abbiamo possibilità di exception
+
+            }
+            default -> updateLogin();
+
+            //TODO: parte di riconnessione
+        }
+        this.modelReference = model;
+        });
     }
 
+    @Override
+    public void disconnect() {
+
+    }
 
 
     private BorderPane createNicknameRoot() {
@@ -162,14 +213,15 @@ public class GUIView extends Application implements ViewType {
                 return;
             }
 
-            String netProtocol = connectionTypeBox.getValue();
-
-            if (netProtocol == null) {
-                errorLabel.setText("Seleziona un tipo di connessione.");
-                return;
-            }
+            String netProtocol = connectionTypeBox.getValue().toLowerCase();
 
             connect(insertedNickname, netProtocol, insertedIp, insertedPort);
+            System.out.println("Trying connect:");
+            System.out.println("protocol = " + netProtocol);
+            System.out.println("ip = " + insertedIp);
+            System.out.println("port = " + insertedPort);
+            System.out.println("nickname = " + insertedNickname);
+
 
         });
 
@@ -213,6 +265,7 @@ public class GUIView extends Application implements ViewType {
                 errorLabel
         );
 
+        root.setCenter(loginBox);
         return root;
     }
 
@@ -227,14 +280,15 @@ public class GUIView extends Application implements ViewType {
     }
 
 
-    private void updateLogin(){
-        if(modelReference.getHomePlayer() != null){ // login succesful
-            showGameChoiceScene();
-        } else{
-         Label error = (Label) loginBox.getChildren().getLast();
-         error.setText(modelReference.getMessage());
-        }
+    private void updateLogin() {
+        if (modelReference == null || loginBox == null) return;
 
+        if (modelReference.getHomePlayer() != null) {
+            showGameChoiceScene();
+        } else {
+            Label error = (Label) loginBox.getChildren().getLast();
+            error.setText(modelReference.getMessage());
+        }
     }
 
 
@@ -249,7 +303,7 @@ public class GUIView extends Application implements ViewType {
                     -fx-padding: 30;
     """);
 
-        Label title = new Label("HELLO, " + modelReference.getHomePlayer().getNickname() + " WELCOME TO MESOS");
+        Label title = new Label("HELLO WELCOME TO MESOS");
         title.
                 setStyle("""
 
@@ -366,6 +420,7 @@ public class GUIView extends Application implements ViewType {
                 title,
                 createBox,
                 joinBox,
+                totemBox,
                 errorLabel
         );
 
@@ -378,21 +433,35 @@ public class GUIView extends Application implements ViewType {
 
     //TODO: gestione colore già preso, devo verificare se marco ha inserito questo check nella gestione nuova
     private void updateChoiceScene(){
-        if(modelReference.getMessage().equals("\"Game with the specified ID does not exist\"")){ // Id non esistente --> la join non è andata a buon fine
+
+        if (gameChoiceScene == null)  // check per gli update che arrivano prima che la scena venga creata, così evitiamo errori di null pointer
+            return;
+
+        if(modelReference.getMessage().equals("Game with the specified ID does not exist")){ // Id non esistente --> la join non è andata a buon fine
             Label error = (Label) initialChoiceBox.getChildren().getLast();
             error.setText("Il game ID inserito non esiste, controlla di averlo scritto correttamente.");
 
         } else
-            showGameScene(); // se la create o join è andata a buon fine passo alla scena successiva
+            showLobbyScene(); // se la create o join è andata a buon fine passo alla scena successiva (lobby)
     }
 
 
+    private void showLobbyScene() {
+        if (lobbyScene == null) {
+            lobbyScene = new Scene(createLobbyRoot(), 1400, 900);
+        }
+
+        primaryStage.setTitle("Lobby");
+        primaryStage.setScene(lobbyScene);
+
+        updateLobbyTotems();
+    }
 
 
     private StackPane createLobbyRoot() {
-       lobbyRoot = new StackPane();
+        StackPane lobbyRoot = new StackPane();
 
-        ImageView background = new ImageView("C:/Users/matt0/IdeaProjects/IS26-AM14/src/main/resources/background/lobby.png"); // adding the bg
+        ImageView background = new ImageView("file:C:/Users/matt0/IdeaProjects/IS26-AM14/src/main/resources/background/lobby.png"); // adding the bg
 
         background.setPreserveRatio(false);
         background.fitWidthProperty().bind(lobbyRoot.widthProperty());
@@ -425,7 +494,7 @@ public class GUIView extends Application implements ViewType {
         -fx-effect: dropshadow(gaussian, black, 8, 0.8, 2, 2);
     """);
 
-        lobbyGameIdLabel = new Label("Game ID: -");
+        Label lobbyGameIdLabel = new Label("Game ID: -");
         lobbyGameIdLabel.setStyle("""
         -fx-text-fill: #ffd36b;
         -fx-font-size: 18;
@@ -433,7 +502,7 @@ public class GUIView extends Application implements ViewType {
         -fx-effect: dropshadow(gaussian, black, 6, 0.8, 1, 1);
     """);
 
-        lobbyMessageLabel = new Label("Waiting for players...");
+        Label lobbyMessageLabel = new Label("Waiting for players...");
         lobbyMessageLabel.setStyle("""
         -fx-text-fill: white;
         -fx-font-size: 16;
@@ -528,7 +597,18 @@ public class GUIView extends Application implements ViewType {
 
 
     private void connect(String chosenNickname, String netProtocol, String IP, String port) {
-        this.server = EntryPointFactory.connect(new String[]{netProtocol, IP, port, chosenNickname}, this);
+        try {
+            this.server = EntryPointFactory.connect(
+                    new String[]{netProtocol, IP, port, chosenNickname},
+                    this
+            );
+
+            System.out.println("Connection successful, server proxy = " + server);
+
+        } catch (Exception e) {
+            Label error = (Label) loginBox.getChildren().getLast();
+            error.setText(e.getMessage());
+        }
     }
 
 
@@ -556,10 +636,13 @@ public class GUIView extends Application implements ViewType {
 
 
 
-    private void gameCreation(){
+    private void gameCreation() {
 
+        if (gameScene == null) {
+            createGameScene();
+        }
 
-
+        showGameScene();
     }
 
 
@@ -577,7 +660,7 @@ public class GUIView extends Application implements ViewType {
     private void createGameScene() {
         BorderPane root = new BorderPane();
 
-        Image backgroundImage = new Image("C:/Users/matt0/IdeaProjects/IS26-AM14/src/main/resources/background/game.jpeg");
+        Image backgroundImage = new Image("file:C:/Users/matt0/IdeaProjects/IS26-AM14/src/main/resources/background/game.jpeg");
 
         BackgroundImage bgImage = new BackgroundImage(
                 backgroundImage,
@@ -607,33 +690,37 @@ public class GUIView extends Application implements ViewType {
     }
 
     private VBox createTop() {
-        VBox top = new VBox(10);
-        top.setStyle("-fx-background-color: rgb(255,0,0); -fx-padding: 15;");
+        topBox = new VBox(10);
+        topBox.setStyle("-fx-background-color: rgb(255,0,0); -fx-padding: 15;");
 
         serverMessage = new Label();
         serverMessage.setStyle("-fx-text-fill: #ffffff; -fx-font-size: 10;");
 
-        top.getChildren().add(serverMessage);
+        topBox.getChildren().add(serverMessage);
 
         updateTop();
-        return top;
+        return topBox;
     }
 
     private void updateTop(){
-        serverMessage.setText(modelReference.getMessage());
+        if (topBox != null) serverMessage.setText(modelReference.getMessage()); //check per gli update che arrivano prima che la scena venga creata, così evitiamo errori di null pointer
     }
 
 
     private StackPane createCenter() {
         StackPane centerWrapper = new StackPane();
         centerWrapper.setStyle("-fx-background-color: transparent;");
-        ImageView deck =  new ImageView("C:/Users/matt0/IdeaProjects/IS26-AM14/src/main/resources/deck/1.png"); // check
-        ImageView turnOrderCard = new ImageView("C:/Users/matt0/IdeaProjects/IS26-AM14/src/main/resources/turnOrderCards" +modelReference.getNumPlayers() + ".png");
+        ImageView deck =  new ImageView("file:C:/Users/matt0/IdeaProjects/IS26-AM14/src/main/resources/deck/1.png"); // check
+        ImageView turnOrderCard = new ImageView(
+                "file:C:/Users/matt0/IdeaProjects/IS26-AM14/src/main/resources/turnOrderCards/"
+                        + modelReference.getNumPlayers()
+                        + ".png"
+        );
         ArrayList<Character> trackCards = modelReference.getOffersPath();
 
-        centerBoard = new VBox(25);
-        centerBoard.setAlignment(Pos.CENTER);
-        centerBoard.setStyle("-fx-padding: 30;");
+        centerBox = new VBox(25);
+        centerBox.setAlignment(Pos.CENTER);
+        centerBox.setStyle("-fx-padding: 30;");
 
         HBox row0 = createCardRow(); // top deckable row
         HBox row1 = createCardRow(); // top building row
@@ -648,20 +735,21 @@ public class GUIView extends Application implements ViewType {
             offersPath.getChildren().add(trackCard);
         }
 
-        centerBoard.getChildren().addAll(row0, row1, row2, row3, offersPath, deck); // we add the 4 rows of the board, the offersPath and the deck to the centerBoard
-        centerWrapper.getChildren().add(centerBoard); // we add the vbox created to the stackPane
+        centerBox.getChildren().addAll(row0, row1, row2, row3, offersPath, deck); // we add the 4 rows of the board, the offersPath and the deck to the centerBoard
+        centerWrapper.getChildren().add(centerBox); // we add the vbox created to the stackPane
 
-        updateCards(); // we update all the boxes with the cards from the board
+        updateBoard(); // we update all the boxes with the cards from the board
         return centerWrapper;
 
     }
 
 
-    private void updateCards() {
+    private void updateBoard() {
+
         ArrayList<ArrayList<Integer>> currentBoard = modelReference.getBoard();
 
-        for (int i = 0; i < centerBoard.getChildren().size() - 2; i++) { // -1 in quanto la board riguarda solo le carte delle prime 4 row ( non riguarda la track card e turn order card)
-            HBox box = (HBox) centerBoard.getChildren().get(i); // fatto cast forzato perché sappiamo che i figli di centerBoard sono tutti HBox
+        for (int i = 0; i < centerBox.getChildren().size() - 2; i++) { // -1 in quanto la board riguarda solo le carte delle prime 4 row ( non riguarda la track card e turn order card)
+            HBox box = (HBox) centerBox.getChildren().get(i); // fatto cast forzato perché sappiamo che i figli di centerBoard sono tutti HBox
             box.getChildren().clear(); // we clear the actual cards in the box
 
             for (Integer cardId : currentBoard.get(i)) {
@@ -671,9 +759,9 @@ public class GUIView extends Application implements ViewType {
             // for each Hbox of the centerBoard we update its cards
         }
 
-        centerBoard.getChildren().removeLast();
-        ImageView deck = new ImageView("C:/Users/matt0/IdeaProjects/IS26-AM14/src/main/resources/deck/" + modelReference.getAge() + ".png");
-        centerBoard.getChildren().add(deck);// we update the deck with the image of the  new era
+        centerBox.getChildren().removeLast();
+        ImageView deck = new ImageView("file:C:/Users/matt0/IdeaProjects/IS26-AM14/src/main/resources/deck/" + modelReference.getAge() + ".png");
+        centerBox.getChildren().add(deck);// we update the deck with the image of the  new era
 
     }
 
@@ -696,8 +784,6 @@ public class GUIView extends Application implements ViewType {
 
 
 
-
-
     private VBox createBottom() {
 
         // the bottom of the screen is divided in two parts, the first part is for the home player and the second part is for the other players.
@@ -713,6 +799,7 @@ public class GUIView extends Application implements ViewType {
         VBox myPlayerPanel = createMyPlayerPanel();
         HBox otherPlayersPanel = new HBox(10);
         otherPlayersPanel.setAlignment(Pos.CENTER_LEFT);
+
 
         for (ClientPlayer player : modelReference.getOtherPlayers()) {
             otherPlayersPanel.getChildren().add(createOtherPlayerPanel(player.getNickname()));
@@ -738,10 +825,12 @@ public class GUIView extends Application implements ViewType {
         Label name = new Label(modelReference.getHomePlayer().getNickname());
         name.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
 
-        HBox myTribe = new HBox(8);
-        updateHomeTribe(myTribe);
 
-        ScrollPane scroll = new ScrollPane(myTribe);
+        homeTribeBox = new HBox(8);
+        homeTribeBox.setAlignment(Pos.CENTER_LEFT);
+        updateHomeTribe(homeTribeBox);
+
+        ScrollPane scroll = new ScrollPane(homeTribeBox);
         scroll.setFitToHeight(true); // putting it to true , the scrollpane will adjust its height to the content, so it will not have a fixed height and it will grow as the content grows
         scroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED); // it will show the scrollbar only when the content exceeds the width of the scrollpane.
         scroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER); // we don't want a vertical scrollbar
@@ -774,6 +863,7 @@ public class GUIView extends Application implements ViewType {
         tribePreview.setHgap(5);
         tribePreview.setVgap(5);
         tribePreview.setPrefColumns(8);
+        awayTribePanes.put(playerName, tribePreview);
 
         updateAwayTribe(tribePreview, playerName);
         panel.getChildren().addAll(name, tribePreview);
@@ -782,7 +872,20 @@ public class GUIView extends Application implements ViewType {
     }
 
 
-    public void updateHomeTribe (HBox tribe){
+
+    // update method which we call every time we have an update from a pickEvent
+    private void updateTribes() {
+        if (homeTribeBox != null) {
+            updateHomeTribe(homeTribeBox);
+        }
+
+        for (Map.Entry<String, TilePane> entry : awayTribePanes.entrySet()) {
+            updateAwayTribe(entry.getValue(), entry.getKey());
+        }
+    }
+
+
+    private void updateHomeTribe (HBox tribe){
 
         tribe.getChildren().clear(); // cleaning the tribe
         ArrayList<Integer> playerTribe = new ArrayList<>(modelReference.getHomePlayer().getPlayerTribe().stream().sorted(Integer::compareTo).toList());
@@ -797,7 +900,7 @@ public class GUIView extends Application implements ViewType {
     }
 
 
-    public void updateAwayTribe ( TilePane tribe, String playerName){
+    private void updateAwayTribe ( TilePane tribe, String playerName){
 
         tribe.getChildren().clear(); // cleaning the tribe
 
@@ -893,12 +996,12 @@ public class GUIView extends Application implements ViewType {
 
         Map<StatType, Label> labels = new HashMap<>();  // here we create the map linked to the player
 
-        addStat(grid, labels, StatType.FOOD, "C:/Users/matt0/IdeaProjects/IS26-AM14/src/main/resources/stats/food.png", 0, 0);
-        addStat(grid, labels, StatType.AXE, "C:/Users/matt0/IdeaProjects/IS26-AM14/src/main/resources/stats/buildingDiscount.png", 0, 2);
-        addStat(grid, labels, StatType.PRESTIGE, "C:/Users/matt0/IdeaProjects/IS26-AM14/src/main/resources/stats/prestige.png", 0, 4);
+        addStat(grid, labels, StatType.FOOD, "file:C:/Users/matt0/IdeaProjects/IS26-AM14/src/main/resources/stats/food.png", 0, 0);
+        addStat(grid, labels, StatType.AXE, "file:C:/Users/matt0/IdeaProjects/IS26-AM14/src/main/resources/stats/buildingDiscount.png", 0, 2);
+        addStat(grid, labels, StatType.PRESTIGE, "file:C:/Users/matt0/IdeaProjects/IS26-AM14/src/main/resources/stats/prestige.png", 0, 4);
 
-        addStat(grid, labels, StatType.STARS, "C:/Users/matt0/IdeaProjects/IS26-AM14/src/main/resources/stats/stars.png", 1, 0);
-        addStat(grid, labels, StatType.BOWL, "C:/Users/matt0/IdeaProjects/IS26-AM14/src/main/resources/stats/gatheringDiscount.png", 1, 2);
+        addStat(grid, labels, StatType.STARS, "file:C:/Users/matt0/IdeaProjects/IS26-AM14/src/main/resources/stats/stars.png", 1, 0);
+        addStat(grid, labels, StatType.BOWL, "file:C:/Users/matt0/IdeaProjects/IS26-AM14/src/main/resources/stats/gatheringDiscount.png", 1, 2);
 
         playerStatLabels.put(playerName, labels);  // here we put the updated map linked to the player in the map with all the playerStats
 
@@ -962,7 +1065,7 @@ public class GUIView extends Application implements ViewType {
 
 
     private ImageView createDeckCard(int id){
-        ImageView card = new ImageView("C:/Users/matt0/IdeaProjects/IS26-AM14/src/main/resources/cardsFront/" + id + ".jpg");
+        ImageView card = new ImageView("file:C:/Users/matt0/IdeaProjects/IS26-AM14/src/main/resources/cardsFront/" + id + ".jpg");
         card.setFitWidth(110);
         card.setFitHeight(165);
         card.setPreserveRatio(true);
@@ -971,7 +1074,7 @@ public class GUIView extends Application implements ViewType {
     }
 
     private ImageView createHomeTribeCard(int id){
-        ImageView card = new ImageView("C:/Users/matt0/IdeaProjects/IS26-AM14/src/main/resources/cardsFront/" + id + ".jpg");
+        ImageView card = new ImageView("file:C:/Users/matt0/IdeaProjects/IS26-AM14/src/main/resources/cardsFront/" + id + ".jpg");
         card.setFitWidth(70);
         card.setFitHeight(105);
         card.setPreserveRatio(true);
@@ -980,7 +1083,7 @@ public class GUIView extends Application implements ViewType {
     }
 
     private ImageView createAwayTribeCard(int id){
-        ImageView card = new ImageView("C:/Users/matt0/IdeaProjects/IS26-AM14/src/main/resources/cardsFront/" + id + ".jpg");
+        ImageView card = new ImageView("file:C:/Users/matt0/IdeaProjects/IS26-AM14/src/main/resources/cardsFront/" + id + ".jpg");
         card.setFitWidth(50);
         card.setFitHeight(75);
         card.setPreserveRatio(true);
@@ -991,7 +1094,7 @@ public class GUIView extends Application implements ViewType {
 
 
     private ImageView createTrackCard(char name){
-        ImageView card = new ImageView("C:/Users/matt0/IdeaProjects/IS26-AM14/src/main/resources/trackCards/" + name + ".jpg");
+        ImageView card = new ImageView("file:C:/Users/matt0/IdeaProjects/IS26-AM14/src/main/resources/trackCards/" + name + ".jpg");
         card.setFitWidth(120);
         card.setFitHeight(180);
         return card;
@@ -999,7 +1102,7 @@ public class GUIView extends Application implements ViewType {
 
 
     private ImageView createLobbyTotem(String totemColor) {
-        ImageView totem = new ImageView("C:/Users/matt0/IdeaProjects/IS26-AM14/src/main/resources/totem/" + totemColor+ ".png");
+        ImageView totem = new ImageView("file:C:/Users/matt0/IdeaProjects/IS26-AM14/src/main/resources/totem/" + totemColor+ ".png");
 
         totem.setFitWidth(220);
         totem.setPreserveRatio(true);

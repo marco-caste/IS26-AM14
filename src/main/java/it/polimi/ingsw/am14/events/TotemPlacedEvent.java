@@ -46,7 +46,7 @@ public class TotemPlacedEvent extends UpdateEvent {
         model.setMessage(description);
         model.updatePlayerPosition(playerNickname, trackCardName);
         model.removePlayerFromTurnOrderCard(removedTotemIndex);
-        model.notifyObservers();
+        model.notifyObservers("positionUpdate");
     }
 
 }

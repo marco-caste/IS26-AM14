@@ -1,6 +1,8 @@
 package it.polimi.ingsw.am14;
 
+import it.polimi.ingsw.am14.view.GUIView;
 import it.polimi.ingsw.am14.view.TUIView;
+import javafx.application.Application;
 
 import java.io.IOException;
 
@@ -21,7 +23,7 @@ public class ClientLauncher {
 //                    grateful shutdown...
                 }
             } else if (mode.equalsIgnoreCase("gui")) {
-                // GUI viewType = GUI
+                Application.launch(GUIView.class, args);
             } else {
                 // TODO: ERROR
             }

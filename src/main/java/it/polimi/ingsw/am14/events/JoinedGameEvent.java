@@ -78,7 +78,7 @@ public class JoinedGameEvent extends ServerEvent {
         model.setTurnOrderCardIndex(turnOrderCardIndex);
         model.setNumPlayers(numPlayers);
         model.setBoard(board);
-        model.notifyObservers(); // we notify the player view
+        model.notifyObservers("lobbyUpdate"); // we notify the player view
     }
 
     /*

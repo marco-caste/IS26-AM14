@@ -111,6 +111,6 @@ public class CardPickedEvent extends UpdateEvent {
             model.updatePickPlayerStats(playerNickname, playerFood, playerPrestigePoints, playerBuildingDiscount, playerGatheringDiscount, playerNumStars);
         }
         model.setPlayerOrderInTurnOrderCard(updatedTurnOrderCard);
-        model.notifyObservers();
+        model.notifyObservers("pickUpdate");
     }
 }

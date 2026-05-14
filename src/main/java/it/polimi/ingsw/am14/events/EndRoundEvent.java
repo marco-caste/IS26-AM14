@@ -88,12 +88,12 @@ public class EndRoundEvent extends UpdateEvent {
     }
 
     @Override
-    public void effect(ClientModel model) {
+    public void effect(ClientModel model ) {
         model.setBoard(board);
         model.updatePlayerRoundAttributes(playersAttributes);
         model.setMessage(description);
         model.updateAge(currentAge);
-        model.notifyObservers();
+        model.notifyObservers("endRound");
     }
 
 

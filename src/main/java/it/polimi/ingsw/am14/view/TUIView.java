@@ -138,7 +138,7 @@ public class TUIView implements ViewType {
     }
 
     @Override
-    public void update(ClientModel model) {
+    public void update(ClientModel model, String eventChoice) {
 
         if (model != null && this.modelReference == null)
             this.modelReference = model;
@@ -150,7 +150,7 @@ public class TUIView implements ViewType {
     @Override
     public void disconnect() {
         server = null;
-        this.update(null);
+        this.update(null, "");
     }
 
     private void show(String[] args) throws IllegalArgumentException{

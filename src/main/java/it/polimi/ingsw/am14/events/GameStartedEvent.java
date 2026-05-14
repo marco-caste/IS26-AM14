@@ -61,7 +61,7 @@ public class GameStartedEvent extends ServerEvent {
             player.setNumPrestigePoints(0);
             player.setPlayerPosition(null);
         }
-        model.notifyObservers();
+        model.notifyObservers("gameStart");
     }
 
     public void bufferize(NetworkLayer networkLayer) {

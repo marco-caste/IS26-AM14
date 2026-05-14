@@ -14,6 +14,6 @@ public class ExceptionEvent extends Event {
 
     public void effect(ClientModel model) {
         model.setMessage(description);
-        model.notifyObservers();
+        model.notifyObservers("exception");
     }
 }

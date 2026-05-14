@@ -32,7 +32,7 @@ public class SocketClient {
                 runVirtualServer(); // listener
             } catch (SocketTimeoutException e) {
                 model.setMessage("[Client] Network error: server is not responding. try to reconnect later.\nShutting down connection...");
-                model.disconnect();
+                //model.disconnect();
                 try {
                     socket.close();
                 } catch (IOException ex) {

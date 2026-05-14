@@ -126,7 +126,7 @@ public class RmiClient extends UnicastRemoteObject implements VirtualClientRmi, 
                 if (now - lastPingReceived > PING_TIMEOUT) {
                     // timeout expired, disconnect from server and notify the view
                     model.setMessage("[Client] Network error: server is not responding. Try to reconnect later.\nShutting down connection...");
-                    model.disconnect();
+                    //model.disconnect();
                 }
             } catch (InterruptedException e) {
                 throw new RuntimeException(e.getMessage());
