@@ -95,6 +95,7 @@ public class CardPickedEvent extends UpdateEvent {
         this.playerBuildingDiscount = playerBuildingDiscount;
     }
 
+    @Override
     public void bufferize(NetworkLayer networkLayer) {
         networkLayer.broadcastUpdate(this, gameId);
     }
@@ -111,6 +112,7 @@ public class CardPickedEvent extends UpdateEvent {
             model.updatePickPlayerStats(playerNickname, playerFood, playerPrestigePoints, playerBuildingDiscount, playerGatheringDiscount, playerNumStars);
         }
         model.setPlayerOrderInTurnOrderCard(updatedTurnOrderCard);
+        //TODO: dobbiamo aggiornare anche la posizione nelle trackCard? o facciamo tutto a fine turno lasciando lo spostamento delle pedine a endROund? Secondo me andrebbe fatto quando un player ha terminato di pickare
         model.notifyObservers("pickUpdate");
     }
 }
