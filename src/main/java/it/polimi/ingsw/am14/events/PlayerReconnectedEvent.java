@@ -1,13 +1,16 @@
 package it.polimi.ingsw.am14.events;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import it.polimi.ingsw.am14.clientModel.ClientModel;
+import it.polimi.ingsw.am14.clientModel.ClientPlayer;
 import it.polimi.ingsw.am14.model.boardComponents.Board;
 import it.polimi.ingsw.am14.model.cards.Card;
+import it.polimi.ingsw.am14.model.gameLogic.Player;
 import it.polimi.ingsw.am14.network.NetworkLayer;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static it.polimi.ingsw.am14.utils.Constants.*;
@@ -19,11 +22,11 @@ public class PlayerReconnectedEvent extends ServerEvent {
     private final int turnOrderCardIndex;
     private final int numPlayers;
     private final ArrayList<ArrayList<Integer>> board;
-    @JsonIgnore
-    private String playerNickname;
+    private final String playerNickname;
+    private final ArrayList<ClientPlayer> players;
 
-    public PlayerReconnectedEvent(String playerNickname, int gameId, final Board initialBoard, int numPlayers) {
-        super("");
+    public PlayerReconnectedEvent(String playerNickname, int gameId, final Board initialBoard, int numPlayers, List<Player> players) {
+        super("Player \"" + playerNickname + "\" has re-established their connection to game [" + gameId + "].");
         this.playerNickname = playerNickname;
         this.gameId = gameId;
         this.turnOrderCardIndex = numPlayers - 2;
@@ -52,7 +55,8 @@ public class PlayerReconnectedEvent extends ServerEvent {
                         .map(Card::getId)
                         .collect(Collectors.toCollection(ArrayList::new))
         );
-        this.description = "Player \"" + playerNickname + "\" has re-established their connection to game [" + gameId + "].";
+
+        this.players = new ArrayList<ClientPlayer>(numPlayers);
     }
 
     @JsonCreator
@@ -61,12 +65,16 @@ public class PlayerReconnectedEvent extends ServerEvent {
             @JsonProperty("gameId") int gameId,
             @JsonProperty("turnOrderCardIndex") int turnOrderCardIndex,
             @JsonProperty("numPlayers") int numPlayers,
-            @JsonProperty("board") ArrayList<ArrayList<Integer>> board) {
+            @JsonProperty("playerNickname") String playerNickname,
+            @JsonProperty("board") ArrayList<ArrayList<Integer>> board,
+            @JsonProperty("players") ArrayList<ClientPlayer> players) {
         super(description);
         this.gameId = gameId;
         this.turnOrderCardIndex = turnOrderCardIndex;
         this.numPlayers = numPlayers;
+        this.playerNickname = playerNickname;
         this.board = board;
+        this.players = players;
     }
 
     @Override
@@ -74,5 +82,12 @@ public class PlayerReconnectedEvent extends ServerEvent {
         network.addToEventBuffer(network.getClientBy(playerNickname), this);
     }
 
-    // TODO: da fare effect
+    @Override
+    public void effect(ClientModel model) {
+        model.setMessage(description);
+        if (model.getHomePlayer() == null) {
+            model.setHomePlayer(new ClientPlayer(playerNickname));
+        }
+        model.notifyObservers("playerReconnected");
+    }
 }

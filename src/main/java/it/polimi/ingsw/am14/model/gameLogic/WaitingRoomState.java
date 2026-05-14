@@ -19,7 +19,8 @@ class WaitingRoomState extends GameState {
         // observer pattern: sends event to event buffer
         game.notifyObservers(
                 new JoinedGameEvent(
-                        nickname,
+                        p,
+                        game.getPlayers(),
                         game.getGameId(),
                         game.getBoard(),
                         game.getNumPlayers()

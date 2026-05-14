@@ -8,23 +8,21 @@ import it.polimi.ingsw.am14.network.NetworkLayer;
 import it.polimi.ingsw.am14.network.VirtualClient;
 
 public class PlayerDisconnectedEvent extends ServerEvent{
-    private final String nickname;
+    @JsonIgnore
+    private String nickname;
     @JsonIgnore
     private int gameId;
 
     public PlayerDisconnectedEvent(String nickname, int gameId) {
-        super("");
+        super("Player " + nickname + " disconnected");
         this.nickname = nickname;
-        this.description = "Player " + nickname + " disconnected";
         this.gameId = gameId;
     }
 
     @JsonCreator
     public PlayerDisconnectedEvent(
-            @JsonProperty("description") String description,
-            @JsonProperty("nickname") String nickname) {
+            @JsonProperty("description") String description) {
         super(description);
-        this.nickname = nickname;
     }
 
     @Override
@@ -44,6 +42,8 @@ public class PlayerDisconnectedEvent extends ServerEvent{
 
     @Override
     public void effect(ClientModel model) {
+        model.setMessage(description);
 
+        model.notifyObservers("userDisconnected");
     }
 }
