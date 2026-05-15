@@ -4,6 +4,12 @@ import it.polimi.ingsw.am14.network.NetworkLayer;
 import it.polimi.ingsw.am14.controller.LobbyController;
 import it.polimi.ingsw.am14.network.rmi.RmiServerLauncher;
 import it.polimi.ingsw.am14.network.socket.SocketServerLauncher;
+import it.polimi.ingsw.am14.utils.JsonCodec;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import static it.polimi.ingsw.am14.utils.Constants.PING_INTERVAL;
 import static it.polimi.ingsw.am14.utils.Constants.PING_TIMEOUT;
@@ -24,8 +30,22 @@ public class ServerLauncher {
 
         // costruzione degli oggetti tecnici
         NetworkLayer networkLayer = new NetworkLayer();
-        LobbyController lobbyController = new LobbyController(networkLayer);
+        LobbyController lobbyController;
 
+        Path savePath = Path.of("src/main/Saves/save.json");
+
+
+        if (Files.exists(savePath)) {
+            JsonCodec jsonCodec = new JsonCodec();
+            lobbyController = jsonCodec.readSaveData("src/main/Saves/save.json");
+            try {
+                Files.delete(savePath);
+            } catch (IOException e) {
+                throw new RuntimeException("Error while deleting save data: " + e.getMessage());
+            }
+        } else {
+            lobbyController = new LobbyController(networkLayer);
+        }
 
         Object[] technicalObjects = {
                 lobbyController,

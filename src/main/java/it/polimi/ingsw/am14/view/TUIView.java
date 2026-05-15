@@ -2,10 +2,6 @@ package it.polimi.ingsw.am14.view;
 
 import it.polimi.ingsw.am14.network.EntryPointFactory;
 import it.polimi.ingsw.am14.network.VirtualServer;
-import it.polimi.ingsw.am14.network.rmi.RmiClientLauncher;
-import it.polimi.ingsw.am14.network.rmi.client.RmiClient;
-import it.polimi.ingsw.am14.network.socket.SocketClientLauncher;
-import it.polimi.ingsw.am14.network.socket.client.VirtualServerSocket;
 import it.polimi.ingsw.am14.clientModel.ClientModel;
 import org.jline.reader.*;
 import org.jline.reader.impl.completer.StringsCompleter;
@@ -140,8 +136,21 @@ public class TUIView implements ViewType {
     @Override
     public void update(ClientModel model, String eventChoice) {
 
-        if (model != null && this.modelReference == null)
+        if (model != null && this.modelReference == null) {
             this.modelReference = model;
+            this.chosenNickname = model.getHomePlayer();
+            if (chosenNickname.equalsIgnoreCase("marcob")) {
+                lineReader.printAbove("Porterai minecreft?");
+                return;
+            }
+            try {
+                // starts sending pings to the server to keep the connection alive and detect disconnections
+                this.server.pingServer(chosenNickname);
+            } catch (Exception e) {
+                lineReader.printAbove("[Client] A network error occurred while sending your request\nDetails: " + e.getMessage());
+                return;
+            }
+        }
         // SOLUZIONE: reader.printAbove(model.getDescription());
         // allows to print a received message above the current prompt, avoiding the race conditions on writer (?)
         lineReader.printAbove("[Server]: " + this.modelReference.getMessage() + "\nBoard:\n" + this.modelReference.getBoard().toString());
@@ -150,6 +159,7 @@ public class TUIView implements ViewType {
     @Override
     public void disconnect() {
         server = null;
+        // TODO: thread.interrupt sul pinger.
         this.update(null, "");
     }
 
@@ -244,8 +254,8 @@ public class TUIView implements ViewType {
         terminal.flush();
         String IP = lineReader.readLine("IP: ");
         String port = lineReader.readLine("Port: ");
-        chosenNickname = lineReader.readLine("Nickname: ").trim();
-        this.server = EntryPointFactory.connect(new String[]{args[1], IP, port, chosenNickname}, this);
+        String nick = lineReader.readLine("Nickname: ").trim();
+        this.server = EntryPointFactory.connect(new String[]{args[1], IP, port, nick}, this);
         writer.println("Client launched successfully!");
         writer.println("Connecting to server...");
         terminal.flush();

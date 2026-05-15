@@ -54,7 +54,6 @@ public class RmiClient extends UnicastRemoteObject implements VirtualClientRmi, 
         try {
             this.server = (VirtualServerRmi) registry.lookup(serverName);
             server.connect(this, nickname);
-            this.pingServer(nickname);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }

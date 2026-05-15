@@ -20,8 +20,8 @@ public class ClientModel {
             );
 
     List<ViewType> observers;
-    ClientPlayer homePlayer ;
-    ArrayList<ClientPlayer> otherPlayers ;
+    ClientPlayer homePlayer;
+    ArrayList<ClientPlayer> otherPlayers;
     ArrayList<String> playerOrderInTurnOrderCard;
     ArrayList<ArrayList<Integer>> board;
     int turnOrderCardIndex; // it's needed to build the right TurnorderCard in the view, it depends on this index.
@@ -42,7 +42,7 @@ public class ClientModel {
         this.message = "";
     }
 
-    //OBSERVER METHODS
+    //Observer methods
     public void registerObserver(ViewType view) {
         observers.add(view);
     }
@@ -139,6 +139,10 @@ public class ClientModel {
         this.homePlayer = homePlayer;
     }
 
+    public void setOtherPlayers(ArrayList<ClientPlayer> otherPlayers) {
+        this.otherPlayers = otherPlayers;
+    }
+
     public void setBoard(ArrayList<ArrayList<Integer>> board) {
         this.board = board;
     }
@@ -215,16 +219,16 @@ public class ClientModel {
         this.playerOrderInTurnOrderCard.set(index, null);
     }
 
-    public void clearGame() {
+    public void disconnect() {
         this.homePlayer = null;
-        this.otherPlayers.clear();
-        this.playerOrderInTurnOrderCard.clear();
-        this.board.clear();
+        this.otherPlayers = new ArrayList<>();
+        this.playerOrderInTurnOrderCard = new ArrayList<>();
+        this.board = new ArrayList<>();
         this.turnOrderCardIndex = 0;
         this.gameId = -1;
         this.numPlayers = 0;
+        for (ViewType observer : observers) {
+            observer.disconnect();
+        }
     }
-
-
-
 }
