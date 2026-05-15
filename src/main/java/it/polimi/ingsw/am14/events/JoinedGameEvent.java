@@ -61,7 +61,7 @@ public class JoinedGameEvent extends ServerEvent {
 
         this.otherPlayersInfo = players.stream()
                 .filter(p -> !p.getNickname().equals(playerNickname))
-                .collect(Collectors.toMap(Player::getNickname, p -> p.getTotemColor().name()));
+                .collect(Collectors.toMap(Player::getNickname, p -> p.getTotemColor().toString()));
     }
 
     @JsonCreator
@@ -95,6 +95,7 @@ public class JoinedGameEvent extends ServerEvent {
             model.setTurnOrderCardIndex(turnOrderCardIndex);
             model.setNumPlayers(numPlayers);
             model.setBoard(board);
+            model.setHomePlayerTotemColor(totemColor);
             otherPlayersInfo.forEach((nickname, color) -> {
                 ClientPlayer player = new ClientPlayer(nickname);
                 player.setTotemColor(color);
@@ -107,7 +108,7 @@ public class JoinedGameEvent extends ServerEvent {
             model.addPlayer(new ClientPlayer(playerNickname));
             model.getPlayerByNickname(playerNickname).setTotemColor(totemColor);
         }
-        model.notifyObservers("lobbyUpdate"); // we notify the player view
+        model.notifyObservers("gameChoice"); // we notify the player view
     }
 
     /*

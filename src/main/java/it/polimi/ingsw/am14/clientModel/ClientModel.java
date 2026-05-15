@@ -8,6 +8,10 @@ import java.util.Map;
 
 public class ClientModel {
 
+    //TODO: conviene aggiugnere un array di tutti i clientPlayers in modo ogni volta nella gui di fare una add dell'home a otherPlayers per avere un array di tutti i player
+    //TODO: aggiungere l'offersPath come mappa di character- String(nickname), in quanto utilizzando la posizione nel clientPlayuer è scomodo
+    //TODO: fatti questi aggionamenti cambiare la gui
+
     Map<Integer, List<Character>> offersPath = Map.of(
             2, List.of('B','C','E','F'),
             3, List.of('B','C','D','E','F'),
@@ -100,6 +104,14 @@ public class ClientModel {
         return this.otherPlayers;
     }
 
+    public int getGameId(){
+        return this.gameId;
+    }
+
+    public int getPlayerPositionInTurnOrderCard(String nickname){
+        return playerOrderInTurnOrderCard.indexOf(nickname);
+        // se non presente indexOf ritorna -1
+    }
 
 
     //SETTERS
@@ -130,6 +142,11 @@ public class ClientModel {
     public void setBoard(ArrayList<ArrayList<Integer>> board) {
         this.board = board;
     }
+
+    public void setHomePlayerTotemColor(String totemColor){
+        homePlayer.setTotemColor(totemColor);
+    }
+
 
 
 
@@ -207,4 +224,7 @@ public class ClientModel {
         this.gameId = -1;
         this.numPlayers = 0;
     }
+
+
+
 }

@@ -6,20 +6,30 @@ import it.polimi.ingsw.am14.model.gameLogic.TotemColor;
 import it.polimi.ingsw.am14.network.EntryPointFactory;
 import it.polimi.ingsw.am14.network.VirtualServer;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
-import javafx.application.Platform;
 
 import java.io.IOException;
 import java.util.*;
 
-// TODO: problemi con il clientmodel in fase di login
+// TODO: salviamo il nickname qui nella gui , in quanto chiamo tante volte il metodo getHomePlayernickname???
+
+//TODO 15/05 fatto tutto, manca : aggiornamento posizione del player sulla trackCard quando finito a picakare --> mettere playeer position a null ( gestione nell gui ok , va fatta nell'evento)
+// controllare l'update stats che non funziona perfettamente
+// creare la scena di fine partita
+// chiedere a lorenzo di ritagliare i totem che dopo varie prove dovrebbero essere centrati bene
+
+// TODO: opzionale per LAB
+// finire sempre a definire il design grafico del login, game choiche e lobby con i i tre totem a sx leggermente decentrati
+
 
 public class GUIView extends Application implements ViewType {
 
@@ -28,8 +38,6 @@ public class GUIView extends Application implements ViewType {
     private VirtualServer server;
     private Stage primaryStage;
 
-    //TODO: fatto per prova al posto del getter sul model
-
     private Scene gameChoiceScene;
     private Scene lobbyScene;
     private Scene gameScene;
@@ -37,11 +45,25 @@ public class GUIView extends Application implements ViewType {
     private VBox loginBox;
     private VBox initialChoiceBox;
 
-    private Label serverMessage;
 
-    private VBox centerBox;
+    //topGameScene
+    private Label serverMessage;
     private VBox topBox;
-    private ImageView deckView;
+
+    //centerGameScene
+    private HBox topCenterBox;
+    private HBox bottomCenterBox;
+    private HBox offersPathBox;
+
+    //TurnOrderCard + Totem managament
+    private static final double BOARD_CARD_WIDTH = 110;
+    private static final double BOARD_CARD_HEIGHT = 165;
+    private static final double SMALL_TOTEM_WIDTH = 26;
+    private static final double SMALL_TOTEM_HEIGHT = 36;
+    private boolean totemClicked = false; // it's needed to make the trackCards clickable (if the player has  clicked it's token)
+    private Map<Character,Pane> trackCardTotemLayers = new HashMap<>(); // we need to keep track of the panes with the totems on the track cards to update them when a new totem is placed or removed
+    private Pane turnOrderCardTotemLayer;
+
 
     private VBox playersStatsBox;
     private Pane lobbyTotemLayer;
@@ -78,36 +100,32 @@ public class GUIView extends Application implements ViewType {
 
     @Override
     public void update(ClientModel model, String eventChoice) {
+
         this.modelReference = model;
 
         System.out.println("GUI update received: " + eventChoice);
-        System.out.println("message = " + model.getMessage());
+        System.out.println(model.getHomePlayer().getNickname());
 
 
-        javafx.application.Platform.runLater(() -> {
+        Platform.runLater(() -> {
         switch (eventChoice) {
             case "login" -> updateLogin();
             case "gameChoice" -> updateChoiceScene();
             case "lobbyUpdate" -> updateLobbyTotems();
             case "gameStart" -> gameCreation();
-            case "pickUpdate" -> {
+            case "pickUpdate","endRound", "endGame" -> {
                 updateBoard();
                 updateTribes();
-                updateTop();
+                updateTop(modelReference.getMessage());
                 updatePlayerStats();
             }
             case "positionUpdate" -> {
-                updateBoard();
-                updateTop();
-            }
-            case "endRound", "endGame" -> {
-                updateBoard();
-                updateTop();
-                updatePlayerStats();
+                updateoffersPathBox();
+                updateTop(modelReference.getMessage());
             }
             //case "gameOver" -> showEndGameScene(); da fare ancora
             case "exception" -> {
-                    updateTop(); // controllo di esistenza della scena nei singoli metodi
+                    updateTop(modelReference.getMessage()); // controllo di esistenza della scena nei singoli metodi
                     updateChoiceScene();
                     updateLogin();
                 // verificare con Marco e Lorenzo
@@ -117,13 +135,14 @@ public class GUIView extends Application implements ViewType {
                 // mi updeta il messaggio di exception nelle varie scene. IN lobby non serve in quanto non abbiamo possibilità di exception
 
             }
-            default -> updateLogin();
 
             //TODO: parte di riconnessione
         }
         this.modelReference = model;
         });
     }
+
+
 
     @Override
     public void disconnect() {
@@ -133,6 +152,8 @@ public class GUIView extends Application implements ViewType {
 
     private BorderPane createNicknameRoot() {
         BorderPane root = new BorderPane();
+
+
 
         root.setStyle("""
         -fx-background-color: linear-gradient(to bottom, #2b1230, #5b1630);
@@ -216,6 +237,7 @@ public class GUIView extends Application implements ViewType {
             String netProtocol = connectionTypeBox.getValue().toLowerCase();
 
             connect(insertedNickname, netProtocol, insertedIp, insertedPort);
+
             System.out.println("Trying connect:");
             System.out.println("protocol = " + netProtocol);
             System.out.println("ip = " + insertedIp);
@@ -454,7 +476,7 @@ public class GUIView extends Application implements ViewType {
         primaryStage.setTitle("Lobby");
         primaryStage.setScene(lobbyScene);
 
-        updateLobbyTotems();
+
     }
 
 
@@ -470,9 +492,12 @@ public class GUIView extends Application implements ViewType {
         lobbyTotemLayer = new Pane();
         lobbyTotemLayer.setPickOnBounds(false);
 
+        updateLobbyTotems(); // inserisce i totem dei player presenti
+
         VBox topOverlay = createLobbyLabels();
 
         StackPane.setAlignment(topOverlay, Pos.TOP_CENTER);
+        StackPane.setMargin(topOverlay, new Insets(20, 0, 0, 0));
 
         lobbyRoot.getChildren().addAll(background, lobbyTotemLayer, topOverlay);
 
@@ -482,22 +507,28 @@ public class GUIView extends Application implements ViewType {
 
 
     private VBox createLobbyLabels() {
-        VBox box = new VBox(8);
+        VBox box = new VBox(6);
         box.setAlignment(Pos.CENTER);
-        box.setStyle("-fx-padding: 25;");
+
+        box.setMaxWidth(Region.USE_PREF_SIZE);
+        box.setMaxHeight(Region.USE_PREF_SIZE);
+
+        box.setStyle("""
+        -fx-padding: 10 0 0 0;
+    """);
 
         Label title = new Label("MESOS LOBBY");
         title.setStyle("""
         -fx-text-fill: white;
-        -fx-font-size: 42;
+        -fx-font-size: 38;
         -fx-font-weight: bold;
         -fx-effect: dropshadow(gaussian, black, 8, 0.8, 2, 2);
     """);
 
-        Label lobbyGameIdLabel = new Label("Game ID: -");
+        Label lobbyGameIdLabel = new Label("Game ID: 0");
         lobbyGameIdLabel.setStyle("""
         -fx-text-fill: #ffd36b;
-        -fx-font-size: 18;
+        -fx-font-size: 17;
         -fx-font-weight: bold;
         -fx-effect: dropshadow(gaussian, black, 6, 0.8, 1, 1);
     """);
@@ -505,7 +536,7 @@ public class GUIView extends Application implements ViewType {
         Label lobbyMessageLabel = new Label("Waiting for players...");
         lobbyMessageLabel.setStyle("""
         -fx-text-fill: white;
-        -fx-font-size: 16;
+        -fx-font-size: 15;
         -fx-effect: dropshadow(gaussian, black, 6, 0.8, 1, 1);
     """);
 
@@ -514,7 +545,6 @@ public class GUIView extends Application implements ViewType {
         return box;
     }
 
-
     private void updateLobbyTotems() {
         if (lobbyTotemLayer == null || modelReference == null) return;
 
@@ -522,48 +552,58 @@ public class GUIView extends Application implements ViewType {
 
         ArrayList<ClientPlayer> players = new ArrayList<>();
 
-        players.add(modelReference.getHomePlayer());
+        if (modelReference.getHomePlayer() != null) {
+            players.add(modelReference.getHomePlayer());
+        }
 
         if (modelReference.getOtherPlayers() != null) {
             players.addAll(modelReference.getOtherPlayers());
         }
 
         for (ClientPlayer player : players) {
+            if (player == null) continue;
+
+            String color = player.getTotemColor();
+
+            color = color.toLowerCase();
+
             VBox totemBox = createLobbyTotemBox(player);
-            placeTotemByColor(totemBox, player.getTotemColor());
+            placeTotemByColor(totemBox, color);
             lobbyTotemLayer.getChildren().add(totemBox);
         }
     }
 
     // metodo serve per adattare i totem quando andiamo a stringere la finestra, moltiplica il loro ratio per un x e y in base a come viene ridotta la finestra( commento in ita in quanto serve a me)
     private void placeTotemByColor(VBox node, String color) {
+        if (color == null) return;
+
         double xRatio;
         double yRatio;
 
-        switch (color) {
-            case "red"-> {
-                xRatio = 0.08;
-                yRatio = 0.38;
+        switch (color.toLowerCase()) {
+            case "red" -> {
+                xRatio = 0.065;
+                yRatio = 0.405;
             }
             case "yellow" -> {
-                xRatio = 0.24;
-                yRatio = 0.36;
+                xRatio = 0.235;
+                yRatio = 0.395;
             }
             case "blue" -> {
-                xRatio = 0.43;
-                yRatio = 0.38;
+                xRatio = 0.425;
+                yRatio = 0.415;
             }
             case "purple" -> {
-                xRatio = 0.61;
-                yRatio = 0.37;
+                xRatio = 0.600;
+                yRatio = 0.405;
             }
-            case "white"-> {
-                xRatio = 0.78;
-                yRatio = 0.36;
+            case "white" -> {
+                xRatio = 0.770;
+                yRatio = 0.395;
             }
             default -> {
                 xRatio = 0.45;
-                yRatio = 0.38;
+                yRatio = 0.40;
             }
         }
 
@@ -574,22 +614,27 @@ public class GUIView extends Application implements ViewType {
 
 
 
-
     private VBox createLobbyTotemBox(ClientPlayer player) {
-        VBox box = new VBox(6);
+        VBox box = new VBox(4);
         box.setAlignment(Pos.CENTER);
 
-        ImageView totem = createLobbyTotem(player.getTotemColor());
+        String color = player.getTotemColor();
+
+        if (color == null) {
+            return box;
+        }
 
         Label name = new Label(player.getNickname());
         name.setStyle("""
         -fx-text-fill: white;
-        -fx-font-size: 16;
+        -fx-font-size: 17;
         -fx-font-weight: bold;
-        -fx-effect: dropshadow(gaussian, black, 6, 0.8, 1, 1);
+        -fx-effect: dropshadow(gaussian, black, 7, 0.9, 1, 1);
     """);
 
-        box.getChildren().addAll(totem, name);
+        ImageView totem = createLobbyTotem(color.toLowerCase());
+
+        box.getChildren().addAll(name, totem);
 
         return box;
     }
@@ -653,6 +698,8 @@ public class GUIView extends Application implements ViewType {
 
 
 
+
+
     // ============================================================
     // GAME SCENE
     // ============================================================
@@ -670,12 +717,21 @@ public class GUIView extends Application implements ViewType {
                 new BackgroundSize(100, 100, true, true, false, true)
         );
 
+        ScrollPane scroll = new ScrollPane();
+        scroll.setContent(createCenter());
+        scroll.setFitToHeight(true); // putting it to true , the scrollpane will adjust its height to the content, so it will not have a fixed height and it will grow as the content grows
+        scroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER); // it will show the scrollbar only when the content exceeds the width of the scrollpane.
+        scroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED); // we don't want a vertical scrollbar
+        scroll.setPrefHeight(120);
+        scroll.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
+
         root.setBackground(new Background(bgImage));
 
         root.setTop(createTop());
-        root.setCenter(createCenter());
+        root.setCenter(scroll);
         root.setRight(createRight());
         root.setBottom(createBottom());
+
 
         gameScene = new Scene(root, 1400, 900);
     }
@@ -698,11 +754,11 @@ public class GUIView extends Application implements ViewType {
 
         topBox.getChildren().add(serverMessage);
 
-        updateTop();
+        updateTop(modelReference.getMessage());
         return topBox;
     }
 
-    private void updateTop(){
+    private void updateTop(String message){
         if (topBox != null) serverMessage.setText(modelReference.getMessage()); //check per gli update che arrivano prima che la scena venga creata, così evitiamo errori di null pointer
     }
 
@@ -710,58 +766,267 @@ public class GUIView extends Application implements ViewType {
     private StackPane createCenter() {
         StackPane centerWrapper = new StackPane();
         centerWrapper.setStyle("-fx-background-color: transparent;");
-        ImageView deck =  new ImageView("file:C:/Users/matt0/IdeaProjects/IS26-AM14/src/main/resources/deck/1.png"); // check
-        ImageView turnOrderCard = new ImageView(
-                "file:C:/Users/matt0/IdeaProjects/IS26-AM14/src/main/resources/turnOrderCards/"
-                        + modelReference.getNumPlayers()
-                        + ".png"
-        );
+        ImageView deck =  new ImageView("file:C:/Users/matt0/IdeaProjects/IS26-AM14/src/main/resources/deck/1.png");// parto con uno e poi aggiorno con il primo endRound
+        deck.setFitWidth(BOARD_CARD_WIDTH);
+        deck.setFitHeight(BOARD_CARD_HEIGHT);
+
+
+        StackPane turnOrderCard = createTurnOrderCardStack();
+
+
+
         ArrayList<Character> trackCards = modelReference.getOffersPath();
 
-        centerBox = new VBox(25);
+        //CenterGameScene
+        VBox centerBox = new VBox(25);
         centerBox.setAlignment(Pos.CENTER);
         centerBox.setStyle("-fx-padding: 30;");
 
-        HBox row0 = createCardRow(); // top deckable row
-        HBox row1 = createCardRow(); // top building row
-        HBox row2 = createCardRow(); // bottom deckable row
-        HBox row3 = createCardRow(); // bottom building row
-        HBox offersPath = createCardRow(); // turnordercard + offersPath
+
+
+        HBox topDeckable = createCardRow(); // top deckable row
+        HBox topBuilding = createCardRow(); // top building row
+        HBox bottomDeckable = createCardRow(); // bottom deckable row
+        HBox bottomBuilding = createCardRow(); // bottom building row
+        offersPathBox = createCardRow(); // turnordercard + offersPath
+
+
+
+        topCenterBox = new HBox(8);
+        topCenterBox.getChildren().addAll(topDeckable, topBuilding);
+        bottomCenterBox = new HBox(8);
+        bottomCenterBox.getChildren().addAll(bottomDeckable, bottomBuilding);
+
 
         //creazione dell'offersPath = turnordercard + trackcards
-        offersPath.getChildren().add(turnOrderCard); // we add the turn order card to the row4
-        for ( char name : trackCards){
-            ImageView trackCard = createTrackCard(name);
-            offersPath.getChildren().add(trackCard);
+        offersPathBox.getChildren().addAll(deck,turnOrderCard); // we add the turn order card to the row4
+        for (char name : trackCards) {
+            StackPane trackCard = createTrackCard(name);
+            offersPathBox.getChildren().add(trackCard);
         }
 
-        centerBox.getChildren().addAll(row0, row1, row2, row3, offersPath, deck); // we add the 4 rows of the board, the offersPath and the deck to the centerBoard
+        centerBox.getChildren().addAll(topCenterBox,offersPathBox,bottomCenterBox); // we add the 4 rows of the board, the offersPath and the deck to the centerBoard
         centerWrapper.getChildren().add(centerBox); // we add the vbox created to the stackPane
-
         updateBoard(); // we update all the boxes with the cards from the board
+
+
+        //metodi di ridensionamento. Da controllare meglio dopo
+        BorderPane.setAlignment(centerWrapper, Pos.CENTER);
+        VBox.setVgrow(centerBox, Priority.ALWAYS);
+
         return centerWrapper;
 
     }
 
 
-    private void updateBoard() {
+    private StackPane createTurnOrderCardStack() {
+        StackPane stack = new StackPane();
 
-        ArrayList<ArrayList<Integer>> currentBoard = modelReference.getBoard();
+        stack.setPrefSize(BOARD_CARD_WIDTH, BOARD_CARD_HEIGHT);
+        stack.setMaxSize(BOARD_CARD_WIDTH, BOARD_CARD_HEIGHT);
 
-        for (int i = 0; i < centerBox.getChildren().size() - 2; i++) { // -1 in quanto la board riguarda solo le carte delle prime 4 row ( non riguarda la track card e turn order card)
-            HBox box = (HBox) centerBox.getChildren().get(i); // fatto cast forzato perché sappiamo che i figli di centerBoard sono tutti HBox
-            box.getChildren().clear(); // we clear the actual cards in the box
+        ImageView turnOrderCard = new ImageView(
+                "file:C:/Users/matt0/IdeaProjects/IS26-AM14/src/main/resources/turnOrderCards/"
+                        + modelReference.getNumPlayers()
+                        + ".png"
+        );
+        // occupa tutto lo stackpane( hanno al stesa dimensione)
+        turnOrderCard.setFitWidth(BOARD_CARD_WIDTH);
+        turnOrderCard.setFitHeight(BOARD_CARD_HEIGHT);
+        turnOrderCard.setPreserveRatio(false);
+        turnOrderCard.setSmooth(true);
 
-            for (Integer cardId : currentBoard.get(i)) {
-                ImageView card = createDeckCard(cardId);
-                box.getChildren().add(card);
+        // pane sovrapposto alla turnOrderCard per i totem
+        turnOrderCardTotemLayer = new Pane();
+        turnOrderCardTotemLayer.setPrefSize(BOARD_CARD_WIDTH, BOARD_CARD_HEIGHT);
+        turnOrderCardTotemLayer.setMaxSize(BOARD_CARD_WIDTH, BOARD_CARD_HEIGHT);
+        turnOrderCardTotemLayer.setPickOnBounds(false); // è cliccabile solo la parte effettivamente con contenuto
+        ; // l'aggiungo alla lista attributo in modo che possa ripulirlo
+
+        addTotemsOnTurnOrderCard(turnOrderCardTotemLayer);
+
+        stack.getChildren().addAll(turnOrderCard,turnOrderCardTotemLayer);
+
+        return stack;
+    }
+
+
+
+    private void addTotemsOnTurnOrderCard(Pane totemLayer) {
+        ArrayList<ClientPlayer> players = new ArrayList<>();
+        players.add(modelReference.getHomePlayer());
+        players.addAll(modelReference.getOtherPlayers());
+
+
+        for (ClientPlayer player : players) {
+            String color = player.getTotemColor().toLowerCase();
+            int pos = modelReference.getPlayerPositionInTurnOrderCard(player.getNickname()); // we get the playerOrder to understand in which slot of the turn order card we have to put the totem
+
+            if(pos == -1) // vuol dire che quel player non ha posizione sulla turnOrdercard , ma è posizionato su una trackCard --> skippo la sua esecuzione
+                continue;
+
+            // we create the image totem
+            ImageView totem = createSmallTotem(color);
+            positionTotemOnTurnOrderCard(totem, pos); // we position the totem in the right slot based on the player position in the turn order card
+
+            // only the totem of the homePlayer will be pickable
+            if (player.getNickname().equals(modelReference.getHomePlayerNickname())) {
+                totem.setCursor(Cursor.HAND);
+
+                totem.setOnMouseClicked(event -> {
+                    totemClicked = true;
+                    updateTop("Totem selected. Choose a track card.");
+                });
             }
-            // for each Hbox of the centerBoard we update its cards
+
+            // abbiamo un totemLayer sovrapposto alla turnOrderCard, i totem verranno aggiunti in base alla posizione del player sulla turnOrderCard con il ratio fornito da positiontotemOnTurnOrderCard
+            totemLayer.getChildren().add(totem);
+        }
+    }
+
+
+    private void positionTotemOnTurnOrderCard(ImageView totem, int index) {
+
+        PointRatio pos = getTurnOrderSlotPosition(index);
+        //RATIO PER POSIZIONARE I TOTEM IN BASE ALLA LARGHEZZA DELLA TURN ORDER CARD, MOLTIPLICANDO IL RATIO PER LA LARGHEZZA OTTENIAMO LA POSIZIONE IN PIXEL, POI SOTTRAIAMO LA META' DELLA LARGHEZZA DEL TOTEM PER CENTRARLO NELLO SLOT
+        double x = BOARD_CARD_WIDTH * pos.x() - SMALL_TOTEM_WIDTH / 2; // formula usata per calcolare al meglio il ratio
+        double y = BOARD_CARD_HEIGHT * pos.y() - SMALL_TOTEM_HEIGHT / 2;
+
+        totem.setLayoutX(x); // mette il totem a x pixel da sinistra del bordo
+        totem.setLayoutY(y); // mette il totem a y pixel da sopra del bordo  (più è alto più va in basso)
+    }
+
+
+    private ImageView createSmallTotem(String color) {
+        System.out.println(color);
+        ImageView totem = new ImageView("file:C:/Users/matt0/IdeaProjects/IS26-AM14/src/main/resources/totem/" + color + ".png");
+
+        totem.setFitWidth(SMALL_TOTEM_WIDTH);
+        totem.setFitHeight(SMALL_TOTEM_HEIGHT);
+        totem.setPreserveRatio(true);
+        totem.setSmooth(true);
+
+        return totem;
+    }
+
+
+    private record PointRatio(double x, double y) {}
+
+
+    // it returns the ratio needed based on the position a totem should have on the turnOrderCard to be rightfully center based on playerPosition
+    private PointRatio getTurnOrderSlotPosition(int index) {
+        return switch (index) {
+            case 0 -> new PointRatio(0.50, 0.30);  // x va bene y è da lavorarci // per foto non ritagliate va bene dopo aver fatto un po di prove
+            case 1 -> new PointRatio(0.50, 0.48);
+            case 2 -> new PointRatio(0.50, 0.66);
+            case 3 -> new PointRatio(0.50, 0.79);
+            case 4 -> new PointRatio(0.50, 0.92);
+            default -> throw new IllegalStateException("Unexpected value: " + index);
+        };
+    }
+
+
+    private void addTotemOnTrackCard(Pane totemLayer, String color) {
+        ImageView totem = createSmallTotem(color);
+
+        // stesso principio di quanto visto per la turnOrderCard
+        PointRatio pos = new PointRatio(0.50, 0.30);  // x,y
+
+        double x = BOARD_CARD_WIDTH * pos.x() - SMALL_TOTEM_WIDTH / 2;
+        double y = BOARD_CARD_HEIGHT * pos.y() - SMALL_TOTEM_HEIGHT / 2;
+
+        totem.setLayoutX(x);
+        totem.setLayoutY(y);
+
+        totem.setMouseTransparent(true);
+
+        totemLayer.getChildren().clear();
+        totemLayer.getChildren().add(totem);
+    }
+
+
+
+
+
+    private void updateCenterCards(int row, HBox box){
+        ArrayList<ArrayList<Integer>> currentBoard = modelReference.getBoard();
+        List<Integer> orderedTopRow= currentBoard.get(row).stream().sorted(Comparator.naturalOrder()).toList(); // we order the cards in the row by their id so they are ordered by tipe
+
+        box.getChildren().clear(); // we clear the actual cards in the box
+        for (Integer cardId : orderedTopRow) {
+            ImageView card = createPickableCard(cardId,row);
+            box.getChildren().add(card);
+        }
+    }
+
+
+    //TODO: fatto ipotizzando che andiamo a mettere un aggiornamento a null di tutte le trackCard in EndRoun a nulll, o anche meglio proprio quando il player ha finito di pickare
+    private void updateoffersPathBox(){
+
+        // updateTurnOrdercard
+        turnOrderCardTotemLayer.getChildren().clear(); // we clear the totems on the turn order card, then we will add them again based on the new player position in turn order card after the update of the board
+        addTotemsOnTurnOrderCard(turnOrderCardTotemLayer);
+
+        //update trackCards totem
+        ArrayList<ClientPlayer> players = new ArrayList<>(modelReference.getOtherPlayers());
+        players.add(modelReference.getHomePlayer());
+        clearAllTrackCardTotems(); // pulisco tutto e ricreo
+
+        for(ClientPlayer player : players){
+            // dando per scontato che se il mio server gestisca bene il fatto che se vado a cliccare in una trackCard già occupata mi lancia un exception
+            // e che vado a ripulire l'offersPath almeno in endRound ( o preferibilmente a fine pick, ad gni placement lo ricostruisco
+            Character position = player.getPlayerPosition();
+            if (position != null) { // ha una posizione sulla trackCard, va fatto altrimenti avrei nullPointerException
+                Pane totemLayer = trackCardTotemLayers.get(player.getPlayerPosition());
+                addTotemOnTrackCard(totemLayer, player.getTotemColor().toLowerCase());
+            }
         }
 
-        centerBox.getChildren().removeLast();
-        ImageView deck = new ImageView("file:C:/Users/matt0/IdeaProjects/IS26-AM14/src/main/resources/deck/" + modelReference.getAge() + ".png");
-        centerBox.getChildren().add(deck);// we update the deck with the image of the  new era
+    }
+
+
+    private void clearAllTrackCardTotems() {
+        for (Pane layer : trackCardTotemLayers.values()) {
+            layer.getChildren().clear();
+        }
+    }
+
+
+
+
+    private void updateBoard() {
+
+        //update topRow with the index based on the row linked to the hbox
+        for(int i =0 ; i<2 ; i++){
+            HBox box = (HBox) topCenterBox.getChildren().get(i);
+            updateCenterCards(i, box);
+        }
+
+        //update BottomRow with the index based on the row linked to the hbox
+        for(int i = 0; i<2 ; i++){
+            HBox box = (HBox) bottomCenterBox.getChildren().get(i);
+            updateCenterCards(i+2, box);
+        }
+
+        // deck update:
+        if (modelReference.getAge() > 0) { // update fatto solo se ho l'age mi arriva con l'evento di endRound
+            ImageView deck = new ImageView(
+                    "file:C:/Users/matt0/IdeaProjects/IS26-AM14/src/main/resources/deck/"
+                            + modelReference.getAge()
+                            + ".png"
+            );
+
+            deck.setFitWidth(BOARD_CARD_WIDTH);
+            deck.setFitHeight(BOARD_CARD_HEIGHT);
+            deck.setPreserveRatio(false);
+            deck.setSmooth(true);
+
+
+            //TODO: capire se conviene tenere la genstione con removeFirst / addFirst ecc e il lavoro con gli indici. in quanto molto debole, oppure semplciemente andare a salvare le variabili e evitare ciò
+            offersPathBox.getChildren().removeFirst();
+            offersPathBox.getChildren().addFirst(deck);
+
+        }
 
     }
 
@@ -774,7 +1039,7 @@ public class GUIView extends Application implements ViewType {
         -fx-background-radius: 14;
         -fx-padding: 7.5;
    \s""");
-        // this is the color the hobox
+        // this is the color the hbox
         // the radius is for the rounded corners and the padding is for the space between the border and the content of the hbox
         // the padding is the space between the border and the content of the hbox, so if you want to have more space between the border and the cards you can increase the padding value.
 
@@ -1064,14 +1329,33 @@ public class GUIView extends Application implements ViewType {
     }
 
 
-    private ImageView createDeckCard(int id){
-        ImageView card = new ImageView("file:C:/Users/matt0/IdeaProjects/IS26-AM14/src/main/resources/cardsFront/" + id + ".jpg");
-        card.setFitWidth(110);
-        card.setFitHeight(165);
-        card.setPreserveRatio(true);
-        card.setSmooth(true);
-        return card;
-    }
+        // TODO: possiamo rendere le carte evento non prendibili sfruttando l'intervallo degli id se vogliamo. Mi sembra meglio come cosa
+        private ImageView createPickableCard(int id, int row){
+            ImageView card = new ImageView("file:C:/Users/matt0/IdeaProjects/IS26-AM14/src/main/resources/cardsFront/" + id + ".jpg");
+            card.setFitWidth(BOARD_CARD_WIDTH);
+            card.setFitHeight(BOARD_CARD_HEIGHT);
+            card.setPreserveRatio(true);
+            card.setSmooth(true);
+
+
+            card.setCursor(Cursor.HAND);
+
+            card.setOnMouseClicked(event -> {
+                pickCard(modelReference.getHomePlayerNickname(), id, row);
+            });
+            return card;
+        }
+
+
+        private void pickCard(String nickname, int cardId, int row){
+            try {
+                server.pickCard(nickname, cardId, row);
+            } catch (Exception e) {
+                throw new RuntimeException("[Client] A network error occurred while sending your request\nDetails: " + e.getMessage());
+            }
+        }
+
+
 
     private ImageView createHomeTribeCard(int id){
         ImageView card = new ImageView("file:C:/Users/matt0/IdeaProjects/IS26-AM14/src/main/resources/cardsFront/" + id + ".jpg");
@@ -1092,24 +1376,70 @@ public class GUIView extends Application implements ViewType {
     }
 
 
+    private StackPane createTrackCard(char name) {
+        StackPane trackCard = new StackPane();
 
-    private ImageView createTrackCard(char name){
-        ImageView card = new ImageView("file:C:/Users/matt0/IdeaProjects/IS26-AM14/src/main/resources/trackCards/" + name + ".jpg");
-        card.setFitWidth(120);
-        card.setFitHeight(180);
-        return card;
+        trackCard.setPrefSize(BOARD_CARD_WIDTH, BOARD_CARD_HEIGHT);
+        trackCard.setMinSize(BOARD_CARD_WIDTH, BOARD_CARD_HEIGHT);
+        trackCard.setMaxSize(BOARD_CARD_WIDTH, BOARD_CARD_HEIGHT);
+
+        ImageView cardImage = new ImageView(
+                "file:C:/Users/matt0/IdeaProjects/IS26-AM14/src/main/resources/trackCards/" + name + ".png"
+        );
+
+        cardImage.setFitWidth(BOARD_CARD_WIDTH);
+        cardImage.setFitHeight(BOARD_CARD_HEIGHT);
+        cardImage.setPreserveRatio(false);
+        cardImage.setSmooth(true);
+
+        Pane trackCardtotemLayer = new Pane();
+        trackCardtotemLayer.setPrefSize(BOARD_CARD_WIDTH, BOARD_CARD_HEIGHT);
+        trackCardtotemLayer.setMinSize(BOARD_CARD_WIDTH, BOARD_CARD_HEIGHT);
+        trackCardtotemLayer.setMaxSize(BOARD_CARD_WIDTH, BOARD_CARD_HEIGHT);
+        trackCardTotemLayers.put(name,trackCardtotemLayer); // lo aggiungo alla mappa degli strati dei totem delle track card per poterli aggiornare quando arriva l'evento di piazzamento del totem
+
+        // importante: il layer dei totem non deve bloccare il click sulla trackCard
+        trackCardtotemLayer.setMouseTransparent(true);
+
+        trackCard.getChildren().addAll(cardImage, trackCardtotemLayer);
+
+        trackCard.setCursor(javafx.scene.Cursor.HAND);
+
+        trackCard.setOnMouseClicked(event -> {
+            if (!totemClicked) {
+                updateTop("Select your totem first.");
+                return;
+            }
+
+
+            // TODO: gestione se la trackCard è già occupata per evitare la comunicazione con il server
+            System.out.println("Clicked track card: " + name);
+            try {
+                server.placeTotem(modelReference.getHomePlayerNickname(), name);
+            } catch (Exception e) {
+                throw new RuntimeException("[Client] A network error occurred while sending your request\nDetails: " + e.getMessage());
+            }
+
+            totemClicked = false; // se il placement va a buon fine , metto totemClicked a false( in quanto è legato al click fatto nella trackCard e ora il totem è stato posizionato bene)
+        });
+        return trackCard;
     }
 
 
-    private ImageView createLobbyTotem(String totemColor) {
-        ImageView totem = new ImageView("file:C:/Users/matt0/IdeaProjects/IS26-AM14/src/main/resources/totem/" + totemColor+ ".png");
 
-        totem.setFitWidth(220);
+    private ImageView createLobbyTotem(String totemColor) {
+        ImageView totem = new ImageView(
+                "file:C:/Users/matt0/IdeaProjects/IS26-AM14/src/main/resources/totemLobby/"
+                        + totemColor + ".png"
+        );
+
+        totem.setFitWidth(300);
         totem.setPreserveRatio(true);
         totem.setSmooth(true);
 
         return totem;
     }
+
 
 
 
