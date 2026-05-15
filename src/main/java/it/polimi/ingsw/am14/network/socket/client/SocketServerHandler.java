@@ -11,6 +11,7 @@ import static it.polimi.ingsw.am14.utils.Constants.PING_INTERVAL;
 public class SocketServerHandler implements VirtualServerSocket{
 
     private final PrintWriter output;
+    private PrintWriter pingOutput;
     private final JsonCodec jsonWriter = new JsonCodec();
 
     public SocketServerHandler(BufferedWriter output) {
@@ -63,7 +64,7 @@ public class SocketServerHandler implements VirtualServerSocket{
         }
     }
 
-
+    @Override
     public void pingServer(String nickname) {
         new Thread(() -> {
             try {
@@ -81,5 +82,9 @@ public class SocketServerHandler implements VirtualServerSocket{
                 Thread.currentThread().interrupt();
             }
         }, nickname + "'s pinger client side").start();
+    }
+
+    public void setPingOutput(BufferedWriter pingOutput) {
+        this.pingOutput = new PrintWriter(pingOutput);
     }
 }
