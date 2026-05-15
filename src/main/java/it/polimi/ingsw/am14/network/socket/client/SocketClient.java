@@ -4,26 +4,24 @@ import it.polimi.ingsw.am14.network.messages.events.Event;
 import it.polimi.ingsw.am14.utils.JsonCodec;
 import it.polimi.ingsw.am14.clientModel.ClientModel;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 
-import static it.polimi.ingsw.am14.utils.Constants.PING_TIMEOUT;
-
 public class SocketClient {
     private final Socket socket;
-    private Socket pingSocket;
     private final BufferedReader input;
-    private BufferedReader pingInput;
-    private final SocketServerHandler handler;
+    private final SocketServerHandler output;
     private final ClientModel model;
     private final JsonCodec jsonWriter = new JsonCodec();
     private static int Thread_number = 0;
 
 
-    public SocketClient(BufferedReader input, ClientModel model, SocketServerHandler serverHandler, Socket socket) {
+    public SocketClient(BufferedReader input, BufferedWriter output, ClientModel model, SocketServerHandler serverHandler, Socket socket) {
         this.input = input;
-        this.handler = serverHandler;
+        this.output = serverHandler;
         this.model = model;
         this.socket = socket;
     }
@@ -32,6 +30,14 @@ public class SocketClient {
         new Thread(() -> {
             try {
                 runVirtualServer(); // listener
+            } catch (SocketTimeoutException e) {
+                model.setMessage("[Client] Network error: server is not responding. try to reconnect later.\nShutting down connection...");
+                //model.disconnect();
+                try {
+                    socket.close();
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex.getMessage());
+                }
             } catch (IOException e) {
                 throw new RuntimeException(e.getMessage());
             }
@@ -41,41 +47,14 @@ public class SocketClient {
     }
 
 
-    private void runVirtualServer() throws IOException {
+    private void runVirtualServer() throws SocketTimeoutException, IOException {
         String line;
 
         while ((line = input.readLine()) != null) {
             Event event = jsonWriter.parseEvent(line);
-            event.effect(this.model);
-            if (event.getDescription().contains("has logged in successfully")) {
-                pingSocket = new Socket(socket.getInetAddress(), socket.getPort()+1);
-                pingSocket.setSoTimeout(PING_TIMEOUT);
-                pingInput = new BufferedReader(new InputStreamReader(pingSocket.getInputStream()));
-                handler.setPingOutput(new BufferedWriter(new OutputStreamWriter(pingSocket.getOutputStream())));
-                handler.pingServer(model.getHomePlayerNickname()); //TODO: giusto?
+            if (!event.getDescription().equals("ping")) {
+                event.effect(this.model);
             }
-            new Thread(() -> {
-                try {
-                    runPingClient();
-                } catch (SocketTimeoutException e) {
-                    model.setMessage("[Client] Network error: server is not responding. try to reconnect later.\nShutting down connection...");
-                    //model.disconnect();
-                    try {
-                        socket.close();
-                        pingSocket.close();
-                    } catch (IOException ex) {
-                        throw new RuntimeException(ex.getMessage());
-                    }
-                } catch (IOException e) {
-                    throw new RuntimeException(e.getMessage());
-                }
-            }, "ClientThread-pingListener" + Thread_number).start();
-        }
-    }
-
-    private void runPingClient() throws SocketTimeoutException, IOException {
-        while (pingInput.readLine() != null) {
-            // do nothing, just wait for the timeout
         }
     }
 }
