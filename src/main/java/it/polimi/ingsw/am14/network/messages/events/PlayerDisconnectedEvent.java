@@ -27,7 +27,6 @@ public class PlayerDisconnectedEvent extends ServerEvent{
 
     @Override
     public void bufferize(NetworkLayer networkLayer) {
-        networkLayer.broadcastUpdate(this, gameId);
         VirtualClient client = networkLayer.getClientBy(nickname);
         if (client != null) {
             networkLayer.notifyBufferForClient(client);
@@ -35,6 +34,7 @@ public class PlayerDisconnectedEvent extends ServerEvent{
             networkLayer.removeBuffer(client);
         }
         networkLayer.removeClientBy(nickname);
+        networkLayer.broadcastUpdate(this, gameId);
         if (gameId >= 0) {
             networkLayer.removeGame(gameId);
         }

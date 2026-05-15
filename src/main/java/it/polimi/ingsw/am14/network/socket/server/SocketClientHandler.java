@@ -57,6 +57,10 @@ public class SocketClientHandler implements VirtualClientSocket{
         }
     }
 
+    public String getNickname() {
+        return nickname;
+    }
+
     @Override
     public void update(Event update){
         if (!socket.isClosed()) {

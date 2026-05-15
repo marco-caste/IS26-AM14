@@ -167,17 +167,20 @@ public class LobbyController {
     }
 
     public void disconnectUser(String nickname) {
-        //Remove player from controller
-        removePlayerFromLobby(nickname);
-        removeLastPingReceivedTime(nickname);
+        synchronized (dataLock) {
+            int gameId = getGameIdByNickname(nickname).orElse(-1);
 
-        //Remove game if the user was in a game
-        int gameId = getGameIdByNickname(nickname).orElse(-1);
-        if (hasPlayerAGameAssigned(nickname)) {
-            removeGameController(gameId);
-            getPlayersByGameId(gameId).forEach(this::addPlayerToLobby);
+            //Remove player from controller
+            removePlayerFromLobby(nickname);
+            removeLastPingReceivedTime(nickname);
+
+            //Remove game if the user was in a game
+            if (gameId >= 0) {
+                removeGameController(gameId);
+                getPlayersByGameId(gameId).forEach(this::addPlayerToLobby);
+            }
+            networkLayer.update(new PlayerDisconnectedEvent(nickname, gameId));
         }
-        networkLayer.update(new PlayerDisconnectedEvent(nickname, gameId));
     }
 
     public void handlePingRequest(String nickname) {

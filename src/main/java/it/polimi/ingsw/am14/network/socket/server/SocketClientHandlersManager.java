@@ -74,14 +74,9 @@ public class SocketClientHandlersManager {
                 Thread thread1 = new Thread(() -> {
                     try {
                         handler.runVirtualView();
-                    } catch (IOException e) {
-                        //TODO: sistemare
-                        System.err.println("[Server] Connection lost for client handler: " + e.getMessage());
-                        cleanupClient(handler);
                     } catch (Exception e) {
-                        //TODO: sistemare
-                        System.err.println("[Server] Connection lost or error in listener thread: " + e.getMessage());
-                        cleanupClient(handler);
+                        System.err.println("[Server] Error in listener thread: " + e.getMessage());
+                        controller.disconnectUser(handler.getNickname());
                     }
                 }, "ServerThread-Listener" + Thread_number);
                 thread1.start();
@@ -114,6 +109,7 @@ public class SocketClientHandlersManager {
                         }
                     } catch (Exception e) {
                         System.err.println("[Server] Error in buffering thread: " + e.getMessage());
+                        controller.disconnectUser(handler.getNickname());
                     }
                 }, "ServerThread-Buffering" + Thread_number);
                 thread2.start();
@@ -123,7 +119,6 @@ public class SocketClientHandlersManager {
                 networkLayer.updateClientThreads(handler, thread2);
                 
             } catch (IOException e) {
-                //TODO: da sistemare
                 System.err.println("[Server] Error setting up client handler: " + e.getMessage());
                 try {
                     clientSocket.close();
@@ -154,15 +149,20 @@ public class SocketClientHandlersManager {
                     try {
                         handler.runPingServer();
                     } catch (Exception e) {
-                        //TODO:
+                        System.err.println("[Server] Error closing socket: " + e.getMessage());
                     }
                 }, "ServerThreadPing-" + nickname);
                 pingThread.start();
                 networkLayer.updateClientThreads(handler, pingThread);
-                pingServer(nickname); //TODO: è ridondante?
+                pingServer(nickname);
             }
             catch (Exception e) {
-                //TODO:
+                System.err.println("[Server] Error setting up ping handler: " + e.getMessage());
+                try {
+                    clientPingSocket.close();
+                } catch (IOException ex) {
+                    System.err.println("[Server] Error closing ping socket: " + ex.getMessage());
+                }
             }
         }
     }
