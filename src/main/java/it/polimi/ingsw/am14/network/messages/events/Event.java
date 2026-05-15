@@ -1,4 +1,4 @@
-package it.polimi.ingsw.am14.events;
+package it.polimi.ingsw.am14.network.messages.events;
 
 import it.polimi.ingsw.am14.network.NetworkLayer;
 import it.polimi.ingsw.am14.clientModel.ClientModel;
@@ -16,14 +16,14 @@ import java.io.Serializable;
         @JsonSubTypes.Type(value = CardPickedEvent.class, name = "CardPickedEvent"),
         @JsonSubTypes.Type(value = EndGameEvent.class, name = "EndGameEvent"),
         @JsonSubTypes.Type(value = EndRoundEvent.class, name = "EndRoundEvent"),
-        @JsonSubTypes.Type(value = GameOverEvent.class, name = "GameOverEvent"),
         @JsonSubTypes.Type(value = GameStartedEvent.class, name = "GameStartedEvent"),
+        @JsonSubTypes.Type(value = GameRestartedEvent.class, name = "GameRestartedEvent"),
         @JsonSubTypes.Type(value = JoinedGameEvent.class, name = "JoinedGameEvent"),
         @JsonSubTypes.Type(value = LoginSuccesfulEvent.class, name = "LoginSuccesfulEvent"),
         @JsonSubTypes.Type(value = PlayerReconnectedEvent.class, name = "PlayerReconnectedEvent"),
         @JsonSubTypes.Type(value = TotemPlacedEvent.class, name = "TotemPlacedEvent"),
         @JsonSubTypes.Type(value = ExceptionEvent.class, name = "ExceptionEvent"),
-        @JsonSubTypes.Type(value = PingServerEvent.class, name = "PingServerEvent")
+        @JsonSubTypes.Type(value = PlayerDisconnectedEvent.class, name = "PlayerDisconnectedEvent"),
 })
 
 public abstract class Event implements Serializable {

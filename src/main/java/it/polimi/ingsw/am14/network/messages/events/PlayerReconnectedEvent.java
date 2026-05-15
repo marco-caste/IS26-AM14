@@ -1,4 +1,4 @@
-package it.polimi.ingsw.am14.events;
+package it.polimi.ingsw.am14.network.messages.events;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -20,6 +20,7 @@ import static it.polimi.ingsw.am14.utils.Constants.BOTTOM_BUILDING_ROW;
 
 public class PlayerReconnectedEvent extends ServerEvent {
 
+    //TODO: incompleta manca la turnOrderCard se c'è qualcuno sopra
     private final int gameId;
     private final int turnOrderCardIndex;
     private final int numPlayers;

@@ -1,4 +1,4 @@
-package it.polimi.ingsw.am14.events;
+package it.polimi.ingsw.am14.network.messages.requests;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import it.polimi.ingsw.am14.controller.LobbyController;

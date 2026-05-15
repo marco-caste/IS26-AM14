@@ -1,9 +1,10 @@
-package it.polimi.ingsw.am14.events;
+package it.polimi.ingsw.am14.network.messages.requests;
 
 import it.polimi.ingsw.am14.controller.LobbyController;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import it.polimi.ingsw.am14.network.messages.events.Event;
 
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,

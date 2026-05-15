@@ -1,7 +1,7 @@
 package it.polimi.ingsw.am14.model.gameLogic;
 
-import it.polimi.ingsw.am14.events.GameRestartedEvent;
-import it.polimi.ingsw.am14.events.PlayerReconnectedEvent;
+import it.polimi.ingsw.am14.network.messages.events.GameRestartedEvent;
+import it.polimi.ingsw.am14.network.messages.events.PlayerReconnectedEvent;
 
 public class WaitingRoomAfterCrashState extends GameState {
 

@@ -2,9 +2,10 @@ package it.polimi.ingsw.am14.network.socket.server;
 
 import it.polimi.ingsw.am14.network.NetworkLayer;
 import it.polimi.ingsw.am14.controller.LobbyController;
-import it.polimi.ingsw.am14.events.ClientRequest;
-import it.polimi.ingsw.am14.events.Event;
-import it.polimi.ingsw.am14.events.ExceptionEvent;
+import it.polimi.ingsw.am14.network.messages.requests.ClientRequest;
+import it.polimi.ingsw.am14.network.messages.events.Event;
+import it.polimi.ingsw.am14.network.messages.events.ExceptionEvent;
+import it.polimi.ingsw.am14.utils.JsonCodec;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -14,23 +15,25 @@ import java.util.*;
 public class SocketClientHandlersManager {
 
     private final ServerSocket listenSocket;
+    private final ServerSocket listenPingSocket;
     private final LobbyController controller;
     private final NetworkLayer networkLayer;
+    private final JsonCodec jsonCodec = new JsonCodec();
 
     private static int Thread_number = 0;
 
     private final Set<SocketClientHandler> waitingClients;
 
-    public SocketClientHandlersManager(ServerSocket listenSocket, LobbyController controller, NetworkLayer networkLayer) {
+    public SocketClientHandlersManager(ServerSocket listenSocket, ServerSocket listenPingSocket, LobbyController controller, NetworkLayer networkLayer) {
         this.listenSocket = listenSocket;
+        this.listenPingSocket = listenPingSocket;
         this.waitingClients = new HashSet<>();
-        // TODO: COSTRUZIONE DA FARE NEL MAIN
         this.networkLayer = networkLayer;
         this.controller = controller;
     }
 
     public void runServer() throws IOException {
-        Socket clientSocket = null;
+        Socket clientSocket;
         while ((clientSocket = this.listenSocket.accept()) != null) {
             try {
                 InputStreamReader socketRx = new InputStreamReader(clientSocket.getInputStream());
@@ -56,9 +59,11 @@ public class SocketClientHandlersManager {
                     try {
                         handler.runVirtualView();
                     } catch (IOException e) {
+                        //TODO: sistemare
                         System.err.println("[Server] Connection lost for client handler: " + e.getMessage());
                         cleanupClient(handler);
                     } catch (Exception e) {
+                        //TODO: sistemare
                         System.err.println("[Server] Connection lost or error in listener thread: " + e.getMessage());
                         cleanupClient(handler);
                     }
@@ -102,6 +107,7 @@ public class SocketClientHandlersManager {
                 networkLayer.updateClientThreads(handler, thread2);
                 
             } catch (IOException e) {
+                //TODO: da sistemare
                 System.err.println("[Server] Error setting up client handler: " + e.getMessage());
                 try {
                     clientSocket.close();
@@ -112,26 +118,62 @@ public class SocketClientHandlersManager {
         }
     }
 
+    public void runPingServer() throws IOException {
+        Socket clientPingSocket;
+        while ((clientPingSocket = this.listenPingSocket.accept()) != null) {
+            try {
+                InputStreamReader socketRx = new InputStreamReader(clientPingSocket.getInputStream());
+                OutputStreamWriter socketTx = new OutputStreamWriter(clientPingSocket.getOutputStream());
+                BufferedReader pingInput = new BufferedReader(socketRx);
+                PrintWriter pingOutput= new PrintWriter(socketTx);
+
+                String firstLine = pingInput.readLine();
+                ClientRequest request = jsonCodec.parseClientRequest(firstLine);
+                String nickname = request.getNickname();
+                //TODO: Bisogna effettuare un controllo che non sia stato ancora preso?
+                SocketClientHandler handler = (SocketClientHandler) networkLayer.getClientBy(nickname);
+                handler.setPingSocket(pingInput, pingOutput, clientPingSocket, nickname);
+
+                Thread pingThread = new Thread(() -> {
+                    try {
+                        handler.runPingServer();
+                    } catch (Exception e) {
+                        //TODO:
+                    }
+                }, "ServerThreadPing-" + nickname);
+                pingThread.start();
+                networkLayer.updateClientThreads(handler, pingThread);
+                pingServer(nickname); //TODO: è ridondante?
+            }
+            catch (Exception e) {
+                //TODO:
+            }
+        }
+    }
+
     public void receiveRequest(ClientRequest request, SocketClientHandler sender){
         try {
             // if sender is still in waiting room, the only possible request is to connect to the server (meaning: to declare a nickname).
-            if (waitingClients.contains(sender))
+            if (waitingClients.contains(sender)) {
                 networkLayer.updateNicknameMap(request.getNickname(), sender);
+            }
 
             request.dispatchRequest(this.controller);
 
             waitingClients.remove(sender);
 
             this.controller.getGameIdByNickname(request.getNickname()).ifPresentOrElse(
-                    (id) -> {
-                        networkLayer.updateClients(id, sender);
-                    },
+                    (id) -> networkLayer.updateClients(id, sender),
                     () -> { }
             );
         }
         catch (Exception e){
             sender.reportError(new ExceptionEvent(e.getMessage()));
         }
+    }
+
+    public void pingServer(String nickname){
+        controller.handlePingRequest(nickname);
     }
 
     private void cleanupClient(SocketClientHandler handler) {

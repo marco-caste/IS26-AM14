@@ -1,7 +1,7 @@
 package it.polimi.ingsw.am14.network;
 
-import it.polimi.ingsw.am14.events.Event;
-import it.polimi.ingsw.am14.events.ExceptionEvent;
+import it.polimi.ingsw.am14.network.messages.events.Event;
+import it.polimi.ingsw.am14.network.messages.events.ExceptionEvent;
 
 public interface VirtualClient {
     void update(Event update) throws Exception;

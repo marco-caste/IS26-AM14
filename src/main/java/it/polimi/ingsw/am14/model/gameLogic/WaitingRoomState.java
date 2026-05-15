@@ -1,7 +1,7 @@
 package it.polimi.ingsw.am14.model.gameLogic;
 
-import it.polimi.ingsw.am14.events.GameStartedEvent;
-import it.polimi.ingsw.am14.events.JoinedGameEvent;
+import it.polimi.ingsw.am14.network.messages.events.GameStartedEvent;
+import it.polimi.ingsw.am14.network.messages.events.JoinedGameEvent;
 
 class WaitingRoomState extends GameState {
 

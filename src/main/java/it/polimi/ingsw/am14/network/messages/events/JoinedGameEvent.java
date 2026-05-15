@@ -1,4 +1,4 @@
-package it.polimi.ingsw.am14.events;
+package it.polimi.ingsw.am14.network.messages.events;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -17,8 +17,6 @@ import java.util.stream.Collectors;
 import static it.polimi.ingsw.am14.utils.Constants.*;
 
 public class JoinedGameEvent extends ServerEvent {
-
-    // attributes
     private final String playerNickname;
     private final String totemColor;
     private final int gameId;
@@ -28,7 +26,7 @@ public class JoinedGameEvent extends ServerEvent {
     private final Map<String, String> otherPlayersInfo; // nickname -> totemColor
 
     public JoinedGameEvent(Player player, List<Player> players, int gameId, final Board initialBoard, int numPlayers) {
-        super("Player \"" + player.getNickname() + "\" has joined game [" + gameId + "].");
+        super("Player \"" + player.getNickname() + "\" has joined game id: " + gameId + ".");
         this.playerNickname = player.getNickname();
         this.totemColor = player.getTotemColor().name();
         this.gameId = gameId;

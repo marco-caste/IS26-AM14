@@ -1,6 +1,6 @@
 package it.polimi.ingsw.am14;
 
-import it.polimi.ingsw.am14.events.Event;
+import it.polimi.ingsw.am14.network.messages.events.Event;
 import it.polimi.ingsw.am14.network.socket.client.SocketServerHandler;
 import it.polimi.ingsw.am14.utils.JsonCodec;
 

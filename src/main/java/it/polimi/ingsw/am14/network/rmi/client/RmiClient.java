@@ -1,8 +1,8 @@
 package it.polimi.ingsw.am14.network.rmi.client;
 
 import it.polimi.ingsw.am14.network.VirtualServer;
-import it.polimi.ingsw.am14.events.Event;
-import it.polimi.ingsw.am14.events.ExceptionEvent;
+import it.polimi.ingsw.am14.network.messages.events.Event;
+import it.polimi.ingsw.am14.network.messages.events.ExceptionEvent;
 import it.polimi.ingsw.am14.network.rmi.server.VirtualClientRmi;
 import it.polimi.ingsw.am14.clientModel.ClientModel;
 

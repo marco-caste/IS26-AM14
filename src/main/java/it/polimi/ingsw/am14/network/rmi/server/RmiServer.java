@@ -2,8 +2,8 @@ package it.polimi.ingsw.am14.network.rmi.server;
 
 import it.polimi.ingsw.am14.network.NetworkLayer;
 import it.polimi.ingsw.am14.controller.LobbyController;
-import it.polimi.ingsw.am14.events.Event;
-import it.polimi.ingsw.am14.events.ExceptionEvent;
+import it.polimi.ingsw.am14.network.messages.events.Event;
+import it.polimi.ingsw.am14.network.messages.events.ExceptionEvent;
 import it.polimi.ingsw.am14.exceptions.IllegalNicknameException;
 import it.polimi.ingsw.am14.network.rmi.client.VirtualServerRmi;
 

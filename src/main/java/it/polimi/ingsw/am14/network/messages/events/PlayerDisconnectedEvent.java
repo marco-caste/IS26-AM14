@@ -1,4 +1,4 @@
-package it.polimi.ingsw.am14.events;
+package it.polimi.ingsw.am14.network.messages.events;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -43,7 +43,6 @@ public class PlayerDisconnectedEvent extends ServerEvent{
     @Override
     public void effect(ClientModel model) {
         model.setMessage(description);
-
         model.notifyObservers("userDisconnected");
     }
 }

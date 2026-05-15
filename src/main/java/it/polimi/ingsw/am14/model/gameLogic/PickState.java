@@ -1,6 +1,6 @@
 package it.polimi.ingsw.am14.model.gameLogic;
 
-import it.polimi.ingsw.am14.events.CardPickedEvent;
+import it.polimi.ingsw.am14.network.messages.events.CardPickedEvent;
 import it.polimi.ingsw.am14.model.cards.Card;
 import it.polimi.ingsw.am14.model.cards.buildings.Building;
 import it.polimi.ingsw.am14.model.cards.buildings.visitors.ImmediateVisitor;

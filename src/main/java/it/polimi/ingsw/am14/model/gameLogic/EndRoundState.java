@@ -1,6 +1,6 @@
 package it.polimi.ingsw.am14.model.gameLogic;
 
-import it.polimi.ingsw.am14.events.EndRoundEvent;
+import it.polimi.ingsw.am14.network.messages.events.EndRoundEvent;
 import it.polimi.ingsw.am14.model.boardComponents.Board;
 
 

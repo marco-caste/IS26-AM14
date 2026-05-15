@@ -1,7 +1,7 @@
 package it.polimi.ingsw.am14.model.gameLogic;
 
 import it.polimi.ingsw.am14.network.Observer;
-import it.polimi.ingsw.am14.events.Event;
+import it.polimi.ingsw.am14.network.messages.events.Event;
 
 public interface Observable {
 

@@ -3,11 +3,8 @@ package it.polimi.ingsw.am14.controller;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.mysql.cj.xdevapi.JsonParser;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import it.polimi.ingsw.am14.events.LoginSuccesfulEvent;
-import it.polimi.ingsw.am14.events.PlayerDisconnectedEvent;
-import it.polimi.ingsw.am14.events.PlayerReconnectedEvent;
+import it.polimi.ingsw.am14.network.messages.events.LoginSuccesfulEvent;
+import it.polimi.ingsw.am14.network.messages.events.PlayerDisconnectedEvent;
 import it.polimi.ingsw.am14.network.NetworkLayer;
 import it.polimi.ingsw.am14.exceptions.*;
 import it.polimi.ingsw.am14.model.gameLogic.Game;
@@ -127,6 +124,7 @@ public class LobbyController {
         }
         else {
             networkLayer.update(new LoginSuccesfulEvent(nickname));
+            setLastPingReceivedTime(nickname);
         }
     }
 
@@ -177,11 +175,6 @@ public class LobbyController {
         networkLayer.update(new PlayerDisconnectedEvent(nickname, gameId));
     }
 
-    // Called automatically after a certain timeout if server pings are not answered to TODO: da rimuovere giusto?
-    public void disconnectServer() {
-
-    }
-
     public void handlePingRequest(String nickname) {
         synchronized (dataLock) {
             setLastPingReceivedTime(nickname);
@@ -197,8 +190,6 @@ public class LobbyController {
                     disconnectUser(nickname);
                 }
             }
-            //All players are disconnected TODO: da rimuovere giusto?
-            //this.disconnectServer();
         }
     }
 }

@@ -1,8 +1,8 @@
 package it.polimi.ingsw.am14.utils;
 
 import it.polimi.ingsw.am14.controller.LobbyController;
-import it.polimi.ingsw.am14.events.ClientRequest;
-import it.polimi.ingsw.am14.events.Event;
+import it.polimi.ingsw.am14.network.messages.requests.ClientRequest;
+import it.polimi.ingsw.am14.network.messages.events.Event;
 import it.polimi.ingsw.am14.model.boardComponents.TrackCard;
 import it.polimi.ingsw.am14.model.cards.buildings.Building;
 import it.polimi.ingsw.am14.model.cards.deckCards.DeckCard;

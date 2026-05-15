@@ -1,6 +1,6 @@
 package it.polimi.ingsw.am14.model.gameLogic;
 
-import it.polimi.ingsw.am14.events.TotemPlacedEvent;
+import it.polimi.ingsw.am14.network.messages.events.TotemPlacedEvent;
 import it.polimi.ingsw.am14.model.boardComponents.TrackCard;
 import it.polimi.ingsw.am14.exceptions.IllegalPlacementException;
 import it.polimi.ingsw.am14.exceptions.UnknownPositionException;

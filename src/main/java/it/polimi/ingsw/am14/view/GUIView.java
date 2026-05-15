@@ -483,7 +483,7 @@ public class GUIView extends Application implements ViewType {
     private StackPane createLobbyRoot() {
         StackPane lobbyRoot = new StackPane();
 
-        ImageView background = new ImageView("file:C:/Users/matt0/IdeaProjects/IS26-AM14/src/main/resources/background/lobby.png"); // adding the bg
+        ImageView background = new ImageView(getClass().getResource("/background/lobby.png").toExternalForm()); // adding the bg
 
         background.setPreserveRatio(false);
         background.fitWidthProperty().bind(lobbyRoot.widthProperty());
@@ -707,7 +707,7 @@ public class GUIView extends Application implements ViewType {
     private void createGameScene() {
         BorderPane root = new BorderPane();
 
-        Image backgroundImage = new Image("file:C:/Users/matt0/IdeaProjects/IS26-AM14/src/main/resources/background/game.jpeg");
+        Image backgroundImage = new Image(getClass().getResource("/background/game.jpeg").toExternalForm());
 
         BackgroundImage bgImage = new BackgroundImage(
                 backgroundImage,
@@ -766,7 +766,7 @@ public class GUIView extends Application implements ViewType {
     private StackPane createCenter() {
         StackPane centerWrapper = new StackPane();
         centerWrapper.setStyle("-fx-background-color: transparent;");
-        ImageView deck =  new ImageView("file:C:/Users/matt0/IdeaProjects/IS26-AM14/src/main/resources/deck/1.png");// parto con uno e poi aggiorno con il primo endRound
+        ImageView deck =  new ImageView(getClass().getResource("/deck/1.png").toExternalForm());// parto con uno e poi aggiorno con il primo endRound
         deck.setFitWidth(BOARD_CARD_WIDTH);
         deck.setFitHeight(BOARD_CARD_HEIGHT);
 
@@ -826,9 +826,7 @@ public class GUIView extends Application implements ViewType {
         stack.setMaxSize(BOARD_CARD_WIDTH, BOARD_CARD_HEIGHT);
 
         ImageView turnOrderCard = new ImageView(
-                "file:C:/Users/matt0/IdeaProjects/IS26-AM14/src/main/resources/turnOrderCards/"
-                        + modelReference.getNumPlayers()
-                        + ".png"
+                getClass().getResource("/turnOrderCards/" + modelReference.getNumPlayers() + ".png").toExternalForm()
         );
         // occupa tutto lo stackpane( hanno al stesa dimensione)
         turnOrderCard.setFitWidth(BOARD_CARD_WIDTH);
@@ -899,7 +897,7 @@ public class GUIView extends Application implements ViewType {
 
     private ImageView createSmallTotem(String color) {
         System.out.println(color);
-        ImageView totem = new ImageView("file:C:/Users/matt0/IdeaProjects/IS26-AM14/src/main/resources/totem/" + color + ".png");
+        ImageView totem = new ImageView(getClass().getResource("/totem/" + color + ".png").toExternalForm());
 
         totem.setFitWidth(SMALL_TOTEM_WIDTH);
         totem.setFitHeight(SMALL_TOTEM_HEIGHT);
@@ -1011,9 +1009,7 @@ public class GUIView extends Application implements ViewType {
         // deck update:
         if (modelReference.getAge() > 0) { // update fatto solo se ho l'age mi arriva con l'evento di endRound
             ImageView deck = new ImageView(
-                    "file:C:/Users/matt0/IdeaProjects/IS26-AM14/src/main/resources/deck/"
-                            + modelReference.getAge()
-                            + ".png"
+                    getClass().getResource("/deck/" + modelReference.getAge() + ".png").toExternalForm()
             );
 
             deck.setFitWidth(BOARD_CARD_WIDTH);
@@ -1261,12 +1257,12 @@ public class GUIView extends Application implements ViewType {
 
         Map<StatType, Label> labels = new HashMap<>();  // here we create the map linked to the player
 
-        addStat(grid, labels, StatType.FOOD, "file:C:/Users/matt0/IdeaProjects/IS26-AM14/src/main/resources/stats/food.png", 0, 0);
-        addStat(grid, labels, StatType.AXE, "file:C:/Users/matt0/IdeaProjects/IS26-AM14/src/main/resources/stats/buildingDiscount.png", 0, 2);
-        addStat(grid, labels, StatType.PRESTIGE, "file:C:/Users/matt0/IdeaProjects/IS26-AM14/src/main/resources/stats/prestige.png", 0, 4);
+        addStat(grid, labels, StatType.FOOD, getClass().getResource("/stats/food.png").toExternalForm(), 0, 0);
+        addStat(grid, labels, StatType.AXE, getClass().getResource("/stats/buildingDiscount.png").toExternalForm(), 0, 2);
+        addStat(grid, labels, StatType.PRESTIGE, getClass().getResource("/stats/prestige.png").toExternalForm(), 0, 4);
 
-        addStat(grid, labels, StatType.STARS, "file:C:/Users/matt0/IdeaProjects/IS26-AM14/src/main/resources/stats/stars.png", 1, 0);
-        addStat(grid, labels, StatType.BOWL, "file:C:/Users/matt0/IdeaProjects/IS26-AM14/src/main/resources/stats/gatheringDiscount.png", 1, 2);
+        addStat(grid, labels, StatType.STARS, getClass().getResource("/stats/stars.png").toExternalForm(), 1, 0);
+        addStat(grid, labels, StatType.BOWL, getClass().getResource("/stats/gatheringDiscount.png").toExternalForm(), 1, 2);
 
         playerStatLabels.put(playerName, labels);  // here we put the updated map linked to the player in the map with all the playerStats
 
@@ -1331,7 +1327,7 @@ public class GUIView extends Application implements ViewType {
 
         // TODO: possiamo rendere le carte evento non prendibili sfruttando l'intervallo degli id se vogliamo. Mi sembra meglio come cosa
         private ImageView createPickableCard(int id, int row){
-            ImageView card = new ImageView("file:C:/Users/matt0/IdeaProjects/IS26-AM14/src/main/resources/cardsFront/" + id + ".jpg");
+            ImageView card = new ImageView(getClass().getResource("/cardsFront/" + id + ".jpg").toExternalForm());
             card.setFitWidth(BOARD_CARD_WIDTH);
             card.setFitHeight(BOARD_CARD_HEIGHT);
             card.setPreserveRatio(true);
@@ -1358,7 +1354,7 @@ public class GUIView extends Application implements ViewType {
 
 
     private ImageView createHomeTribeCard(int id){
-        ImageView card = new ImageView("file:C:/Users/matt0/IdeaProjects/IS26-AM14/src/main/resources/cardsFront/" + id + ".jpg");
+        ImageView card = new ImageView(getClass().getResource("/cardsFront/" + id + ".jpg").toExternalForm());
         card.setFitWidth(70);
         card.setFitHeight(105);
         card.setPreserveRatio(true);
@@ -1367,7 +1363,7 @@ public class GUIView extends Application implements ViewType {
     }
 
     private ImageView createAwayTribeCard(int id){
-        ImageView card = new ImageView("file:C:/Users/matt0/IdeaProjects/IS26-AM14/src/main/resources/cardsFront/" + id + ".jpg");
+        ImageView card = new ImageView(getClass().getResource("/cardsFront/" + id + ".jpg").toExternalForm());
         card.setFitWidth(50);
         card.setFitHeight(75);
         card.setPreserveRatio(true);
@@ -1384,7 +1380,7 @@ public class GUIView extends Application implements ViewType {
         trackCard.setMaxSize(BOARD_CARD_WIDTH, BOARD_CARD_HEIGHT);
 
         ImageView cardImage = new ImageView(
-                "file:C:/Users/matt0/IdeaProjects/IS26-AM14/src/main/resources/trackCards/" + name + ".png"
+                getClass().getResource("/trackCards/" + name + ".png").toExternalForm()
         );
 
         cardImage.setFitWidth(BOARD_CARD_WIDTH);
@@ -1429,8 +1425,7 @@ public class GUIView extends Application implements ViewType {
 
     private ImageView createLobbyTotem(String totemColor) {
         ImageView totem = new ImageView(
-                "file:C:/Users/matt0/IdeaProjects/IS26-AM14/src/main/resources/totemLobby/"
-                        + totemColor + ".png"
+                getClass().getResource("/totemLobby/" + totemColor + ".png").toExternalForm()
         );
 
         totem.setFitWidth(300);
