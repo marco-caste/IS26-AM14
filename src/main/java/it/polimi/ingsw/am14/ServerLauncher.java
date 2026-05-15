@@ -19,22 +19,14 @@ public class ServerLauncher {
 //    args[1] = rmi port
     public static void main(String[] args) {
 
-        /*
-        if (there is save data) {
-            prima opzione - ricostruiamo QUI tutti gli oggetti (Game, ecc)
-            seconda opzione - ricostruiamo SOLO il LobbyController dal parser, a cui è poi delegata la
-                ricostruzione della partita e di tutto il resto.
-        }
-        else
-        */
-
         // costruzione degli oggetti tecnici
         NetworkLayer networkLayer = new NetworkLayer();
         LobbyController lobbyController = new LobbyController(networkLayer);
-/*
+
         Path savePath = Path.of("src/main/Saves/save.json");
 
 
+        /*
         if (Files.exists(savePath)) {
             JsonCodec jsonCodec = new JsonCodec();
             lobbyController = jsonCodec.readSaveData("src/main/Saves/save.json");
@@ -45,9 +37,7 @@ public class ServerLauncher {
             }
         } else {
             lobbyController = new LobbyController(networkLayer);
-        }*/
-
-
+        } */
 
         Object[] technicalObjects = {
                 lobbyController,
