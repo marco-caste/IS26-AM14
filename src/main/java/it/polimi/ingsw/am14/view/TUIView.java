@@ -138,7 +138,7 @@ public class TUIView implements ViewType {
 
         if (model != null && this.modelReference == null) {
             this.modelReference = model;
-            this.chosenNickname = model.getHomePlayer();
+            this.chosenNickname = model.getHomePlayerNickname();
             if (chosenNickname.equalsIgnoreCase("marcob")) {
                 lineReader.printAbove("Porterai minecreft?");
                 return;

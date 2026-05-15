@@ -24,6 +24,10 @@ public class LoginSuccesfulEvent extends ServerEvent {
         this.playerNickname = playerNickname;
     }
 
+    public String getPlayerNickname() {
+        return playerNickname;
+    }
+
     @Override
     public void effect(ClientModel model) {
         model.setHomePlayer(new ClientPlayer(playerNickname));

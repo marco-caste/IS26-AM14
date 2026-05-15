@@ -74,8 +74,8 @@ public class SocketServerHandler implements VirtualServerSocket{
                     PingClientRequest request = new PingClientRequest(nickname);
                     String message = jsonWriter.writeClientRequest(request);
                     synchronized (output) {
-                        output.println(message);
-                        output.flush();
+                        pingOutput.println(message);
+                        pingOutput.flush();
                     }
                 }
             } catch (InterruptedException e) {

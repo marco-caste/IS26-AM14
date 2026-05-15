@@ -30,8 +30,8 @@ public class ServerLauncher {
 
         // costruzione degli oggetti tecnici
         NetworkLayer networkLayer = new NetworkLayer();
-        LobbyController lobbyController;
-
+        LobbyController lobbyController = new LobbyController(networkLayer);
+/*
         Path savePath = Path.of("src/main/Saves/save.json");
 
 
@@ -45,7 +45,9 @@ public class ServerLauncher {
             }
         } else {
             lobbyController = new LobbyController(networkLayer);
-        }
+        }*/
+
+
 
         Object[] technicalObjects = {
                 lobbyController,

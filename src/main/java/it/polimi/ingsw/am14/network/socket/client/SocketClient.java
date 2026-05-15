@@ -1,9 +1,11 @@
 package it.polimi.ingsw.am14.network.socket.client;
 
 import it.polimi.ingsw.am14.network.messages.events.Event;
+import it.polimi.ingsw.am14.network.messages.events.LoginSuccesfulEvent;
 import it.polimi.ingsw.am14.utils.JsonCodec;
 import it.polimi.ingsw.am14.clientModel.ClientModel;
 
+import javax.security.auth.login.LoginContext;
 import java.io.*;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
@@ -52,7 +54,8 @@ public class SocketClient {
                 pingSocket.setSoTimeout(PING_TIMEOUT);
                 pingInput = new BufferedReader(new InputStreamReader(pingSocket.getInputStream()));
                 handler.setPingOutput(new BufferedWriter(new OutputStreamWriter(pingSocket.getOutputStream())));
-                handler.pingServer(model.getHomePlayerNickname()); //TODO: giusto?
+                LoginSuccesfulEvent loginEvent = (LoginSuccesfulEvent) event;
+                handler.pingServer(loginEvent.getPlayerNickname());
             }
             new Thread(() -> {
                 try {
@@ -69,7 +72,7 @@ public class SocketClient {
                 } catch (IOException e) {
                     throw new RuntimeException(e.getMessage());
                 }
-            }, "ClientThread-pingListener" + Thread_number).start();
+            }, "ClientThread-pingListener-" + Thread_number).start();
         }
     }
 
