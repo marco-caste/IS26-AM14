@@ -1,4 +1,4 @@
-package it.polimi.ingsw.am14.clientModel;
+package it.polimi.ingsw.am14.clientModelController;
 
 import it.polimi.ingsw.am14.view.ViewType;
 import it.polimi.ingsw.am14.view.viewEvents.ViewEvent;
@@ -6,6 +6,8 @@ import it.polimi.ingsw.am14.view.viewEvents.ViewEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import static it.polimi.ingsw.am14.utils.Constants.*;
 
 public class ClientModel {
 
@@ -156,10 +158,10 @@ public class ClientModel {
         this.age = age;
     }
 
-    public void updatePickPlayerStats(String nickname , int numFodd, int numPrestigePoints, int numStars, int buildingDiscount, int gatheringDiscount){
+    public void updatePickPlayerStats(String nickname , int numFod, int numPrestigePoints, int numStars, int buildingDiscount, int gatheringDiscount){
         ClientPlayer player = getPlayerByNickname(nickname);
         if (player != null) {
-            updatePlayerFood(nickname, numFodd);
+            updatePlayerFood(nickname, numFod);
             updatePlayerPrestigePoints(nickname, numPrestigePoints);
             player.setNumStars(numStars);
             player.setTotalBuildingDiscount(buildingDiscount);
@@ -227,5 +229,65 @@ public class ClientModel {
         for (ViewType observer : observers) {
             observer.disconnect();
         }
+    }
+
+    //Methods used by controller
+
+    public boolean checkPickTurn() {
+        if (homePlayer.getPlayerPosition() == null || homePlayer.getPlayerPosition() == 'A') {
+            return false;
+        }
+        for (ClientPlayer player : otherPlayers) {
+            if (player.getPlayerPosition() != null &&
+                homePlayer.getPlayerPosition() > player.getPlayerPosition()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public int findRowFromCardId(int cardId) {
+        for (int i = 0; i < board.size(); i++) {
+            if (board.get(i).contains(cardId)) {
+                return i;
+            }
+        }
+        return -1; // Card not found
+    }
+
+    public boolean checkRow(int row) {
+        if (row < 0) {
+            return false;
+        }
+        char position = homePlayer.getPlayerPosition();
+        //In these track card you can pick only from top
+        if (position == 'C' || position == 'F' && row == BOTTOM_DECKABLE_ROW || row == BOTTOM_BUILDING_ROW) {
+            return false;
+        }
+        //In these track card you can pick only from the bottom
+        if (position == 'B' || position == 'D' && row == TOP_BUILDING_ROW || row == TOP_DECKABLE_ROW) {
+            return false;
+        }
+        return true;
+    }
+
+    public boolean checkPlaceTurn() {
+        if (playerOrderInTurnOrderCard.getFirst().equals(getHomePlayerNickname())) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean checkTotemPosition(char position) {
+        List<Character> validPositions = offersPath.get(numPlayers);
+        if (!validPositions.contains(position)) {
+            return false;
+        }
+        for (ClientPlayer player : otherPlayers) {
+            if (player.getPlayerPosition() != null && player.getPlayerPosition().equals(position)) {
+                return false;
+            }
+        }
+        return true;
     }
 }

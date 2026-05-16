@@ -1,7 +1,7 @@
 package it.polimi.ingsw.am14.network.messages.events;
 
 import it.polimi.ingsw.am14.network.NetworkLayer;
-import it.polimi.ingsw.am14.clientModel.ClientModel;
+import it.polimi.ingsw.am14.clientModelController.ClientModel;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;

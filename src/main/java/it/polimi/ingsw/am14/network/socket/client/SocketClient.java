@@ -3,9 +3,8 @@ package it.polimi.ingsw.am14.network.socket.client;
 import it.polimi.ingsw.am14.network.messages.events.Event;
 import it.polimi.ingsw.am14.network.messages.events.LoginSuccesfulEvent;
 import it.polimi.ingsw.am14.utils.JsonCodec;
-import it.polimi.ingsw.am14.clientModel.ClientModel;
+import it.polimi.ingsw.am14.clientModelController.ClientModel;
 
-import javax.security.auth.login.LoginContext;
 import java.io.*;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
@@ -88,7 +87,7 @@ public class SocketClient {
         }
     }
 
-    private void runPingClient() throws SocketTimeoutException, IOException {
+    private void runPingClient() throws IOException {
         while (pingInput.readLine() != null) {
             // do nothing, just wait for the timeout
         }

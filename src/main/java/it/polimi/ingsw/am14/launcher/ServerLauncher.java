@@ -1,14 +1,10 @@
-package it.polimi.ingsw.am14;
+package it.polimi.ingsw.am14.launcher;
 
 import it.polimi.ingsw.am14.network.NetworkLayer;
 import it.polimi.ingsw.am14.controller.LobbyController;
 import it.polimi.ingsw.am14.network.rmi.RmiServerLauncher;
 import it.polimi.ingsw.am14.network.socket.SocketServerLauncher;
-import it.polimi.ingsw.am14.utils.JsonCodec;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static it.polimi.ingsw.am14.utils.Constants.PING_INTERVAL;

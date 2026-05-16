@@ -2,8 +2,8 @@ package it.polimi.ingsw.am14.network.messages.events;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import it.polimi.ingsw.am14.clientModel.ClientModel;
-import it.polimi.ingsw.am14.clientModel.ClientPlayer;
+import it.polimi.ingsw.am14.clientModelController.ClientModel;
+import it.polimi.ingsw.am14.clientModelController.ClientPlayer;
 import it.polimi.ingsw.am14.network.NetworkLayer;
 import it.polimi.ingsw.am14.network.VirtualClient;
 import it.polimi.ingsw.am14.network.VirtualServer;
