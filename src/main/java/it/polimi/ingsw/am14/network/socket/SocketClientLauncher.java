@@ -49,9 +49,6 @@ public class SocketClientLauncher {
 
         SocketClient client = new SocketClient(in, model, serverHandler, socket);
 
-        // args[2] = nickname
-        //TODO: serverHandler.pingServer(args[2]); da rimuovere?
-
         client.run();
 
         return serverHandler;

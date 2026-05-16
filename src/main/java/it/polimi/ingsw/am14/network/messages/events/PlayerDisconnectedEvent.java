@@ -34,6 +34,7 @@ public class PlayerDisconnectedEvent extends ServerEvent{
             networkLayer.removeBuffer(client);
         }
         networkLayer.removeClientBy(nickname);
+        networkLayer.removeClientFromGameId(client, gameId);
         networkLayer.broadcastUpdate(this, gameId);
         if (gameId >= 0) {
             networkLayer.removeGame(gameId);

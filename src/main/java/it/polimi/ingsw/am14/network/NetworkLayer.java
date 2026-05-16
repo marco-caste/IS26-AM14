@@ -118,6 +118,14 @@ public class NetworkLayer implements Observer {
         }
     }
 
+    public void removeClientFromGameId(VirtualClient client, int gameId) {
+        synchronized (this.gameIdToClients) {
+            if (this.gameIdToClients.containsKey(gameId)) {
+                this.gameIdToClients.get(gameId).remove(client);
+            }
+        }
+    }
+
     public void notifyBufferForClient(VirtualClient client) {
         EventBuffer buffer = getBuffer(client);
         if (buffer != null) {
@@ -144,7 +152,7 @@ public class NetworkLayer implements Observer {
                 try {
                     client.pingClient();
                 } catch (Exception e) {
-                    throw new RuntimeException(e.getMessage());
+                    System.err.println("[NetworkLayer] Failed to ping client: " + e.getMessage());
                 }
             }
         }
