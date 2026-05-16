@@ -339,7 +339,8 @@ class PickState extends GameState {
                         context.getGameId(),
                         player.getTotalBuildingDiscount(),
                         player.getTotalGatheringDiscount(),
-                        player.getNumStars()
+                        player.getNumStars(),
+                        wasLastPick
 
                 )
         );

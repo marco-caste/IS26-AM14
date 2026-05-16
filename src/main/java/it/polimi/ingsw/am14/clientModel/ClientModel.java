@@ -159,10 +159,10 @@ public class ClientModel {
         this.age = age;
     }
 
-    public void updatePickPlayerStats(String nickname , int numFodd, int numPrestigePoints, int numStars, int buildingDiscount, int gatheringDiscount){
+    public void updatePickPlayerStats(String nickname , int numFod, int numPrestigePoints, int numStars, int buildingDiscount, int gatheringDiscount){
         ClientPlayer player = getPlayerByNickname(nickname);
         if (player != null) {
-            updatePlayerFood(nickname, numFodd);
+            updatePlayerFood(nickname, numFod);
             updatePlayerPrestigePoints(nickname, numPrestigePoints);
             player.setNumStars(numStars);
             player.setTotalBuildingDiscount(buildingDiscount);
