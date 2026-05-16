@@ -55,10 +55,7 @@ public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
                                         try {
                                             client.update(event);
                                         } catch (RemoteException e) {
-                                            // Client disconnected during event send - do full cleanup
                                             System.err.println("[RMI Server] Client '" + nickname + "' unreachable during update: " + e.getMessage());
-                                            System.err.println("[RMI Server] Performing cleanup for '" + nickname + "'");
-                                            cleanupClient(nickname, client);
                                             Thread.currentThread().interrupt();
                                             return;
                                         }
@@ -82,9 +79,7 @@ public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
                     System.err.println("[RMI Server] Failed to notify client about duplicate nickname: " + ex.getMessage());
                 }
             } catch (Exception e) {
-                // connectUser() failed
                 System.err.println("[RMI Server] Error during client connection for '" + nickname + "': " + e.getMessage());
-                cleanupClient(nickname, client);
             }
         }, "RMIConnect-" + nickname).start();
     }
@@ -186,17 +181,5 @@ public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
         new Thread(() -> {
             lobbyController.handlePingRequest(nickname);
         }, "RMIPingClient-" + nickname).start();
-    }
-
-    private void cleanupClient(String nickname, VirtualClientRmi client) {
-        try {
-            networkLayer.removeThreadsByClient(client);
-            networkLayer.removeBuffer(client);
-            networkLayer.removeClientBy(nickname);
-            
-            System.err.println("[RMI Server] RMI client '" + nickname + "' cleaned up successfully");
-        } catch (Exception e) {
-            System.err.println("[RMI Server] Error during RMI client cleanup for '" + nickname + "': " + e.getMessage());
-        }
     }
 }

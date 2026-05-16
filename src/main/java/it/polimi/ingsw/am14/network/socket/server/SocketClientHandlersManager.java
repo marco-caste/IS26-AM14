@@ -76,7 +76,6 @@ public class SocketClientHandlersManager {
                         handler.runVirtualView();
                     } catch (Exception e) {
                         System.err.println("[Server] Error in listener thread: " + e.getMessage());
-                        controller.disconnectUser(handler.getNickname());
                     }
                 }, "ServerThread-Listener" + Thread_number);
                 thread1.start();
@@ -109,7 +108,6 @@ public class SocketClientHandlersManager {
                         }
                     } catch (Exception e) {
                         System.err.println("[Server] Error in buffering thread: " + e.getMessage());
-                        controller.disconnectUser(handler.getNickname());
                     }
                 }, "ServerThread-Buffering" + Thread_number);
                 thread2.start();

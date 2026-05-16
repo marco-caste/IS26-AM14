@@ -40,10 +40,6 @@ public class RmiClient extends UnicastRemoteObject implements VirtualClientRmi, 
 
     @Override
     public void pingClient() throws RemoteException {
-        // TODO: receiving pings from server
-        // if timer expires, disconnect from server and notify the view
-        // TODO: how to disconnect rmi client from server?
-        // current solution: will call again connect, which overwrites the server reference
         lastPingReceived = System.currentTimeMillis();
     }
 
