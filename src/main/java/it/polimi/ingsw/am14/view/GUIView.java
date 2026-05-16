@@ -5,12 +5,14 @@ import it.polimi.ingsw.am14.clientModel.ClientPlayer;
 import it.polimi.ingsw.am14.model.gameLogic.TotemColor;
 import it.polimi.ingsw.am14.network.EntryPointFactory;
 import it.polimi.ingsw.am14.network.VirtualServer;
+import javafx.animation.TranslateTransition;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Cursor;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -18,6 +20,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 import java.io.IOException;
 import java.util.*;
@@ -782,6 +785,23 @@ public class GUIView extends Application implements ViewType {
     // ============================================================
     // GAME SCENE
     // ============================================================
+    private void addHoverEffect(ImageView card) {
+        card.setOnMouseEntered(e -> {
+            TranslateTransition tt = new TranslateTransition(Duration.millis(120), card);
+            tt.setToY(-12);
+            tt.play();
+        });
+
+        card.setOnMouseExited(e -> {
+            TranslateTransition tt = new TranslateTransition(Duration.millis(120), card);
+            tt.setToY(0);
+            tt.play();
+        });
+    }
+    private void addHoverEffect(Node node) {
+        node.setOnMouseEntered(e -> node.setTranslateY(-12));
+        node.setOnMouseExited(e -> node.setTranslateY(0));
+    }
 
     private void createGameScene() {
         BorderPane root = new BorderPane();
@@ -1382,6 +1402,7 @@ public class GUIView extends Application implements ViewType {
             card.setFitHeight(BOARD_CARD_HEIGHT);
             card.setPreserveRatio(true);
             card.setSmooth(true);
+            addHoverEffect(card);
 
 
             card.setCursor(Cursor.HAND);
@@ -1441,6 +1462,7 @@ public class GUIView extends Application implements ViewType {
         trackCard.getChildren().addAll(cardImage, trackCardtotemLayer);
 
         trackCard.setCursor(javafx.scene.Cursor.HAND);
+        addHoverEffect(trackCard);
 
         trackCard.setOnMouseClicked(event -> {
             if (!totemClicked) {

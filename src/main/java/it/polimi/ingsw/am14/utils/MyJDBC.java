@@ -53,19 +53,5 @@ public class MyJDBC {
         return rank;
     }
 }
-//    public static void main(String[] args) throws SQLException {
-//
-//        saveToDB(1,"michael", 1, 4);
-//        saveToDB(1,"lorenzo", 15, 4);
-//        saveToDB(1,"marco", 12, 4);
-//        saveToDB(1,"matteo", 10, 4);
-//
-//
-//
-//        ArrayList<String> ranking = readRanking(4);
-//        for (String entry : ranking) {
-//            System.out.println(entry);
-//        }
-//    }
-//}
+
 
