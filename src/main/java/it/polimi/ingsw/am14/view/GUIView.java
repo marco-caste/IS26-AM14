@@ -31,6 +31,7 @@ import java.util.*;
 // finire sempre a definire il design grafico del login, game choiche e lobby con i i tre totem a sx leggermente decentrati
 
 
+
 public class GUIView extends Application implements ViewType {
 
     // sono tutti a null fino a quando non verranno inizializzati
@@ -43,8 +44,9 @@ public class GUIView extends Application implements ViewType {
     private Scene gameScene;
 
     private VBox loginBox;
-    private VBox initialChoiceBox;
-
+    private Label gameChoiceErrorLabel;
+    private Label loginErororLabel;
+    private Label lobbyNumPlayerLabel;
 
     //topGameScene
     private Label serverMessage;
@@ -79,18 +81,20 @@ public class GUIView extends Application implements ViewType {
     }
 
     private final Map<String, Map<StatType, Label>> playerStatLabels = new HashMap<>();
-
+    private String updateType;
 
     @Override
     public void start(Stage primaryStage) {
         this.primaryStage = primaryStage;
 
-        Scene loginScene = new Scene(createNicknameRoot(), 1400, 900);
+        Scene loginScene = new Scene(createLoginScene(), 1400, 900);
 
         primaryStage.setTitle("Login");
         primaryStage.setScene(loginScene);
         primaryStage.show();
     }
+
+
 
     @Override
     public void run() throws IOException {
@@ -98,26 +102,31 @@ public class GUIView extends Application implements ViewType {
         // JavaFX chiama automaticamente start(Stage primaryStage) dopo launch().
     }
 
+
+
     @Override
     public void update(ClientModel model, String eventChoice) {
 
         this.modelReference = model;
-
         System.out.println("GUI update received: " + eventChoice);
-        System.out.println(model.getHomePlayer().getNickname());
 
+        updateType = eventChoice;
 
         Platform.runLater(() -> {
         switch (eventChoice) {
             case "login" -> updateLogin();
-            case "gameChoice" -> updateChoiceScene();
-            case "lobbyUpdate" -> updateLobbyTotems();
+            case "gameChoice" -> {
+                updateChoiceScene();
+                updateLobby();
+            }
+            case "lobbyUpdate" -> updateLobby();
             case "gameStart" -> gameCreation();
             case "pickUpdate","endRound", "endGame" -> {
                 updateBoard();
                 updateTribes();
                 updateTop(modelReference.getMessage());
                 updatePlayerStats();
+                updateoffersPathBox();
             }
             case "positionUpdate" -> {
                 updateoffersPathBox();
@@ -138,28 +147,39 @@ public class GUIView extends Application implements ViewType {
 
             //TODO: parte di riconnessione
         }
-        this.modelReference = model;
+
         });
     }
 
 
 
+
+    //TODO: per disconnessione
     @Override
     public void disconnect() {
 
     }
 
 
-    private BorderPane createNicknameRoot() {
+
+
+    private BorderPane createLoginScene() {
         BorderPane root = new BorderPane();
+        Image backgroundImage = new Image(getClass().getResource("/background/login.png").toExternalForm());
+
+        BackgroundImage bgImage = new BackgroundImage(
+                backgroundImage,
+                BackgroundRepeat.NO_REPEAT,
+                BackgroundRepeat.NO_REPEAT,
+                BackgroundPosition.CENTER,
+                new BackgroundSize(100, 100, true, true, false, true)
+        );
+
+        root.setBackground(new Background(bgImage));
 
 
-
-        root.setStyle("""
-        -fx-background-color: linear-gradient(to bottom, #2b1230, #5b1630);
-        -fx-padding: 30;
-                    """);
-
+        //=====================================//
+        //Labels
         Label title = new Label("Mesos");
         title.setStyle("""
         -fx-text-fill: white;
@@ -167,21 +187,12 @@ public class GUIView extends Application implements ViewType {
         -fx-font-weight: bold;
 """);
 
-        Label subtitle = new Label("Inserisci il tuo nickname");
+        Label subtitle = new Label("Chose your Nickname");
         subtitle.
-                setStyle("""
-                -fx-text-fill: white;
+                setStyle(""" 
+             -fx-text-fill: white;
                 -fx-font-size: 20;
     """);
-
-        TextField nicknameField = new TextField();
-        nicknameField.setPromptText("Nickname");
-        nicknameField.setMaxWidth(300);
-
-        ComboBox<String> connectionTypeBox = new ComboBox<>();
-        connectionTypeBox.getItems().addAll("Socket", "RMI");
-        connectionTypeBox.setValue("Socket");
-        connectionTypeBox.setMaxWidth(300);
 
         Label connectionLabel = new Label("Connection type");
         connectionLabel.setStyle(
@@ -190,31 +201,40 @@ public class GUIView extends Application implements ViewType {
         -fx-font-size: 16;
     """);
 
-        Label serverIpAddress = new Label("Insert server IP address");
-        serverIpAddress.setStyle("""
-    -fx-text-fill: white;
-    -fx-font-size: 16;
-""");
+        loginErororLabel = new Label();
+        loginErororLabel.setStyle("""
+        -fx-text-fill: #ffb3b3;
+        -fx-font-size: 14;
+        -fx-font-weight: bold;
+        -fx-effect: dropshadow(gaussian, black, 5, 0.7, 1, 1);
+    """);
+
+
+
+        //==============================================//
+        //TextFields
+        TextField nicknameField = new TextField();
+        nicknameField.setPromptText("Nickname");
+        nicknameField.setMaxWidth(300);
+        nicknameField.setPrefWidth(300);
+        nicknameField.setMaxWidth(300);
 
         TextField ipField = new TextField();
-        ipField.setPromptText("ipField");
+        ipField.setPromptText("server IP");
         ipField.setMaxWidth(300);
+        ipField.setPrefWidth(210);
+        ipField.setMaxWidth(210);
 
-
-        Label serverPort = new Label("Insert server port");
-        serverPort.setStyle("""
-    -fx-text-fill: white;
-    -fx-font-size: 16;
-""");
 
         TextField portField = new TextField();
-        portField.setPromptText("serverPort");
+        portField.setPromptText("server Port");
         portField.setMaxWidth(300);
+        portField.setPrefWidth(80);
+        portField.setMaxWidth(80);
 
 
-        Label errorLabel = new Label();
-        errorLabel.setStyle("-fx-text-fill: #ffb3b3; -fx-font-size: 14;");
-
+        //==============================================//
+        //Buttons
         Button connectButton = new Button("Login");
         connectButton.setStyle(
                 """
@@ -224,58 +244,47 @@ public class GUIView extends Application implements ViewType {
     """);
 
 
+        ComboBox<String> connectionTypeBox = new ComboBox<>();
+        connectionTypeBox.getItems().addAll("Socket", "RMI");
+        connectionTypeBox.setValue("Socket");
+        connectionTypeBox.setMaxWidth(300);
+
+
         connectButton.setOnAction(event -> {
             String insertedNickname = nicknameField.getText().trim();
             String insertedIp = ipField.getText().trim();
             String insertedPort = portField.getText().trim();
 
             if (insertedNickname.isEmpty()) {
-                errorLabel.setText("Inserisci un nickname valido.");
+                loginErororLabel.setText("Insert a valid Nickname");
                 return;
             }
 
             String netProtocol = connectionTypeBox.getValue().toLowerCase();
-
-            connect(insertedNickname, netProtocol, insertedIp, insertedPort);
-
-            System.out.println("Trying connect:");
-            System.out.println("protocol = " + netProtocol);
-            System.out.println("ip = " + insertedIp);
-            System.out.println("port = " + insertedPort);
-            System.out.println("nickname = " + insertedNickname);
-
+            connect(insertedNickname, netProtocol, insertedIp, insertedPort); // we call connect
 
         });
 
         nicknameField.setOnAction(event -> connectButton.fire());
 
+
         loginBox = new VBox(12);
         loginBox.setAlignment(Pos.CENTER);
         loginBox.setMaxWidth(420);
         loginBox.setStyle("""
-    -fx-background-color: rgba(255, 255, 255, 0.12);
+    -fx-background-color: transparent;
     -fx-background-radius: 16;
     -fx-padding: 35;
 """);
 
-        nicknameField.setPrefWidth(300);
-        nicknameField.setMaxWidth(300);
-
-        ipField.setPrefWidth(210);
-        ipField.setMaxWidth(210);
-
-        portField.setPrefWidth(80);
-        portField.setMaxWidth(80);
 
         HBox serverBox = new HBox(10);
         serverBox.setAlignment(Pos.CENTER);
         serverBox.getChildren().addAll(ipField, portField);
-
         connectionTypeBox.setPrefWidth(300);
         connectionTypeBox.setMaxWidth(300);
 
         VBox.setMargin(connectButton, new Insets(10, 0, 0, 0));
-
         loginBox.getChildren().addAll(
                 title,
                 subtitle,
@@ -284,7 +293,8 @@ public class GUIView extends Application implements ViewType {
                 connectionLabel,
                 connectionTypeBox,
                 connectButton,
-                errorLabel
+                loginErororLabel
+
         );
 
         root.setCenter(loginBox);
@@ -292,9 +302,10 @@ public class GUIView extends Application implements ViewType {
     }
 
 
+
     private void showGameChoiceScene() {
         if (gameChoiceScene == null) {
-            gameChoiceScene = new Scene(createGameChoiceRoot(), 1400, 900);
+            gameChoiceScene = new Scene(createGameChoiceScene(), 1400, 900);
         }
 
         primaryStage.setTitle("Game Menu");
@@ -302,155 +313,204 @@ public class GUIView extends Application implements ViewType {
     }
 
 
-    private void updateLogin() {
-        if (modelReference == null || loginBox == null) return;
 
-        if (modelReference.getHomePlayer() != null) {
+    private void updateLogin() {
+
+        if (updateType.equals("exception"))
+            loginErororLabel.setText(modelReference.getMessage());
+        else
             showGameChoiceScene();
-        } else {
-            Label error = (Label) loginBox.getChildren().getLast();
-            error.setText(modelReference.getMessage());
-        }
     }
 
 
 
-    private BorderPane createGameChoiceRoot() {
+    private BorderPane createGameChoiceScene() {
         BorderPane root = new BorderPane();
 
-        root.setStyle(
-                """
-        -fx-background-color: linear-gradient(to bottom, #2b1230,
-                #5b1630);
-                    -fx-padding: 30;
-    """);
+        Image backgroundImage = new Image(
+                getClass().getResource("/background/login.png").toExternalForm()
+        );
+
+        BackgroundImage bgImage = new BackgroundImage(
+                backgroundImage,
+                BackgroundRepeat.NO_REPEAT,
+                BackgroundRepeat.NO_REPEAT,
+                BackgroundPosition.CENTER,
+                new BackgroundSize(100, 100, true, true, false, true)
+        );
+
+        root.setBackground(new Background(bgImage));
 
         Label title = new Label("HELLO WELCOME TO MESOS");
-        title.
-                setStyle("""
-
-                -fx-text-fill: white;
-                -fx-font-size: 38;
-                -fx-font-weight: bold;
+        title.setStyle("""
+        -fx-text-fill: white;
+        -fx-font-size: 38;
+        -fx-font-weight: bold;
+        -fx-effect: dropshadow(gaussian, black, 8, 0.8, 2, 2);
     """);
 
-        VBox joinBox = new VBox(10);
-        VBox createBox = new VBox(10);
+        BorderPane.setAlignment(title, Pos.CENTER);
+        BorderPane.setMargin(title, new Insets(35, 0, 0, 0));
+        root.setTop(title);
+
+        VBox createBox = new VBox(14);
+        createBox.setAlignment(Pos.CENTER);
+        createBox.setPrefWidth(280);
+        createBox.setStyle("""
+        -fx-background-color: transparent;
+        -fx-background-radius: 16;
+        -fx-padding: 25;
+    """);
+
+        VBox joinBox = new VBox(14);
+        joinBox.setAlignment(Pos.CENTER);
+        joinBox.setPrefWidth(280);
+        joinBox.setStyle("""
+        -fx-background-color: transparent;
+        -fx-background-radius: 16;
+        -fx-padding: 25;
+    """);
+
+        VBox centerBox = new VBox(12);
+        centerBox.setAlignment(Pos.CENTER);
+        centerBox.setPrefWidth(300);
+        centerBox.setStyle("""
+        -fx-background-color: transparent;
+        -fx-background-radius: 16;
+        -fx-padding: 10;
+    """);
 
         Button createGameButton = new Button("Create Game");
         Button joinGameButton = new Button("Join Game");
 
-        Label idLabel = new Label("GAME ID");
-        idLabel.setStyle("""
-                -fx-text-fill: white;
-                -fx-font-size: 16;
- """);
-
-        Label errorLabel = new Label();
-        errorLabel.setStyle("-fx-text-fill: #ffb3b3; -fx-font-size: 14;");
-
-
-        ComboBox<Integer> playersNumberBox = new ComboBox<>();
-        playersNumberBox.getItems().addAll(2,3,4,5);
-        playersNumberBox.setValue(2);
-        playersNumberBox.setMaxWidth(300);
-
-        ComboBox<TotemColor> totemBox = new ComboBox<>();
-        totemBox.getItems().addAll(TotemColor.RED, TotemColor.BLUE, TotemColor.PURPLE, TotemColor.WHITE, TotemColor.YELLOW);
-        totemBox.setValue(TotemColor.RED);
-        totemBox.setMaxWidth(300);
-
-
-        TextField idField = new TextField();
-        idField.setPromptText("Game ID");
-        idField.setMaxWidth(300);
-
         createGameButton.setPrefWidth(240);
         joinGameButton.setPrefWidth(240);
 
-        createGameButton.
-                setStyle("""
-
-                -fx-font-size: 17;
-                    -fx-font-weight: bold;
-                    -fx-padding: 10 20 10 20;
-    """);
-
-        joinGameButton.setStyle(
-                """
+        createGameButton.setStyle("""
         -fx-font-size: 17;
         -fx-font-weight: bold;
         -fx-padding: 10 20 10 20;
     """);
 
+        joinGameButton.setStyle("""
+        -fx-font-size: 17;
+        -fx-font-weight: bold;
+        -fx-padding: 10 20 10 20;
+    """);
+
+        ComboBox<Integer> playersNumberBox = new ComboBox<>();
+        playersNumberBox.getItems().addAll(2, 3, 4, 5);
+        playersNumberBox.setValue(2);
+        playersNumberBox.setMaxWidth(240);
+
+        ComboBox<TotemColor> totemColorBox = new ComboBox<>();
+        totemColorBox.getItems().addAll(
+                TotemColor.RED,
+                TotemColor.BLUE,
+                TotemColor.PURPLE,
+                TotemColor.WHITE,
+                TotemColor.YELLOW
+        );
+        totemColorBox.setValue(TotemColor.RED);
+        totemColorBox.setMaxWidth(240);
+
+        TextField idField = new TextField();
+        idField.setPromptText("Game ID");
+        idField.setMaxWidth(240);
+
+        gameChoiceErrorLabel = new Label();
+        gameChoiceErrorLabel.setWrapText(true);
+        gameChoiceErrorLabel.setMaxWidth(260);
+        gameChoiceErrorLabel.setAlignment(Pos.CENTER);
+        gameChoiceErrorLabel.setStyle("""
+        -fx-text-fill: #ffb3b3;
+        -fx-font-size: 14;
+        -fx-font-weight: bold;
+        -fx-effect: dropshadow(gaussian, black, 5, 0.7, 1, 1);
+    """);
+
+        Label colorLabel = new Label("Choose your totem color");
+        colorLabel.setStyle("""
+        -fx-text-fill: white;
+        -fx-font-size: 16;
+        -fx-font-weight: bold;
+    """);
+
+        Label playersLabel = new Label("Number of players");
+        playersLabel.setStyle("""
+        -fx-text-fill: white;
+        -fx-font-size: 16;
+        -fx-font-weight: bold;
+    """);
+
+        Label gameIdLabel = new Label("Game ID");
+        gameIdLabel.setStyle("""
+        -fx-text-fill: white;
+        -fx-font-size: 16;
+        -fx-font-weight: bold;
+    """);
+
+        createBox.getChildren().addAll(
+                playersLabel,
+                playersNumberBox,
+                createGameButton
+        );
+
+        centerBox.getChildren().addAll(
+                gameChoiceErrorLabel,
+                colorLabel,
+                totemColorBox
+        );
+
+        joinBox.getChildren().addAll(
+                gameIdLabel,
+                idField,
+                joinGameButton
+        );
+
+
+
+        HBox mainContent = new HBox(90);
+        mainContent.setAlignment(Pos.CENTER);
+        mainContent.getChildren().addAll(createBox, centerBox, joinBox);
+
+        createBox.setTranslateY(-200);
+        joinBox.setTranslateY(-200);
+        centerBox.setTranslateY(-20);
+
+        BorderPane.setAlignment(mainContent, Pos.CENTER);
+        root.setCenter(mainContent);
 
         createGameButton.setOnAction(event -> {
-            if (totemBox.getValue() == null || playersNumberBox.getValue() == null) {
-                errorLabel.setText("Please fill in the missing fields to create your game.");
-                return;
-            }
-
-            String insertedNickname = modelReference.getHomePlayer().getNickname();
-            String totemColorChoice = totemBox.getValue().toString();
+            String insertedNickname = modelReference.getHomePlayerNickname();
+            String totemColorChoice = totemColorBox.getValue().toString().toLowerCase();
             int numPlayersChoice = playersNumberBox.getValue();
 
             createGame(insertedNickname, numPlayersChoice, totemColorChoice);
         });
 
-
         joinGameButton.setOnAction(event -> {
 
-            // check phase;
-            if (totemBox.getValue() == null) {
-                errorLabel.setText("Please select a totem color.");
-                return;
-            }
-
             String gameIdText = idField.getText().trim();
-            if (gameIdText.isEmpty()) {
-                errorLabel.setText("Please enter a game ID.");
-                return;
-            }
-
             int gameId;
+
             try {
                 gameId = Integer.parseInt(gameIdText);
             } catch (NumberFormatException e) {
-                errorLabel.setText("Please enter a valid numeric game ID.");
+                gameChoiceErrorLabel.setText("Please enter a valid numeric game ID.");
                 return;
             }
 
-            String insertedNickname = modelReference.getHomePlayer().getNickname();
-            String totemColorChoice = totemBox.getValue().toString();
+            String insertedNickname = modelReference.getHomePlayerNickname();
+            String totemColorChoice = totemColorBox.getValue().toString().toLowerCase();
+
 
             joinGame(insertedNickname, gameId, totemColorChoice);
+
         });
-
-        joinBox.getChildren().addAll(
-                joinGameButton,
-                idLabel,
-                idField
-        );
-        createBox.getChildren().addAll(
-                createGameButton,
-                playersNumberBox
-        );
-
-        initialChoiceBox = new VBox(22);
-        initialChoiceBox.setAlignment(Pos.CENTER);
-        initialChoiceBox.getChildren().addAll(
-                title,
-                createBox,
-                joinBox,
-                totemBox,
-                errorLabel
-        );
-
-        root.setCenter(initialChoiceBox);
 
         return root;
     }
-
 
 
     //TODO: gestione colore già preso, devo verificare se marco ha inserito questo check nella gestione nuova
@@ -458,11 +518,8 @@ public class GUIView extends Application implements ViewType {
 
         if (gameChoiceScene == null)  // check per gli update che arrivano prima che la scena venga creata, così evitiamo errori di null pointer
             return;
-
-        if(modelReference.getMessage().equals("Game with the specified ID does not exist")){ // Id non esistente --> la join non è andata a buon fine
-            Label error = (Label) initialChoiceBox.getChildren().getLast();
-            error.setText("Il game ID inserito non esiste, controlla di averlo scritto correttamente.");
-
+        if(updateType.equals("exception")){
+            gameChoiceErrorLabel.setText("Game with this GAMEID doesn't exist,try another.");
         } else
             showLobbyScene(); // se la create o join è andata a buon fine passo alla scena successiva (lobby)
     }
@@ -470,7 +527,7 @@ public class GUIView extends Application implements ViewType {
 
     private void showLobbyScene() {
         if (lobbyScene == null) {
-            lobbyScene = new Scene(createLobbyRoot(), 1400, 900);
+            lobbyScene = new Scene(createLobbyScene(), 1400, 900);
         }
 
         primaryStage.setTitle("Lobby");
@@ -480,7 +537,7 @@ public class GUIView extends Application implements ViewType {
     }
 
 
-    private StackPane createLobbyRoot() {
+    private StackPane createLobbyScene() {
         StackPane lobbyRoot = new StackPane();
 
         ImageView background = new ImageView(getClass().getResource("/background/lobby.png").toExternalForm()); // adding the bg
@@ -492,7 +549,7 @@ public class GUIView extends Application implements ViewType {
         lobbyTotemLayer = new Pane();
         lobbyTotemLayer.setPickOnBounds(false);
 
-        updateLobbyTotems(); // inserisce i totem dei player presenti
+        updateLobby(); // inserisce i totem dei player presenti
 
         VBox topOverlay = createLobbyLabels();
 
@@ -525,7 +582,8 @@ public class GUIView extends Application implements ViewType {
         -fx-effect: dropshadow(gaussian, black, 8, 0.8, 2, 2);
     """);
 
-        Label lobbyGameIdLabel = new Label("Game ID: 0");
+
+        Label lobbyGameIdLabel = new Label("GAME ID: " + modelReference.getGameId());
         lobbyGameIdLabel.setStyle("""
         -fx-text-fill: #ffd36b;
         -fx-font-size: 17;
@@ -533,21 +591,23 @@ public class GUIView extends Application implements ViewType {
         -fx-effect: dropshadow(gaussian, black, 6, 0.8, 1, 1);
     """);
 
-        Label lobbyMessageLabel = new Label("Waiting for players...");
-        lobbyMessageLabel.setStyle("""
+
+        lobbyNumPlayerLabel = new Label("Waiting for players : 1 /" + modelReference.getNumPlayers()) ;
+        lobbyNumPlayerLabel.setStyle("""
         -fx-text-fill: white;
         -fx-font-size: 15;
         -fx-effect: dropshadow(gaussian, black, 6, 0.8, 1, 1);
     """);
 
-        box.getChildren().addAll(title, lobbyGameIdLabel, lobbyMessageLabel);
+        box.getChildren().addAll(title, lobbyGameIdLabel, lobbyNumPlayerLabel);
 
         return box;
     }
 
-    private void updateLobbyTotems() {
-        if (lobbyTotemLayer == null || modelReference == null) return;
 
+    private void updateLobby() {
+        if (lobbyScene== null) return;
+        int playerNumber = 0;
         lobbyTotemLayer.getChildren().clear();
 
         ArrayList<ClientPlayer> players = new ArrayList<>();
@@ -562,6 +622,7 @@ public class GUIView extends Application implements ViewType {
 
         for (ClientPlayer player : players) {
             if (player == null) continue;
+            playerNumber++;
 
             String color = player.getTotemColor();
 
@@ -571,6 +632,8 @@ public class GUIView extends Application implements ViewType {
             placeTotemByColor(totemBox, color);
             lobbyTotemLayer.getChildren().add(totemBox);
         }
+
+        lobbyNumPlayerLabel = new Label("Waiting for players : "+ playerNumber + "/" + modelReference.getNumPlayers());
     }
 
     // metodo serve per adattare i totem quando andiamo a stringere la finestra, moltiplica il loro ratio per un x e y in base a come viene ridotta la finestra( commento in ita in quanto serve a me)
@@ -620,10 +683,6 @@ public class GUIView extends Application implements ViewType {
 
         String color = player.getTotemColor();
 
-        if (color == null) {
-            return box;
-        }
-
         Label name = new Label(player.getNickname());
         name.setStyle("""
         -fx-text-fill: white;
@@ -662,8 +721,7 @@ public class GUIView extends Application implements ViewType {
         try {
             server.createGame(chosenNickname, numPlayers,totemColor);
         } catch (Exception e) {
-            Label error = (Label) initialChoiceBox.getChildren().getLast();
-            error.setText("A network error occurred while sending your request. Please try again.");
+            gameChoiceErrorLabel.setText("A network error occurred while sending your request. Please try again.");
         }
     }
 
@@ -672,9 +730,9 @@ public class GUIView extends Application implements ViewType {
 
         try {
             server.joinGame(nickname, gameId, totemColor);
+            System.out.println("invio metodo");
         } catch (Exception e) {
-            Label error = (Label) initialChoiceBox.getChildren().getLast();
-            error.setText("A network error occurred while sending your request. Please try again.");
+            gameChoiceErrorLabel.setText("A network error occurred while sending your request. Please try again.");
         }
 
     }
