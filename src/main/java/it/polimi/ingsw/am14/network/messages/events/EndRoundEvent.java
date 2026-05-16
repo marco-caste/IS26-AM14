@@ -8,6 +8,7 @@ import it.polimi.ingsw.am14.model.boardComponents.Board;
 import it.polimi.ingsw.am14.model.cards.Card;
 import it.polimi.ingsw.am14.model.gameLogic.Player;
 import it.polimi.ingsw.am14.clientModel.ClientModel;
+import it.polimi.ingsw.am14.view.viewEvents.EndRoundViewEvent;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -93,7 +94,7 @@ public class EndRoundEvent extends UpdateEvent {
         model.updatePlayerRoundAttributes(playersAttributes);
         model.setMessage(description);
         model.updateAge(currentAge);
-        model.notifyObservers("endRound");
+        model.notifyObservers(new EndRoundViewEvent());
     }
 
 
@@ -105,15 +106,4 @@ public class EndRoundEvent extends UpdateEvent {
     public Map<String,ArrayList<Integer>> getPlayerAttributes()  {
         return playersAttributes;
     }
-
-
-
-
-    /*
-    HOW TO USE:
-
-    Alla fine di ogni round, il server invia un EndRoundEvent a tutti i giocatori della partita.
-    Ogni giocatore scorrerà la lista dei giocatori e aggiornerà i propri attributi e quelli degli altri giocatori.
-    Ogni giocatore aggiornerà la propria board.
-     */
 }

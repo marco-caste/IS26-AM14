@@ -7,6 +7,7 @@ import it.polimi.ingsw.am14.network.NetworkLayer;
 import it.polimi.ingsw.am14.model.gameLogic.Player;
 import it.polimi.ingsw.am14.clientModel.ClientModel;
 import it.polimi.ingsw.am14.clientModel.ClientPlayer;
+import it.polimi.ingsw.am14.view.viewEvents.GameStartViewEvent;
 
 import java.util.ArrayList;
 import java.util.stream.Collectors;
@@ -51,7 +52,7 @@ public class GameStartedEvent extends ServerEvent {
             player.setNumPrestigePoints(0);
             player.setPlayerPosition(null);
         }
-        model.notifyObservers("gameStart");
+        model.notifyObservers(new GameStartViewEvent());
     }
 
     @Override

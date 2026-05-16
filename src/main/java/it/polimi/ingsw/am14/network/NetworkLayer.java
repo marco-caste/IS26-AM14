@@ -10,6 +10,7 @@ import java.util.Set;
 
 public class NetworkLayer implements Observer {
 
+    // TODO: FINE SINCRONIZZAZIONE
     private final Map<Integer, Set<VirtualClient>> gameIdToClients;
     private final Map<String, VirtualClient> nicknameToClient;
     private final Map<VirtualClient, EventBuffer> clientToBuffer;

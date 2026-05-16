@@ -5,6 +5,7 @@ import it.polimi.ingsw.am14.clientModel.ClientPlayer;
 import it.polimi.ingsw.am14.model.gameLogic.TotemColor;
 import it.polimi.ingsw.am14.network.EntryPointFactory;
 import it.polimi.ingsw.am14.network.VirtualServer;
+import it.polimi.ingsw.am14.view.viewEvents.ViewEvent;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -105,7 +106,7 @@ public class GUIView extends Application implements ViewType {
 
 
     @Override
-    public void update(ClientModel model, String eventChoice) {
+    public void update(ClientModel model, ViewEvent event) {
 
         this.modelReference = model;
         System.out.println("GUI update received: " + eventChoice);

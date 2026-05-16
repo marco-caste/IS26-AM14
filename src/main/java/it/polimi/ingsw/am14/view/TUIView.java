@@ -3,6 +3,9 @@ package it.polimi.ingsw.am14.view;
 import it.polimi.ingsw.am14.network.EntryPointFactory;
 import it.polimi.ingsw.am14.network.VirtualServer;
 import it.polimi.ingsw.am14.clientModel.ClientModel;
+import it.polimi.ingsw.am14.view.viewEvents.UserDisconnectedViewEvent;
+import it.polimi.ingsw.am14.view.viewEvents.ViewEvent;
+import org.jetbrains.annotations.NotNull;
 import org.jline.reader.*;
 import org.jline.reader.impl.completer.StringsCompleter;
 import org.jline.terminal.Terminal;
@@ -27,9 +30,7 @@ public class TUIView implements ViewType {
 
     @Override
     public void run() throws IOException {
-        // simplest completer that tabs in the commands;
         // TODO: implementare un completer più avanzato (vedi documentazione JLine)
-        Completer stringsCompleter = new StringsCompleter("help", "exit", "connect");
 
         try {
 
@@ -40,7 +41,11 @@ public class TUIView implements ViewType {
 
             lineReader = LineReaderBuilder.builder()
                     .terminal(terminal)
-                    .completer(stringsCompleter)
+                    .completer(new ContextAwareCompleter())
+                    .option(LineReader.Option.AUTO_LIST, true) // Automatically list options
+                    .option(LineReader.Option.LIST_PACKED, true) // Display completions in a compact form
+                    .option(LineReader.Option.AUTO_MENU, true) // Show menu automatically
+                    .option(LineReader.Option.MENU_COMPLETE, true) // Cycle through completions
                     .build();
 
             writer = terminal.writer();
@@ -134,7 +139,7 @@ public class TUIView implements ViewType {
     }
 
     @Override
-    public void update(ClientModel model, String eventChoice) {
+    public void update(ClientModel model, ViewEvent event) {
 
         if (model != null && this.modelReference == null) {
             this.modelReference = model;
@@ -143,14 +148,8 @@ public class TUIView implements ViewType {
                 lineReader.printAbove("Porterai minecreft?");
                 return;
             }
-            try {
-                // starts sending pings to the server to keep the connection alive and detect disconnections
-                this.server.pingServer(chosenNickname);
-            } catch (Exception e) {
-                lineReader.printAbove("[Client] A network error occurred while sending your request\nDetails: " + e.getMessage());
-                return;
-            }
         }
+        event.render(this);
         // SOLUZIONE: reader.printAbove(model.getDescription());
         // allows to print a received message above the current prompt, avoiding the race conditions on writer (?)
         lineReader.printAbove("[Server]: " + this.modelReference.getMessage() + "\nBoard:\n" + this.modelReference.getBoard().toString());
@@ -159,8 +158,7 @@ public class TUIView implements ViewType {
     @Override
     public void disconnect() {
         server = null;
-        // TODO: thread.interrupt sul pinger.
-        this.update(null, "");
+        this.update(null, new UserDisconnectedViewEvent());
     }
 
     private void show(String[] args) throws IllegalArgumentException{

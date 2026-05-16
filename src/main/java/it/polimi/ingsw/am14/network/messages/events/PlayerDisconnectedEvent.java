@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import it.polimi.ingsw.am14.clientModel.ClientModel;
 import it.polimi.ingsw.am14.network.NetworkLayer;
 import it.polimi.ingsw.am14.network.VirtualClient;
+import it.polimi.ingsw.am14.view.viewEvents.UserDisconnectedViewEvent;
 
 public class PlayerDisconnectedEvent extends ServerEvent{
     @JsonIgnore
@@ -44,6 +45,6 @@ public class PlayerDisconnectedEvent extends ServerEvent{
     @Override
     public void effect(ClientModel model) {
         model.setMessage(description);
-        model.notifyObservers("userDisconnected");
+        model.notifyObservers(new UserDisconnectedViewEvent());
     }
 }

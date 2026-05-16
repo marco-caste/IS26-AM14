@@ -1,6 +1,7 @@
 package it.polimi.ingsw.am14.clientModel;
 
 import it.polimi.ingsw.am14.view.ViewType;
+import it.polimi.ingsw.am14.view.viewEvents.ViewEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,14 +48,10 @@ public class ClientModel {
         observers.add(view);
     }
 
-    // TODO: parlare con gli altri per verificare insieme quale idea piace di più
-    //  1- Override usando delle classi Update che hanno un riferimento alla Gui e che hanno un metodo update implementato diversamente. Questo oggetto di tipo update dovrà essere passato nel clientModel
-    //  2- case switch
-    //  3-overloading nella GUI,per
-    //  ora fatto switch intanto per provare la GUI con update focalizzato
-    public void notifyObservers(String eventChoice){
+
+    public void notifyObservers(ViewEvent event){
         for(ViewType observer : observers){
-            observer.update(this, eventChoice);
+            observer.update(this, event);
         }
     }
 

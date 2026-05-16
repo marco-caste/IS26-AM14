@@ -51,30 +51,34 @@ public class SocketClient {
                 Event event = jsonWriter.parseEvent(line);
                 event.effect(this.model);
 
-                if (event.getDescription().contains("has logged in successfully")) {
+                try {
+                    LoginSuccesfulEvent loginEvent = (LoginSuccesfulEvent) event;
                     pingSocket = new Socket(socket.getInetAddress(), socket.getPort()+1);
                     pingSocket.setSoTimeout(PING_TIMEOUT);
                     pingInput = new BufferedReader(new InputStreamReader(pingSocket.getInputStream()));
                     handler.setPingOutput(new BufferedWriter(new OutputStreamWriter(pingSocket.getOutputStream())));
-                    LoginSuccesfulEvent loginEvent = (LoginSuccesfulEvent) event;
-                    handler.pingServer(loginEvent.getPlayerNickname());
+                    loginEvent.startPinging(handler);
+                } catch (ClassCastException e) {
+                    // not a LoginSuccesfulEvent, do nothing
                 }
 
                 new Thread(() -> {
                     try {
                         runPingClient();
                     } catch (SocketTimeoutException e) {
-                        model.setMessage("[Client] Network error: server is not responding. try to reconnect later.\nShutting down connection...");
+                        model.setMessage("[Client] Network error: server is not responding. try to reconnect later.\n[Client] Shutting down connection...");
                         model.disconnect();
                         try {
                             socket.close();
                             pingSocket.close();
+                            // TODO: ClientThread-pingListener.interrupt() + ClientThread-listener.interrupt()?
+                            // intuizione: se il client percepisce disconnessione, interrompe i thread in lettura (ping + listener)
                         } catch (IOException ex) {
                             model.setMessage("[Client] Network error: failed to close the connection. try to reconnect later.");
                             model.notifyObservers("");
                         }
                     } catch (IOException e) {
-                        model.setMessage("[Client] Network error: failed to read from the server. try to reconnect later.\nShutting down connection...");
+                        model.setMessage("[Client] Network error: failed to read from the server. try to reconnect later.\n[Client] Shutting down connection...");
                         model.disconnect();
                     }
                 }, "ClientThread-pingListener-" + Thread_number).start();

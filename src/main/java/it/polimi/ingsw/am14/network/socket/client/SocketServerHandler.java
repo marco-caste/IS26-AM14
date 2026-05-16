@@ -4,6 +4,7 @@ import it.polimi.ingsw.am14.network.messages.requests.*;
 import it.polimi.ingsw.am14.utils.JsonCodec;
 
 import java.io.BufferedWriter;
+import java.io.IOException;
 import java.io.PrintWriter;
 
 import static it.polimi.ingsw.am14.utils.Constants.PING_INTERVAL;
@@ -81,7 +82,7 @@ public class SocketServerHandler implements VirtualServerSocket{
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
-        }, nickname + "'s pinger client side").start();
+        }, "SocketClient-pinger-" + nickname).start();
     }
 
     public void setPingOutput(BufferedWriter pingOutput) {

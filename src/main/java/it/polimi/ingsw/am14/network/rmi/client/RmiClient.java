@@ -3,6 +3,7 @@ package it.polimi.ingsw.am14.network.rmi.client;
 import it.polimi.ingsw.am14.network.VirtualServer;
 import it.polimi.ingsw.am14.network.messages.events.Event;
 import it.polimi.ingsw.am14.network.messages.events.ExceptionEvent;
+import it.polimi.ingsw.am14.network.messages.events.LoginSuccesfulEvent;
 import it.polimi.ingsw.am14.network.rmi.server.VirtualClientRmi;
 import it.polimi.ingsw.am14.clientModel.ClientModel;
 
@@ -28,6 +29,12 @@ public class RmiClient extends UnicastRemoteObject implements VirtualClientRmi, 
     public void update(Event update) {
         new Thread(() -> {
             update.effect(model);
+            try {
+                LoginSuccesfulEvent event = (LoginSuccesfulEvent) update;
+                event.startPinging(this);
+            } catch (ClassCastException e) {
+                // not a LoginSuccesfulEvent, do nothing
+            }
         }).start();
     }
 
@@ -99,7 +106,7 @@ public class RmiClient extends UnicastRemoteObject implements VirtualClientRmi, 
     }
 
     @Override
-    public void pingServer(String nickname) throws Exception {
+    public void pingServer(String nickname){
         lastPingReceived = System.currentTimeMillis();
 
         new Thread(() -> {
@@ -108,10 +115,10 @@ public class RmiClient extends UnicastRemoteObject implements VirtualClientRmi, 
                     Thread.sleep(PING_INTERVAL);
                     server.pingServer(nickname);
                 }
-            } catch (InterruptedException | RemoteException e) {
+            } catch (Exception e) {
                 Thread.currentThread().interrupt();
             }
-        }, "RMI-Pinger-" + nickname).start();
+        }, "RMIClient-Pinger").start();
 
         new Thread(() -> {
             try {
@@ -127,6 +134,6 @@ public class RmiClient extends UnicastRemoteObject implements VirtualClientRmi, 
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
-        }, "RMI-PingChecker-" + nickname).start();
+        }, "RMIClient-PingReceiver").start();
     }
 }

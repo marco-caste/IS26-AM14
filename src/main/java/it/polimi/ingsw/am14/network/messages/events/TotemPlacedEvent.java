@@ -3,6 +3,7 @@ package it.polimi.ingsw.am14.network.messages.events;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import it.polimi.ingsw.am14.network.NetworkLayer;
+import it.polimi.ingsw.am14.view.viewEvents.PositionUpdateViewEvent;
 
 
 public class TotemPlacedEvent extends UpdateEvent {
@@ -46,7 +47,7 @@ public class TotemPlacedEvent extends UpdateEvent {
         model.setMessage(description);
         model.updatePlayerPosition(playerNickname, trackCardName);
         model.removePlayerFromTurnOrderCard(removedTotemIndex);
-        model.notifyObservers("positionUpdate");
+        model.notifyObservers(new PositionUpdateViewEvent());
     }
 
 }
