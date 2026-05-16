@@ -31,7 +31,9 @@ import java.util.*;
 
 // TODO: opzionale per LAB
 // finire sempre a definire il design grafico del login, game choiche e lobby con i i tre totem a sx leggermente decentrati
-
+//TODO aggiustare il testo sopra
+//TODO aggiungere num rounds
+//TODO scena finale con punteggi e database
 
 
 public class GUIView extends Application implements ViewType {
@@ -86,7 +88,8 @@ public class GUIView extends Application implements ViewType {
         AXE,
         PRESTIGE,
         STARS,
-        BOWL
+        BOWL,
+        COLOUR
     }
 
     private final Map<String, Map<StatType, Label>> playerStatLabels = new HashMap<>();
@@ -817,7 +820,7 @@ public class GUIView extends Application implements ViewType {
         gameScroll.viewportBoundsProperty().addListener((obs, oldBounds, newBounds) -> {
             root.setMinWidth(newBounds.getWidth());
 
-            double minHeight = Math.max(900, newBounds.getHeight());
+            double minHeight = Math.max(SCENE_HEIGHT, newBounds.getHeight());
             root.setMinHeight(minHeight);
         });
 
@@ -838,7 +841,8 @@ public class GUIView extends Application implements ViewType {
         topBox.setStyle("-fx-background-color: rgb(255,0,0); -fx-padding: 15;");
 
         serverMessage = new Label();
-        serverMessage.setStyle("-fx-text-fill: #ffffff; -fx-font-size: 10;");
+        serverMessage.setStyle("-fx-text-fill: #ffffff; -fx-font-size: 20; -fx-font-weight: bold;");
+        topBox.setAlignment(Pos.CENTER);
 
         topBox.getChildren().add(serverMessage);
 
@@ -847,7 +851,7 @@ public class GUIView extends Application implements ViewType {
     }
 
     private void updateTop(String message){
-        if (topBox != null) serverMessage.setText(modelReference.getMessage()); //check per gli update che arrivano prima che la scena venga creata, così evitiamo errori di null pointer
+        if (topBox != null) serverMessage.setText(message); //check per gli update che arrivano prima che la scena venga creata, così evitiamo errori di null pointer
     }
 
 
@@ -1294,6 +1298,7 @@ public class GUIView extends Application implements ViewType {
 
     private GridPane createStatsGrid(String playerName) {
         GridPane grid = new GridPane();
+        String colour = modelReference.getPlayerByNickname(playerName).getTotemColor().toLowerCase();
 
         grid.setHgap(10);
         grid.setVgap(12);
@@ -1307,6 +1312,7 @@ public class GUIView extends Application implements ViewType {
 
         addStat(grid, labels, StatType.STARS, getClass().getResource("/stats/stars.png").toExternalForm(), 1, 0);
         addStat(grid, labels, StatType.BOWL, getClass().getResource("/stats/gatheringDiscount.png").toExternalForm(), 1, 2);
+        addStat(grid, labels, StatType.COLOUR, getClass().getResource("/colour/"+ colour +".png").toExternalForm(), 1, 4);
 
         playerStatLabels.put(playerName, labels);  // here we put the updated map linked to the player in the map with all the playerStats
 
@@ -1322,28 +1328,28 @@ public class GUIView extends Application implements ViewType {
             int col
     ) {
 
-
         ImageView icon = new ImageView(imagePath); // here we create the image with the simbol of the stat we are adding to the grid
         icon.setFitWidth(34);
         icon.setFitHeight(34);
         icon.setPreserveRatio(true);
         icon.setSmooth(true);
+        if(!(type == StatType.COLOUR)){
+            Label valueLabel = new Label("0");  // here we put the value of the stat initialized to 0
+            valueLabel.setMinWidth(26);
+            valueLabel.setAlignment(Pos.CENTER_LEFT);
 
-        Label valueLabel = new Label("0");  // here we put the value of the stat initialized to 0
-        valueLabel.setMinWidth(26);
-        valueLabel.setAlignment(Pos.CENTER_LEFT);
-
-        valueLabel.setStyle("""
+            valueLabel.setStyle("""
         -fx-text-fill: white;
         -fx-font-size: 15;
         -fx-font-family: 'Georgia';
         -fx-font-weight: bold;
     """);
+            grid.add(valueLabel, col + 1, row);
+            labels.put(type, valueLabel);
 
+        }
         grid.add(icon, col, row);  // here we add the image to the grid
-        grid.add(valueLabel, col + 1, row); // here we add the value to the grid
 
-        labels.put(type, valueLabel);
     }
 
 
