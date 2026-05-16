@@ -21,6 +21,7 @@ import java.util.Set;
 import static it.polimi.ingsw.am14.utils.Constants.PING_TIMEOUT;
 
 public class LobbyController {
+    // TODO: USATO SOLO NEI TEST
     public Map<Integer, GameController> getGameIdToGameController() {
         return gameIdToGameController;
     }
@@ -28,7 +29,7 @@ public class LobbyController {
     private final Map<Integer, GameController> gameIdToGameController;
     private final Map<String, Integer> nicknameToGameId;
     @JsonIgnore
-    private final NetworkLayer networkLayer;
+    private final NetworkLayer networkLayer;        // TODO: CHECK SINCRONIZZAZIONE
     @JsonIgnore
     private final Map<String, Long> lastPingReceivedTime;
     @JsonIgnore
@@ -76,7 +77,9 @@ public class LobbyController {
     }
 
     public Optional<Integer> getGameIdByNickname(String nickname) {
-        return Optional.ofNullable(nicknameToGameId.get(nickname));
+        synchronized (dataLock) {
+            return Optional.ofNullable(nicknameToGameId.get(nickname));
+        }
     }
 
     private void addPlayerToLobby(String nickname) {
@@ -99,7 +102,9 @@ public class LobbyController {
     }
 
     private void setLastPingReceivedTime(String nickname) {
-        lastPingReceivedTime.put(nickname, System.currentTimeMillis());
+        synchronized (dataLock) {
+            lastPingReceivedTime.put(nickname, System.currentTimeMillis());
+        }
     }
 
     private void removeLastPingReceivedTime(String nickname) {
@@ -151,8 +156,8 @@ public class LobbyController {
         getGameController(getGameIdByNickname(nickname).orElseThrow(() -> new IllegalNicknameException("Player with the specified nickname is not in the lobby")))
                 .orElseThrow(() -> new IllegalNicknameException("Player with the specified nickname is not assigned to any game"))
                 .placeTotem(nickname, position);
-        JsonCodec parser = new JsonCodec();
-        parser.writeSaveData(this, "src/main/Saves/save.json");
+//        JsonCodec parser = new JsonCodec();
+//        parser.writeSaveData(this, "src/main/Saves/save.json");
     }
 
     public void pickCard(String nickname, int cardId, int row) throws IllegalNicknameException, WrongStateException, WrongTurnException, UnknownPositionException, IllegalPickException, ForcedPickException, IllegalPlacementException, UnknownNicknameException, SQLException {

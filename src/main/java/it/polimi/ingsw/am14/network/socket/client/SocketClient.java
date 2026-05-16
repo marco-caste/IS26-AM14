@@ -46,33 +46,41 @@ public class SocketClient {
     private void runVirtualServer() throws IOException {
         String line;
 
-        while ((line = input.readLine()) != null) {
-            Event event = jsonWriter.parseEvent(line);
-            event.effect(this.model);
-            if (event.getDescription().contains("has logged in successfully")) {
-                pingSocket = new Socket(socket.getInetAddress(), socket.getPort()+1);
-                pingSocket.setSoTimeout(PING_TIMEOUT);
-                pingInput = new BufferedReader(new InputStreamReader(pingSocket.getInputStream()));
-                handler.setPingOutput(new BufferedWriter(new OutputStreamWriter(pingSocket.getOutputStream())));
-                LoginSuccesfulEvent loginEvent = (LoginSuccesfulEvent) event;
-                handler.pingServer(loginEvent.getPlayerNickname());
-            }
-            new Thread(() -> {
-                try {
-                    runPingClient();
-                } catch (SocketTimeoutException e) {
-                    model.setMessage("[Client] Network error: server is not responding. try to reconnect later.\nShutting down connection...");
-                    //model.disconnect();
-                    try {
-                        socket.close();
-                        pingSocket.close();
-                    } catch (IOException ex) {
-                        throw new RuntimeException(ex.getMessage());
-                    }
-                } catch (IOException e) {
-                    throw new RuntimeException(e.getMessage());
+        try {
+            while ((line = input.readLine()) != null) {
+                Event event = jsonWriter.parseEvent(line);
+                event.effect(this.model);
+
+                if (event.getDescription().contains("has logged in successfully")) {
+                    pingSocket = new Socket(socket.getInetAddress(), socket.getPort()+1);
+                    pingSocket.setSoTimeout(PING_TIMEOUT);
+                    pingInput = new BufferedReader(new InputStreamReader(pingSocket.getInputStream()));
+                    handler.setPingOutput(new BufferedWriter(new OutputStreamWriter(pingSocket.getOutputStream())));
+                    LoginSuccesfulEvent loginEvent = (LoginSuccesfulEvent) event;
+                    handler.pingServer(loginEvent.getPlayerNickname());
                 }
-            }, "ClientThread-pingListener-" + Thread_number).start();
+
+                new Thread(() -> {
+                    try {
+                        runPingClient();
+                    } catch (SocketTimeoutException e) {
+                        model.setMessage("[Client] Network error: server is not responding. try to reconnect later.\nShutting down connection...");
+                        model.disconnect();
+                        try {
+                            socket.close();
+                            pingSocket.close();
+                        } catch (IOException ex) {
+                            model.setMessage("[Client] Network error: failed to close the connection. try to reconnect later.");
+                            model.notifyObservers("");
+                        }
+                    } catch (IOException e) {
+                        model.setMessage("[Client] Network error: failed to read from the server. try to reconnect later.\nShutting down connection...");
+                        model.disconnect();
+                    }
+                }, "ClientThread-pingListener-" + Thread_number).start();
+            }
+        } catch (IOException e) {
+            // do nothing: thread pinger will handle disconnection and notify the client.
         }
     }
 

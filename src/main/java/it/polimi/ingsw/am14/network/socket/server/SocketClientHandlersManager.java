@@ -24,6 +24,23 @@ public class SocketClientHandlersManager {
 
     private final Set<SocketClientHandler> waitingClients;
 
+    // waitingClientsMethods
+    public void addWaitingClient(SocketClientHandler handler) {
+        synchronized (waitingClients) {
+            waitingClients.add(handler);
+        }
+    }
+    public void removeWaitingClient(SocketClientHandler handler) {
+        synchronized (waitingClients) {
+            waitingClients.remove(handler);
+        }
+    }
+    public boolean waitingClientsContains(SocketClientHandler handler) {
+        synchronized (waitingClients) {
+            return waitingClients.contains(handler);
+        }
+    }
+
     public SocketClientHandlersManager(ServerSocket listenSocket, ServerSocket listenPingSocket, LobbyController controller, NetworkLayer networkLayer) {
         this.listenSocket = listenSocket;
         this.listenPingSocket = listenPingSocket;
@@ -46,9 +63,8 @@ public class SocketClientHandlersManager {
                         clientSocket
                 );
 
-                synchronized(this.waitingClients) {
-                    waitingClients.add(handler);
-                }
+                addWaitingClient(handler);
+
 
                 networkLayer.updateBufferMap(handler);
 
@@ -154,13 +170,13 @@ public class SocketClientHandlersManager {
     public void receiveRequest(ClientRequest request, SocketClientHandler sender){
         try {
             // if sender is still in waiting room, the only possible request is to connect to the server (meaning: to declare a nickname).
-            if (waitingClients.contains(sender)) {
+            if (waitingClientsContains(sender)) {
                 networkLayer.updateNicknameMap(request.getNickname(), sender);
             }
 
             request.dispatchRequest(this.controller);
 
-            waitingClients.remove(sender);
+            removeWaitingClient(sender);
 
             this.controller.getGameIdByNickname(request.getNickname()).ifPresentOrElse(
                     (id) -> networkLayer.updateClients(id, sender),
