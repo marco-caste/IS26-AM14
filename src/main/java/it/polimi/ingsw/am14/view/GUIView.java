@@ -772,6 +772,8 @@ public class GUIView extends Application implements ViewType {
     private void createGameScene() {
         BorderPane root = new BorderPane();
 
+        root.setMinHeight(900);
+
         Image backgroundImage = new Image(getClass().getResource("/background/game.jpeg").toExternalForm());
 
         BackgroundImage bgImage = new BackgroundImage(
@@ -782,23 +784,31 @@ public class GUIView extends Application implements ViewType {
                 new BackgroundSize(100, 100, true, true, false, true)
         );
 
-        ScrollPane scroll = new ScrollPane();
-        scroll.setContent(createCenter());
-        scroll.setFitToHeight(true); // putting it to true , the scrollpane will adjust its height to the content, so it will not have a fixed height and it will grow as the content grows
-        scroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER); // it will show the scrollbar only when the content exceeds the width of the scrollpane.
-        scroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED); // we don't want a vertical scrollbar
-        scroll.setPrefHeight(120);
-        scroll.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
-
         root.setBackground(new Background(bgImage));
 
         root.setTop(createTop());
-        root.setCenter(scroll);
+        root.setCenter(createCenter());
         root.setRight(createRight());
         root.setBottom(createBottom());
 
+        ScrollPane gameScroll = new ScrollPane(root);
 
-        gameScene = new Scene(root, 1400, 900);
+        gameScroll.setFitToWidth(true);
+        gameScroll.setFitToHeight(false);
+
+        gameScroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        gameScroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+
+        gameScroll.setStyle("""
+        -fx-background-color: transparent;
+        -fx-background: transparent;
+    """);
+
+        gameScroll.viewportBoundsProperty().addListener((obs, oldBounds, newBounds) -> {
+            root.setMinWidth(newBounds.getWidth());
+        });
+
+        gameScene = new Scene(gameScroll, 1400, 900);
     }
 
     private void showGameScene() {
@@ -1141,21 +1151,8 @@ public class GUIView extends Application implements ViewType {
         tribeCardsBox = new HBox(8);
         tribeCardsBox.setAlignment(Pos.CENTER_LEFT);
 
-        ScrollPane tribeScroll = new ScrollPane(tribeCardsBox);
-        tribeScroll.setFitToHeight(true);
-        tribeScroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-        tribeScroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        tribeScroll.setPrefHeight(135);
-        tribeScroll.setStyle("""
-        -fx-background-color: transparent;
-        -fx-background: transparent;
-    """);
-        tribeScroll.setStyle("""
-    -fx-background-color: transparent;
-    -fx-background: transparent;
-""");
 
-        bottom.getChildren().addAll(playersTabs,tribeScroll);
+        bottom.getChildren().addAll(playersTabs, tribeCardsBox);
 
         updateSelectedTribe();
 
