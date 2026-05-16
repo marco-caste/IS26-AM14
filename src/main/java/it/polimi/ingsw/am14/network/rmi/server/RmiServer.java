@@ -4,6 +4,7 @@ import it.polimi.ingsw.am14.network.NetworkLayer;
 import it.polimi.ingsw.am14.controller.LobbyController;
 import it.polimi.ingsw.am14.network.messages.events.Event;
 import it.polimi.ingsw.am14.network.messages.events.ExceptionEvent;
+import it.polimi.ingsw.am14.network.EventBuffer;
 import it.polimi.ingsw.am14.exceptions.IllegalNicknameException;
 import it.polimi.ingsw.am14.network.rmi.client.VirtualServerRmi;
 
@@ -33,24 +34,27 @@ public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
                 Thread thread = new Thread(() -> {
                     try {
                         while (!Thread.currentThread().isInterrupted()) {
-                            synchronized (networkLayer.getBuffer(client)) {
+                            EventBuffer buffer = networkLayer.getBuffer(client);
+                            if (buffer == null) {
+                                System.err.println("[RMI Server] Buffer null for client " + nickname + ", buffering thread exiting");
+                                return;
+                            }
+                            synchronized (buffer) {
                                 if (Thread.currentThread().isInterrupted()) {
                                     return;
                                 }
-                                
-                                while (networkLayer.getBuffer(client).isEmpty() 
+                                while (buffer.isEmpty() 
                                        && !Thread.currentThread().isInterrupted()) {
                                     try {
-                                        networkLayer.getBuffer(client).wait();
+                                        buffer.wait();
                                     } catch (InterruptedException e) {
                                         Thread.currentThread().interrupt();
                                         return;
                                     }
                                 }
-                                
-                                if (!networkLayer.getBuffer(client).isEmpty() 
+                                if (!buffer.isEmpty() 
                                     && !Thread.currentThread().isInterrupted()) {
-                                    List<Event> eventsToSend = networkLayer.getBuffer(client).flushBuffer();
+                                    List<Event> eventsToSend = buffer.flushBuffer();
                                     for (Event event : eventsToSend) {
                                         try {
                                             client.update(event);

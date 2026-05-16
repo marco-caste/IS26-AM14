@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am14.network.socket.server;
 
+import it.polimi.ingsw.am14.network.EventBuffer;
 import it.polimi.ingsw.am14.network.NetworkLayer;
 import it.polimi.ingsw.am14.controller.LobbyController;
 import it.polimi.ingsw.am14.network.messages.requests.ClientRequest;
@@ -75,7 +76,8 @@ public class SocketClientHandlersManager {
                     try {
                         handler.runVirtualView();
                     } catch (Exception e) {
-                        System.err.println("[Server] Error in listener thread: " + e.getMessage());
+                        System.err.println("[Server] Client disconnected: " + e.getMessage());
+                        handler.closeConnection();
                     }
                 }, "ServerThread-Listener" + Thread_number);
                 thread1.start();
@@ -83,23 +85,27 @@ public class SocketClientHandlersManager {
                 Thread thread2 = new Thread(() -> {
                     try {
                         while (!Thread.currentThread().isInterrupted()) {
-                            synchronized (networkLayer.getBuffer(handler)) {
+                            EventBuffer buffer = networkLayer.getBuffer(handler);
+                            if (buffer == null) {
+                                System.err.println("[Server] Buffer null for client, buffering thread exiting");
+                                return;
+                            }
+                            synchronized (buffer) {
                                 if (Thread.currentThread().isInterrupted()) {
                                     return;
                                 }
-                                while (networkLayer.getBuffer(handler).isEmpty() 
+                                while (buffer.isEmpty() 
                                        && !Thread.currentThread().isInterrupted()) {
                                     try {
-                                        networkLayer.getBuffer(handler).wait();    // lazy wait
+                                        buffer.wait();
                                     } catch (InterruptedException e) {
                                         Thread.currentThread().interrupt();
                                         return;
                                     }
                                 }
-                                
-                                if (!networkLayer.getBuffer(handler).isEmpty() 
+                                if (!buffer.isEmpty() 
                                     && !Thread.currentThread().isInterrupted()) {
-                                    List<Event> eventsToSend = networkLayer.getBuffer(handler).flushBuffer();
+                                    List<Event> eventsToSend = buffer.flushBuffer();
                                     for (Event event : eventsToSend) {
                                         handler.update(event);
                                     }

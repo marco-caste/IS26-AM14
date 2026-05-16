@@ -87,26 +87,37 @@ public class SocketClientHandler implements VirtualClientSocket{
     }
 
     public void closeConnection() {
-        //TODO: rivedere bene e aggiungere quella del ping
         try {
-            if (!input.readLine().isEmpty()) {
-                input.close();
-            }
+            input.close();
         } catch (Exception e) {
-            // Ignora, il socket potrebbe essere già chiuso
         }
         try {
             output.close();
         } catch (Exception e) {
-            // Ignora
+        }
+        try {
+            if (pingInput != null) {
+                pingInput.close();
+            }
+        } catch (Exception e) {
+        }
+        try {
+            if (pingOutput != null) {
+                pingOutput.close();
+            }
+        } catch (Exception e) {
         }
         try {
             if (!socket.isClosed()) {
                 socket.close();
-                // TODO: socket = null?
             }
         } catch (IOException e) {
-            System.err.println("[Server] Error closing socket: " + e.getMessage());
+        }
+        try {
+            if (pingSocket != null && !pingSocket.isClosed()) {
+                pingSocket.close();
+            }
+        } catch (IOException e) {
         }
     }
 }
