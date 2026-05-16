@@ -5,17 +5,22 @@ import it.polimi.ingsw.am14.clientModel.ClientPlayer;
 import it.polimi.ingsw.am14.model.gameLogic.TotemColor;
 import it.polimi.ingsw.am14.network.EntryPointFactory;
 import it.polimi.ingsw.am14.network.VirtualServer;
+import javafx.animation.TranslateTransition;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Cursor;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 import java.io.IOException;
 import java.util.*;
@@ -29,7 +34,9 @@ import java.util.*;
 
 // TODO: opzionale per LAB
 // finire sempre a definire il design grafico del login, game choiche e lobby con i i tre totem a sx leggermente decentrati
-
+//TODO aggiustare il testo sopra
+//TODO aggiungere num rounds
+//TODO scena finale con punteggi e database
 
 
 public class GUIView extends Application implements ViewType {
@@ -66,18 +73,26 @@ public class GUIView extends Application implements ViewType {
     private Map<Character,Pane> trackCardTotemLayers = new HashMap<>(); // we need to keep track of the panes with the totems on the track cards to update them when a new totem is placed or removed
     private Pane turnOrderCardTotemLayer;
 
+    private HBox tribeCardsBox;
+    private Label selectedTribeLabel;
+    private ToggleGroup tribeToggleGroup;
+    private String selectedTribeNickname;
 
     private VBox playersStatsBox;
     private Pane lobbyTotemLayer;
     private HBox homeTribeBox;
     private final Map<String, TilePane> awayTribePanes = new HashMap<>();
 
+    private double SCENE_WIDTH;
+    private double SCENE_HEIGHT;
+
     private enum StatType {
         FOOD,
         AXE,
         PRESTIGE,
         STARS,
-        BOWL
+        BOWL,
+        COLOUR
     }
 
     private final Map<String, Map<StatType, Label>> playerStatLabels = new HashMap<>();
@@ -87,10 +102,16 @@ public class GUIView extends Application implements ViewType {
     public void start(Stage primaryStage) {
         this.primaryStage = primaryStage;
 
-        Scene loginScene = new Scene(createLoginScene(), 1400, 900);
+        Rectangle2D screen = Screen.getPrimary().getVisualBounds();
+
+        SCENE_WIDTH = screen.getWidth() * 0.80;   // 80% dello schermo
+        SCENE_HEIGHT = screen.getHeight() * 0.80; // 80% dello schermo
+
+        Scene loginScene = new Scene(createLoginScene(), SCENE_WIDTH, SCENE_HEIGHT);
 
         primaryStage.setTitle("Login");
         primaryStage.setScene(loginScene);
+        primaryStage.setResizable(true); // adattabile
         primaryStage.show();
     }
 
@@ -123,7 +144,7 @@ public class GUIView extends Application implements ViewType {
             case "gameStart" -> gameCreation();
             case "pickUpdate","endRound", "endGame" -> {
                 updateBoard();
-                updateTribes();
+                updateSelectedTribe();
                 updateTop(modelReference.getMessage());
                 updatePlayerStats();
                 updateoffersPathBox();
@@ -305,7 +326,7 @@ public class GUIView extends Application implements ViewType {
 
     private void showGameChoiceScene() {
         if (gameChoiceScene == null) {
-            gameChoiceScene = new Scene(createGameChoiceScene(), 1400, 900);
+            gameChoiceScene = new Scene(createGameChoiceScene(), SCENE_WIDTH, SCENE_HEIGHT);
         }
 
         primaryStage.setTitle("Game Menu");
@@ -518,8 +539,9 @@ public class GUIView extends Application implements ViewType {
 
         if (gameChoiceScene == null)  // check per gli update che arrivano prima che la scena venga creata, così evitiamo errori di null pointer
             return;
+
         if(updateType.equals("exception")){
-            gameChoiceErrorLabel.setText("Game with this GAMEID doesn't exist,try another.");
+            gameChoiceErrorLabel.setText(modelReference.getMessage());
         } else
             showLobbyScene(); // se la create o join è andata a buon fine passo alla scena successiva (lobby)
     }
@@ -527,7 +549,7 @@ public class GUIView extends Application implements ViewType {
 
     private void showLobbyScene() {
         if (lobbyScene == null) {
-            lobbyScene = new Scene(createLobbyScene(), 1400, 900);
+            lobbyScene = new Scene(createLobbyScene(), SCENE_WIDTH, SCENE_HEIGHT);
         }
 
         primaryStage.setTitle("Lobby");
@@ -592,6 +614,7 @@ public class GUIView extends Application implements ViewType {
     """);
 
 
+
         lobbyNumPlayerLabel = new Label("Waiting for players : 1 /" + modelReference.getNumPlayers()) ;
         lobbyNumPlayerLabel.setStyle("""
         -fx-text-fill: white;
@@ -607,6 +630,7 @@ public class GUIView extends Application implements ViewType {
 
     private void updateLobby() {
         if (lobbyScene== null) return;
+
         int playerNumber = 0;
         lobbyTotemLayer.getChildren().clear();
 
@@ -633,7 +657,7 @@ public class GUIView extends Application implements ViewType {
             lobbyTotemLayer.getChildren().add(totemBox);
         }
 
-        lobbyNumPlayerLabel = new Label("Waiting for players : "+ playerNumber + "/" + modelReference.getNumPlayers());
+        lobbyNumPlayerLabel.setText("Waiting for players : "+ playerNumber + "/" + modelReference.getNumPlayers());
     }
 
     // metodo serve per adattare i totem quando andiamo a stringere la finestra, moltiplica il loro ratio per un x e y in base a come viene ridotta la finestra( commento in ita in quanto serve a me)
@@ -761,6 +785,23 @@ public class GUIView extends Application implements ViewType {
     // ============================================================
     // GAME SCENE
     // ============================================================
+    private void addHoverEffect(ImageView card) {
+        card.setOnMouseEntered(e -> {
+            TranslateTransition tt = new TranslateTransition(Duration.millis(120), card);
+            tt.setToY(-12);
+            tt.play();
+        });
+
+        card.setOnMouseExited(e -> {
+            TranslateTransition tt = new TranslateTransition(Duration.millis(120), card);
+            tt.setToY(0);
+            tt.play();
+        });
+    }
+    private void addHoverEffect(Node node) {
+        node.setOnMouseEntered(e -> node.setTranslateY(-12));
+        node.setOnMouseExited(e -> node.setTranslateY(0));
+    }
 
     private void createGameScene() {
         BorderPane root = new BorderPane();
@@ -775,23 +816,35 @@ public class GUIView extends Application implements ViewType {
                 new BackgroundSize(100, 100, true, true, false, true)
         );
 
-        ScrollPane scroll = new ScrollPane();
-        scroll.setContent(createCenter());
-        scroll.setFitToHeight(true); // putting it to true , the scrollpane will adjust its height to the content, so it will not have a fixed height and it will grow as the content grows
-        scroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER); // it will show the scrollbar only when the content exceeds the width of the scrollpane.
-        scroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED); // we don't want a vertical scrollbar
-        scroll.setPrefHeight(120);
-        scroll.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
-
         root.setBackground(new Background(bgImage));
 
         root.setTop(createTop());
-        root.setCenter(scroll);
+        root.setCenter(createCenter());
         root.setRight(createRight());
         root.setBottom(createBottom());
 
+        ScrollPane gameScroll = new ScrollPane(root);
 
-        gameScene = new Scene(root, 1400, 900);
+        gameScroll.setFitToWidth(true);
+        gameScroll.setFitToHeight(false);
+
+        gameScroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        gameScroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+
+        gameScroll.setStyle("""
+        -fx-background-color: transparent;
+        -fx-background: transparent;
+        -fx-control-inner-background: transparent;
+    """);
+
+        gameScroll.viewportBoundsProperty().addListener((obs, oldBounds, newBounds) -> {
+            root.setMinWidth(newBounds.getWidth());
+
+            double minHeight = Math.max(SCENE_HEIGHT, newBounds.getHeight());
+            root.setMinHeight(minHeight);
+        });
+
+        gameScene = new Scene(gameScroll, SCENE_WIDTH, SCENE_HEIGHT);
     }
 
     private void showGameScene() {
@@ -808,7 +861,8 @@ public class GUIView extends Application implements ViewType {
         topBox.setStyle("-fx-background-color: rgb(255,0,0); -fx-padding: 15;");
 
         serverMessage = new Label();
-        serverMessage.setStyle("-fx-text-fill: #ffffff; -fx-font-size: 10;");
+        serverMessage.setStyle("-fx-text-fill: #ffffff; -fx-font-size: 20; -fx-font-weight: bold;");
+        topBox.setAlignment(Pos.CENTER);
 
         topBox.getChildren().add(serverMessage);
 
@@ -817,7 +871,7 @@ public class GUIView extends Application implements ViewType {
     }
 
     private void updateTop(String message){
-        if (topBox != null) serverMessage.setText(modelReference.getMessage()); //check per gli update che arrivano prima che la scena venga creata, così evitiamo errori di null pointer
+        if (topBox != null) serverMessage.setText(message); //check per gli update che arrivano prima che la scena venga creata, così evitiamo errori di null pointer
     }
 
 
@@ -1102,139 +1156,95 @@ public class GUIView extends Application implements ViewType {
 
 
 
-
     private VBox createBottom() {
-
-        // the bottom of the screen is divided in two parts, the first part is for the home player and the second part is for the other players.
-        // The home player is a vbox which contains a label ( with the nickname of the player and a scroll pane with the card of the tribe)
-        // For the other players we have a hbox where we have a vbox which contains a label ( with the nickname of the player) and a tilepane with the cards of the tribe, we have a tilepane because we want to have a grid of cards and not a row of cards.
-
-        VBox bottom = new VBox(10);
+        VBox bottom = new VBox(8);
         bottom.setStyle("""
-        -fx-background-color: rgba(60, 20, 40, 0.55);
+        -fx-background-color: rgba(60, 20, 40, 0.60);
         -fx-padding: 10;
+        -fx-border-color: rgba(255, 255, 255, 0.25);
+        -fx-border-width: 1 0 0 0;
     """);
 
-        VBox myPlayerPanel = createMyPlayerPanel();
-        HBox otherPlayersPanel = new HBox(10);
-        otherPlayersPanel.setAlignment(Pos.CENTER_LEFT);
+        HBox playersTabs = new HBox(8);
+        playersTabs.setAlignment(Pos.CENTER_LEFT);
 
+        tribeToggleGroup = new ToggleGroup();
+
+        selectedTribeNickname = modelReference.getHomePlayer().getNickname();
+
+        ToggleButton homeButton = createTribePlayerButton(
+                modelReference.getHomePlayer().getNickname()
+        );
+        homeButton.setSelected(true);
+        playersTabs.getChildren().add(homeButton);
 
         for (ClientPlayer player : modelReference.getOtherPlayers()) {
-            otherPlayersPanel.getChildren().add(createOtherPlayerPanel(player.getNickname()));
+            playersTabs.getChildren().add(
+                    createTribePlayerButton(player.getNickname())
+            );
         }
 
-        bottom.getChildren().addAll(myPlayerPanel, otherPlayersPanel);
+
+        tribeCardsBox = new HBox(8);
+        tribeCardsBox.setAlignment(Pos.CENTER_LEFT);
+
+
+        bottom.getChildren().addAll(playersTabs, tribeCardsBox);
+
+        updateSelectedTribe();
 
         return bottom;
     }
 
 
-    private VBox createMyPlayerPanel() {
-        VBox panel = new VBox(8);
-        panel.setStyle("""
-        -fx-background-color: rgba(255, 180, 180, 0.25);
+    private ToggleButton createTribePlayerButton(String nickname) {
+        ToggleButton button = new ToggleButton(nickname);
+        button.setToggleGroup(tribeToggleGroup);
+
+        button.setStyle("""
+        -fx-background-color: rgba(255,255,255,0.15);
+        -fx-text-fill: white;
+        -fx-font-weight: bold;
         -fx-background-radius: 10;
-        -fx-border-color: #5b1630;
-        -fx-border-width: 3;
+        -fx-padding: 6 14 6 14;
+        -fx-border-color: rgba(255,255,255,0.35);
         -fx-border-radius: 10;
-        -fx-padding: 10;
     """);
 
-        Label name = new Label(modelReference.getHomePlayer().getNickname());
-        name.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
-
-
-        homeTribeBox = new HBox(8);
-        homeTribeBox.setAlignment(Pos.CENTER_LEFT);
-        updateHomeTribe(homeTribeBox);
-
-        ScrollPane scroll = new ScrollPane(homeTribeBox);
-        scroll.setFitToHeight(true); // putting it to true , the scrollpane will adjust its height to the content, so it will not have a fixed height and it will grow as the content grows
-        scroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED); // it will show the scrollbar only when the content exceeds the width of the scrollpane.
-        scroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER); // we don't want a vertical scrollbar
-        scroll.setPrefHeight(120);
-        scroll.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
-
-        panel.getChildren().addAll(name, scroll);
-
-        return panel;
-    }
-
-
-    private VBox createOtherPlayerPanel(String playerName) {
-        VBox panel = new VBox(6);
-        panel.setPrefWidth(320);
-        panel.setMaxHeight(120);
-
-        panel.setStyle("""
-        -fx-background-color: rgba(255, 255, 255, 0.18);
-        -fx-background-radius: 10;
-        -fx-border-color: rgba(255, 255, 255, 0.45);
-        -fx-border-radius: 10;
-        -fx-padding: 8;
-    """);
-
-        Label name = new Label(playerName);
-        name.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
-
-        TilePane tribePreview = new TilePane();
-        tribePreview.setHgap(5);
-        tribePreview.setVgap(5);
-        tribePreview.setPrefColumns(8);
-        awayTribePanes.put(playerName, tribePreview);
-
-        updateAwayTribe(tribePreview, playerName);
-        panel.getChildren().addAll(name, tribePreview);
-
-        return panel;
-    }
-
-
-
-    // update method which we call every time we have an update from a pickEvent
-    private void updateTribes() {
-        if (homeTribeBox != null) {
-            updateHomeTribe(homeTribeBox);
-        }
-
-        for (Map.Entry<String, TilePane> entry : awayTribePanes.entrySet()) {
-            updateAwayTribe(entry.getValue(), entry.getKey());
-        }
-    }
-
-
-    private void updateHomeTribe (HBox tribe){
-
-        tribe.getChildren().clear(); // cleaning the tribe
-        ArrayList<Integer> playerTribe = new ArrayList<>(modelReference.getHomePlayer().getPlayerTribe().stream().sorted(Integer::compareTo).toList());
-        // we sort the tribe of the player with ascending order, so the cards will be displayed for a better visualization
-
-        for (Integer cardId : playerTribe) {
-            ImageView card = createHomeTribeCard(cardId);
-            tribe.getChildren().add(card);
-        }
-        // adding the updated tribe
-
-    }
-
-
-    private void updateAwayTribe ( TilePane tribe, String playerName){
-
-        tribe.getChildren().clear(); // cleaning the tribe
-
-        List<Integer> playerTribe;
-        playerTribe = modelReference.getOtherPlayers().stream().filter(player -> player.getNickname().equals(playerName)).findFirst().orElseThrow().getPlayerTribe();
-         // adding the updated tribe of the other players, we iterate over the list of the other players and for each player we get its tribe and we add the cards to the tilepane
-
-        playerTribe.stream().sorted(Integer::compareTo).forEach(cardId -> {;
-            ImageView card = createAwayTribeCard(cardId);
-            tribe.getChildren().add(card);
+        button.setOnAction(event -> {
+            selectedTribeNickname = nickname;
+            updateSelectedTribe();
         });
-        // we sort the tribe of the player with ascending order, so the cards will be displayed for a better visualization
 
+        return button;
     }
 
+
+    private void updateSelectedTribe() {
+        if (tribeCardsBox == null || selectedTribeNickname == null) {
+            return;
+        }
+
+        tribeCardsBox.getChildren().clear();
+
+        if (selectedTribeLabel != null) {
+            selectedTribeLabel.setText("Tribe di: " + selectedTribeNickname);
+        }
+
+        ClientPlayer selectedPlayer = modelReference.getPlayerByNickname(selectedTribeNickname);
+
+        if (selectedPlayer == null || selectedPlayer.getPlayerTribe() == null) {
+            return;
+        }
+
+        selectedPlayer.getPlayerTribe()
+                .stream()
+                .sorted(Integer::compareTo)
+                .forEach(cardId -> {
+                    ImageView card = createTribeCard(cardId);
+                    tribeCardsBox.getChildren().add(card);
+                });
+    }
 
 
 
@@ -1308,6 +1318,7 @@ public class GUIView extends Application implements ViewType {
 
     private GridPane createStatsGrid(String playerName) {
         GridPane grid = new GridPane();
+        String colour = modelReference.getPlayerByNickname(playerName).getTotemColor().toLowerCase();
 
         grid.setHgap(10);
         grid.setVgap(12);
@@ -1321,6 +1332,7 @@ public class GUIView extends Application implements ViewType {
 
         addStat(grid, labels, StatType.STARS, getClass().getResource("/stats/stars.png").toExternalForm(), 1, 0);
         addStat(grid, labels, StatType.BOWL, getClass().getResource("/stats/gatheringDiscount.png").toExternalForm(), 1, 2);
+        addStat(grid, labels, StatType.COLOUR, getClass().getResource("/colour/"+ colour +".png").toExternalForm(), 1, 4);
 
         playerStatLabels.put(playerName, labels);  // here we put the updated map linked to the player in the map with all the playerStats
 
@@ -1336,28 +1348,28 @@ public class GUIView extends Application implements ViewType {
             int col
     ) {
 
-
         ImageView icon = new ImageView(imagePath); // here we create the image with the simbol of the stat we are adding to the grid
         icon.setFitWidth(34);
         icon.setFitHeight(34);
         icon.setPreserveRatio(true);
         icon.setSmooth(true);
+        if(!(type == StatType.COLOUR)){
+            Label valueLabel = new Label("0");  // here we put the value of the stat initialized to 0
+            valueLabel.setMinWidth(26);
+            valueLabel.setAlignment(Pos.CENTER_LEFT);
 
-        Label valueLabel = new Label("0");  // here we put the value of the stat initialized to 0
-        valueLabel.setMinWidth(26);
-        valueLabel.setAlignment(Pos.CENTER_LEFT);
-
-        valueLabel.setStyle("""
+            valueLabel.setStyle("""
         -fx-text-fill: white;
         -fx-font-size: 15;
         -fx-font-family: 'Georgia';
         -fx-font-weight: bold;
     """);
+            grid.add(valueLabel, col + 1, row);
+            labels.put(type, valueLabel);
 
+        }
         grid.add(icon, col, row);  // here we add the image to the grid
-        grid.add(valueLabel, col + 1, row); // here we add the value to the grid
 
-        labels.put(type, valueLabel);
     }
 
 
@@ -1390,6 +1402,7 @@ public class GUIView extends Application implements ViewType {
             card.setFitHeight(BOARD_CARD_HEIGHT);
             card.setPreserveRatio(true);
             card.setSmooth(true);
+            addHoverEffect(card);
 
 
             card.setCursor(Cursor.HAND);
@@ -1410,20 +1423,11 @@ public class GUIView extends Application implements ViewType {
         }
 
 
-
-    private ImageView createHomeTribeCard(int id){
-        ImageView card = new ImageView(getClass().getResource("/cardsFront/" + id + ".jpg").toExternalForm());
-        card.setFitWidth(70);
-        card.setFitHeight(105);
-        card.setPreserveRatio(true);
-        card.setSmooth(true);
-        return card;
-    }
-
-    private ImageView createAwayTribeCard(int id){
-        ImageView card = new ImageView(getClass().getResource("/cardsFront/" + id + ".jpg").toExternalForm());
-        card.setFitWidth(50);
-        card.setFitHeight(75);
+    private ImageView createTribeCard(int id) {
+        ImageView card = new ImageView(getClass().getResource("/cardsFront/" + id + ".jpg").toExternalForm()
+        );
+        card.setFitWidth(BOARD_CARD_WIDTH);
+        card.setFitHeight(BOARD_CARD_HEIGHT);
         card.setPreserveRatio(true);
         card.setSmooth(true);
         return card;
@@ -1458,6 +1462,7 @@ public class GUIView extends Application implements ViewType {
         trackCard.getChildren().addAll(cardImage, trackCardtotemLayer);
 
         trackCard.setCursor(javafx.scene.Cursor.HAND);
+        addHoverEffect(trackCard);
 
         trackCard.setOnMouseClicked(event -> {
             if (!totemClicked) {
