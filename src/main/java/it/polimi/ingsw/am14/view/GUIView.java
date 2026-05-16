@@ -9,12 +9,14 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -76,6 +78,9 @@ public class GUIView extends Application implements ViewType {
     private HBox homeTribeBox;
     private final Map<String, TilePane> awayTribePanes = new HashMap<>();
 
+    private double SCENE_WIDTH;
+    private double SCENE_HEIGHT;
+
     private enum StatType {
         FOOD,
         AXE,
@@ -91,10 +96,16 @@ public class GUIView extends Application implements ViewType {
     public void start(Stage primaryStage) {
         this.primaryStage = primaryStage;
 
-        Scene loginScene = new Scene(createLoginScene(), 1400, 900);
+        Rectangle2D screen = Screen.getPrimary().getVisualBounds();
+
+        SCENE_WIDTH = screen.getWidth() * 0.80;   // 80% dello schermo
+        SCENE_HEIGHT = screen.getHeight() * 0.80; // 80% dello schermo
+
+        Scene loginScene = new Scene(createLoginScene(), SCENE_WIDTH, SCENE_HEIGHT);
 
         primaryStage.setTitle("Login");
         primaryStage.setScene(loginScene);
+        primaryStage.setResizable(true); // adattabile
         primaryStage.show();
     }
 
@@ -309,7 +320,7 @@ public class GUIView extends Application implements ViewType {
 
     private void showGameChoiceScene() {
         if (gameChoiceScene == null) {
-            gameChoiceScene = new Scene(createGameChoiceScene(), 1400, 900);
+            gameChoiceScene = new Scene(createGameChoiceScene(), SCENE_WIDTH, SCENE_HEIGHT);
         }
 
         primaryStage.setTitle("Game Menu");
@@ -532,7 +543,7 @@ public class GUIView extends Application implements ViewType {
 
     private void showLobbyScene() {
         if (lobbyScene == null) {
-            lobbyScene = new Scene(createLobbyScene(), 1400, 900);
+            lobbyScene = new Scene(createLobbyScene(), SCENE_WIDTH, SCENE_HEIGHT);
         }
 
         primaryStage.setTitle("Lobby");
@@ -772,8 +783,6 @@ public class GUIView extends Application implements ViewType {
     private void createGameScene() {
         BorderPane root = new BorderPane();
 
-        root.setMinHeight(900);
-
         Image backgroundImage = new Image(getClass().getResource("/background/game.jpeg").toExternalForm());
 
         BackgroundImage bgImage = new BackgroundImage(
@@ -802,13 +811,17 @@ public class GUIView extends Application implements ViewType {
         gameScroll.setStyle("""
         -fx-background-color: transparent;
         -fx-background: transparent;
+        -fx-control-inner-background: transparent;
     """);
 
         gameScroll.viewportBoundsProperty().addListener((obs, oldBounds, newBounds) -> {
             root.setMinWidth(newBounds.getWidth());
+
+            double minHeight = Math.max(900, newBounds.getHeight());
+            root.setMinHeight(minHeight);
         });
 
-        gameScene = new Scene(gameScroll, 1400, 900);
+        gameScene = new Scene(gameScroll, SCENE_WIDTH, SCENE_HEIGHT);
     }
 
     private void showGameScene() {
