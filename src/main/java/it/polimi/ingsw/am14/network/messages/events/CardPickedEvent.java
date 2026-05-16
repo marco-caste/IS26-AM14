@@ -19,13 +19,14 @@ public class CardPickedEvent extends UpdateEvent {
     private int playerFood;
     private int playerPrestigePoints;
     private int playerNumStars;
+    private boolean wasLastPick;
     private int playerBuildingDiscount;
     private int playerGatheringDiscount;
     private ArrayList<String> updatedTurnOrderCard;
     private int gameId; // only used for bufferization, will not be sent to the client
 
     // called by the model
-    public CardPickedEvent(String playerNickname, Card card, int row, int playerFood, int playerPrestigePoints, Optional<ArrayList<Player>> updatedTurnOrderCard, int gameId, int playerBuildingDiscount, int playerGatheringDiscount, int playerNumStars) {
+    public CardPickedEvent(String playerNickname, Card card, int row, int playerFood, int playerPrestigePoints, Optional<ArrayList<Player>> updatedTurnOrderCard, int gameId, int playerBuildingDiscount, int playerGatheringDiscount, int playerNumStars, boolean wasLastPick) {
         super("");
         int ID = card == null ? -1 : card.getId();
 
@@ -36,9 +37,7 @@ public class CardPickedEvent extends UpdateEvent {
             this.row = -1;
             this.playerFood = playerFood;
             this.playerPrestigePoints = playerPrestigePoints;
-            this.playerBuildingDiscount = playerBuildingDiscount;
-            this.playerNumStars = playerNumStars;
-            this.playerGatheringDiscount = playerGatheringDiscount;
+
             return;
         }
 
@@ -55,6 +54,11 @@ public class CardPickedEvent extends UpdateEvent {
         this.row = row;
         this.playerFood = playerFood;
         this.playerPrestigePoints = playerPrestigePoints;
+        this.playerBuildingDiscount = playerBuildingDiscount;
+        this.playerNumStars = playerNumStars;
+        this.wasLastPick = wasLastPick;
+        this.playerGatheringDiscount = playerGatheringDiscount;
+
         this.gameId = gameId;
         this.description += "Player " + playerNickname + " has picked card with ID " + cardID + " from " + rowName;
 
@@ -81,7 +85,8 @@ public class CardPickedEvent extends UpdateEvent {
             @JsonProperty("description") String description,
             @JsonProperty("playerBuildingDiscount") int playerBuildingDiscount,
             @JsonProperty("playerGatheringDiscount") int  playerGatheringDiscount,
-            @JsonProperty("playerNumStars") int playerNumStars)
+            @JsonProperty("playerNumStars") int playerNumStars,
+            @JsonProperty("wasLastPick") boolean wasLastPick)
     {
         super(description);
         this.playerNickname = playerNickname;
@@ -92,6 +97,7 @@ public class CardPickedEvent extends UpdateEvent {
         this.updatedTurnOrderCard = updatedTurnOrderCard;
         this.playerGatheringDiscount = playerGatheringDiscount;
         this.playerNumStars = playerNumStars;
+        this.wasLastPick = wasLastPick;
         this.playerBuildingDiscount = playerBuildingDiscount;
     }
 
@@ -109,7 +115,10 @@ public class CardPickedEvent extends UpdateEvent {
         if (cardID != -1) {
             model.updatePlayerTribe(playerNickname, cardID);
             model.removePickedCardFromBoard(row, cardID);
-            model.updatePickPlayerStats(playerNickname, playerFood, playerPrestigePoints, playerBuildingDiscount, playerGatheringDiscount, playerNumStars);
+            model.updatePickPlayerStats(playerNickname, playerFood, playerPrestigePoints,playerNumStars, playerBuildingDiscount, playerGatheringDiscount);
+            if (wasLastPick) {
+                model.updatePlayerPosition(playerNickname, null );
+            }
         }
         model.setPlayerOrderInTurnOrderCard(updatedTurnOrderCard);
         //TODO: dobbiamo aggiornare anche la posizione nelle trackCard? o facciamo tutto a fine turno lasciando lo spostamento delle pedine a endROund? Secondo me andrebbe fatto quando un player ha terminato di pickare
