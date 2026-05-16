@@ -42,7 +42,7 @@ public class TotemPlacedEvent extends UpdateEvent {
 
 
     @Override
-    public void effect(it.polimi.ingsw.am14.clientModel.ClientModel model) {
+    public void effect(it.polimi.ingsw.am14.clientModelController.ClientModel model) {
         model.setMessage(description);
         model.updatePlayerPosition(playerNickname, trackCardName);
         model.removePlayerFromTurnOrderCard(removedTotemIndex);

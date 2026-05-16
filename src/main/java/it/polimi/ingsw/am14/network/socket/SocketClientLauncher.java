@@ -3,12 +3,10 @@ package it.polimi.ingsw.am14.network.socket;
 import it.polimi.ingsw.am14.view.ViewType;
 import it.polimi.ingsw.am14.network.socket.client.SocketClient;
 import it.polimi.ingsw.am14.network.socket.client.SocketServerHandler;
-import it.polimi.ingsw.am14.clientModel.ClientModel;
+import it.polimi.ingsw.am14.clientModelController.ClientModel;
 
 import java.io.*;
 import java.net.Socket;
-
-import static it.polimi.ingsw.am14.utils.Constants.PING_TIMEOUT;
 
 public class SocketClientLauncher {
 

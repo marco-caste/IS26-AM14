@@ -64,10 +64,6 @@ public class LobbyController {
         return Optional.ofNullable(gameIdToGameController.get(gameId));
     }
 
-    private boolean hasGameAController(int gameId) {
-        return gameIdToGameController.containsKey(gameId) && getGameController(gameId).isPresent();
-    }
-
     private void assignPlayerToGame(String nickname, int gameId) {
         nicknameToGameId.put(nickname, gameId);
     }
@@ -192,7 +188,8 @@ public class LobbyController {
     public void handlePingTimeOut() {
         synchronized (dataLock) {
             long currentTime = System.currentTimeMillis();
-            for (String nickname : lastPingReceivedTime.keySet()) {
+            HashSet<String> nicknames = new HashSet<>(lastPingReceivedTime.keySet());
+            for (String nickname : nicknames) {
                 long lastPingTime = lastPingReceivedTime.get(nickname);
                 if (currentTime - lastPingTime > PING_TIMEOUT) {
                     disconnectUser(nickname);

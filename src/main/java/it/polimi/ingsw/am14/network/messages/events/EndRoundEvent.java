@@ -7,7 +7,7 @@ import it.polimi.ingsw.am14.network.NetworkLayer;
 import it.polimi.ingsw.am14.model.boardComponents.Board;
 import it.polimi.ingsw.am14.model.cards.Card;
 import it.polimi.ingsw.am14.model.gameLogic.Player;
-import it.polimi.ingsw.am14.clientModel.ClientModel;
+import it.polimi.ingsw.am14.clientModelController.ClientModel;
 
 import java.util.ArrayList;
 import java.util.HashMap;

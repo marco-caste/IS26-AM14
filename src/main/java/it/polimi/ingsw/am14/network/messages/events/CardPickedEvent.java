@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import it.polimi.ingsw.am14.network.NetworkLayer;
 import it.polimi.ingsw.am14.model.cards.Card;
 import it.polimi.ingsw.am14.model.gameLogic.Player;
-import it.polimi.ingsw.am14.clientModel.ClientModel;
+import it.polimi.ingsw.am14.clientModelController.ClientModel;
 
 import java.util.ArrayList;
 import java.util.Optional;
@@ -121,7 +121,6 @@ public class CardPickedEvent extends UpdateEvent {
             }
         }
         model.setPlayerOrderInTurnOrderCard(updatedTurnOrderCard);
-        //TODO: dobbiamo aggiornare anche la posizione nelle trackCard? o facciamo tutto a fine turno lasciando lo spostamento delle pedine a endROund? Secondo me andrebbe fatto quando un player ha terminato di pickare
         model.notifyObservers("pickUpdate");
     }
 }

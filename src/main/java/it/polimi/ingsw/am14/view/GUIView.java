@@ -1,7 +1,7 @@
 package it.polimi.ingsw.am14.view;
 
-import it.polimi.ingsw.am14.clientModel.ClientModel;
-import it.polimi.ingsw.am14.clientModel.ClientPlayer;
+import it.polimi.ingsw.am14.clientModelController.ClientModel;
+import it.polimi.ingsw.am14.clientModelController.ClientPlayer;
 import it.polimi.ingsw.am14.model.gameLogic.TotemColor;
 import it.polimi.ingsw.am14.network.EntryPointFactory;
 import it.polimi.ingsw.am14.network.VirtualServer;

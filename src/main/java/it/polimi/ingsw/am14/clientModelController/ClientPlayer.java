@@ -1,4 +1,4 @@
-package it.polimi.ingsw.am14.clientModel;
+package it.polimi.ingsw.am14.clientModelController;
 
 import java.util.ArrayList;
 import java.util.List;

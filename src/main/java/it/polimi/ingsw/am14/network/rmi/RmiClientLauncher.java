@@ -1,10 +1,8 @@
 package it.polimi.ingsw.am14.network.rmi;
 
-import it.polimi.ingsw.am14.network.rmi.client.VirtualServerRmi;
 import it.polimi.ingsw.am14.view.ViewType;
-import it.polimi.ingsw.am14.network.VirtualServer;
 import it.polimi.ingsw.am14.network.rmi.client.RmiClient;
-import it.polimi.ingsw.am14.clientModel.ClientModel;
+import it.polimi.ingsw.am14.clientModelController.ClientModel;
 
 import java.io.IOException;
 import java.rmi.NotBoundException;

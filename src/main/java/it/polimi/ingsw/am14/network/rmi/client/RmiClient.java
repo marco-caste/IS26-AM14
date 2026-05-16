@@ -3,8 +3,9 @@ package it.polimi.ingsw.am14.network.rmi.client;
 import it.polimi.ingsw.am14.network.VirtualServer;
 import it.polimi.ingsw.am14.network.messages.events.Event;
 import it.polimi.ingsw.am14.network.messages.events.ExceptionEvent;
+import it.polimi.ingsw.am14.network.messages.events.LoginSuccesfulEvent;
 import it.polimi.ingsw.am14.network.rmi.server.VirtualClientRmi;
-import it.polimi.ingsw.am14.clientModel.ClientModel;
+import it.polimi.ingsw.am14.clientModelController.ClientModel;
 
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -28,6 +29,14 @@ public class RmiClient extends UnicastRemoteObject implements VirtualClientRmi, 
     public void update(Event update) {
         new Thread(() -> {
             update.effect(model);
+            if (update.getDescription().contains("has logged in successfully")) {
+                try {
+                    LoginSuccesfulEvent loginEvent = (LoginSuccesfulEvent) update;
+                    pingServer(loginEvent.getPlayerNickname());
+                } catch (Exception e) {
+                    // do nothing: thread pinger will handle disconnection and notify the client.
+                }
+            }
         }).start();
     }
 
