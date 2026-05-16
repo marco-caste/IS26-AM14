@@ -66,6 +66,10 @@ public class GUIView extends Application implements ViewType {
     private Map<Character,Pane> trackCardTotemLayers = new HashMap<>(); // we need to keep track of the panes with the totems on the track cards to update them when a new totem is placed or removed
     private Pane turnOrderCardTotemLayer;
 
+    private HBox tribeCardsBox;
+    private Label selectedTribeLabel;
+    private ToggleGroup tribeToggleGroup;
+    private String selectedTribeNickname;
 
     private VBox playersStatsBox;
     private Pane lobbyTotemLayer;
@@ -123,7 +127,7 @@ public class GUIView extends Application implements ViewType {
             case "gameStart" -> gameCreation();
             case "pickUpdate","endRound", "endGame" -> {
                 updateBoard();
-                updateTribes();
+                updateSelectedTribe();
                 updateTop(modelReference.getMessage());
                 updatePlayerStats();
                 updateoffersPathBox();
@@ -518,8 +522,9 @@ public class GUIView extends Application implements ViewType {
 
         if (gameChoiceScene == null)  // check per gli update che arrivano prima che la scena venga creata, così evitiamo errori di null pointer
             return;
+
         if(updateType.equals("exception")){
-            gameChoiceErrorLabel.setText("Game with this GAMEID doesn't exist,try another.");
+            gameChoiceErrorLabel.setText(modelReference.getMessage());
         } else
             showLobbyScene(); // se la create o join è andata a buon fine passo alla scena successiva (lobby)
     }
@@ -592,6 +597,7 @@ public class GUIView extends Application implements ViewType {
     """);
 
 
+
         lobbyNumPlayerLabel = new Label("Waiting for players : 1 /" + modelReference.getNumPlayers()) ;
         lobbyNumPlayerLabel.setStyle("""
         -fx-text-fill: white;
@@ -607,6 +613,7 @@ public class GUIView extends Application implements ViewType {
 
     private void updateLobby() {
         if (lobbyScene== null) return;
+
         int playerNumber = 0;
         lobbyTotemLayer.getChildren().clear();
 
@@ -633,7 +640,7 @@ public class GUIView extends Application implements ViewType {
             lobbyTotemLayer.getChildren().add(totemBox);
         }
 
-        lobbyNumPlayerLabel = new Label("Waiting for players : "+ playerNumber + "/" + modelReference.getNumPlayers());
+        lobbyNumPlayerLabel.setText("Waiting for players : "+ playerNumber + "/" + modelReference.getNumPlayers());
     }
 
     // metodo serve per adattare i totem quando andiamo a stringere la finestra, moltiplica il loro ratio per un x e y in base a come viene ridotta la finestra( commento in ita in quanto serve a me)
@@ -1102,139 +1109,108 @@ public class GUIView extends Application implements ViewType {
 
 
 
-
     private VBox createBottom() {
-
-        // the bottom of the screen is divided in two parts, the first part is for the home player and the second part is for the other players.
-        // The home player is a vbox which contains a label ( with the nickname of the player and a scroll pane with the card of the tribe)
-        // For the other players we have a hbox where we have a vbox which contains a label ( with the nickname of the player) and a tilepane with the cards of the tribe, we have a tilepane because we want to have a grid of cards and not a row of cards.
-
-        VBox bottom = new VBox(10);
+        VBox bottom = new VBox(8);
         bottom.setStyle("""
-        -fx-background-color: rgba(60, 20, 40, 0.55);
+        -fx-background-color: rgba(60, 20, 40, 0.60);
         -fx-padding: 10;
+        -fx-border-color: rgba(255, 255, 255, 0.25);
+        -fx-border-width: 1 0 0 0;
     """);
 
-        VBox myPlayerPanel = createMyPlayerPanel();
-        HBox otherPlayersPanel = new HBox(10);
-        otherPlayersPanel.setAlignment(Pos.CENTER_LEFT);
+        HBox playersTabs = new HBox(8);
+        playersTabs.setAlignment(Pos.CENTER_LEFT);
 
+        tribeToggleGroup = new ToggleGroup();
+
+        selectedTribeNickname = modelReference.getHomePlayer().getNickname();
+
+        ToggleButton homeButton = createTribePlayerButton(
+                modelReference.getHomePlayer().getNickname()
+        );
+        homeButton.setSelected(true);
+        playersTabs.getChildren().add(homeButton);
 
         for (ClientPlayer player : modelReference.getOtherPlayers()) {
-            otherPlayersPanel.getChildren().add(createOtherPlayerPanel(player.getNickname()));
+            playersTabs.getChildren().add(
+                    createTribePlayerButton(player.getNickname())
+            );
         }
 
-        bottom.getChildren().addAll(myPlayerPanel, otherPlayersPanel);
+
+        tribeCardsBox = new HBox(8);
+        tribeCardsBox.setAlignment(Pos.CENTER_LEFT);
+
+        ScrollPane tribeScroll = new ScrollPane(tribeCardsBox);
+        tribeScroll.setFitToHeight(true);
+        tribeScroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        tribeScroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        tribeScroll.setPrefHeight(135);
+        tribeScroll.setStyle("""
+        -fx-background-color: transparent;
+        -fx-background: transparent;
+    """);
+        tribeScroll.setStyle("""
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+""");
+
+        bottom.getChildren().addAll(playersTabs,tribeScroll);
+
+        updateSelectedTribe();
 
         return bottom;
     }
 
 
-    private VBox createMyPlayerPanel() {
-        VBox panel = new VBox(8);
-        panel.setStyle("""
-        -fx-background-color: rgba(255, 180, 180, 0.25);
+    private ToggleButton createTribePlayerButton(String nickname) {
+        ToggleButton button = new ToggleButton(nickname);
+        button.setToggleGroup(tribeToggleGroup);
+
+        button.setStyle("""
+        -fx-background-color: rgba(255,255,255,0.15);
+        -fx-text-fill: white;
+        -fx-font-weight: bold;
         -fx-background-radius: 10;
-        -fx-border-color: #5b1630;
-        -fx-border-width: 3;
+        -fx-padding: 6 14 6 14;
+        -fx-border-color: rgba(255,255,255,0.35);
         -fx-border-radius: 10;
-        -fx-padding: 10;
     """);
 
-        Label name = new Label(modelReference.getHomePlayer().getNickname());
-        name.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
-
-
-        homeTribeBox = new HBox(8);
-        homeTribeBox.setAlignment(Pos.CENTER_LEFT);
-        updateHomeTribe(homeTribeBox);
-
-        ScrollPane scroll = new ScrollPane(homeTribeBox);
-        scroll.setFitToHeight(true); // putting it to true , the scrollpane will adjust its height to the content, so it will not have a fixed height and it will grow as the content grows
-        scroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED); // it will show the scrollbar only when the content exceeds the width of the scrollpane.
-        scroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER); // we don't want a vertical scrollbar
-        scroll.setPrefHeight(120);
-        scroll.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
-
-        panel.getChildren().addAll(name, scroll);
-
-        return panel;
-    }
-
-
-    private VBox createOtherPlayerPanel(String playerName) {
-        VBox panel = new VBox(6);
-        panel.setPrefWidth(320);
-        panel.setMaxHeight(120);
-
-        panel.setStyle("""
-        -fx-background-color: rgba(255, 255, 255, 0.18);
-        -fx-background-radius: 10;
-        -fx-border-color: rgba(255, 255, 255, 0.45);
-        -fx-border-radius: 10;
-        -fx-padding: 8;
-    """);
-
-        Label name = new Label(playerName);
-        name.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
-
-        TilePane tribePreview = new TilePane();
-        tribePreview.setHgap(5);
-        tribePreview.setVgap(5);
-        tribePreview.setPrefColumns(8);
-        awayTribePanes.put(playerName, tribePreview);
-
-        updateAwayTribe(tribePreview, playerName);
-        panel.getChildren().addAll(name, tribePreview);
-
-        return panel;
-    }
-
-
-
-    // update method which we call every time we have an update from a pickEvent
-    private void updateTribes() {
-        if (homeTribeBox != null) {
-            updateHomeTribe(homeTribeBox);
-        }
-
-        for (Map.Entry<String, TilePane> entry : awayTribePanes.entrySet()) {
-            updateAwayTribe(entry.getValue(), entry.getKey());
-        }
-    }
-
-
-    private void updateHomeTribe (HBox tribe){
-
-        tribe.getChildren().clear(); // cleaning the tribe
-        ArrayList<Integer> playerTribe = new ArrayList<>(modelReference.getHomePlayer().getPlayerTribe().stream().sorted(Integer::compareTo).toList());
-        // we sort the tribe of the player with ascending order, so the cards will be displayed for a better visualization
-
-        for (Integer cardId : playerTribe) {
-            ImageView card = createHomeTribeCard(cardId);
-            tribe.getChildren().add(card);
-        }
-        // adding the updated tribe
-
-    }
-
-
-    private void updateAwayTribe ( TilePane tribe, String playerName){
-
-        tribe.getChildren().clear(); // cleaning the tribe
-
-        List<Integer> playerTribe;
-        playerTribe = modelReference.getOtherPlayers().stream().filter(player -> player.getNickname().equals(playerName)).findFirst().orElseThrow().getPlayerTribe();
-         // adding the updated tribe of the other players, we iterate over the list of the other players and for each player we get its tribe and we add the cards to the tilepane
-
-        playerTribe.stream().sorted(Integer::compareTo).forEach(cardId -> {;
-            ImageView card = createAwayTribeCard(cardId);
-            tribe.getChildren().add(card);
+        button.setOnAction(event -> {
+            selectedTribeNickname = nickname;
+            updateSelectedTribe();
         });
-        // we sort the tribe of the player with ascending order, so the cards will be displayed for a better visualization
 
+        return button;
     }
 
+
+    private void updateSelectedTribe() {
+        if (tribeCardsBox == null || selectedTribeNickname == null) {
+            return;
+        }
+
+        tribeCardsBox.getChildren().clear();
+
+        if (selectedTribeLabel != null) {
+            selectedTribeLabel.setText("Tribe di: " + selectedTribeNickname);
+        }
+
+        ClientPlayer selectedPlayer = modelReference.getPlayerByNickname(selectedTribeNickname);
+
+        if (selectedPlayer == null || selectedPlayer.getPlayerTribe() == null) {
+            return;
+        }
+
+        selectedPlayer.getPlayerTribe()
+                .stream()
+                .sorted(Integer::compareTo)
+                .forEach(cardId -> {
+                    ImageView card = createTribeCard(cardId);
+                    tribeCardsBox.getChildren().add(card);
+                });
+    }
 
 
 
@@ -1410,20 +1386,11 @@ public class GUIView extends Application implements ViewType {
         }
 
 
-
-    private ImageView createHomeTribeCard(int id){
-        ImageView card = new ImageView(getClass().getResource("/cardsFront/" + id + ".jpg").toExternalForm());
-        card.setFitWidth(70);
-        card.setFitHeight(105);
-        card.setPreserveRatio(true);
-        card.setSmooth(true);
-        return card;
-    }
-
-    private ImageView createAwayTribeCard(int id){
-        ImageView card = new ImageView(getClass().getResource("/cardsFront/" + id + ".jpg").toExternalForm());
-        card.setFitWidth(50);
-        card.setFitHeight(75);
+    private ImageView createTribeCard(int id) {
+        ImageView card = new ImageView(getClass().getResource("/cardsFront/" + id + ".jpg").toExternalForm()
+        );
+        card.setFitWidth(BOARD_CARD_WIDTH);
+        card.setFitHeight(BOARD_CARD_HEIGHT);
         card.setPreserveRatio(true);
         card.setSmooth(true);
         return card;
