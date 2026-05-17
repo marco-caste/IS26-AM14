@@ -166,12 +166,13 @@ public class LobbyController {
         synchronized (dataLock) {
             int gameId = getGameIdByNickname(nickname).orElse(-1);
 
-            //Remove player from controller
             removePlayerFromLobby(nickname);
-            removeLastPingReceivedTime(nickname);
+            // TODO: FIX CONCURRENTMODIFICATION EXCEPTION
+            removeLastPingReceivedTime(nickname);   // <- è la causa, fuori da disconnectUser sto iterando sul keySet di
+            // lastPingReceivedTime, se lo modifico da dentro mi dà ConcurrentModificationException
 
-            //Remove game if the user was in a game
             if (gameId >= 0) {
+                // if user was in a game, remove the game controller.
                 removeGameController(gameId);
                 getPlayersByGameId(gameId).forEach(this::addPlayerToLobby);
             }

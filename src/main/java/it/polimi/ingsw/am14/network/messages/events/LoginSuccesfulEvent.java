@@ -5,6 +5,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import it.polimi.ingsw.am14.clientModelController.ClientModel;
 import it.polimi.ingsw.am14.clientModelController.ClientPlayer;
 import it.polimi.ingsw.am14.network.NetworkLayer;
+import it.polimi.ingsw.am14.network.VirtualServer;
+import it.polimi.ingsw.am14.view.viewEvents.LoginViewEvent;
+
+import java.rmi.RemoteException;
 
 public class LoginSuccesfulEvent extends ServerEvent {
 
@@ -24,19 +28,19 @@ public class LoginSuccesfulEvent extends ServerEvent {
         this.playerNickname = playerNickname;
     }
 
-    public String getPlayerNickname() {
-        return playerNickname;
-    }
-
     @Override
     public void effect(ClientModel model) {
         model.setHomePlayer(new ClientPlayer(playerNickname));
         model.setMessage(description);
-        model.notifyObservers("login");
+        model.notifyObservers(new LoginViewEvent());
     }
 
     @Override
     public void bufferize(NetworkLayer network) {
         network.addToEventBuffer(network.getClientBy(playerNickname), this);
+    }
+
+    public void startPinging(VirtualServer server) throws RemoteException {
+        server.pingServer(playerNickname);
     }
 }

@@ -8,6 +8,7 @@ import it.polimi.ingsw.am14.model.boardComponents.Board;
 import it.polimi.ingsw.am14.model.cards.Card;
 import it.polimi.ingsw.am14.model.gameLogic.Player;
 import it.polimi.ingsw.am14.network.NetworkLayer;
+import it.polimi.ingsw.am14.view.viewEvents.PlayerReconnectedViewEvent;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -159,6 +160,6 @@ public class PlayerReconnectedEvent extends ServerEvent {
             model.setGameId(gameId);
             model.setTurnOrderCardIndex(turnOrderCardIndex);
         }
-        model.notifyObservers("playerReconnected");
+        model.notifyObservers(new PlayerReconnectedViewEvent());
     }
 }

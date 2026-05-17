@@ -29,13 +29,13 @@ public class RmiClient extends UnicastRemoteObject implements VirtualClientRmi, 
     public void update(Event update) {
         new Thread(() -> {
             update.effect(model);
-            if (update.getDescription().contains("has logged in successfully")) {
-                try {
-                    LoginSuccesfulEvent loginEvent = (LoginSuccesfulEvent) update;
-                    pingServer(loginEvent.getPlayerNickname());
-                } catch (Exception e) {
-                    // do nothing: thread pinger will handle disconnection and notify the client.
-                }
+            try {
+                LoginSuccesfulEvent event = (LoginSuccesfulEvent) update;
+                event.startPinging(this);
+            } catch (ClassCastException e) {
+                // not a LoginSuccesfulEvent, do nothing
+            } catch (RemoteException e) {
+                // overridden by the ping listener, do nothing
             }
         }).start();
     }
@@ -107,7 +107,7 @@ public class RmiClient extends UnicastRemoteObject implements VirtualClientRmi, 
     }
 
     @Override
-    public void pingServer(String nickname) throws Exception {
+    public void pingServer(String nickname){
         lastPingReceived = System.currentTimeMillis();
 
         new Thread(() -> {
@@ -116,10 +116,10 @@ public class RmiClient extends UnicastRemoteObject implements VirtualClientRmi, 
                     Thread.sleep(PING_INTERVAL);
                     server.pingServer(nickname);
                 }
-            } catch (InterruptedException | RemoteException e) {
+            } catch (Exception e) {
                 Thread.currentThread().interrupt();
             }
-        }, "RMI-Pinger-" + nickname).start();
+        }, "RMIClient-Pinger").start();
 
         new Thread(() -> {
             try {
@@ -135,6 +135,6 @@ public class RmiClient extends UnicastRemoteObject implements VirtualClientRmi, 
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
-        }, "RMI-PingChecker-" + nickname).start();
+        }, "RMIClient-PingReceiver").start();
     }
 }

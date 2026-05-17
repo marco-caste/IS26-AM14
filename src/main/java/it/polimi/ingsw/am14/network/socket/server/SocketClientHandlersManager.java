@@ -94,7 +94,7 @@ public class SocketClientHandlersManager {
                                 if (Thread.currentThread().isInterrupted()) {
                                     return;
                                 }
-                                while (buffer.isEmpty() 
+                                while (buffer.isEmpty()
                                        && !Thread.currentThread().isInterrupted()) {
                                     try {
                                         buffer.wait();
@@ -103,7 +103,7 @@ public class SocketClientHandlersManager {
                                         return;
                                     }
                                 }
-                                if (!buffer.isEmpty() 
+                                if (!buffer.isEmpty()
                                     && !Thread.currentThread().isInterrupted()) {
                                     List<Event> eventsToSend = buffer.flushBuffer();
                                     for (Event event : eventsToSend) {

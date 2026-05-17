@@ -7,6 +7,7 @@ import it.polimi.ingsw.am14.model.cards.Card;
 import it.polimi.ingsw.am14.network.NetworkLayer;
 import it.polimi.ingsw.am14.model.boardComponents.Board;
 import it.polimi.ingsw.am14.model.gameLogic.Player;
+import it.polimi.ingsw.am14.view.viewEvents.EndGameViewEvent;
 import it.polimi.ingsw.am14.clientModelController.ClientModel;
 
 import java.util.ArrayList;
@@ -81,6 +82,6 @@ public class EndGameEvent extends UpdateEvent {
         model.setBoard(this.board);
         model.updatePlayerRoundAttributes(this.playersAttributes);
         model.setMessage(description);
-        model.notifyObservers( "endGame");
+        model.notifyObservers( new EndGameViewEvent());
     }
 }
