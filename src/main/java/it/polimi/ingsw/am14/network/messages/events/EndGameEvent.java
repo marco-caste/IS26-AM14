@@ -19,7 +19,7 @@ public class EndGameEvent extends UpdateEvent {
 
     private final ArrayList<ArrayList<Integer>> board;
     private final Map<String, ArrayList<Integer>> playersAttributes;
-    private ArrayList<String> finalRank;
+    private ArrayList<String> finalRank = new ArrayList<>();
     @JsonIgnore
     private int gameId;
 

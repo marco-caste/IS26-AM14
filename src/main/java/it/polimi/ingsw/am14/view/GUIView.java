@@ -18,6 +18,7 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import javafx.scene.text.TextAlignment;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -171,7 +172,7 @@ public class GUIView extends Application implements ViewType {
                 // mi updeta il messaggio di exception nelle varie scene. IN lobby non serve in quanto non abbiamo possibilità di exception
 
             }
-            //case "endGame" -> showGameEndingScene();
+            case "endGame" -> showEndGameScene();
 
             //TODO: parte di riconnessione
         }
@@ -1518,6 +1519,7 @@ public class GUIView extends Application implements ViewType {
 
         ImageView background = new ImageView(getClass().getResource("/background/endGame.png").toExternalForm());
 
+
         background.setPreserveRatio(false);
         background.fitWidthProperty().bind(root.widthProperty());
         background.fitHeightProperty().bind(root.heightProperty());
@@ -1527,7 +1529,7 @@ public class GUIView extends Application implements ViewType {
 
         root.getChildren().addAll(background, endGameTotemLayer);
 
-        endGameScene = new Scene(root, 1400, 900);
+        endGameScene = new Scene(root, SCENE_WIDTH, SCENE_HEIGHT);
     }
 
 
@@ -1555,30 +1557,43 @@ public class GUIView extends Application implements ViewType {
             ImageView totem = createAngryTotem(
                     player.getTotemColor().toLowerCase()
             );
+            Label nickname = new Label(player.getNickname());
+            nickname.setStyle("""
+        -fx-text-fill: white;
+        -fx-font-size: 17;
+        -fx-font-weight: bold;
+        -fx-effect: dropshadow(gaussian, black, 7, 0.9, 1, 1);
+    """);
 
-            placeTotemOnPodium(totem, i);
+            VBox totemBox = new VBox(4, nickname, totem);
+            totemBox.setAlignment(Pos.CENTER);
 
-            endGameTotemLayer.getChildren().add(totem);
+            nickname.setAlignment(Pos.CENTER);
+            nickname.setTextAlignment(TextAlignment.CENTER);
+
+            placeTotemOnPodium(totemBox, i);
+
+            endGameTotemLayer.getChildren().add(totemBox);
         }
     }
 
 
-    private void placeTotemOnPodium(ImageView totem, int rankingPosition) {
+    private void placeTotemOnPodium(VBox totem, int rankingPosition) {
         double xRatio;
         double yRatio;
 
         switch (rankingPosition) {
             case 0 -> { // primo posto, centro
                 xRatio = 0.500;
-                yRatio = 0.430;
+                yRatio = 0.290;
             }
             case 1 -> { // secondo posto, sinistra
                 xRatio = 0.275;
-                yRatio = 0.535;
+                yRatio = 0.355;
             }
             case 2 -> { // terzo posto, destra
                 xRatio = 0.720;
-                yRatio = 0.545;
+                yRatio = 0.330;
             }
             default -> {
                 xRatio = 0.5;
@@ -1589,7 +1604,7 @@ public class GUIView extends Application implements ViewType {
         totem.layoutXProperty().bind(
                 endGameTotemLayer.widthProperty()
                         .multiply(xRatio)
-                        .subtract(END_TOTEM_WIDTH / 2)
+                        .subtract(END_TOTEM_WIDTH/2)
         );
 
         totem.layoutYProperty().bind(
