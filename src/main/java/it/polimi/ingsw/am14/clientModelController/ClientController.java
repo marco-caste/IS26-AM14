@@ -1,16 +1,13 @@
 package it.polimi.ingsw.am14.clientModelController;
 
+import it.polimi.ingsw.am14.network.EntryPointFactory;
 import it.polimi.ingsw.am14.network.VirtualServer;
 import it.polimi.ingsw.am14.network.messages.events.ExceptionEvent;
+import it.polimi.ingsw.am14.view.ViewType;
 
 public class ClientController {
-    private final ClientModel model;
-    private final VirtualServer server;
-
-    public ClientController(ClientModel model, VirtualServer server) {
-        this.model = model;
-        this.server = server;
-    }
+    private ClientModel model;
+    private VirtualServer server;
 
     public void pickCard(int cardId) {
         //Skip check
@@ -80,9 +77,41 @@ public class ClientController {
         }
     }
 
-    //TODO: connect?
+    public void connect(String connectionMode, String serverIP, int serverPort, String playerNickname, ViewType view) {
+        // Only one connection
+        if (this.server != null) {
+            handleException("You are already connected");
+            return;
+        }
+
+        // Validate server port
+        if (serverPort <= 0 || serverPort > 65535) {
+            handleException("Invalid port number. Port must be between 1 and 65535");
+            return;
+        }
+
+        try {
+            Object[] result = EntryPointFactory.connect(
+                    connectionMode,
+                    serverIP,
+                    serverPort,
+                    playerNickname,
+                    view
+            );
+            this.server = (VirtualServer) result[0];
+            this.model = (ClientModel) result[1];
+        } catch (Exception e) {
+            handleNetworkError(e);
+        }
+    }
 
     public void createGame(int numPlayers, String totemColor) {
+        //Check if the user is already connected to a game
+        if (model.getGameId() >= 0) {
+            handleException("You are already connected to a game");
+            return;
+        }
+
         //Check numPlayers
         if (numPlayers < 2 || numPlayers > 5) {
             handleException("Invalid number of players");
@@ -105,6 +134,12 @@ public class ClientController {
     }
 
     public void joinGame(int gameId, String totemColor) {
+        //Check if the user is already connected to a game
+        if (model.getGameId() >= 0) {
+            handleException("You are already connected to a game");
+            return;
+        }
+
         //Check TotemColor
         if (!totemColor.equalsIgnoreCase("red") && !totemColor.equalsIgnoreCase("blue") &&
             !totemColor.equalsIgnoreCase("green") && !totemColor.equalsIgnoreCase("yellow") &&

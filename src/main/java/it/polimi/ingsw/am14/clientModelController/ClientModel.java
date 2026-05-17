@@ -39,7 +39,7 @@ public class ClientModel {
         this.playerOrderInTurnOrderCard = new ArrayList<>();
         this.board = new ArrayList<>();
         this.turnOrderCardIndex = 0;
-        this.gameId = 0;
+        this.gameId = -1;
         this.numPlayers = 0;
         this.message = "";
     }

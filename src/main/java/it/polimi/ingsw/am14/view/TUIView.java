@@ -250,15 +250,32 @@ public class TUIView implements ViewType {
         if (args.length < 2) {
             throw new IllegalArgumentException("Invalid command format. Usage: connect [socket|rmi]");
         }
-        writer.println("please specify the server IP, port and your nickname");
+        
+        // Extract the connection mode from command
+        String connectionMode = args[1];
+        
+        // Request connection parameters from user
+        writer.println("Please specify the server IP, port and your nickname:");
         terminal.flush();
-        String IP = lineReader.readLine("IP: ");
-        String port = lineReader.readLine("Port: ");
-        String nick = lineReader.readLine("Nickname: ").trim();
-        this.server = EntryPointFactory.connect(new String[]{args[1], IP, port, nick}, this);
+        
+        String serverIP = lineReader.readLine("IP: ");
+        String portInput = lineReader.readLine("Port: ");
+        String playerNickname = lineReader.readLine("Nickname: ").trim();
+        
+        // Parse port to integer with validation
+        int serverPort;
+        try {
+            serverPort = Integer.parseInt(portInput);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Port must be a valid integer number, got: " + portInput);
+        }
+
+        this.server = EntryPointFactory.connect(connectionMode, serverIP, serverPort, playerNickname, this);
+        
         writer.println("Client launched successfully!");
         writer.println("Connecting to server...");
         terminal.flush();
+        
         // no need to wait for a response from the server up to this date (29/4),
         // it does not yet send any LoginSuccessful event.
         writer.println("Connected to server successfully!");

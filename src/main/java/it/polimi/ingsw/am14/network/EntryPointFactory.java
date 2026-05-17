@@ -1,43 +1,55 @@
 package it.polimi.ingsw.am14.network;
 
+import it.polimi.ingsw.am14.clientModelController.ClientModel;
 import it.polimi.ingsw.am14.network.rmi.RmiClientLauncher;
 import it.polimi.ingsw.am14.network.rmi.client.RmiClient;
 import it.polimi.ingsw.am14.network.socket.SocketClientLauncher;
 import it.polimi.ingsw.am14.network.socket.client.VirtualServerSocket;
 import it.polimi.ingsw.am14.view.ViewType;
 
+import java.util.Map;
+
 public abstract class EntryPointFactory {
     /**
-     * @param args contains the necessary information to connect to the server, in the following format:
-     *             args[0] = type (socket or rmi);
-     *             args[1] = ip;
-     *             args[2] = port;
-     *             args[3] = nickname;
-     * @param view the caller view.
-     * @return a VirtualServer instance, which can be used to send messages to the server.
+     * Establishes a connection to the server using the specified connection parameters.
+     * 
+     * @param connectionMode the network protocol to use ("socket" or "rmi")
+     * @param serverIP the IP address of the server
+     * @param serverPort the port number of the server
+     * @param playerNickname the nickname of the player connecting
+     * @param view the caller view (UI)
+     * @return an Object array {VirtualServer, ClientModel}
+     * @throws IllegalArgumentException if an invalid connection mode is provided
+     * @throws RuntimeException if connection fails
      */
-    public static VirtualServer connect(String[] args, ViewType view) {
-        String mode = args[0];
-        switch (mode) {
+    public static Object[] connect(String connectionMode, String serverIP, int serverPort, String playerNickname, ViewType view) {
+        switch (connectionMode.toLowerCase()) {
             case "socket" -> {
                 try {
-                    VirtualServerSocket client = SocketClientLauncher.launch(new String[]{args[1], args[2], args[3]}, view);
-                    client.connectUser(args[3]);
-                    return client;
+                    // Create and launch Socket client with explicit parameters
+                    Map<VirtualServerSocket, ClientModel> result = SocketClientLauncher.launch(
+                            serverIP,
+                            serverPort,
+                            view
+                    );
+                    VirtualServerSocket server = result.keySet().iterator().next();
+                    server.connectUser(playerNickname);
+                    return new Object[]{server, result.get(server)};
                 } catch (Exception e) {
-                    throw new RuntimeException(e.getMessage());
+                    throw new RuntimeException("Socket connection failed: " + e.getMessage());
                 }
             }
             case "rmi" -> {
                 try {
-                    RmiClient client = RmiClientLauncher.launch(view);
-                    client.connect(client, args[3], args[1], Integer.parseInt(args[2]));
-                    return client;
+                    Map<RmiClient, ClientModel> result = RmiClientLauncher.launch(view);
+                    RmiClient server = result.keySet().iterator().next();
+                    server.connect(playerNickname, serverIP, serverPort);
+                    return new Object[]{server, result.get(server)};
                 } catch (Exception e) {
-                    throw new RuntimeException(e.getMessage());
+                    throw new RuntimeException("RMI connection failed: " + e.getMessage());
                 }
             }
-            default -> throw new IllegalArgumentException("Invalid mode: " + mode);
+            default -> throw new IllegalArgumentException("Invalid connection mode: '" + connectionMode + "'. Use 'socket' or 'rmi'.");
         }
     }
 }
