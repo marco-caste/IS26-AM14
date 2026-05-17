@@ -4,6 +4,7 @@ import it.polimi.ingsw.am14.network.messages.events.Event;
 import it.polimi.ingsw.am14.network.messages.events.LoginSuccesfulEvent;
 import it.polimi.ingsw.am14.utils.JsonCodec;
 import it.polimi.ingsw.am14.clientModelController.ClientModel;
+import it.polimi.ingsw.am14.view.viewEvents.ExceptionViewEvent;
 
 import java.io.*;
 import java.net.Socket;
@@ -74,7 +75,7 @@ public class SocketClient {
                             // intuizione: se il client percepisce disconnessione, interrompe i thread in lettura (ping + listener)
                         } catch (IOException ex) {
                             model.setMessage("[Client] Network error: failed to close the connection. try to reconnect later.");
-                            model.notifyObservers("");
+                            model.notifyObservers(new ExceptionViewEvent());
                         }
                     } catch (IOException e) {
                         model.setMessage("[Client] Network error: failed to read from the server. try to reconnect later.\n[Client] Shutting down connection...");

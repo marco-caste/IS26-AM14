@@ -10,7 +10,7 @@ public class PositionUpdateViewEvent implements ViewEvent{
         try {
             GUIView guiView = (GUIView) view;
             guiView.updateoffersPathBox();  // TODO: PRIVATO
-            guiView.updateTop();  // TODO: PRIVATO, PARAMETRO NICKNAME INUTILIZZATO
+            guiView.updateTop("");  // TODO: PRIVATO, PARAMETRO NICKNAME INUTILIZZATO
         } catch (ClassCastException e) {
             TUIView tuiView = (TUIView) view;
         }

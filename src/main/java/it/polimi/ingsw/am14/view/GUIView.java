@@ -5,6 +5,7 @@ import it.polimi.ingsw.am14.clientModelController.ClientPlayer;
 import it.polimi.ingsw.am14.model.gameLogic.TotemColor;
 import it.polimi.ingsw.am14.network.EntryPointFactory;
 import it.polimi.ingsw.am14.network.VirtualServer;
+import it.polimi.ingsw.am14.view.viewEvents.ViewEvent;
 import javafx.animation.TranslateTransition;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -126,7 +127,10 @@ public class GUIView extends Application implements ViewType {
 
 
     @Override
-    public void update(ClientModel model, String eventChoice) {
+    public void update(ClientModel model, ViewEvent event) {
+
+        // TODO: da rimuovere
+        String eventChoice = "test";
 
         this.modelReference = model;
         System.out.println("GUI update received: " + eventChoice);
@@ -335,7 +339,7 @@ public class GUIView extends Application implements ViewType {
 
 
 
-    private void updateLogin() {
+    public void updateLogin() {
 
         if (updateType.equals("exception"))
             loginErororLabel.setText(modelReference.getMessage());
@@ -535,7 +539,7 @@ public class GUIView extends Application implements ViewType {
 
 
     //TODO: gestione colore già preso, devo verificare se marco ha inserito questo check nella gestione nuova
-    private void updateChoiceScene(){
+    public void updateChoiceScene(){
 
         if (gameChoiceScene == null)  // check per gli update che arrivano prima che la scena venga creata, così evitiamo errori di null pointer
             return;
@@ -628,7 +632,7 @@ public class GUIView extends Application implements ViewType {
     }
 
 
-    private void updateLobby() {
+    public void updateLobby() {
         if (lobbyScene== null) return;
 
         int playerNumber = 0;
@@ -763,7 +767,7 @@ public class GUIView extends Application implements ViewType {
 
 
 
-    private void gameCreation() {
+    public void gameCreation() {
 
         if (gameScene == null) {
             createGameScene();
@@ -870,7 +874,7 @@ public class GUIView extends Application implements ViewType {
         return topBox;
     }
 
-    private void updateTop(String message){
+    public void updateTop(String message){
         if (topBox != null) serverMessage.setText(message); //check per gli update che arrivano prima che la scena venga creata, così evitiamo errori di null pointer
     }
 
@@ -1071,7 +1075,7 @@ public class GUIView extends Application implements ViewType {
 
 
     //TODO: fatto ipotizzando che andiamo a mettere un aggiornamento a null di tutte le trackCard in EndRoun a nulll, o anche meglio proprio quando il player ha finito di pickare
-    private void updateoffersPathBox(){
+    public void updateoffersPathBox(){
 
         // updateTurnOrdercard
         turnOrderCardTotemLayer.getChildren().clear(); // we clear the totems on the turn order card, then we will add them again based on the new player position in turn order card after the update of the board
@@ -1104,7 +1108,7 @@ public class GUIView extends Application implements ViewType {
 
 
 
-    private void updateBoard() {
+    public void updateBoard() {
 
         //update topRow with the index based on the row linked to the hbox
         for(int i =0 ; i<2 ; i++){
@@ -1220,7 +1224,7 @@ public class GUIView extends Application implements ViewType {
     }
 
 
-    private void updateSelectedTribe() {
+    public void updateSelectedTribe() {
         if (tribeCardsBox == null || selectedTribeNickname == null) {
             return;
         }
@@ -1374,7 +1378,7 @@ public class GUIView extends Application implements ViewType {
 
 
 
-    private void updatePlayerStats() {
+    public void updatePlayerStats() {
 
         ArrayList<ClientPlayer> clientPlayers = new ArrayList<>(modelReference.getOtherPlayers());
         clientPlayers.add(modelReference.getHomePlayer());
@@ -1496,12 +1500,5 @@ public class GUIView extends Application implements ViewType {
         totem.setSmooth(true);
 
         return totem;
-    }
-
-
-
-
-    public static void main(String[] args) {
-        launch(args);
     }
 }

@@ -34,6 +34,8 @@ public class RmiClient extends UnicastRemoteObject implements VirtualClientRmi, 
                 event.startPinging(this);
             } catch (ClassCastException e) {
                 // not a LoginSuccesfulEvent, do nothing
+            } catch (RemoteException e) {
+                // overridden by the ping listener, do nothing
             }
         }).start();
     }

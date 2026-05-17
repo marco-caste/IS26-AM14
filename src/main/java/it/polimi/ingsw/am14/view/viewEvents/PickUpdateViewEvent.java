@@ -10,8 +10,8 @@ public class PickUpdateViewEvent implements ViewEvent{
         try {
             GUIView guiView = (GUIView) view;
             guiView.updateBoard();  // TODO: PRIVATO
-            guiView.updateTribes();  // TODO: PRIVATO
-            guiView.updateTop();  // TODO: PRIVATO, PARAMETRO NICKNAME INUTILIZZATO
+            guiView.updateSelectedTribe();  // TODO: PRIVATO
+            guiView.updateTop("");  // TODO: PRIVATO, PARAMETRO NICKNAME INUTILIZZATO
             guiView.updatePlayerStats();  // TODO: PRIVATO
             guiView.updateoffersPathBox();  // TODO: PRIVATO
         } catch (ClassCastException e) {

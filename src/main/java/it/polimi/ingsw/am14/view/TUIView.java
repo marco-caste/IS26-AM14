@@ -2,13 +2,10 @@ package it.polimi.ingsw.am14.view;
 
 import it.polimi.ingsw.am14.network.EntryPointFactory;
 import it.polimi.ingsw.am14.network.VirtualServer;
-import it.polimi.ingsw.am14.clientModel.ClientModel;
 import it.polimi.ingsw.am14.view.viewEvents.UserDisconnectedViewEvent;
 import it.polimi.ingsw.am14.view.viewEvents.ViewEvent;
-import org.jetbrains.annotations.NotNull;
 import it.polimi.ingsw.am14.clientModelController.ClientModel;
 import org.jline.reader.*;
-import org.jline.reader.impl.completer.StringsCompleter;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import org.jline.utils.AttributedString;
@@ -31,7 +28,7 @@ public class TUIView implements ViewType {
 
     @Override
     public void run() throws IOException {
-        // TODO: implementare un completer più avanzato (vedi documentazione JLine)
+        // TODO: completer funziona strano, "context" sembra non funzionare
 
         try {
 

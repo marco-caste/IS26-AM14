@@ -1,6 +1,5 @@
 package it.polimi.ingsw.am14.view;
 
-import it.polimi.ingsw.am14.clientModel.ClientModel;
 import it.polimi.ingsw.am14.view.viewEvents.ViewEvent;
 import it.polimi.ingsw.am14.clientModelController.ClientModel;
 

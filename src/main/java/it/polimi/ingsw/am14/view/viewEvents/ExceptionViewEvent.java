@@ -10,7 +10,7 @@ public class ExceptionViewEvent implements ViewEvent {
     public void render(ViewType view) {
         try {
             GUIView guiView = (GUIView) view;
-            guiView.updateTop();  // TODO: PRIVATO, PARAMETRO NICKNAME NON UTILIZZATO
+            guiView.updateTop("");  // TODO: PRIVATO, PARAMETRO NICKNAME NON UTILIZZATO
             guiView.updateChoiceScene();  // TODO: PRIVATO
             guiView.updateLogin();  // TODO: PRIVATO
         } catch (ClassCastException e) {

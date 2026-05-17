@@ -42,8 +42,8 @@ public class ContextAwareCompleter implements Completer {
         };
         Completer treeCompleter = new Completers.TreeCompleter(
                 node("connect", node("socket"), node("rmi")),
-                node("join", node("white, red, blue, yellow, purple")),
-                node("create", node("white, red, blue, yellow, purple"))
+                node("join", node("white"), node("red"), node("blue"), node("yellow"), node("purple")),
+                node("create", node("white"), node("red"), node("blue"), node("yellow"), node("purple"))
         );
 
         return new AggregateCompleter(candidateCompleter, treeCompleter);

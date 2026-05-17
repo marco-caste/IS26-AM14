@@ -1,9 +1,11 @@
 package it.polimi.ingsw.am14.network;
 
+import java.rmi.RemoteException;
+
 public interface VirtualServer {
     void createGame(String nickname, int numPlayers, String totemColor) throws Exception;
     void joinGame(String nickname, int gameId, String totemColor) throws Exception;
     void placeTotem(String nickname, char position) throws Exception;
     void pickCard(String nickname, int cardId, int row) throws Exception;
-    void pingServer(String nickname);
+    void pingServer(String nickname) throws RemoteException;
 }
