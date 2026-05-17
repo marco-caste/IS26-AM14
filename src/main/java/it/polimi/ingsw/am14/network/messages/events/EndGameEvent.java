@@ -19,7 +19,7 @@ public class EndGameEvent extends UpdateEvent {
 
     private final ArrayList<ArrayList<Integer>> board;
     private final Map<String, ArrayList<Integer>> playersAttributes;
-
+    private ArrayList<String> finalRank;
     @JsonIgnore
     private int gameId;
 
@@ -52,9 +52,9 @@ public class EndGameEvent extends UpdateEvent {
 
         // playersAttributes is updated for everyone
         playersAttributes = new HashMap<>();
-
         for (Player player : finalRanking) {
             playersAttributes.put(player.getNickname(), new ArrayList<>());
+            finalRank.add(player.getNickname());
             playersAttributes.get(player.getNickname()).add(player.getNumFood());
             playersAttributes.get(player.getNickname()).add(player.getNumPrestigePoints());
         }
@@ -64,11 +64,13 @@ public class EndGameEvent extends UpdateEvent {
     @JsonCreator
     public EndGameEvent(
             @JsonProperty("description") String description,
+            @JsonProperty("finalRank") ArrayList<String> finalRank,
             @JsonProperty("board") ArrayList<ArrayList<Integer>> board,
             @JsonProperty("playersAttributes") Map<String, ArrayList<Integer>> playersAttributes){
         super(description);
         this.board = board;
         this.playersAttributes = playersAttributes;
+        this.finalRank= finalRank;
     }
 
     public void bufferize(NetworkLayer networkLayer) {
@@ -81,6 +83,7 @@ public class EndGameEvent extends UpdateEvent {
         model.setBoard(this.board);
         model.updatePlayerRoundAttributes(this.playersAttributes);
         model.setMessage(description);
+        model.setFinalRank(this.finalRank);
         model.notifyObservers( "endGame");
     }
 }
