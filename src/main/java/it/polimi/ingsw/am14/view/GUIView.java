@@ -64,15 +64,22 @@ public class GUIView extends Application implements ViewType {
     private HBox bottomCenterBox;
     private HBox offersPathBox;
 
-    //TurnOrderCard + Totem managament
+
     private static final double BOARD_CARD_WIDTH = 110;
     private static final double BOARD_CARD_HEIGHT = 165;
     private static final double SMALL_TOTEM_WIDTH = 26;
     private static final double SMALL_TOTEM_HEIGHT = 36;
+    private static final double END_TOTEM_WIDTH = 230;
+    private static final double LOBBY_TOTEM_WIDTH = 300;
+    private double SCENE_WIDTH;
+    private double SCENE_HEIGHT;
+
+    //TurnOrderCard + Totem managament
     private boolean totemClicked = false; // it's needed to make the trackCards clickable (if the player has  clicked it's token)
     private Map<Character,Pane> trackCardTotemLayers = new HashMap<>(); // we need to keep track of the panes with the totems on the track cards to update them when a new totem is placed or removed
     private Pane turnOrderCardTotemLayer;
 
+    //Tribe
     private HBox tribeCardsBox;
     private Label selectedTribeLabel;
     private ToggleGroup tribeToggleGroup;
@@ -80,11 +87,10 @@ public class GUIView extends Application implements ViewType {
 
     private VBox playersStatsBox;
     private Pane lobbyTotemLayer;
-    private HBox homeTribeBox;
-    private final Map<String, TilePane> awayTribePanes = new HashMap<>();
 
-    private double SCENE_WIDTH;
-    private double SCENE_HEIGHT;
+    private Scene endGameScene;
+    private Pane endGameTotemLayer;
+
 
     private enum StatType {
         FOOD,
@@ -142,7 +148,7 @@ public class GUIView extends Application implements ViewType {
             }
             case "lobbyUpdate" -> updateLobby();
             case "gameStart" -> gameCreation();
-            case "pickUpdate","endRound", "endGame" -> {
+            case "pickUpdate","endRound" -> {
                 updateBoard();
                 updateSelectedTribe();
                 updateTop(modelReference.getMessage());
@@ -165,6 +171,7 @@ public class GUIView extends Application implements ViewType {
                 // mi updeta il messaggio di exception nelle varie scene. IN lobby non serve in quanto non abbiamo possibilità di exception
 
             }
+            //case "endGame" -> showGameEndingScene();
 
             //TODO: parte di riconnessione
         }
@@ -283,6 +290,7 @@ public class GUIView extends Application implements ViewType {
 
             String netProtocol = connectionTypeBox.getValue().toLowerCase();
             connect(insertedNickname, netProtocol, insertedIp, insertedPort); // we call connect
+            System.out.println("connect button clicked with: " + netProtocol + ", " + insertedIp + ", " + insertedPort);
 
         });
 
@@ -715,7 +723,7 @@ public class GUIView extends Application implements ViewType {
         -fx-effect: dropshadow(gaussian, black, 7, 0.9, 1, 1);
     """);
 
-        ImageView totem = createLobbyTotem(color.toLowerCase());
+        ImageView totem = createAngryTotem(color.toLowerCase());
 
         box.getChildren().addAll(name, totem);
 
@@ -871,9 +879,10 @@ public class GUIView extends Application implements ViewType {
     }
 
     private void updateTop(String message){
-        if (topBox != null) serverMessage.setText(message); //check per gli update che arrivano prima che la scena venga creata, così evitiamo errori di null pointer
-    }
+        if (topBox != null)
+            serverMessage.setText(message); //check per gli update che arrivano prima che la scena venga creata, così evitiamo errori di null pointer
 
+    }
 
     private StackPane createCenter() {
         StackPane centerWrapper = new StackPane();
@@ -1486,12 +1495,16 @@ public class GUIView extends Application implements ViewType {
 
 
 
-    private ImageView createLobbyTotem(String totemColor) {
+    private ImageView createAngryTotem(String totemColor) {
         ImageView totem = new ImageView(
                 getClass().getResource("/totemLobby/" + totemColor + ".png").toExternalForm()
         );
 
-        totem.setFitWidth(300);
+        if(updateType.equals("endGame"))
+            totem.setFitWidth(END_TOTEM_WIDTH);
+        else
+            totem.setFitWidth(LOBBY_TOTEM_WIDTH);
+
         totem.setPreserveRatio(true);
         totem.setSmooth(true);
 
@@ -1500,8 +1513,96 @@ public class GUIView extends Application implements ViewType {
 
 
 
+    private void createEndGameScene() {
+        StackPane root = new StackPane();
+
+        ImageView background = new ImageView(getClass().getResource("/background/endGame.png").toExternalForm());
+
+        background.setPreserveRatio(false);
+        background.fitWidthProperty().bind(root.widthProperty());
+        background.fitHeightProperty().bind(root.heightProperty());
+
+        endGameTotemLayer = new Pane();
+        endGameTotemLayer.setPickOnBounds(false);
+
+        root.getChildren().addAll(background, endGameTotemLayer);
+
+        endGameScene = new Scene(root, 1400, 900);
+    }
+
+
+    private void showEndGameScene() {
+        if (endGameScene == null) {
+            createEndGameScene();
+        }
+
+        primaryStage.setTitle("Fine partita");
+        primaryStage.setScene(endGameScene);
+
+        updateEndGamePodium();
+    }
+
+    private void updateEndGamePodium() {
+
+        endGameTotemLayer.getChildren().clear();
+
+        ArrayList<String> ranking = modelReference.getFinalRank();
+
+        for (int i = 0; i < Math.min(3, ranking.size()); i++) { // uso il minimo in quanto se sono in due il podio sarà solo da due
+            ClientPlayer player = modelReference.getPlayerByNickname(ranking.get(i));
+
+
+            ImageView totem = createAngryTotem(
+                    player.getTotemColor().toLowerCase()
+            );
+
+            placeTotemOnPodium(totem, i);
+
+            endGameTotemLayer.getChildren().add(totem);
+        }
+    }
+
+
+    private void placeTotemOnPodium(ImageView totem, int rankingPosition) {
+        double xRatio;
+        double yRatio;
+
+        switch (rankingPosition) {
+            case 0 -> { // primo posto, centro
+                xRatio = 0.500;
+                yRatio = 0.430;
+            }
+            case 1 -> { // secondo posto, sinistra
+                xRatio = 0.275;
+                yRatio = 0.535;
+            }
+            case 2 -> { // terzo posto, destra
+                xRatio = 0.720;
+                yRatio = 0.545;
+            }
+            default -> {
+                xRatio = 0.5;
+                yRatio = 0.5;
+            }
+        }
+
+        totem.layoutXProperty().bind(
+                endGameTotemLayer.widthProperty()
+                        .multiply(xRatio)
+                        .subtract(END_TOTEM_WIDTH / 2)
+        );
+
+        totem.layoutYProperty().bind(
+                endGameTotemLayer.heightProperty()
+                        .multiply(yRatio)
+        );
+    }
+
+
 
     public static void main(String[] args) {
         launch(args);
     }
+
+
 }
