@@ -119,6 +119,11 @@ public class ClientModel {
         return finalRank;
     }
 
+    public ArrayList<String> getPlayerOrderInTurnOrderCard() {
+        return playerOrderInTurnOrderCard;
+    }
+
+
 
 
     //SETTERS

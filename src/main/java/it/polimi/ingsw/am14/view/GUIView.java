@@ -2,6 +2,7 @@ package it.polimi.ingsw.am14.view;
 
 import it.polimi.ingsw.am14.clientModel.ClientModel;
 import it.polimi.ingsw.am14.clientModel.ClientPlayer;
+import it.polimi.ingsw.am14.model.gameLogic.Player;
 import it.polimi.ingsw.am14.model.gameLogic.TotemColor;
 import it.polimi.ingsw.am14.network.EntryPointFactory;
 import it.polimi.ingsw.am14.network.VirtualServer;
@@ -68,8 +69,8 @@ public class GUIView extends Application implements ViewType {
 
     private static final double BOARD_CARD_WIDTH = 110;
     private static final double BOARD_CARD_HEIGHT = 165;
-    private static final double SMALL_TOTEM_WIDTH = 26;
-    private static final double SMALL_TOTEM_HEIGHT = 36;
+    private static final double SMALL_TOTEM_WIDTH = 46;
+    private static final double SMALL_TOTEM_HEIGHT = 56;
     private static final double END_TOTEM_WIDTH = 230;
     private static final double LOBBY_TOTEM_WIDTH = 300;
     private static final double END_TOTEM_BOX_WIDTH = 260;
@@ -975,13 +976,11 @@ public class GUIView extends Application implements ViewType {
 
 
     private void addTotemsOnTurnOrderCard(Pane totemLayer) {
-        ArrayList<ClientPlayer> players = new ArrayList<>();
-        players.add(modelReference.getHomePlayer());
-        players.addAll(modelReference.getOtherPlayers());
 
-
-        for (ClientPlayer player : players) {
+        for (String nickname : modelReference.getPlayerOrderInTurnOrderCard()) {
+            ClientPlayer player = modelReference.getPlayerByNickname(nickname);
             String color = player.getTotemColor().toLowerCase();
+
             int pos = modelReference.getPlayerPositionInTurnOrderCard(player.getNickname()); // we get the playerOrder to understand in which slot of the turn order card we have to put the totem
 
             if(pos == -1) // vuol dire che quel player non ha posizione sulla turnOrdercard , ma è posizionato su una trackCard --> skippo la sua esecuzione
