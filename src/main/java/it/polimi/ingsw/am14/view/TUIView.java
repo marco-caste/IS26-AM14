@@ -1,7 +1,6 @@
 package it.polimi.ingsw.am14.view;
 
-import it.polimi.ingsw.am14.network.EntryPointFactory;
-import it.polimi.ingsw.am14.network.VirtualServer;
+import it.polimi.ingsw.am14.clientModelController.ClientController;
 import it.polimi.ingsw.am14.view.viewEvents.UserDisconnectedViewEvent;
 import it.polimi.ingsw.am14.view.viewEvents.ViewEvent;
 import it.polimi.ingsw.am14.clientModelController.ClientModel;
@@ -13,14 +12,11 @@ import org.jline.utils.AttributedStyle;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.List;
-
-import static it.polimi.ingsw.am14.utils.Constants.TotemColors;
 
 public class TUIView implements ViewType {
 
     private ClientModel modelReference = null;
-    private VirtualServer server;
+    private final ClientController controller = new ClientController();
     private String chosenNickname = null;
     private Terminal terminal;
     private LineReader lineReader;
@@ -144,7 +140,6 @@ public class TUIView implements ViewType {
             this.chosenNickname = model.getHomePlayerNickname();
             if (chosenNickname.equalsIgnoreCase("marcob")) {
                 lineReader.printAbove("Porterai minecreft?");
-                return;
             }
         }
         event.render(this);
@@ -155,7 +150,7 @@ public class TUIView implements ViewType {
 
     @Override
     public void disconnect() {
-        server = null;
+        controller.disconnect();
         this.update(null, new UserDisconnectedViewEvent());
     }
 
@@ -206,14 +201,12 @@ public class TUIView implements ViewType {
         if (args.length < 4) {
             throw new IllegalArgumentException("Invalid command format. Usage: pick [nickname] [cardID] [row]");
         }
-        if (server == null) {
-            throw new IllegalArgumentException("You must connect to a server before picking a card.");
-        }
         if (!chosenNickname.equals(args[1])) {
             throw new IllegalArgumentException("You must use the same nickname as written on the prompt.");
         }
         try {
-            server.pickCard(args[1], Integer.parseInt(args[2]), Integer.parseInt(args[3]));
+            //TODO: passargli sola la card id
+            controller.pickCard(Integer.parseInt(args[2]));
         } catch (Exception e) {
             throw new RuntimeException("[Client] A network error occurred while sending your request\nDetails: " + e.getMessage());
         }
@@ -225,14 +218,12 @@ public class TUIView implements ViewType {
         if (args.length < 3) {
             throw new IllegalArgumentException("Invalid command format. Usage: place [nickname] [position]");
         }
-        if (server == null) {
-            throw new IllegalArgumentException("You must connect to a server before placing the totem.");
-        }
         if (!chosenNickname.equals(args[1])) {
             throw new IllegalArgumentException("You must use the same nickname as written on the prompt.");
         }
         try {
-            server.placeTotem(args[1], args[2].charAt(0));
+            //TODO: da rifare
+            controller.placeTotem(args[2].charAt(0));
         } catch (Exception e) {
             throw new RuntimeException("[Client] A network error occurred while sending your request\nDetails: " + e.getMessage());
         }
@@ -266,7 +257,7 @@ public class TUIView implements ViewType {
             throw new IllegalArgumentException("Port must be a valid integer number, got: " + portInput);
         }
 
-        this.server = EntryPointFactory.connect(connectionMode, serverIP, serverPort, playerNickname, this);
+        controller.connect(connectionMode, serverIP, serverPort, playerNickname, this);
         
         writer.println("Client launched successfully!");
         writer.println("Connecting to server...");
@@ -283,24 +274,9 @@ public class TUIView implements ViewType {
         if (args.length < 4) {
             throw new IllegalArgumentException("Invalid command format. Usage: create [nickname] [numPlayers] [totemColor]");
         }
-        if (server == null) {
-            throw new IllegalArgumentException("You must connect to a server before creating a game.");
-        }
-        if (!chosenNickname.equals(args[1])) {
-            // avoids coherence issues between the nickname used to connect to the server and the one used to create the game
-            // TODO: è possibile che diventi necessario un controllo lato server
-            // TODO 2: suspicious: è strano dover specificare il nickname anche nella create, quando già lo si è specificato nella connect.
-            throw new IllegalArgumentException("You must use the same nickname as written on the prompt.");
-        }
-        if (!List.of(TotemColors).contains(args[3].toLowerCase())) {
-            // avoids sending an invalid totem color to the server,
-            // which would cause the server to reject the game creation request and send an error message back to the client
-            // there is a check on server side only for colors already selected by other players (necessarily on there)
-            // TL;DR: preemptive check for speed reasons
-            throw new IllegalArgumentException("Invalid totem color. Available colors: white, purple, yellow, red, blue.");
-        }
         try {
-            server.createGame(args[1], Integer.parseInt(args[2]), args[3].toLowerCase());
+            //TODO: DA RIFARE
+            controller.createGame(Integer.parseInt(args[2]), args[3].toLowerCase());
         } catch (Exception e) {
             throw new RuntimeException("[Client] A network error occurred while sending your request\nDetails: " + e.getMessage());
         }
@@ -312,17 +288,9 @@ public class TUIView implements ViewType {
         if (args.length < 4) {
             throw new IllegalArgumentException("Invalid command format. Usage: join [nickname] [gameId] [totemColor]");
         }
-        if (server == null) {
-            throw new IllegalArgumentException("You must connect to a server before joining a game.");
-        }
-        if (!chosenNickname.equals(args[1])) {
-            throw new IllegalArgumentException("You must use the same nickname as written on the prompt.");
-        }
-        if (!List.of(TotemColors).contains(args[3].toLowerCase())) {
-            throw new IllegalArgumentException("Invalid totem color. Available colors: white, purple, yellow, red, blue.");
-        }
         try {
-            server.joinGame(args[1], Integer.parseInt(args[2]), args[3].toLowerCase());
+            //TODO: da rifare
+            controller.joinGame(Integer.parseInt(args[2]), args[3].toLowerCase());
         } catch (Exception e) {
             throw new RuntimeException("[Client] A network error occurred while sending your request\nDetails: " + e.getMessage());
         }

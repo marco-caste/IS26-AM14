@@ -5,11 +5,21 @@ import it.polimi.ingsw.am14.network.VirtualServer;
 import it.polimi.ingsw.am14.network.messages.events.ExceptionEvent;
 import it.polimi.ingsw.am14.view.ViewType;
 
+import java.util.List;
+
+import static it.polimi.ingsw.am14.utils.Constants.TotemColors;
+
 public class ClientController {
     private ClientModel model;
     private VirtualServer server;
 
     public void pickCard(int cardId) {
+        //Model check
+        if (server == null) {
+            handleException("You are not connected to a server");
+            return;
+        }
+
         //Skip check
         if (cardId == -1) {
             try {
@@ -56,6 +66,12 @@ public class ClientController {
     }
 
     public void placeTotem(char position) {
+        //Model check
+        if (server == null) {
+            handleException("You are not connected to a server");
+            return;
+        }
+
         //TODO: State check
 
         //Turn check
@@ -105,7 +121,23 @@ public class ClientController {
         }
     }
 
+    public void disconnect() {
+        if (this.server == null) {
+            handleException("You are not connected");
+            return;
+        }
+
+        this.server = null;
+        this.model = null;
+    }
+
     public void createGame(int numPlayers, String totemColor) {
+        //Model check
+        if (server == null) {
+            handleException("You are not connected to a server");
+            return;
+        }
+
         //Check if the user is already connected to a game
         if (model.getGameId() >= 0) {
             handleException("You are already connected to a game");
@@ -119,9 +151,7 @@ public class ClientController {
         }
 
         //Check TotemColor
-        if (!totemColor.equalsIgnoreCase("red") && !totemColor.equalsIgnoreCase("blue") &&
-            !totemColor.equalsIgnoreCase("green") && !totemColor.equalsIgnoreCase("yellow") &&
-            !totemColor.equalsIgnoreCase("purple")) {
+        if (!List.of(TotemColors).contains(totemColor.toLowerCase())) {
             handleException("Invalid totem color");
             return;
         }
@@ -134,6 +164,12 @@ public class ClientController {
     }
 
     public void joinGame(int gameId, String totemColor) {
+        //Model check
+        if (server == null) {
+            handleException("You are not connected to a server");
+            return;
+        }
+
         //Check if the user is already connected to a game
         if (model.getGameId() >= 0) {
             handleException("You are already connected to a game");
@@ -141,9 +177,7 @@ public class ClientController {
         }
 
         //Check TotemColor
-        if (!totemColor.equalsIgnoreCase("red") && !totemColor.equalsIgnoreCase("blue") &&
-            !totemColor.equalsIgnoreCase("green") && !totemColor.equalsIgnoreCase("yellow") &&
-            !totemColor.equalsIgnoreCase("purple")) {
+        if (!List.of(TotemColors).contains(totemColor.toLowerCase())) {
             handleException("Invalid totem color");
             return;
         }
