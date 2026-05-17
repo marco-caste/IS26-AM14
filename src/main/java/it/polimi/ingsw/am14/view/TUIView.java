@@ -16,7 +16,7 @@ import java.io.PrintWriter;
 public class TUIView implements ViewType {
 
     private ClientModel modelReference = null;
-    private final ClientController controller = new ClientController();
+    private ClientController controller;
     private String chosenNickname = null;
     private Terminal terminal;
     private LineReader lineReader;
@@ -24,7 +24,7 @@ public class TUIView implements ViewType {
 
     @Override
     public void run() throws IOException {
-        // TODO: completer funziona strano, "context" sembra non funzionare
+        this.controller = new ClientController();
 
         try {
 
@@ -33,6 +33,7 @@ public class TUIView implements ViewType {
                     .ffm(true)
                     .build();
 
+            // TODO: completer funziona strano, "context" sembra non funzionare
             lineReader = LineReaderBuilder.builder()
                     .terminal(terminal)
                     .completer(new ContextAwareCompleter())

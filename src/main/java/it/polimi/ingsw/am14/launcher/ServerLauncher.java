@@ -4,7 +4,10 @@ import it.polimi.ingsw.am14.network.NetworkLayer;
 import it.polimi.ingsw.am14.controller.LobbyController;
 import it.polimi.ingsw.am14.network.rmi.RmiServerLauncher;
 import it.polimi.ingsw.am14.network.socket.SocketServerLauncher;
+import it.polimi.ingsw.am14.utils.JsonCodec;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static it.polimi.ingsw.am14.utils.Constants.PING_INTERVAL;
@@ -17,15 +20,16 @@ public class ServerLauncher {
 
         // costruzione degli oggetti tecnici
         NetworkLayer networkLayer = new NetworkLayer();
-        LobbyController lobbyController = new LobbyController(networkLayer);
+        LobbyController lobbyController;
 
         Path savePath = Path.of("src/main/Saves/save.json");
 
 
-        /*
+
         if (Files.exists(savePath)) {
             JsonCodec jsonCodec = new JsonCodec();
             lobbyController = jsonCodec.readSaveData("src/main/Saves/save.json");
+            lobbyController.setNetworkLayer(networkLayer);
             try {
                 Files.delete(savePath);
             } catch (IOException e) {
@@ -33,7 +37,8 @@ public class ServerLauncher {
             }
         } else {
             lobbyController = new LobbyController(networkLayer);
-        } */
+        }
+
 
         Object[] technicalObjects = {
                 lobbyController,
@@ -61,6 +66,7 @@ public class ServerLauncher {
             }
         }, "Server-pinger").start();
 
+        LobbyController finalLobbyController = lobbyController;
         new Thread(() -> {
             while (true) {
                 try {
@@ -68,7 +74,7 @@ public class ServerLauncher {
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e.getMessage());
                 }
-                lobbyController.handlePingTimeOut();
+                finalLobbyController.handlePingTimeOut();
             }
         },
                 "TimeOut-Handler").start();

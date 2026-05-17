@@ -29,11 +29,13 @@ public class LobbyController {
     private final Map<Integer, GameController> gameIdToGameController;
     private final Map<String, Integer> nicknameToGameId;
     @JsonIgnore
-    private final NetworkLayer networkLayer;        // TODO: CHECK SINCRONIZZAZIONE
+    private NetworkLayer networkLayer;        // TODO: CHECK SINCRONIZZAZIONE
     @JsonIgnore
     private final Map<String, Long> lastPingReceivedTime;
     @JsonIgnore
     private final Object dataLock = new Object();
+    @JsonIgnore
+    private final String saveFilePath = "src/main/Saves/save.json";
 
     public LobbyController(NetworkLayer networkLayer) {
         this.gameIdToGameController = new HashMap<>();
@@ -103,6 +105,10 @@ public class LobbyController {
         }
     }
 
+    public void setNetworkLayer(NetworkLayer networkLayer) {
+        this.networkLayer = networkLayer;
+    }
+
     private void removeLastPingReceivedTime(String nickname) {
         lastPingReceivedTime.remove(nickname);
     }
@@ -116,7 +122,6 @@ public class LobbyController {
             }
             else {
                 addPlayerToLobby(nickname);
-                // TODO: contollare ping
                 gameId = -1;
             }
         }
@@ -138,6 +143,12 @@ public class LobbyController {
             assignPlayerToGame(nickname, game.getGameId());
             gameController.onPlayerConnection(nickname, totemColor);
         }
+        new Thread(() -> {
+            synchronized (saveFilePath) {
+                JsonCodec parser = new JsonCodec();
+                parser.writeSaveData(this, saveFilePath);
+            }
+        }, "Save-Thread-pick").start();
     }
 
     public void joinGame(String nickname, int gameId, String totemColor) throws WrongStateException, IllegalGameIdException {
@@ -152,14 +163,24 @@ public class LobbyController {
         getGameController(getGameIdByNickname(nickname).orElseThrow(() -> new IllegalNicknameException("Player with the specified nickname is not in the lobby")))
                 .orElseThrow(() -> new IllegalNicknameException("Player with the specified nickname is not assigned to any game"))
                 .placeTotem(nickname, position);
-//        JsonCodec parser = new JsonCodec();
-//        parser.writeSaveData(this, "src/main/Saves/save.json");
+        new Thread(() -> {
+            synchronized (saveFilePath) {
+                JsonCodec parser = new JsonCodec();
+                parser.writeSaveData(this, saveFilePath);
+            }
+        }, "Save-Thread-place").start();
     }
 
     public void pickCard(String nickname, int cardId, int row) throws IllegalNicknameException, WrongStateException, WrongTurnException, UnknownPositionException, IllegalPickException, ForcedPickException, IllegalPlacementException, UnknownNicknameException, SQLException {
         getGameController(getGameIdByNickname(nickname).orElseThrow(() -> new IllegalNicknameException("Player with the specified nickname is not in the lobby")))
                 .orElseThrow(() -> new IllegalNicknameException("Player with the specified nickname is not assigned to any game"))
                 .pickCard(nickname, cardId, row);
+        new Thread(() -> {
+            synchronized (saveFilePath) {
+                JsonCodec parser = new JsonCodec();
+                parser.writeSaveData(this, saveFilePath);
+            }
+        }, "Save-Thread-pick").start();
     }
 
     public void disconnectUser(String nickname) {
@@ -167,9 +188,7 @@ public class LobbyController {
             int gameId = getGameIdByNickname(nickname).orElse(-1);
 
             removePlayerFromLobby(nickname);
-            // TODO: FIX CONCURRENTMODIFICATION EXCEPTION
-            removeLastPingReceivedTime(nickname);   // <- è la causa, fuori da disconnectUser sto iterando sul keySet di
-            // lastPingReceivedTime, se lo modifico da dentro mi dà ConcurrentModificationException
+            removeLastPingReceivedTime(nickname);
 
             if (gameId >= 0) {
                 // if user was in a game, remove the game controller.
