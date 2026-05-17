@@ -72,6 +72,8 @@ public class GUIView extends Application implements ViewType {
     private static final double SMALL_TOTEM_HEIGHT = 36;
     private static final double END_TOTEM_WIDTH = 230;
     private static final double LOBBY_TOTEM_WIDTH = 300;
+    private static final double END_TOTEM_BOX_WIDTH = 260;
+
     private double SCENE_WIDTH;
     private double SCENE_HEIGHT;
 
@@ -1544,6 +1546,7 @@ public class GUIView extends Application implements ViewType {
         updateEndGamePodium();
     }
 
+
     private void updateEndGamePodium() {
 
         endGameTotemLayer.getChildren().clear();
@@ -1565,35 +1568,38 @@ public class GUIView extends Application implements ViewType {
         -fx-effect: dropshadow(gaussian, black, 7, 0.9, 1, 1);
     """);
 
-            VBox totemBox = new VBox(4, nickname, totem);
+            VBox totemBox = new VBox(4);
             totemBox.setAlignment(Pos.CENTER);
-
-            nickname.setAlignment(Pos.CENTER);
-            nickname.setTextAlignment(TextAlignment.CENTER);
+            totemBox.setPrefWidth(END_TOTEM_BOX_WIDTH);
+            totemBox.setMaxWidth(END_TOTEM_BOX_WIDTH);
+            totemBox.getChildren().addAll(nickname, totem);
 
             placeTotemOnPodium(totemBox, i);
 
             endGameTotemLayer.getChildren().add(totemBox);
+
         }
     }
 
 
-    private void placeTotemOnPodium(VBox totem, int rankingPosition) {
+
+
+    private void placeTotemOnPodium(VBox totemBox, int rankingPosition) {
         double xRatio;
         double yRatio;
 
         switch (rankingPosition) {
             case 0 -> { // primo posto, centro
                 xRatio = 0.500;
-                yRatio = 0.290;
+                yRatio = 0.330;
             }
             case 1 -> { // secondo posto, sinistra
                 xRatio = 0.275;
-                yRatio = 0.355;
+                yRatio = 0.365;
             }
             case 2 -> { // terzo posto, destra
                 xRatio = 0.720;
-                yRatio = 0.330;
+                yRatio = 0.400;
             }
             default -> {
                 xRatio = 0.5;
@@ -1601,17 +1607,18 @@ public class GUIView extends Application implements ViewType {
             }
         }
 
-        totem.layoutXProperty().bind(
+        totemBox.layoutXProperty().bind(
                 endGameTotemLayer.widthProperty()
                         .multiply(xRatio)
-                        .subtract(END_TOTEM_WIDTH/2)
+                        .subtract(END_TOTEM_BOX_WIDTH / 2)
         );
 
-        totem.layoutYProperty().bind(
+        totemBox.layoutYProperty().bind(
                 endGameTotemLayer.heightProperty()
                         .multiply(yRatio)
         );
     }
+
 
 
 
