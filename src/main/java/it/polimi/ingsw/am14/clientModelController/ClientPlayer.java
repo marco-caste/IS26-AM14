@@ -11,7 +11,6 @@ public class ClientPlayer {
     private int numStars;
     private int totalBuildingDiscount;
     private int totalGatheringDiscount;
-    private Character playerPosition;
     private List<Integer> playerTribe = new ArrayList<Integer>();
 
     public ClientPlayer(String nickname) {
@@ -34,10 +33,6 @@ public class ClientPlayer {
         this.numPrestigePoints = numPrestigePoints;
     }
 
-    public void setPlayerPosition(Character playerPosition) {
-        this.playerPosition = playerPosition;
-    }
-
     public void addToPlayerTribe(Integer tribeElement) {
         this.playerTribe.add(tribeElement);
     }
@@ -58,10 +53,6 @@ public class ClientPlayer {
         return numPrestigePoints;
     }
 
-    public Character getPlayerPosition() {
-        return playerPosition;
-    }
-
     public List<Integer> getPlayerTribe() {
         return playerTribe;
     }
@@ -77,8 +68,7 @@ public class ClientPlayer {
         return  "nickname='" + nickname + '\'' +
                 ", totemColor='" + totemColor + '\'' +
                 ", numFood=" + numFood +
-                ", numPrestigePoints=" + numPrestigePoints +
-                ", playerPosition=" + playerPosition;
+                ", numPrestigePoints=" + numPrestigePoints;
     }
 
     public void setNumStars(int numStars) {

@@ -22,7 +22,7 @@ public abstract class EntryPointFactory {
      * @throws IllegalArgumentException if an invalid connection mode is provided
      * @throws RuntimeException if connection fails
      */
-    public static Object[] connect(String connectionMode, String serverIP, int serverPort, String playerNickname, ViewType view) {
+    public static Object [] connect(String connectionMode, String serverIP, int serverPort, String playerNickname, ViewType view) {
         switch (connectionMode.toLowerCase()) {
             case "socket" -> {
                 try {

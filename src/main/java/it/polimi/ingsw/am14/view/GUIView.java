@@ -1,8 +1,8 @@
 package it.polimi.ingsw.am14.view;
 
+import it.polimi.ingsw.am14.clientModelController.ClientController;
 import it.polimi.ingsw.am14.clientModelController.ClientModel;
 import it.polimi.ingsw.am14.clientModelController.ClientPlayer;
-import it.polimi.ingsw.am14.model.gameLogic.Player;
 import it.polimi.ingsw.am14.model.gameLogic.TotemColor;
 import it.polimi.ingsw.am14.network.EntryPointFactory;
 import it.polimi.ingsw.am14.network.VirtualServer;
@@ -47,6 +47,7 @@ public class GUIView extends Application implements ViewType {
     // sono tutti a null fino a quando non verranno inizializzati
     private ClientModel modelReference;
     private VirtualServer server;
+    private ClientController controller = new ClientController(); //TODO: da spostare forse in run (?)
     private Stage primaryStage;
 
     private Scene gameChoiceScene;
@@ -288,7 +289,15 @@ public class GUIView extends Application implements ViewType {
         connectButton.setOnAction(event -> {
             String insertedNickname = nicknameField.getText().trim();
             String insertedIp = ipField.getText().trim();
-            String insertedPort = portField.getText().trim();
+            //TODO: [Da Marco] non so come è fatta la GUI,
+            // magari c'è un modo per inserire solo num e non ne sono a conoscenza
+            int insertedPort;
+            try {
+                insertedPort = Integer.parseInt(portField.getText().trim());
+            } catch (NumberFormatException e) {
+                loginErororLabel.setText("Insert a valid Port");
+                return;
+            }
 
             if (insertedNickname.isEmpty()) {
                 loginErororLabel.setText("Insert a valid Nickname");
@@ -739,12 +748,18 @@ public class GUIView extends Application implements ViewType {
 
 
 
-    private void connect(String chosenNickname, String netProtocol, String IP, String port) {
+    private void connect(String chosenNickname, String netProtocol, String IP, int port) {
+        // TODO: il controller non lancia Exception, ma crea degli ExceptionEvent, quindi non serve il try
         try {
-            this.server = EntryPointFactory.connect(
-                    new String[]{netProtocol, IP, port, chosenNickname},
+            Object result = EntryPointFactory.connect(
+                    netProtocol,
+                    IP,
+                    port,
+                    chosenNickname.toLowerCase(),
                     this
-            );
+            )[0];
+
+            server = (VirtualServer) result;
 
             System.out.println("Connection successful, server proxy = " + server);
 
@@ -1095,12 +1110,12 @@ public class GUIView extends Application implements ViewType {
         players.add(modelReference.getHomePlayer());
         clearAllTrackCardTotems(); // pulisco tutto e ricreo
 
-        for(ClientPlayer player : players){
-            // dando per scontato che se il mio server gestisca bene il fatto che se vado a cliccare in una trackCard già occupata mi lancia un exception
-            // e che vado a ripulire l'offersPath almeno in endRound ( o preferibilmente a fine pick, ad gni placement lo ricostruisco
-            Character position = player.getPlayerPosition();
-            if (position != null) { // ha una posizione sulla trackCard, va fatto altrimenti avrei nullPointerException
-                Pane totemLayer = trackCardTotemLayers.get(player.getPlayerPosition());
+        Map<Character, String> positionToNickname = modelReference.getPositionToNickname();
+        for (Character position : positionToNickname.keySet()) {
+            String nickname = positionToNickname.get(position);
+            ClientPlayer player = modelReference.getPlayerByNickname(nickname);
+            if (player != null) {
+                Pane totemLayer = trackCardTotemLayers.get(position);
                 addTotemOnTrackCard(totemLayer, player.getTotemColor().toLowerCase());
             }
         }

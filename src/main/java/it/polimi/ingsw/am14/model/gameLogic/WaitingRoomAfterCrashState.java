@@ -2,7 +2,7 @@ package it.polimi.ingsw.am14.model.gameLogic;
 
 import it.polimi.ingsw.am14.network.messages.events.GameRestartedEvent;
 import it.polimi.ingsw.am14.network.messages.events.PlayerReconnectedEvent;
-/*
+
 public class WaitingRoomAfterCrashState extends GameState {
 
     private int numPlayersReconnected = 0;
@@ -10,7 +10,6 @@ public class WaitingRoomAfterCrashState extends GameState {
     @Override
     protected void onPlayerConnection(Game game, String nickname, String totemColor) {
         game.notifyObservers(
-                //TODO: checka se va bene l'evento
                 new PlayerReconnectedEvent(
                         nickname,
                         game.getGameId(),
@@ -40,4 +39,3 @@ public class WaitingRoomAfterCrashState extends GameState {
         this.numPlayersReconnected++;
     }
 }
-*/

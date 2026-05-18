@@ -114,7 +114,6 @@ public class LobbyController {
     }
 
     public void connectUser(String nickname) throws IllegalNicknameException, IllegalGameIdException, WrongStateException {
-        nickname = nickname.toLowerCase();
         int gameId;
         synchronized (dataLock) {
             if (hasPlayerAGameAssigned(nickname)) {

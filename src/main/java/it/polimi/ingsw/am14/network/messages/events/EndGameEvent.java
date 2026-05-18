@@ -85,6 +85,7 @@ public class EndGameEvent extends UpdateEvent {
         model.updatePlayerRoundAttributes(this.playersAttributes);
         model.setMessage(description);
         model.setFinalRank(this.finalRank);
+        //TODO: model.setGameId(-1);
         model.notifyObservers( new EndGameViewEvent());
     }
 }
