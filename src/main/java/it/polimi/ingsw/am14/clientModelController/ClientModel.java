@@ -27,6 +27,7 @@ public class ClientModel {
     ArrayList<ClientPlayer> otherPlayers;
     ArrayList<String> playerOrderInTurnOrderCard;
     ArrayList<ArrayList<Integer>> board;
+    ArrayList<String> finalRank;
     int turnOrderCardIndex; // it's needed to build the right TurnorderCard in the view, it depends on this index.
     int gameId;
     int numPlayers; // it's needed to build the right offersPath in the View.
@@ -112,6 +113,16 @@ public class ClientModel {
         // se non presente indexOf ritorna -1
     }
 
+    public ArrayList<String> getFinalRank() {
+        return finalRank;
+    }
+
+    public ArrayList<String> getPlayerOrderInTurnOrderCard() {
+        return playerOrderInTurnOrderCard;
+    }
+
+
+
 
     //SETTERS
     public void setMessage(String message) {
@@ -150,7 +161,9 @@ public class ClientModel {
         homePlayer.setTotemColor(totemColor);
     }
 
-
+    public void setFinalRank(ArrayList<String> finalRank) {
+        this.finalRank = finalRank;
+    }
 
 
     //UPDATES
