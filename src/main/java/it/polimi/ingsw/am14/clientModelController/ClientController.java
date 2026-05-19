@@ -22,6 +22,12 @@ public class ClientController {
             return;
         }
 
+        //State check
+        if (!model.checkPickState()) {
+            handleException("You can't pick a card right now");
+            return;
+        }
+
         //Skip check
         if (cardId == -1) {
             try {
@@ -44,8 +50,6 @@ public class ClientController {
             handleException("You can't pick an event card");
             return;
         }
-
-        //TODO: State check
 
         //Turn check
         if (!model.checkPickTurn()) {
@@ -74,7 +78,11 @@ public class ClientController {
             return;
         }
 
-        //TODO: State check
+        //State check
+        if (!model.checkPlaceState()) {
+            handleException("You can't place a totem right now");
+            return;
+        }
 
         //Turn check
         if (!model.checkPlaceTurn()) {
@@ -113,7 +121,7 @@ public class ClientController {
                     connectionMode,
                     serverIP,
                     serverPort,
-                    playerNickname,
+                    playerNickname.toLowerCase(),
                     view,
                     this
             );

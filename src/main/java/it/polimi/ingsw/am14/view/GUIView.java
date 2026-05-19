@@ -252,6 +252,8 @@ public class GUIView extends Application implements ViewType {
     @Override
     public void renderEndGame(String message) {
         showEndGameScene();
+        updateEndGameRankingBox();
+        updateGlobalRankingBox();
     }
 
     @Override

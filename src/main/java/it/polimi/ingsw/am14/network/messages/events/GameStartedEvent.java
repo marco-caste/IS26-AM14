@@ -50,8 +50,9 @@ public class GameStartedEvent extends ServerEvent {
             player = model.getPlayerByNickname(nickname);
             player.setNumFood(initialFood[i]);
             player.setNumPrestigePoints(0);
-            player.setPlayerPosition(null);
+            model.updatePlayerPosition(nickname, null);
         }
+        model.setPlaceState();
         model.notifyObservers(new GameStartViewEvent(description));
     }
 

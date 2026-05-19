@@ -30,9 +30,9 @@ public class GameRestartedEvent extends ServerEvent {
 
     @Override
     public void effect(ClientModel model) {
-        model.setMessage(description);
         model.setState(state);
-        model.notifyObservers(new GameRestartViewEvent());
+        //model.setMessage(description);
+        model.notifyObservers(new GameRestartViewEvent(description));
     }
 
     @Override
