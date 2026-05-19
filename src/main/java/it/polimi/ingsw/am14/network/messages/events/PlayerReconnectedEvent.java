@@ -21,7 +21,6 @@ import static it.polimi.ingsw.am14.utils.Constants.BOTTOM_BUILDING_ROW;
 
 public class PlayerReconnectedEvent extends ServerEvent {
 
-    //TODO: State
     private final int gameId;
     private final int turnOrderCardIndex;
     private final int numPlayers;

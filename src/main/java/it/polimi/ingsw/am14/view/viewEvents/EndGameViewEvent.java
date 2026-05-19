@@ -10,6 +10,8 @@ public class EndGameViewEvent implements ViewEvent{
         try {
             GUIView guiView = (GUIView) view;
             guiView.showEndGameScene();
+            guiView.updateEndGameRankingBox();
+            guiView.updateGlobalRankingBox();
         } catch (ClassCastException e) {
             TUIView tuiView = (TUIView) view;
         }

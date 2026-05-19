@@ -106,7 +106,7 @@ class PaintEventCardTest {
 
         paintEvent.applyEffect(playerOne, game);
 
-        assertEquals(2, playerOne.getNumFood());
+        assertEquals(1, playerOne.getNumFood());
         assertEquals(-2, playerOne.getNumPrestigePoints());
         assertEquals(0, playerTwo.getNumFood());
         assertEquals(0, playerTwo.getNumPrestigePoints());

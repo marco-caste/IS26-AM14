@@ -350,12 +350,17 @@ class PickState extends GameState {
     protected void nextState(Game context) throws SQLException {
         context.setCurrentPlayerIndex(0);
         // TODO: CURRENTROUND = 10
-        if (context.getCurrentRound() == 1) {
+        if (context.getCurrentRound() == 10) {
             context.setCurrentState(new EndGameState());
             context.getCurrentState().endRound(context);
         } else {
             context.setCurrentState(new EndRoundState());
             context.getCurrentState().endRound(context);
         }
+    }
+
+    @Override
+    protected String getStateName() {
+        return "PICK";
     }
 }

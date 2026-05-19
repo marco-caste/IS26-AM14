@@ -80,4 +80,9 @@ abstract class GameState {
      */
     protected void endRound(Game context) throws SQLException {
     }
+
+    //Used for resetting state in clientModel
+    protected String getStateName() {
+        return null;
+    }
 }

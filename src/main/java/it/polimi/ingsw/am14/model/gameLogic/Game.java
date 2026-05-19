@@ -189,6 +189,7 @@ public class Game implements Observable {
     public GameState getPreviouslySavedState() {
         return previouslySavedState;
     }
+    public String previouslySavedStateName() {return previouslySavedState.getStateName();} //Only for client update
 
     /**
      *

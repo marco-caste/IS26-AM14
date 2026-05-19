@@ -152,8 +152,6 @@ public class ClientModel {
     }
 
 
-
-
     //SETTERS
     public void setMessage(String message) {
         this.message = message;
@@ -200,6 +198,10 @@ public class ClientModel {
 
     public void setPlaceState() {
         this.state = ClientState.PLACE;
+    }
+
+    public void setState(String state) {
+        this.state = ClientState.valueOf(state);
     }
 
 

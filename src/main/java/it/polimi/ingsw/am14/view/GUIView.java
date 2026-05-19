@@ -1607,28 +1607,28 @@ public class GUIView extends Application implements ViewType {
         endGameScene = new Scene(root, SCENE_WIDTH, SCENE_HEIGHT);
     }
 
-    private void updateEndGameRankingBox() {
-        endGameRankingBox.getChildren().clear();
+    public void updateEndGameRankingBox() {
+        localRankingBox.getChildren().clear();
 
         ArrayList<String> ranking = modelReference.getFinalRank();
 
-        for (int i = 0; i < ranking.size(); i++) {
+        for (int i = ranking.size()-1; i>=0; i--) {
             String name = ranking.get(i);
-            Label lbl = new Label((i + 1) + "°  " + name +" "+ modelReference.getPlayerByNickname(name).getNumPrestigePoints()+ " pts");
+            Label lbl = new Label((ranking.size()-i) + "°  " + name +" "+ modelReference.getPlayerByNickname(name).getNumPrestigePoints()+ " pts");
             lbl.setStyle("""
             -fx-text-fill: white;
             -fx-font-size: 16;
             -fx-font-weight: bold;
         """);
-            endGameRankingBox.getChildren().add(lbl);
+            localRankingBox.getChildren().add(lbl);
         }
     }
 
-    private void updateGlobalRankingBox() {
+    public void updateGlobalRankingBox() {
         globalRankingBox.getChildren().clear();
         ArrayList<String> global = modelReference.getFinalRank(); // metodo tuo
 
-        for (int i = 0; i < global.size(); i++) {
+        for (int i = global.size()-1; i>=0; i--) {
             String name = global.get(i);
             Label lbl = new Label(name);
             lbl.setStyle("-fx-text-fill: white; -fx-font-size: 16; -fx-font-weight: bold;");

@@ -24,7 +24,8 @@ public class WaitingRoomAfterCrashState extends GameState {
             game.notifyObservers(
                     new GameRestartedEvent(
                             game.getGameId(),
-                            nickname
+                            nickname,
+                            game.previouslySavedStateName()
                     )
             );
         }
