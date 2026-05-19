@@ -66,6 +66,13 @@ public class GUIView extends Application implements ViewType {
     private HBox bottomCenterBox;
     private HBox offersPathBox;
 
+    //endgame ranking
+    private VBox endGameRankingBox;
+    private ToggleButton rankingToggle;
+    private VBox localRankingBox;
+    private VBox globalRankingBox;
+    private ToggleGroup rankingModeGroup;
+
 
     private static final double BOARD_CARD_WIDTH = 110;
     private static final double BOARD_CARD_HEIGHT = 165;
@@ -175,7 +182,13 @@ public class GUIView extends Application implements ViewType {
                 // mi updeta il messaggio di exception nelle varie scene. IN lobby non serve in quanto non abbiamo possibilità di exception
 
             }
-            case "endGame" -> showEndGameScene();
+            case "endGame" -> {
+                showEndGameScene();
+                updateEndGameRankingBox();
+                updateGlobalRankingBox();
+
+            }
+
 
             //TODO: parte di riconnessione
         }
@@ -979,12 +992,10 @@ public class GUIView extends Application implements ViewType {
 
         for (String nickname : modelReference.getPlayerOrderInTurnOrderCard()) {
             ClientPlayer player = modelReference.getPlayerByNickname(nickname);
+            if(player == null) continue;
             String color = player.getTotemColor().toLowerCase();
 
             int pos = modelReference.getPlayerPositionInTurnOrderCard(player.getNickname()); // we get the playerOrder to understand in which slot of the turn order card we have to put the totem
-
-            if(pos == -1) // vuol dire che quel player non ha posizione sulla turnOrdercard , ma è posizionato su una trackCard --> skippo la sua esecuzione
-                continue;
 
             // we create the image totem
             ImageView totem = createSmallTotem(color);
@@ -1528,9 +1539,99 @@ public class GUIView extends Application implements ViewType {
         endGameTotemLayer = new Pane();
         endGameTotemLayer.setPickOnBounds(false);
 
-        root.getChildren().addAll(background, endGameTotemLayer);
+        endGameRankingBox = new VBox(10);
+        endGameRankingBox.setStyle("""
+        -fx-background-color: rgba(20, 20, 20, 0.7);
+        -fx-padding: 15;
+        -fx-background-radius: 10;
+    """);
 
+        endGameRankingBox.setVisible(false);
+        localRankingBox = new VBox(8);
+        globalRankingBox = new VBox(8);
+
+        localRankingBox.setVisible(true);
+        globalRankingBox.setVisible(false);
+        globalRankingBox.managedProperty().bind(globalRankingBox.visibleProperty());
+        localRankingBox.managedProperty().bind(localRankingBox.visibleProperty());
+
+
+        rankingModeGroup = new ToggleGroup();
+
+        ToggleButton localBtn = new ToggleButton("Local Ranking");
+        ToggleButton globalBtn = new ToggleButton("Global Ranking");
+        localBtn.setToggleGroup(rankingModeGroup);
+        globalBtn.setToggleGroup(rankingModeGroup);
+        localBtn.setSelected(true);
+
+        localBtn.setOnAction(e -> {
+            localRankingBox.setVisible(true);
+            globalRankingBox.setVisible(false);
+        });
+
+        globalBtn.setOnAction(e -> {
+            localRankingBox.setVisible(false);
+            globalRankingBox.setVisible(true);
+        });
+
+        HBox toggleRow = new HBox(8, localBtn, globalBtn);
+        toggleRow.setAlignment(Pos.CENTER);
+
+        endGameRankingBox.getChildren().addAll(toggleRow, localRankingBox, globalRankingBox);
+
+        StackPane.setAlignment(endGameRankingBox, Pos.TOP_CENTER);
+        StackPane.setMargin(endGameRankingBox, new Insets(0, 0, 350, 900));
+
+
+        rankingToggle = new ToggleButton("Show Total Ranking");
+        rankingToggle.setStyle("""
+        -fx-background-color: rgba(255,255,255,0.2);
+        -fx-text-fill: white;
+        -fx-font-weight: bold;
+        -fx-background-radius: 8;
+        -fx-padding: 6 12;
+    """);
+
+        rankingToggle.setOnAction(e -> {
+            boolean show = rankingToggle.isSelected();
+            endGameRankingBox.setVisible(show);
+            rankingToggle.setText(show ? "Hide Ranking" : "Show Ranking");
+        });
+
+        StackPane.setAlignment(rankingToggle, Pos.BOTTOM_RIGHT);
+        StackPane.setMargin(rankingToggle, new Insets(20, 0, 0, 20));
+
+        root.getChildren().addAll(background, endGameTotemLayer, rankingToggle, endGameRankingBox);
         endGameScene = new Scene(root, SCENE_WIDTH, SCENE_HEIGHT);
+    }
+
+    private void updateEndGameRankingBox() {
+        endGameRankingBox.getChildren().clear();
+
+        ArrayList<String> ranking = modelReference.getFinalRank();
+
+        for (int i = 0; i < ranking.size(); i++) {
+            String name = ranking.get(i);
+            Label lbl = new Label((i + 1) + "°  " + name +" "+ modelReference.getPlayerByNickname(name).getNumPrestigePoints()+ " pts");
+            lbl.setStyle("""
+            -fx-text-fill: white;
+            -fx-font-size: 16;
+            -fx-font-weight: bold;
+        """);
+            endGameRankingBox.getChildren().add(lbl);
+        }
+    }
+
+    private void updateGlobalRankingBox() {
+        globalRankingBox.getChildren().clear();
+        ArrayList<String> global = modelReference.getFinalRank(); // metodo tuo
+
+        for (int i = 0; i < global.size(); i++) {
+            String name = global.get(i);
+            Label lbl = new Label(name);
+            lbl.setStyle("-fx-text-fill: white; -fx-font-size: 16; -fx-font-weight: bold;");
+            globalRankingBox.getChildren().add(lbl);
+        }
     }
 
 
