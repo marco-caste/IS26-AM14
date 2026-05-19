@@ -271,9 +271,10 @@ public class GUIView extends Application implements ViewType {
 
     @Override
     public void renderException(String message) {
-        updateLogin(message);
-        updateChoiceScene();
-        updateTop(message);
+        if(!updateTop(message)) {
+            if(!updateChoiceScene())
+                updateLogin(message);
+        }
     }
 
     @Override
@@ -444,7 +445,7 @@ public class GUIView extends Application implements ViewType {
 
 
     public void updateLogin(String message) {
-        if (loginBox == null) return;
+        if (loginBox == null) return ;
 
         loginErororLabel.setText(message);
         showGameChoiceScene();
@@ -649,11 +650,13 @@ public class GUIView extends Application implements ViewType {
 
 
     //TODO: gestione colore già preso, devo verificare se marco ha inserito questo check nella gestione nuova
-    public void updateChoiceScene(){
+    public boolean updateChoiceScene(){
 
-        if (gameChoiceScene == null)  // check per gli update che arrivano prima che la scena venga creata, così evitiamo errori di null pointer
-            return;
+        if (gameChoiceScene == null) { // check per gli update che arrivano prima che la scena venga creata, così evitiamo errori di null pointer
+            return false;}
+
         showLobbyScene(); // se la create o join è andata a buon fine passo alla scena successiva (lobby)
+        return true;
     }
 
 
@@ -984,8 +987,12 @@ public class GUIView extends Application implements ViewType {
         return topBox;
     }
 
-    public void updateTop(String message){
-        if (topBox != null) serverMessage.setText(message); //check per gli update che arrivano prima che la scena venga creata, così evitiamo errori di null pointer
+    public boolean updateTop (String message){
+        if (topBox == null) return false;
+            serverMessage.setText(message);
+            return true;
+
+            //check per gli update che arrivano prima che la scena venga creata, così evitiamo errori di null pointer
     }
 
     private StackPane createCenter() {
