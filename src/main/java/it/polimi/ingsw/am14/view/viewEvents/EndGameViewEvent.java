@@ -1,16 +1,19 @@
 package it.polimi.ingsw.am14.view.viewEvents;
 
+import it.polimi.ingsw.am14.view.GUIView;
+import it.polimi.ingsw.am14.view.TUIView;
 import it.polimi.ingsw.am14.view.ViewType;
 
-public class EndGameViewEvent implements ViewEvent {
-    private final String message;
-
-    public EndGameViewEvent(String message) {
-        this.message = message;
-    }
-
+public class EndGameViewEvent implements ViewEvent{
     @Override
     public void render(ViewType view) {
-        view.renderEndGame(message);
+        try {
+            GUIView guiView = (GUIView) view;
+            guiView.showEndGameScene();
+            guiView.updateEndGameRankingBox();
+            guiView.updateGlobalRankingBox();
+        } catch (ClassCastException e) {
+            TUIView tuiView = (TUIView) view;
+        }
     }
 }

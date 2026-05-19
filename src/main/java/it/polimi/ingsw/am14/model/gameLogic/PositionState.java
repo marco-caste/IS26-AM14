@@ -89,4 +89,9 @@ class PositionState extends GameState {
         // sets currentPlayerIndex = 0
         context.setCurrentPlayerIndex(0);
     }
+
+    @Override
+    protected String getStateName() {
+        return "PLACE";
+    }
 }

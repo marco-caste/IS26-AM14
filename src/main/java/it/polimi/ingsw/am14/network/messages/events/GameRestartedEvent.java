@@ -11,23 +11,28 @@ public class GameRestartedEvent extends ServerEvent {
 
     private int gameId; // only used for bufferization, will not be sent to the client
     private String lastPlayerConnectedNickname; // only used for bufferization, will not be sent to the client
+    private final String state;
 
-    public GameRestartedEvent(int gameId, String lastPlayerConnectedNickname) {
+    public GameRestartedEvent(int gameId, String lastPlayerConnectedNickname, String state) {
         super("The game has restarted");
         this.gameId = gameId;
         this.lastPlayerConnectedNickname = lastPlayerConnectedNickname;
+        this.state = state;
     }
 
     @JsonCreator
     public GameRestartedEvent(
-            @JsonProperty("description") String description) {
+            @JsonProperty("description") String description,
+            @JsonProperty("state") String state){
+        this.state = state;
         super(description);
     }
 
     @Override
     public void effect(ClientModel model) {
-//        model.setMessage(description);
-        model.notifyObservers(new GameRestartViewEvent(description));
+        model.setMessage(description);
+        model.setState(state);
+        model.notifyObservers(new GameRestartViewEvent());
     }
 
     @Override

@@ -358,4 +358,9 @@ class PickState extends GameState {
             context.getCurrentState().endRound(context);
         }
     }
+
+    @Override
+    protected String getStateName() {
+        return "PICK";
+    }
 }

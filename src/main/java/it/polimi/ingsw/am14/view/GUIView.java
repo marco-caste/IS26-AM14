@@ -70,6 +70,14 @@ public class GUIView extends Application implements ViewType {
     private HBox bottomCenterBox;
     private HBox offersPathBox;
 
+    //endgame ranking
+    private VBox endGameRankingBox;
+    private ToggleButton rankingToggle;
+    private VBox localRankingBox;
+    private VBox globalRankingBox;
+    private ToggleGroup rankingModeGroup;
+
+
     private static final double BOARD_CARD_WIDTH = 110;
     private static final double BOARD_CARD_HEIGHT = 165;
     private static final double SMALL_TOTEM_WIDTH = 46;
@@ -987,7 +995,6 @@ public class GUIView extends Application implements ViewType {
             //check per gli update che arrivano prima che la scena venga creata, così evitiamo errori di null pointer
     }
 
-
     private StackPane createCenter() {
         StackPane centerWrapper = new StackPane();
         centerWrapper.setStyle("-fx-background-color: transparent;");
@@ -1633,9 +1640,99 @@ public class GUIView extends Application implements ViewType {
         endGameTotemLayer = new Pane();
         endGameTotemLayer.setPickOnBounds(false);
 
-        root.getChildren().addAll(background, endGameTotemLayer);
+        endGameRankingBox = new VBox(10);
+        endGameRankingBox.setStyle("""
+        -fx-background-color: rgba(20, 20, 20, 0.7);
+        -fx-padding: 15;
+        -fx-background-radius: 10;
+    """);
 
+        endGameRankingBox.setVisible(false);
+        localRankingBox = new VBox(8);
+        globalRankingBox = new VBox(8);
+
+        localRankingBox.setVisible(true);
+        globalRankingBox.setVisible(false);
+        globalRankingBox.managedProperty().bind(globalRankingBox.visibleProperty());
+        localRankingBox.managedProperty().bind(localRankingBox.visibleProperty());
+
+
+        rankingModeGroup = new ToggleGroup();
+
+        ToggleButton localBtn = new ToggleButton("Local Ranking");
+        ToggleButton globalBtn = new ToggleButton("Global Ranking");
+        localBtn.setToggleGroup(rankingModeGroup);
+        globalBtn.setToggleGroup(rankingModeGroup);
+        localBtn.setSelected(true);
+
+        localBtn.setOnAction(e -> {
+            localRankingBox.setVisible(true);
+            globalRankingBox.setVisible(false);
+        });
+
+        globalBtn.setOnAction(e -> {
+            localRankingBox.setVisible(false);
+            globalRankingBox.setVisible(true);
+        });
+
+        HBox toggleRow = new HBox(8, localBtn, globalBtn);
+        toggleRow.setAlignment(Pos.CENTER);
+
+        endGameRankingBox.getChildren().addAll(toggleRow, localRankingBox, globalRankingBox);
+
+        StackPane.setAlignment(endGameRankingBox, Pos.TOP_CENTER);
+        StackPane.setMargin(endGameRankingBox, new Insets(0, 0, 350, 900));
+
+
+        rankingToggle = new ToggleButton("Show Total Ranking");
+        rankingToggle.setStyle("""
+        -fx-background-color: rgba(255,255,255,0.2);
+        -fx-text-fill: white;
+        -fx-font-weight: bold;
+        -fx-background-radius: 8;
+        -fx-padding: 6 12;
+    """);
+
+        rankingToggle.setOnAction(e -> {
+            boolean show = rankingToggle.isSelected();
+            endGameRankingBox.setVisible(show);
+            rankingToggle.setText(show ? "Hide Ranking" : "Show Ranking");
+        });
+
+        StackPane.setAlignment(rankingToggle, Pos.BOTTOM_RIGHT);
+        StackPane.setMargin(rankingToggle, new Insets(20, 0, 0, 20));
+
+        root.getChildren().addAll(background, endGameTotemLayer, rankingToggle, endGameRankingBox);
         endGameScene = new Scene(root, SCENE_WIDTH, SCENE_HEIGHT);
+    }
+
+    public void updateEndGameRankingBox() {
+        localRankingBox.getChildren().clear();
+
+        ArrayList<String> ranking = modelReference.getFinalRank();
+
+        for (int i = ranking.size()-1; i>=0; i--) {
+            String name = ranking.get(i);
+            Label lbl = new Label((ranking.size()-i) + "°  " + name +" "+ modelReference.getPlayerByNickname(name).getNumPrestigePoints()+ " pts");
+            lbl.setStyle("""
+            -fx-text-fill: white;
+            -fx-font-size: 16;
+            -fx-font-weight: bold;
+        """);
+            localRankingBox.getChildren().add(lbl);
+        }
+    }
+
+    public void updateGlobalRankingBox() {
+        globalRankingBox.getChildren().clear();
+        ArrayList<String> global = modelReference.getFinalRank(); // metodo tuo
+
+        for (int i = global.size()-1; i>=0; i--) {
+            String name = global.get(i);
+            Label lbl = new Label(name);
+            lbl.setStyle("-fx-text-fill: white; -fx-font-size: 16; -fx-font-weight: bold;");
+            globalRankingBox.getChildren().add(lbl);
+        }
     }
 
 
