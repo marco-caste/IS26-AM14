@@ -144,75 +144,74 @@ public class TUIView implements ViewType {
             }
         }
         event.render(this);
-        // SOLUZIONE: reader.printAbove(model.getDescription());
-        // allows to print a received message above the current prompt, avoiding the race conditions on writer (?)
-        lineReader.printAbove("[Server]: " + this.modelReference.getMessage() + "\nBoard:\n" + this.modelReference.getBoard().toString());
     }
 
     @Override
-    public void disconnect() {
-        controller.disconnect();
-        this.update(null, new UserDisconnectedViewEvent());
+    public void renderLogin(String message) {
+        lineReader.printAbove("[Server]: " + message);
     }
 
     @Override
-    public void renderLogin() {
-
+    public void renderPlayerJoin(String message) {
+        lineReader.printAbove("[Server]: " + message);
     }
 
     @Override
-    public void renderPlayerJoin() {
-
+    public void renderGameStart(String message) {
+        lineReader.printAbove("[Server]: " + message);
+        lineReader.printAbove(modelReference.getBoard().toString());
     }
 
     @Override
-    public void renderGameStart() {
-
+    public void renderTotemPlaced(String message) {
+        lineReader.printAbove("[Server]: " + message);
     }
 
     @Override
-    public void renderTotemPlaced() {
-
+    public void renderCardPicked(String message) {
+        lineReader.printAbove("[Server]: " + message);
+        lineReader.printAbove(modelReference.getBoard().toString());
     }
 
     @Override
-    public void renderCardPicked() {
-
+    public void renderEndRound(String message) {
+        lineReader.printAbove("[Server]: " + message);
+        lineReader.printAbove(modelReference.getBoard().toString());
     }
 
     @Override
-    public void renderEndRound() {
-
+    public void renderEndGame(String message) {
+        lineReader.printAbove("[Server]: " + message);
+        StringBuilder scoreBoard = new StringBuilder();
+        for (String player : modelReference.getFinalRank()) {
+            scoreBoard.append(player).append(": ").append(modelReference.getPlayerByNickname(player).getNumPrestigePoints()).append(" points\n");
+        }
+        lineReader.printAbove(scoreBoard.toString());
     }
 
     @Override
-    public void renderEndGame() {
-
+    public void renderDisconnection(String message) {
+        lineReader.printAbove("[Server]: " + message);
     }
 
     @Override
-    public void renderDisconnection() {
-
+    public void renderReconnection(String message) {
+        lineReader.printAbove("[Server]: " + message);
     }
 
     @Override
-    public void renderReconnection() {
-
+    public void renderGameRestarted(String message) {
+        lineReader.printAbove("[Server]: " + message);
     }
 
     @Override
-    public void renderGameRestarted() {
-
-    }
-
-    @Override
-    public void renderException() {
-
+    public void renderException(String message) {
+        lineReader.printAbove("[Server]: " + message);
     }
 
     @Override
     public void handleNetworkError(String errorMessage) {
-
+        lineReader.printAbove("[Network Error]: " + errorMessage);
     }
 
     private void show(String[] args) throws IllegalArgumentException{

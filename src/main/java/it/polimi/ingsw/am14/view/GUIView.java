@@ -4,7 +4,6 @@ import it.polimi.ingsw.am14.clientModelController.ClientController;
 import it.polimi.ingsw.am14.clientModelController.ClientModel;
 import it.polimi.ingsw.am14.clientModelController.ClientPlayer;
 import it.polimi.ingsw.am14.model.gameLogic.TotemColor;
-import it.polimi.ingsw.am14.network.VirtualServer;
 import it.polimi.ingsw.am14.view.viewEvents.ViewEvent;
 import javafx.animation.TranslateTransition;
 import javafx.application.Application;
@@ -193,64 +192,58 @@ public class GUIView extends Application implements ViewType {
 
 
 
-    //TODO: per disconnessione
     @Override
-    public void disconnect() {
+    public void renderLogin(String message) {
 
     }
 
     @Override
-    public void renderLogin() {
+    public void renderPlayerJoin(String message) {
 
     }
 
     @Override
-    public void renderPlayerJoin() {
+    public void renderGameStart(String message) {
 
     }
 
     @Override
-    public void renderGameStart() {
+    public void renderTotemPlaced(String message) {
 
     }
 
     @Override
-    public void renderTotemPlaced() {
+    public void renderCardPicked(String message) {
 
     }
 
     @Override
-    public void renderCardPicked() {
+    public void renderEndRound(String message) {
 
     }
 
     @Override
-    public void renderEndRound() {
+    public void renderEndGame(String message) {
 
     }
 
     @Override
-    public void renderEndGame() {
+    public void renderDisconnection(String message) {
 
     }
 
     @Override
-    public void renderDisconnection() {
+    public void renderReconnection(String message) {
 
     }
 
     @Override
-    public void renderReconnection() {
+    public void renderGameRestarted(String message) {
 
     }
 
     @Override
-    public void renderGameRestarted() {
-
-    }
-
-    @Override
-    public void renderException() {
+    public void renderException(String message) {
 
     }
 

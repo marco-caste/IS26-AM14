@@ -53,6 +53,7 @@ public class EndGameEvent extends UpdateEvent {
 
         // playersAttributes is updated for everyone
         playersAttributes = new HashMap<>();
+
         for (Player player : finalRanking) {
             playersAttributes.put(player.getNickname(), new ArrayList<>());
             finalRank.add(player.getNickname());
@@ -80,12 +81,9 @@ public class EndGameEvent extends UpdateEvent {
 
     @Override
     public void effect(ClientModel model) {
-        // TODO: SERVE AGGIORNARE LA BOARD?
         model.setBoard(this.board);
         model.updatePlayerRoundAttributes(this.playersAttributes);
-        model.setMessage(description);
         model.setFinalRank(this.finalRank);
-        //TODO: model.setGameId(-1);
-        model.notifyObservers( new EndGameViewEvent());
+        model.notifyObservers( new EndGameViewEvent(description));
     }
 }

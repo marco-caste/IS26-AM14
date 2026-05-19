@@ -13,6 +13,6 @@ public class ExceptionViewEvent implements ViewEvent {
 
     @Override
     public void render(ViewType view) {
-        view.renderException();
+        view.renderException(exceptionMessage);
     }
 }
