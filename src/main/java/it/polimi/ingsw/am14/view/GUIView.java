@@ -1,10 +1,9 @@
 package it.polimi.ingsw.am14.view;
 
+import it.polimi.ingsw.am14.clientModelController.ClientController;
 import it.polimi.ingsw.am14.clientModelController.ClientModel;
 import it.polimi.ingsw.am14.clientModelController.ClientPlayer;
-import it.polimi.ingsw.am14.model.gameLogic.Player;
 import it.polimi.ingsw.am14.model.gameLogic.TotemColor;
-import it.polimi.ingsw.am14.network.EntryPointFactory;
 import it.polimi.ingsw.am14.network.VirtualServer;
 import it.polimi.ingsw.am14.view.viewEvents.ViewEvent;
 import javafx.animation.TranslateTransition;
@@ -20,7 +19,6 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
-import javafx.scene.text.TextAlignment;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -40,13 +38,15 @@ import java.util.*;
 //TODO aggiustare il testo sopra
 //TODO aggiungere num rounds
 //TODO scena finale con punteggi e database
+// TODO: RIMUOVERE PARAMETRI INUTILIZZATI NEI METODI DEL CONTROLLER
+// TODO: UPDATE TOP DA SEPARARE TRA INTERNO E ESTERNO
 
 
 public class GUIView extends Application implements ViewType {
 
     // sono tutti a null fino a quando non verranno inizializzati
     private ClientModel modelReference;
-    private VirtualServer server;
+    private ClientController controllerReference;
     private Stage primaryStage;
 
     private Scene gameChoiceScene;
@@ -111,6 +111,7 @@ public class GUIView extends Application implements ViewType {
 
     @Override
     public void start(Stage primaryStage) {
+        this.controllerReference = new ClientController();
         this.primaryStage = primaryStage;
 
         Rectangle2D screen = Screen.getPrimary().getVisualBounds();
@@ -142,47 +143,49 @@ public class GUIView extends Application implements ViewType {
         // TODO: da rimuovere
         String eventChoice = "test";
 
-        this.modelReference = model;
+        if (this.modelReference == null)
+            this.modelReference = model;
         System.out.println("GUI update received: " + eventChoice);
 
         updateType = eventChoice;
 
         Platform.runLater(() -> {
-        switch (eventChoice) {
-            case "login" -> updateLogin();
-            case "gameChoice" -> {
-                updateChoiceScene();
-                updateLobby();
-            }
-            case "lobbyUpdate" -> updateLobby();
-            case "gameStart" -> gameCreation();
-            case "pickUpdate","endRound" -> {
-                updateBoard();
-                updateSelectedTribe();
-                updateTop(modelReference.getMessage());
-                updatePlayerStats();
-                updateoffersPathBox();
-            }
-            case "positionUpdate" -> {
-                updateoffersPathBox();
-                updateTop(modelReference.getMessage());
-            }
-            //case "gameOver" -> showEndGameScene(); da fare ancora
-            case "exception" -> {
-                    updateTop(modelReference.getMessage()); // controllo di esistenza della scena nei singoli metodi
-                    updateChoiceScene();
-                    updateLogin();
-                // verificare con Marco e Lorenzo
-                // if (model.getMessage().equals("The connection with the server has been lost. Please try to reconnect.")) {
-                    //disconnect();
-
-                // mi updeta il messaggio di exception nelle varie scene. IN lobby non serve in quanto non abbiamo possibilità di exception
-
-            }
-            case "endGame" -> showEndGameScene();
-
-            //TODO: parte di riconnessione
-        }
+            event.render(this);
+//            switch (eventChoice) {
+//                case "login" -> updateLogin();
+//                case "gameChoice" -> {
+//                    updateChoiceScene();
+//                    updateLobby();
+//                }
+//                case "lobbyUpdate" -> updateLobby();
+//                case "gameStart" -> gameCreation();
+//                case "pickUpdate","endRound" -> {
+//                    updateBoard();
+//                    updateSelectedTribe();
+//                    updateTop(modelReference.getMessage());
+//                    updatePlayerStats();
+//                    updateoffersPathBox();
+//                }
+//                case "positionUpdate" -> {
+//                    updateoffersPathBox();
+//                    updateTop(modelReference.getMessage());
+//                }
+//                //case "gameOver" -> showEndGameScene(); da fare ancora
+//                case "exception" -> {
+//                        updateTop(modelReference.getMessage()); // controllo di esistenza della scena nei singoli metodi
+//                        updateChoiceScene();
+//                        updateLogin();
+//                    // verificare con Marco e Lorenzo
+//                    // if (model.getMessage().equals("The connection with the server has been lost. Please try to reconnect.")) {
+//                        //disconnect();
+//
+//                    // mi updeta il messaggio di exception nelle varie scene. IN lobby non serve in quanto non abbiamo possibilità di exception
+//
+//                }
+//                case "endGame" -> showEndGameScene();
+//
+//                //TODO: parte di riconnessione
+//            }
 
         });
     }
@@ -287,7 +290,7 @@ public class GUIView extends Application implements ViewType {
 
 
         connectButton.setOnAction(event -> {
-            String insertedNickname = nicknameField.getText().trim();
+            String insertedNickname = nicknameField.getText().trim().toLowerCase();
             String insertedIp = ipField.getText().trim();
             String insertedPort = portField.getText().trim();
 
@@ -519,6 +522,7 @@ public class GUIView extends Application implements ViewType {
         root.setCenter(mainContent);
 
         createGameButton.setOnAction(event -> {
+            // bug: con un certo nickname homePlayer non viene inizializzato
             String insertedNickname = modelReference.getHomePlayerNickname();
             String totemColorChoice = totemColorBox.getValue().toString().toLowerCase();
             int numPlayersChoice = playersNumberBox.getValue();
@@ -742,12 +746,14 @@ public class GUIView extends Application implements ViewType {
 
     private void connect(String chosenNickname, String netProtocol, String IP, String port) {
         try {
-            this.server = EntryPointFactory.connect(
-                    new String[]{netProtocol, IP, port, chosenNickname},
-                    this
-            );
+            int portNumber;
+            try {
+                 portNumber = Integer.parseInt(port);
+            } catch (NumberFormatException e) {
+                throw new IllegalArgumentException("Please enter a valid numeric port.");
+            }
 
-            System.out.println("Connection successful, server proxy = " + server);
+            this.controllerReference.connect(netProtocol, IP, portNumber, chosenNickname, this);
 
         } catch (Exception e) {
             Label error = (Label) loginBox.getChildren().getLast();
@@ -759,7 +765,7 @@ public class GUIView extends Application implements ViewType {
     private void createGame(String chosenNickname, int numPlayers,String totemColor ) throws IllegalArgumentException {
 
         try {
-            server.createGame(chosenNickname, numPlayers,totemColor);
+            controllerReference.createGame(numPlayers, totemColor);
         } catch (Exception e) {
             gameChoiceErrorLabel.setText("A network error occurred while sending your request. Please try again.");
         }
@@ -769,7 +775,7 @@ public class GUIView extends Application implements ViewType {
     private void joinGame(String nickname, int gameId, String totemColor) throws IllegalArgumentException {
 
         try {
-            server.joinGame(nickname, gameId, totemColor);
+            controllerReference.joinGame(gameId, totemColor);
             System.out.println("invio metodo");
         } catch (Exception e) {
             gameChoiceErrorLabel.setText("A network error occurred while sending your request. Please try again.");
@@ -981,13 +987,11 @@ public class GUIView extends Application implements ViewType {
     private void addTotemsOnTurnOrderCard(Pane totemLayer) {
 
         for (String nickname : modelReference.getPlayerOrderInTurnOrderCard()) {
+            if (nickname == null) continue; // se è null vuol dire che in quella posizione non c'è nessun player, quindi salto
             ClientPlayer player = modelReference.getPlayerByNickname(nickname);
             String color = player.getTotemColor().toLowerCase();
 
             int pos = modelReference.getPlayerPositionInTurnOrderCard(player.getNickname()); // we get the playerOrder to understand in which slot of the turn order card we have to put the totem
-
-            if(pos == -1) // vuol dire che quel player non ha posizione sulla turnOrdercard , ma è posizionato su una trackCard --> skippo la sua esecuzione
-                continue;
 
             // we create the image totem
             ImageView totem = createSmallTotem(color);
@@ -1152,7 +1156,6 @@ public class GUIView extends Application implements ViewType {
 
     }
 
-
     private HBox createCardRow() {
         HBox row = new HBox(10); // we use 10 pixel of space between the cards
         row.setAlignment(Pos.CENTER); // this function is needed to center the cards in the row. So the card will spawn from the center to the left.
@@ -1160,7 +1163,7 @@ public class GUIView extends Application implements ViewType {
         -fx-background-color: rgba(255, 255, 255, 0.18);  \s
         -fx-background-radius: 14;
         -fx-padding: 7.5;
-   \s""");
+        \s""");
         // this is the color the hbox
         // the radius is for the rounded corners and the padding is for the space between the border and the content of the hbox
         // the padding is the space between the border and the content of the hbox, so if you want to have more space between the border and the cards you can increase the padding value.
@@ -1430,7 +1433,7 @@ public class GUIView extends Application implements ViewType {
 
         private void pickCard(String nickname, int cardId, int row){
             try {
-                server.pickCard(nickname, cardId, row);
+                controllerReference.pickCard(cardId);
             } catch (Exception e) {
                 throw new RuntimeException("[Client] A network error occurred while sending your request\nDetails: " + e.getMessage());
             }
@@ -1488,7 +1491,7 @@ public class GUIView extends Application implements ViewType {
             // TODO: gestione se la trackCard è già occupata per evitare la comunicazione con il server
             System.out.println("Clicked track card: " + name);
             try {
-                server.placeTotem(modelReference.getHomePlayerNickname(), name);
+                controllerReference.placeTotem(name);
             } catch (Exception e) {
                 throw new RuntimeException("[Client] A network error occurred while sending your request\nDetails: " + e.getMessage());
             }
@@ -1537,7 +1540,7 @@ public class GUIView extends Application implements ViewType {
     }
 
 
-    private void showEndGameScene() {
+    public void showEndGameScene() {
         if (endGameScene == null) {
             createEndGameScene();
         }
@@ -1620,13 +1623,4 @@ public class GUIView extends Application implements ViewType {
                         .multiply(yRatio)
         );
     }
-
-
-
-
-    public static void main(String[] args) {
-        launch(args);
-    }
-
-
 }

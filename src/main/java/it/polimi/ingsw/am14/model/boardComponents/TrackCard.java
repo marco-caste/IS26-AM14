@@ -1,5 +1,8 @@
 package it.polimi.ingsw.am14.model.boardComponents;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import it.polimi.ingsw.am14.model.gameLogic.Player;
 
@@ -29,12 +32,15 @@ public class TrackCard {
      * @param numPicksBottom between 0 and 1
      * @param numFood = 0 or 3
      */
+    @JsonCreator
     public TrackCard(
             @JsonProperty("name") char name,
             @JsonProperty("numPickTop") int numPicksTop,
             @JsonProperty("numPickBottom") int numPicksBottom,
-            @JsonProperty("numFood") int numFood) {
-        this.playerTotem = null;
+            @JsonProperty("numFood") int numFood,
+            @JsonProperty("playerTotem") Player playerTotem
+            ) {
+        this.playerTotem = playerTotem;
         this.name = name;
         this.numPicksTop = numPicksTop;
         this.numPicksBottom = numPicksBottom;
@@ -49,10 +55,12 @@ public class TrackCard {
         return playerTotem;
     }
 
+    @JsonIgnore
     public char getName() {
         return name;
     }
 
+    @JsonIgnore
     public String getPlayerNickname() {
         return playerTotem.getNickname();
     }

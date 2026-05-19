@@ -4,6 +4,7 @@ import it.polimi.ingsw.am14.network.EntryPointFactory;
 import it.polimi.ingsw.am14.network.VirtualServer;
 import it.polimi.ingsw.am14.network.messages.events.ExceptionEvent;
 import it.polimi.ingsw.am14.view.ViewType;
+import it.polimi.ingsw.am14.view.viewEvents.ExceptionViewEvent;
 
 import java.util.List;
 
@@ -196,8 +197,8 @@ public class ClientController {
     }
 
     private void handleException(String description) {
-        ExceptionEvent event = new ExceptionEvent(description);
-        event.effect(model);
+        ExceptionViewEvent event = new ExceptionViewEvent();
+        model.notifyObservers(event);
     }
 
     private void handleNetworkError(Exception e) {

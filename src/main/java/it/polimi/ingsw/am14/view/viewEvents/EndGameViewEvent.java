@@ -9,11 +9,7 @@ public class EndGameViewEvent implements ViewEvent{
     public void render(ViewType view) {
         try {
             GUIView guiView = (GUIView) view;
-            guiView.updateBoard();  // TODO: PRIVATO
-            guiView.updateSelectedTribe();  // TODO: PRIVATO
-            guiView.updateTop("");  // TODO: PRIVATO, PARAMETRO NICKNAME INUTILIZZATO
-            guiView.updatePlayerStats();  // TODO: PRIVATO
-            guiView.updateoffersPathBox();  // TODO: PRIVATO
+            guiView.showEndGameScene();
         } catch (ClassCastException e) {
             TUIView tuiView = (TUIView) view;
         }
