@@ -41,7 +41,7 @@ public class GameStartedEvent extends ServerEvent {
 
     @Override
     public void effect(ClientModel model) {
-        model.setMessage(description);
+//        model.setMessage(description);
 
         ClientPlayer player;
         model.setPlayerOrderInTurnOrderCard(playerOrder);
@@ -53,7 +53,7 @@ public class GameStartedEvent extends ServerEvent {
             model.updatePlayerPosition(nickname, null);
         }
         model.setPlaceState();
-        model.notifyObservers(new GameStartViewEvent());
+        model.notifyObservers(new GameStartViewEvent(description));
     }
 
     @Override

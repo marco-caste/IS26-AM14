@@ -7,7 +7,17 @@ import java.io.IOException;
 
 public interface ViewType extends ModelObserver {
     void run() throws IOException;
-    // TODO: ANTIPATTERN degli eventi, INSERIRE METODI QUI
     void update(ClientModel model, ViewEvent event);
-    void disconnect();
+    void renderLogin(String message);
+    void renderPlayerJoin(String message);
+    void renderGameStart(String message);
+    void renderTotemPlaced(String message);
+    void renderCardPicked(String message);
+    void renderEndRound(String message);
+    void renderEndGame(String message);
+    void renderDisconnection(String message);
+    void renderReconnection(String message);
+    void renderGameRestarted(String message);
+    void renderException(String message);
+    void handleNetworkError(String errorMessage);
 }

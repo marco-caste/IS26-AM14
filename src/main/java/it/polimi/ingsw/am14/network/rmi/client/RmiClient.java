@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am14.network.rmi.client;
 
+import it.polimi.ingsw.am14.clientModelController.ClientController;
 import it.polimi.ingsw.am14.network.VirtualServer;
 import it.polimi.ingsw.am14.network.messages.events.Event;
 import it.polimi.ingsw.am14.network.messages.events.ExceptionEvent;
@@ -17,12 +18,14 @@ import static it.polimi.ingsw.am14.utils.Constants.*;
 public class RmiClient extends UnicastRemoteObject implements VirtualClientRmi, VirtualServer {
 
     private final ClientModel model;
+    private final ClientController controller;
     private VirtualServerRmi server;
     private static long lastPingReceived;
 
-    public RmiClient(ClientModel model) throws RemoteException {
+    public RmiClient(ClientModel model, ClientController controller) throws RemoteException {
         super();
         this.model = model;
+        this.controller = controller;
     }
 
     @Override
@@ -127,8 +130,7 @@ public class RmiClient extends UnicastRemoteObject implements VirtualClientRmi, 
                     Thread.sleep(PING_TIMEOUT);
                     long now = System.currentTimeMillis();
                     if (now - lastPingReceived > PING_TIMEOUT) {
-                        model.setMessage("[Client] Network error: server is not responding. Try to reconnect later.\nShutting down connection...");
-                        model.disconnect();
+                        controller.disconnect();
                         break;
                     }
                 }

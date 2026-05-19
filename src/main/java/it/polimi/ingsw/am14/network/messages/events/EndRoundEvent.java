@@ -92,10 +92,10 @@ public class EndRoundEvent extends UpdateEvent {
     public void effect(ClientModel model) {
         model.setBoard(board);
         model.updatePlayerRoundAttributes(playersAttributes);
-        model.setMessage(description);
+//        model.setMessage(description);
         model.updateAge(currentAge);
         model.setPlaceState();
-        model.notifyObservers(new EndRoundViewEvent());
+        model.notifyObservers(new EndRoundViewEvent(description));
     }
 
 

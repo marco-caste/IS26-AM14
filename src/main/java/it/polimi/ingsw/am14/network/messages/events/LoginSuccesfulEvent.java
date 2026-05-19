@@ -31,8 +31,8 @@ public class LoginSuccesfulEvent extends ServerEvent {
     @Override
     public void effect(ClientModel model) {
         model.setHomePlayer(new ClientPlayer(playerNickname));
-        model.setMessage(description);
-        model.notifyObservers(new LoginViewEvent());
+//        model.setMessage(description);
+        model.notifyObservers(new LoginViewEvent(description));
     }
 
     @Override

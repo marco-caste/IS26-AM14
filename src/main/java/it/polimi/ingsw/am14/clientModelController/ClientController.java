@@ -5,6 +5,7 @@ import it.polimi.ingsw.am14.network.VirtualServer;
 import it.polimi.ingsw.am14.network.messages.events.ExceptionEvent;
 import it.polimi.ingsw.am14.view.ViewType;
 import it.polimi.ingsw.am14.view.viewEvents.ExceptionViewEvent;
+import it.polimi.ingsw.am14.view.viewEvents.NetworkErrorViewEvent;
 
 import java.util.List;
 
@@ -33,19 +34,19 @@ public class ClientController {
                 server.pickCard(model.getHomePlayerNickname(), cardId, 4);
                 return;
             } catch (Exception e) {
-                handleNetworkError(e);
+                handleNetworkError("A network error occurred while skipping the turn");
                 return;
             }
         }
 
         //cardId check
         if (cardId > 116) {
-            handleException("Invalid card ID");
+            handleException("Invalid card Id");
             return;
         }
 
         //Not event check
-        if (cardId <= 95 && cardId >= 84) {
+        if (cardId >= 84 && cardId <= 95) {
             handleException("You can't pick an event card");
             return;
         }
@@ -66,7 +67,7 @@ public class ClientController {
         try {
             server.pickCard(model.getHomePlayerNickname(), cardId, row);
         } catch (Exception e) {
-            handleNetworkError(e);
+            handleNetworkError("A network error occurred while picking the card");
         }
     }
 
@@ -98,7 +99,7 @@ public class ClientController {
         try {
             server.placeTotem(model.getHomePlayerNickname(), position);
         } catch (Exception e) {
-            handleNetworkError(e);
+            handleNetworkError("A network error occurred while placing the totem");
         }
     }
 
@@ -121,23 +122,25 @@ public class ClientController {
                     serverIP,
                     serverPort,
                     playerNickname.toLowerCase(),
-                    view
+                    view,
+                    this
             );
             this.server = (VirtualServer) result[0];
             this.model = (ClientModel) result[1];
         } catch (Exception e) {
-            handleNetworkError(e);
+            handleNetworkError("A network error occurred while connecting to the server");
         }
     }
 
     public void disconnect() {
         if (this.server == null) {
-            handleException("You are not connected");
+            handleException("You are not connected to a server");
             return;
         }
 
         this.server = null;
         this.model = null;
+        handleNetworkError("Server is not responding. Try to reconnect later. Shutting down connection...");
     }
 
     public void createGame(int numPlayers, String totemColor) {
@@ -168,7 +171,7 @@ public class ClientController {
         try {
             server.createGame(model.getHomePlayerNickname(), numPlayers, totemColor);
         } catch (Exception e) {
-            handleNetworkError(e);
+            handleNetworkError("A network error occurred while creating the game");
         }
     }
 
@@ -200,17 +203,16 @@ public class ClientController {
         try {
             server.joinGame(model.getHomePlayerNickname(), gameId, totemColor);
         } catch (Exception e) {
-            handleNetworkError(e);
+            handleNetworkError("A network error occurred while joining the game");
         }
     }
 
     private void handleException(String description) {
-        ExceptionViewEvent event = new ExceptionViewEvent();
+        ExceptionViewEvent event = new ExceptionViewEvent(description);
         model.notifyObservers(event);
     }
 
-    private void handleNetworkError(Exception e) {
-        //TODO: siamo sicuri?
-        System.err.println("[Client] A network error occurred while sending your request\nDetails: " + e.getMessage());
+    private void handleNetworkError(String errorMessage) {
+        model.notifyObservers(new NetworkErrorViewEvent(errorMessage));
     }
 }

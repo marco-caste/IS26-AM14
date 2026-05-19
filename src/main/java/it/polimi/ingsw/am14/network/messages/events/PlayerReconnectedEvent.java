@@ -133,7 +133,7 @@ public class PlayerReconnectedEvent extends ServerEvent {
 
     @Override
     public void effect(ClientModel model) {
-        model.setMessage(description);
+//        model.setMessage(description);
         if (model.getHomePlayerNickname() == null) {
             nicknameToTotemColor.forEach((nickname, totemColor) -> {
                 ClientPlayer player = new ClientPlayer(nickname);
@@ -166,6 +166,6 @@ public class PlayerReconnectedEvent extends ServerEvent {
             model.setTurnOrderCardIndex(turnOrderCardIndex);
             model.setPlayerOrderInTurnOrderCard(playersOrderInTurnOrderCard);
         }
-        model.notifyObservers(new PlayerReconnectedViewEvent());
+        model.notifyObservers(new PlayerReconnectedViewEvent(description));
     }
 }

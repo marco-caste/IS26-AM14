@@ -44,8 +44,8 @@ public class PlayerDisconnectedEvent extends ServerEvent{
 
     @Override
     public void effect(ClientModel model) {
-        model.setMessage(description);
+//        model.setMessage(description);
         model.returnToLobby();
-        model.notifyObservers(new UserDisconnectedViewEvent());
+        model.notifyObservers(new UserDisconnectedViewEvent(description));
     }
 }

@@ -279,21 +279,6 @@ public class ClientModel {
         }
     }
 
-    //TODO: ha davvero senso fare una disconnect se poi dopo la connect viene inizializzato un nuovo model
-    public void disconnect() {
-        this.homePlayer = null;
-        this.otherPlayers = new ArrayList<>();
-        this.playerOrderInTurnOrderCard = new ArrayList<>();
-        this.board = new ArrayList<>();
-        this.positionToNickname = new HashMap<>();
-        this.finalRank = new ArrayList<>();
-        this.gameId = -1;
-        this.state = null;
-        for (ViewType observer : observers) {
-            observer.disconnect();
-        }
-    }
-
     public void returnToLobby() {
         this.otherPlayers = new ArrayList<>();
         this.playerOrderInTurnOrderCard = new ArrayList<>();
@@ -308,11 +293,11 @@ public class ClientModel {
 
     public boolean checkPickTurn() {
         Character homePlayerPosition = getHomePlayerPosition();
-        
+
         if (homePlayerPosition == null || homePlayerPosition == 'A') {
             return false;
         }
-        
+
         for (ClientPlayer player : otherPlayers) {
             Character playerPos = getPlayerPosition(player.getNickname());
             if (playerPos != null && homePlayerPosition > playerPos) {
@@ -336,7 +321,7 @@ public class ClientModel {
             return false;
         }
         Character position = getHomePlayerPosition();
-        
+
         //In these track card you can pick only from top
         if ((position == 'C' || position == 'F') && (row == BOTTOM_DECKABLE_ROW || row == BOTTOM_BUILDING_ROW)) {
             return false;
