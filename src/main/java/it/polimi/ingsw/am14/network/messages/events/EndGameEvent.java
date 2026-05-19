@@ -81,11 +81,9 @@ public class EndGameEvent extends UpdateEvent {
 
     @Override
     public void effect(ClientModel model) {
-        // TODO: SERVE AGGIORNARE LA BOARD?
         model.setBoard(this.board);
         model.updatePlayerRoundAttributes(this.playersAttributes);
-        model.setMessage(description);
-        model.notifyObservers( new EndGameViewEvent());
         model.setFinalRank(this.finalRank);
+        model.notifyObservers( new EndGameViewEvent(description));
     }
 }

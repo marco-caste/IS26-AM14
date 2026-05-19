@@ -69,18 +69,14 @@ public class SocketClient {
                     try {
                         runPingClient();
                     } catch (SocketTimeoutException e) {
-                        // TODO: uniformare con NetworkErrorViewEvent
-                        model.setMessage("[Client] Network error: server is not responding. try to reconnect later.\n[Client] Shutting down connection...");
                         controller.disconnect();
                         try {
                             socket.close();
                             pingSocket.close();
                         } catch (IOException ex) {
-                            model.notifyObservers(new ExceptionViewEvent("[Client] Network error: failed to close the connection. try to reconnect later."));
+                            model.notifyObservers(new ExceptionViewEvent("Failed to close the connection. try to reconnect later."));
                         }
                     } catch (IOException e) {
-                        // TODO: uniformare con NetworkErrorViewEvent
-                        model.setMessage("[Client] Network error: failed to read from the server. try to reconnect later.\n[Client] Shutting down connection...");
                         controller.disconnect();
                     }
                 }, "ClientThread-pingListener-" + Thread_number).start();

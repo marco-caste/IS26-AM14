@@ -130,9 +130,7 @@ public class RmiClient extends UnicastRemoteObject implements VirtualClientRmi, 
                     Thread.sleep(PING_TIMEOUT);
                     long now = System.currentTimeMillis();
                     if (now - lastPingReceived > PING_TIMEOUT) {
-                        // TODO: controller.disconnect()
-                        model.setMessage("[Client] Network error: server is not responding. Try to reconnect later.\nShutting down connection...");
-                        model.disconnect();
+                        controller.disconnect();
                         break;
                     }
                 }

@@ -132,6 +132,7 @@ public class ClientController {
 
         this.server = null;
         this.model = null;
+        handleNetworkError("Server is not responding. Try to reconnect later. Shutting down connection...");
     }
 
     public void createGame(int numPlayers, String totemColor) {

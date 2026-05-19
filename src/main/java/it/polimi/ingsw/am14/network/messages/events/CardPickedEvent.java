@@ -123,6 +123,6 @@ public class CardPickedEvent extends UpdateEvent {
         }
         model.setPlayerOrderInTurnOrderCard(updatedTurnOrderCard);
         //TODO: dobbiamo aggiornare anche la posizione nelle trackCard? o facciamo tutto a fine turno lasciando lo spostamento delle pedine a endROund? Secondo me andrebbe fatto quando un player ha terminato di pickare
-        model.notifyObservers(new PickUpdateViewEvent());
+        model.notifyObservers(new PickUpdateViewEvent(description));
     }
 }
