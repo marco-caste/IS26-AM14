@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am14.network.socket;
 
+import it.polimi.ingsw.am14.clientModelController.ClientController;
 import it.polimi.ingsw.am14.network.socket.client.VirtualServerSocket;
 import it.polimi.ingsw.am14.view.ViewType;
 import it.polimi.ingsw.am14.network.socket.client.SocketClient;
@@ -21,7 +22,7 @@ public class SocketClientLauncher {
      * @return a Map containing VirtualServerSocket (SocketServerHandler) and ClientModel
      * @throws IOException if connection fails
      */
-    public static Map<VirtualServerSocket, ClientModel> launch(String serverIP, int serverPort, ViewType view) throws IOException {
+    public static Map<VirtualServerSocket, ClientModel> launch(String serverIP, int serverPort, ViewType view, ClientController controller) throws IOException {
 
         Socket socket = new Socket(serverIP, serverPort);
 
@@ -33,7 +34,7 @@ public class SocketClientLauncher {
         ClientModel model = new ClientModel();
         model.registerObserver(view);
 
-        SocketClient client = new SocketClient(in, model, serverHandler, socket);
+        SocketClient client = new SocketClient(in, model, serverHandler, socket, controller);
 
         client.run();
 

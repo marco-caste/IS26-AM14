@@ -155,6 +155,66 @@ public class TUIView implements ViewType {
         this.update(null, new UserDisconnectedViewEvent());
     }
 
+    @Override
+    public void renderLogin() {
+
+    }
+
+    @Override
+    public void renderPlayerJoin() {
+
+    }
+
+    @Override
+    public void renderGameStart() {
+
+    }
+
+    @Override
+    public void renderTotemPlaced() {
+
+    }
+
+    @Override
+    public void renderCardPicked() {
+
+    }
+
+    @Override
+    public void renderEndRound() {
+
+    }
+
+    @Override
+    public void renderEndGame() {
+
+    }
+
+    @Override
+    public void renderDisconnection() {
+
+    }
+
+    @Override
+    public void renderReconnection() {
+
+    }
+
+    @Override
+    public void renderGameRestarted() {
+
+    }
+
+    @Override
+    public void renderException() {
+
+    }
+
+    @Override
+    public void handleNetworkError(String errorMessage) {
+
+    }
+
     private void show(String[] args) throws IllegalArgumentException{
         if (args.length < 2) {
             throw new IllegalArgumentException("Invalid command format. Usage: show [nickname|cardId|turnOrderCard|offersPath] <nickname> | <cardId row>");
