@@ -6,12 +6,6 @@ import it.polimi.ingsw.am14.exceptions.IllegalSetupException;
 
 public abstract class GameFactory {
 
-    // TODO: DA SERIALIZZARE
-    private static int gameIdCounter = 0;
-    public static int getGameIdCounter() {      // TODO: DA USARE IN SERIALIZZAZIONE
-        return gameIdCounter;
-    }
-
 
     /**
      * <p>
@@ -21,7 +15,7 @@ public abstract class GameFactory {
      * @return a Game object with numPlayers players
      * @throws IllegalSetupException if numPlayers is not between 2 and 5
      */
-    public static Game setup(int numPlayers) throws IllegalSetupException {
+    public static Game setup(int numPlayers, int gameIdCounter) throws IllegalSetupException {
 
         if (numPlayers > 5 || numPlayers < 2) {
             throw new IllegalSetupException("[GameFactory] A game with that number of players [" + numPlayers + "] is not possible");

@@ -199,7 +199,65 @@ public class GUIView extends Application implements ViewType {
 
     }
 
+    @Override
+    public void renderLogin() {
 
+    }
+
+    @Override
+    public void renderPlayerJoin() {
+
+    }
+
+    @Override
+    public void renderGameStart() {
+
+    }
+
+    @Override
+    public void renderTotemPlaced() {
+
+    }
+
+    @Override
+    public void renderCardPicked() {
+
+    }
+
+    @Override
+    public void renderEndRound() {
+
+    }
+
+    @Override
+    public void renderEndGame() {
+
+    }
+
+    @Override
+    public void renderDisconnection() {
+
+    }
+
+    @Override
+    public void renderReconnection() {
+
+    }
+
+    @Override
+    public void renderGameRestarted() {
+
+    }
+
+    @Override
+    public void renderException() {
+
+    }
+
+    @Override
+    public void handleNetworkError(String errorMessage) {
+
+    }
 
 
     private BorderPane createLoginScene() {

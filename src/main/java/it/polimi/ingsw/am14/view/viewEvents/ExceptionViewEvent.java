@@ -5,16 +5,14 @@ import it.polimi.ingsw.am14.view.TUIView;
 import it.polimi.ingsw.am14.view.ViewType;
 
 public class ExceptionViewEvent implements ViewEvent {
+    String exceptionMessage;
+
+    public ExceptionViewEvent(String exceptionMessage) {
+        this.exceptionMessage = exceptionMessage;
+    }
 
     @Override
     public void render(ViewType view) {
-        try {
-            GUIView guiView = (GUIView) view;
-            guiView.updateTop("");  // TODO: PRIVATO, PARAMETRO NICKNAME NON UTILIZZATO
-            guiView.updateChoiceScene();  // TODO: PRIVATO
-            guiView.updateLogin();  // TODO: PRIVATO
-        } catch (ClassCastException e) {
-            TUIView tuiView = (TUIView) view;
-        }
+        view.renderException();
     }
 }

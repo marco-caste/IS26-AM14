@@ -28,6 +28,7 @@ public class LobbyController {
 
     private final Map<Integer, GameController> gameIdToGameController;
     private final Map<String, Integer> nicknameToGameId;
+    private int gameIdCounter = 0;
     @JsonIgnore
     private NetworkLayer networkLayer;        // TODO: CHECK SINCRONIZZAZIONE
     @JsonIgnore
@@ -47,11 +48,13 @@ public class LobbyController {
     @JsonCreator
     public LobbyController(
             @JsonProperty("nicknameToGameId") Map<String, Integer> nicknameToGameId,
-            @JsonProperty("gameIdToGameController") Map<Integer, GameController> gameIdToGameController) {
+            @JsonProperty("gameIdToGameController") Map<Integer, GameController> gameIdToGameController,
+            @JsonProperty("gameIdCounter") int gameIdCounter) {
         this.gameIdToGameController = gameIdToGameController;
         this.nicknameToGameId = nicknameToGameId;
         this.networkLayer = new NetworkLayer();
         this.lastPingReceivedTime = new HashMap<>();
+        this.gameIdCounter = gameIdCounter;
     }
 
     private void addGameController(int gameId, GameController gameController) {
@@ -136,7 +139,7 @@ public class LobbyController {
 
     public void createGame(String nickname, int numPlayers, String totemColor) throws IllegalSetupException, WrongStateException, IllegalNicknameException {
         synchronized (dataLock) {
-            Game game = GameFactory.setup(numPlayers);
+            Game game = GameFactory.setup(numPlayers, gameIdCounter);
             game.addObserver(networkLayer);
             GameController gameController = new GameController(game);
             addGameController(game.getGameId(), gameController);

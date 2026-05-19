@@ -7,8 +7,8 @@ import it.polimi.ingsw.am14.model.gameLogic.Player;
 import it.polimi.ingsw.am14.network.NetworkLayer;
 import it.polimi.ingsw.am14.model.boardComponents.Board;
 import it.polimi.ingsw.am14.model.cards.Card;
-import it.polimi.ingsw.am14.view.viewEvents.GameChoiceEvent;
 import it.polimi.ingsw.am14.clientModelController.ClientModel;
+import it.polimi.ingsw.am14.view.viewEvents.JoinedGameViewEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -107,7 +107,7 @@ public class JoinedGameEvent extends ServerEvent {
             model.addPlayer(new ClientPlayer(playerNickname));
             model.getPlayerByNickname(playerNickname).setTotemColor(totemColor);
         }
-        model.notifyObservers(new GameChoiceEvent()); // we notify the player view
+        model.notifyObservers(new JoinedGameViewEvent()); // we notify the player view
     }
 
     /*

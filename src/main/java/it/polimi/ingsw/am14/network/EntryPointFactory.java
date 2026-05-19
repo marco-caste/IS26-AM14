@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am14.network;
 
+import it.polimi.ingsw.am14.clientModelController.ClientController;
 import it.polimi.ingsw.am14.clientModelController.ClientModel;
 import it.polimi.ingsw.am14.network.rmi.RmiClientLauncher;
 import it.polimi.ingsw.am14.network.rmi.client.RmiClient;
@@ -22,7 +23,7 @@ public abstract class EntryPointFactory {
      * @throws IllegalArgumentException if an invalid connection mode is provided
      * @throws RuntimeException if connection fails
      */
-    public static Object[] connect(String connectionMode, String serverIP, int serverPort, String playerNickname, ViewType view) {
+    public static Object[] connect(String connectionMode, String serverIP, int serverPort, String playerNickname, ViewType view, ClientController controller) {
         switch (connectionMode.toLowerCase()) {
             case "socket" -> {
                 try {
@@ -30,7 +31,8 @@ public abstract class EntryPointFactory {
                     Map<VirtualServerSocket, ClientModel> result = SocketClientLauncher.launch(
                             serverIP,
                             serverPort,
-                            view
+                            view,
+                            controller
                     );
                     VirtualServerSocket server = result.keySet().iterator().next();
                     server.connectUser(playerNickname);
@@ -41,7 +43,7 @@ public abstract class EntryPointFactory {
             }
             case "rmi" -> {
                 try {
-                    Map<RmiClient, ClientModel> result = RmiClientLauncher.launch(view);
+                    Map<RmiClient, ClientModel> result = RmiClientLauncher.launch(view, controller);
                     RmiClient server = result.keySet().iterator().next();
                     server.connect(playerNickname, serverIP, serverPort);
                     return new Object[]{server, result.get(server)};
