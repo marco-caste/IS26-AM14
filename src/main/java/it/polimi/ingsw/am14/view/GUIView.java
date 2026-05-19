@@ -18,7 +18,6 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
-import javafx.scene.text.TextAlignment;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -40,6 +39,7 @@ import java.util.*;
 //TODO scena finale con punteggi e database
 // TODO: RIMUOVERE PARAMETRI INUTILIZZATI NEI METODI DEL CONTROLLER
 // TODO: UPDATE TOP DA SEPARARE TRA INTERNO E ESTERNO
+// TOOD: gestire la disconnessione ?
 
 
 public class GUIView extends Application implements ViewType {
@@ -48,6 +48,9 @@ public class GUIView extends Application implements ViewType {
     private ClientModel modelReference;
     private ClientController controllerReference;
     private Stage primaryStage;
+
+
+    private Scene loginScene;
 
     private Scene gameChoiceScene;
     private Scene lobbyScene;
@@ -104,6 +107,9 @@ public class GUIView extends Application implements ViewType {
     private Pane endGameTotemLayer;
 
 
+    private boolean isButtonAlreadySelected = false;
+
+
     private enum StatType {
         FOOD,
         AXE,
@@ -126,7 +132,7 @@ public class GUIView extends Application implements ViewType {
         SCENE_WIDTH = screen.getWidth() * 0.80;   // 80% dello schermo
         SCENE_HEIGHT = screen.getHeight() * 0.80; // 80% dello schermo
 
-        Scene loginScene = new Scene(createLoginScene(), SCENE_WIDTH, SCENE_HEIGHT);
+        loginScene = new Scene(createLoginScene(), SCENE_WIDTH, SCENE_HEIGHT);
 
         primaryStage.setTitle("Login");
         primaryStage.setScene(loginScene);
@@ -200,64 +206,79 @@ public class GUIView extends Application implements ViewType {
 
 
 
+
     @Override
     public void renderLogin(String message) {
-
+        updateLogin("");
     }
 
     @Override
     public void renderPlayerJoin(String message) {
+        updateChoiceScene();
+        updateLobby(); // TODO : FARE UN MESSAGGIO IN LOBBY CHE DICE : IL PLYER X HA JOINATO PER DOPO
 
     }
 
     @Override
     public void renderGameStart(String message) {
-
+        gameCreation();
     }
 
     @Override
     public void renderTotemPlaced(String message) {
-
+        updateoffersPathBox();
+        updateTop(message);
     }
 
     @Override
     public void renderCardPicked(String message) {
-
+        updateBoard();
+        updateSelectedTribe();
+        updateTop(message);
+        updatePlayerStats();
+        updateoffersPathBox();
     }
 
     @Override
     public void renderEndRound(String message) {
+        updateBoard();
+        updateSelectedTribe();
+        updateTop(message);
+        updatePlayerStats();
+        updateoffersPathBox();
 
     }
 
     @Override
     public void renderEndGame(String message) {
-
+        showEndGameScene();
     }
 
     @Override
     public void renderDisconnection(String message) {
-
+    // TODO: da fare
     }
 
     @Override
     public void renderReconnection(String message) {
-
+    // TODO: da fare
     }
 
     @Override
     public void renderGameRestarted(String message) {
-
+    // TODO: da fare
     }
 
     @Override
     public void renderException(String message) {
-
+        updateLogin(message);
+        updateChoiceScene();
+        updateTop(message);
     }
 
     @Override
     public void handleNetworkError(String errorMessage) {
-
+        primaryStage.setScene(loginScene);
     }
 
 
@@ -349,18 +370,24 @@ public class GUIView extends Application implements ViewType {
 
 
         connectButton.setOnAction(event -> {
-            String insertedNickname = nicknameField.getText().trim().toLowerCase();
-            String insertedIp = ipField.getText().trim();
-            String insertedPort = portField.getText().trim();
 
-            if (insertedNickname.isEmpty()) {
-                loginErororLabel.setText("Insert a valid Nickname");
-                return;
+            if (!(isButtonAlreadySelected)){
+
+                isButtonAlreadySelected = true;
+                String insertedNickname = nicknameField.getText().trim().toLowerCase();
+                String insertedIp = ipField.getText().trim();
+                String insertedPort = portField.getText().trim();
+
+                if (insertedNickname.isEmpty()) {
+                    loginErororLabel.setText("Insert a valid Nickname");
+                    return;
+                }
+
+                String netProtocol = connectionTypeBox.getValue().toLowerCase();
+                connect(insertedNickname, netProtocol, insertedIp, insertedPort); // we call connect
+                System.out.println("connect button clicked with: " + netProtocol + ", " + insertedIp + ", " + insertedPort);
+
             }
-
-            String netProtocol = connectionTypeBox.getValue().toLowerCase();
-            connect(insertedNickname, netProtocol, insertedIp, insertedPort); // we call connect
-            System.out.println("connect button clicked with: " + netProtocol + ", " + insertedIp + ", " + insertedPort);
 
         });
 
@@ -404,6 +431,7 @@ public class GUIView extends Application implements ViewType {
 
     private void showGameChoiceScene() {
         if (gameChoiceScene == null) {
+            isButtonAlreadySelected = false;
             gameChoiceScene = new Scene(createGameChoiceScene(), SCENE_WIDTH, SCENE_HEIGHT);
         }
 
@@ -413,12 +441,13 @@ public class GUIView extends Application implements ViewType {
 
 
 
-    public void updateLogin() {
 
-        if (updateType.equals("exception"))
-            loginErororLabel.setText(modelReference.getMessage());
-        else
-            showGameChoiceScene();
+
+    public void updateLogin(String message) {
+        if (loginBox == null) return;
+
+        loginErororLabel.setText(message);
+        showGameChoiceScene();
     }
 
 
@@ -581,31 +610,38 @@ public class GUIView extends Application implements ViewType {
         root.setCenter(mainContent);
 
         createGameButton.setOnAction(event -> {
-            String insertedNickname = modelReference.getHomePlayerNickname();
-            String totemColorChoice = totemColorBox.getValue().toString().toLowerCase();
-            int numPlayersChoice = playersNumberBox.getValue();
+            if(!(isButtonAlreadySelected)) {
 
-            createGame(insertedNickname, numPlayersChoice, totemColorChoice);
+                isButtonAlreadySelected = true;
+                String insertedNickname = modelReference.getHomePlayerNickname();
+                String totemColorChoice = totemColorBox.getValue().toString().toLowerCase();
+                int numPlayersChoice = playersNumberBox.getValue();
+
+                createGame(insertedNickname, numPlayersChoice, totemColorChoice);
+            }
         });
 
         joinGameButton.setOnAction(event -> {
 
-            String gameIdText = idField.getText().trim();
-            int gameId;
+            if(!(isButtonAlreadySelected)) {
 
-            try {
-                gameId = Integer.parseInt(gameIdText);
-            } catch (NumberFormatException e) {
-                gameChoiceErrorLabel.setText("Please enter a valid numeric game ID.");
-                return;
+                isButtonAlreadySelected = true;
+                String gameIdText = idField.getText().trim();
+                int gameId;
+
+                try {
+                    gameId = Integer.parseInt(gameIdText);
+                } catch (NumberFormatException e) {
+                    gameChoiceErrorLabel.setText("Please enter a valid numeric game ID.");
+                    return;
+                }
+
+                String insertedNickname = modelReference.getHomePlayerNickname();
+                String totemColorChoice = totemColorBox.getValue().toString().toLowerCase();
+
+
+                joinGame(insertedNickname, gameId, totemColorChoice);
             }
-
-            String insertedNickname = modelReference.getHomePlayerNickname();
-            String totemColorChoice = totemColorBox.getValue().toString().toLowerCase();
-
-
-            joinGame(insertedNickname, gameId, totemColorChoice);
-
         });
 
         return root;
@@ -617,12 +653,9 @@ public class GUIView extends Application implements ViewType {
 
         if (gameChoiceScene == null)  // check per gli update che arrivano prima che la scena venga creata, così evitiamo errori di null pointer
             return;
-
-        if(updateType.equals("exception")){
-            gameChoiceErrorLabel.setText(modelReference.getMessage());
-        } else
-            showLobbyScene(); // se la create o join è andata a buon fine passo alla scena successiva (lobby)
+        showLobbyScene(); // se la create o join è andata a buon fine passo alla scena successiva (lobby)
     }
+
 
 
     private void showLobbyScene() {
@@ -846,6 +879,7 @@ public class GUIView extends Application implements ViewType {
     public void gameCreation() {
 
         if (gameScene == null) {
+            isButtonAlreadySelected = false;
             createGameScene();
         }
 
@@ -946,7 +980,7 @@ public class GUIView extends Application implements ViewType {
 
         topBox.getChildren().add(serverMessage);
 
-        updateTop(modelReference.getMessage());
+        updateTop("Game has Started");
         return topBox;
     }
 
@@ -1070,6 +1104,9 @@ public class GUIView extends Application implements ViewType {
     }
 
 
+
+
+
     private void positionTotemOnTurnOrderCard(ImageView totem, int index) {
 
         PointRatio pos = getTurnOrderSlotPosition(index);
@@ -1101,11 +1138,11 @@ public class GUIView extends Application implements ViewType {
     // it returns the ratio needed based on the position a totem should have on the turnOrderCard to be rightfully center based on playerPosition
     private PointRatio getTurnOrderSlotPosition(int index) {
         return switch (index) {
-            case 0 -> new PointRatio(0.50, 0.30);  // x va bene y è da lavorarci // per foto non ritagliate va bene dopo aver fatto un po di prove
-            case 1 -> new PointRatio(0.50, 0.48);
-            case 2 -> new PointRatio(0.50, 0.66);
-            case 3 -> new PointRatio(0.50, 0.79);
-            case 4 -> new PointRatio(0.50, 0.92);
+            case 0 -> new PointRatio(0.50, 0.25);  // x va bene y è da lavorarci // per foto non ritagliate va bene dopo aver fatto un po di prove
+            case 1 -> new PointRatio(0.50, 0.43);
+            case 2 -> new PointRatio(0.50, 0.61);
+            case 3 -> new PointRatio(0.50, 0.74);
+            case 4 -> new PointRatio(0.50, 0.87);
             default -> throw new IllegalStateException("Unexpected value: " + index);
         };
     }
@@ -1300,6 +1337,7 @@ public class GUIView extends Application implements ViewType {
             return;
         }
 
+        isButtonAlreadySelected = false; // aggiornata la tribe, do la possibilità ai player di andare a fare un nuovo pick
         tribeCardsBox.getChildren().clear();
 
         if (selectedTribeLabel != null) {
@@ -1483,7 +1521,10 @@ public class GUIView extends Application implements ViewType {
             card.setCursor(Cursor.HAND);
 
             card.setOnMouseClicked(event -> {
-                pickCard(modelReference.getHomePlayerNickname(), id, row);
+                if(!(isButtonAlreadySelected)){
+                    isButtonAlreadySelected = true;
+                    pickCard(modelReference.getHomePlayerNickname(), id, row);
+                }
             });
             return card;
         }

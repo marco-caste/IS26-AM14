@@ -14,4 +14,6 @@ public interface ViewEvent {
      * @param view not null, the view that will handle this event
      */
     void render(ViewType view);
+
+
 }

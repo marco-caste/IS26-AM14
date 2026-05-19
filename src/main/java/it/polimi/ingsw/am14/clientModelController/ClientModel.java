@@ -297,7 +297,6 @@ public class ClientModel {
         if (homePlayerPosition == null || homePlayerPosition == 'A') {
             return false;
         }
-
         for (ClientPlayer player : otherPlayers) {
             Character playerPos = getPlayerPosition(player.getNickname());
             if (playerPos != null && homePlayerPosition > playerPos) {
