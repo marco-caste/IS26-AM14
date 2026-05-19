@@ -192,9 +192,10 @@ public class ClientModel {
     }
 
     public void checkAndEventuallySetPickState() {
-        if (playerOrderInTurnOrderCard.isEmpty()) {
-            this.state = ClientState.PICK;
+        for (String nickname : playerOrderInTurnOrderCard) {
+            if (nickname != null) return;
         }
+        this.state = ClientState.PICK;
     }
 
     public void setPlaceState() {
@@ -269,8 +270,11 @@ public class ClientModel {
     }
 
     //We put null if the player choose the position because if we remove we move all the other totem upwards
-    public void removePlayerFromTurnOrderCard(int index) {
-        this.playerOrderInTurnOrderCard.set(index, null);
+    public void removePlayerFromTurnOrderCard(String nickname) {
+        int index = playerOrderInTurnOrderCard.indexOf(nickname);
+        if (index != -1) {
+            playerOrderInTurnOrderCard.set(index, null);
+        }
     }
 
     //TODO: ha davvero senso fare una disconnect se poi dopo la connect viene inizializzato un nuovo model
@@ -332,18 +336,22 @@ public class ClientModel {
         Character position = getHomePlayerPosition();
         
         //In these track card you can pick only from top
-        if (position == 'C' || position == 'F' && row == BOTTOM_DECKABLE_ROW || row == BOTTOM_BUILDING_ROW) {
+        if ((position == 'C' || position == 'F') && (row == BOTTOM_DECKABLE_ROW || row == BOTTOM_BUILDING_ROW)) {
             return false;
         }
         //In these track card you can pick only from the bottom
-        if (position == 'B' || position == 'D' && row == TOP_BUILDING_ROW || row == TOP_DECKABLE_ROW) {
+        if ((position == 'B' || position == 'D') && (row == TOP_BUILDING_ROW || row == TOP_DECKABLE_ROW)) {
             return false;
         }
         return true;
     }
 
     public boolean checkPlaceTurn() {
-        return playerOrderInTurnOrderCard.getFirst().equals(getHomePlayerNickname());
+        for (String nickname : playerOrderInTurnOrderCard) {
+            if (nickname == null) continue;
+            return nickname.equals(homePlayer.getNickname());
+        }
+        return false;
     }
 
     public boolean checkTotemPosition(char position) {

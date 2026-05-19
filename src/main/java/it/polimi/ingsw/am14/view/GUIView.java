@@ -292,15 +292,7 @@ public class GUIView extends Application implements ViewType {
         connectButton.setOnAction(event -> {
             String insertedNickname = nicknameField.getText().trim().toLowerCase();
             String insertedIp = ipField.getText().trim();
-            //TODO: [Da Marco] non so come è fatta la GUI,
-            // magari c'è un modo per inserire solo num e non ne sono a conoscenza
-            int insertedPort;
-            try {
-                insertedPort = Integer.parseInt(portField.getText().trim());
-            } catch (NumberFormatException e) {
-                loginErororLabel.setText("Insert a valid Port");
-                return;
-            }
+            String insertedPort = portField.getText().trim();
 
             if (insertedNickname.isEmpty()) {
                 loginErororLabel.setText("Insert a valid Nickname");
@@ -1095,7 +1087,8 @@ public class GUIView extends Application implements ViewType {
     }
 
 
-    //TODO: fatto ipotizzando che andiamo a mettere un aggiornamento a null di tutte le trackCard in EndRoun a nulll, o anche meglio proprio quando il player ha finito di pickare
+    //TODO: fatto ipotizzando che andiamo a mettere un aggiornamento a null di tutte le trackCard in EndRoun a null,
+    // o anche meglio proprio quando il player ha finito di pickare
     public void updateoffersPathBox(){
 
         // updateTurnOrdercard

@@ -11,17 +11,15 @@ public class TotemPlacedEvent extends UpdateEvent {
     // attributes = update values for the view
     private String playerNickname;
     private char trackCardName;
-    private int removedTotemIndex;
     // only used for bufferization, will not be sent to the client
     private int gameId;
 
     // constructor
-    public TotemPlacedEvent(String playerNickname, char trackCardName, int removedTotemPosition, int gameId) {
+    public TotemPlacedEvent(String playerNickname, char trackCardName, int gameId) {
         super("");
         this.description = "Player " + playerNickname + " has placed their totem on track card " + trackCardName;
         this.playerNickname = playerNickname;
         this.trackCardName = trackCardName;
-        this.removedTotemIndex = removedTotemPosition;
         this.gameId = gameId;
     }
 
@@ -29,12 +27,10 @@ public class TotemPlacedEvent extends UpdateEvent {
     public TotemPlacedEvent(
             @JsonProperty("description") String description,
             @JsonProperty("nickname") String playerNickname,
-            @JsonProperty("trackCardName") char trackCardName,
-            @JsonProperty("removedTotemIndex") int removedTotemIndex) {
+            @JsonProperty("trackCardName") char trackCardName) {
         super(description);
         this.playerNickname = playerNickname;
         this.trackCardName = trackCardName;
-        this.removedTotemIndex = removedTotemIndex;
     }
 
     public void bufferize(NetworkLayer networkLayer) {
@@ -46,7 +42,7 @@ public class TotemPlacedEvent extends UpdateEvent {
     public void effect(it.polimi.ingsw.am14.clientModelController.ClientModel model) {
         model.setMessage(description);
         model.updatePlayerPosition(playerNickname, trackCardName);
-        model.removePlayerFromTurnOrderCard(removedTotemIndex);
+        model.removePlayerFromTurnOrderCard(playerNickname);
         model.checkAndEventuallySetPickState();
         model.notifyObservers(new PositionUpdateViewEvent());
     }
