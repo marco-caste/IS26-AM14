@@ -73,6 +73,7 @@ public class ClientModel {
                 return player;
             }
         }
+        // se nickname != homeplayer o otherPlayers è vuota
         return null;
     }
 
