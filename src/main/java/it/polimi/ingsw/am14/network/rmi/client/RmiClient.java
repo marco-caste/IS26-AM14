@@ -4,9 +4,7 @@ import it.polimi.ingsw.am14.clientModelController.ClientController;
 import it.polimi.ingsw.am14.network.VirtualServer;
 import it.polimi.ingsw.am14.network.messages.events.Event;
 import it.polimi.ingsw.am14.network.messages.events.ExceptionEvent;
-import it.polimi.ingsw.am14.network.messages.events.LoginSuccesfulEvent;
 import it.polimi.ingsw.am14.network.rmi.server.VirtualClientRmi;
-import it.polimi.ingsw.am14.clientModelController.ClientModel;
 
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -17,42 +15,31 @@ import static it.polimi.ingsw.am14.utils.Constants.*;
 
 public class RmiClient extends UnicastRemoteObject implements VirtualClientRmi, VirtualServer {
 
-    private final ClientModel model;
     private final ClientController controller;
     private VirtualServerRmi server;
-    private static long lastPingReceived;
 
-    public RmiClient(ClientModel model, ClientController controller) throws RemoteException {
+    public RmiClient(ClientController controller) throws RemoteException {
         super();
-        this.model = model;
         this.controller = controller;
     }
 
     @Override
     public void update(Event update) {
         new Thread(() -> {
-            update.effect(model);
-            try {
-                LoginSuccesfulEvent event = (LoginSuccesfulEvent) update;
-                event.startPinging(this);
-            } catch (ClassCastException e) {
-                // not a LoginSuccesfulEvent, do nothing
-            } catch (RemoteException e) {
-                // overridden by the ping listener, do nothing
-            }
+            controller.update(update);
         }).start();
     }
 
     @Override
     public void reportError(ExceptionEvent error) {
         new Thread(() -> {
-            error.effect(model);
+            controller.update(error);
         }).start();
     }
 
     @Override
     public void pingClient() throws RemoteException {
-        lastPingReceived = System.currentTimeMillis();
+        controller.updateLastPing();
     }
 
     // METHODS EXPOSED TO THE VIEW
@@ -110,10 +97,8 @@ public class RmiClient extends UnicastRemoteObject implements VirtualClientRmi, 
     }
 
     @Override
-    public void pingServer(String nickname){
-        lastPingReceived = System.currentTimeMillis();
-
-        new Thread(() -> {
+    public Thread pingServer(String nickname){
+        Thread thread = new Thread(() -> {
             try {
                 while (!Thread.currentThread().isInterrupted()) {
                     Thread.sleep(PING_INTERVAL);
@@ -122,21 +107,8 @@ public class RmiClient extends UnicastRemoteObject implements VirtualClientRmi, 
             } catch (Exception e) {
                 Thread.currentThread().interrupt();
             }
-        }, "RMIClient-Pinger").start();
-
-        new Thread(() -> {
-            try {
-                while (!Thread.currentThread().isInterrupted()) {
-                    Thread.sleep(PING_TIMEOUT);
-                    long now = System.currentTimeMillis();
-                    if (now - lastPingReceived > PING_TIMEOUT) {
-                        controller.disconnect();
-                        break;
-                    }
-                }
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-        }, "RMIClient-PingReceiver").start();
+        }, "RMIClient-Pinger");
+        thread.start();
+        return thread;
     }
 }

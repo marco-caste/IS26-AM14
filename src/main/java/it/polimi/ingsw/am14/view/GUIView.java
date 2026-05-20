@@ -274,8 +274,8 @@ public class GUIView extends Application implements ViewType {
     @Override
     public void renderException(String message) {
         if(!updateTop(message)) {
-            if(!updateChoiceScene())
-                updateLogin(message);
+            loginErororLabel.setText(message);
+            gameChoiceErrorLabel.setText(message);
         }
     }
 

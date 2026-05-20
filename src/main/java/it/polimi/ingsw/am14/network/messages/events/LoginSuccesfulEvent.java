@@ -35,12 +35,12 @@ public class LoginSuccesfulEvent extends ServerEvent {
         model.notifyObservers(new LoginViewEvent(description));
     }
 
+    public String getPlayerNickname() {
+        return playerNickname;
+    }
+
     @Override
     public void bufferize(NetworkLayer network) {
         network.addToEventBuffer(network.getClientBy(playerNickname), this);
-    }
-
-    public void startPinging(VirtualServer server) throws RemoteException {
-        server.pingServer(playerNickname);
     }
 }

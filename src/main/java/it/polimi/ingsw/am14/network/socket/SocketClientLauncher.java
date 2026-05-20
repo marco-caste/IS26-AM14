@@ -29,12 +29,11 @@ public class SocketClientLauncher {
         BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 
-        SocketServerHandler serverHandler = new SocketServerHandler(out);
-
         ClientModel model = new ClientModel();
         model.registerObserver(view);
 
-        SocketClient client = new SocketClient(in, model, serverHandler, socket, controller);
+        SocketClient client = new SocketClient(in, socket, controller);
+        SocketServerHandler serverHandler = new SocketServerHandler(out, client);
 
         client.run();
 
