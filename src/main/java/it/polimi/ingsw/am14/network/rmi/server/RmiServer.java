@@ -181,9 +181,10 @@ public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
     }
 
     @Override
-    public void pingServer(String nickname) {
+    public Thread pingServer(String nickname) {
         new Thread(() -> {
             lobbyController.handlePingRequest(nickname);
         }, "RMIPingClient-" + nickname).start();
+        return null;
     }
 }

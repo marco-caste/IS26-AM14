@@ -4,6 +4,7 @@ import it.polimi.ingsw.am14.view.ViewType;
 import it.polimi.ingsw.am14.view.viewEvents.ViewEvent;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -11,28 +12,29 @@ import static it.polimi.ingsw.am14.utils.Constants.*;
 
 public class ClientModel {
 
-    //TODO: conviene aggiugnere un array di tutti i clientPlayers in modo ogni volta nella gui di fare una add dell'home a otherPlayers per avere un array di tutti i player
-    //TODO: aggiungere l'offersPath come mappa di character- String(nickname), in quanto utilizzando la posizione nel clientPlayuer è scomodo
-    //TODO: fatti questi aggionamenti cambiare la gui
+    //TODO: conviene aggiungere un array di tutti i clientPlayers in modo ogni volta nella gui di fare una add dell'homePlayer a otherPlayers per avere un array di tutti i player
+    //TODO: fatti questi aggiornamenti cambiare la gui
 
-    Map<Integer, List<Character>> offersPath = Map.of(
+    private static final Map<Integer, List<Character>> offersPath = Map.of(
             2, List.of('B','C','E','F'),
             3, List.of('B','C','D','E','F'),
             4, List.of('B','C','D','E','F','G'),
             5, List.of('A','B','C','D','E','F','G')
             );
 
-    List<ViewType> observers;
-    ClientPlayer homePlayer;
-    ArrayList<ClientPlayer> otherPlayers;
-    ArrayList<String> playerOrderInTurnOrderCard;
-    ArrayList<ArrayList<Integer>> board;
-    ArrayList<String> finalRank;
-    int turnOrderCardIndex; // it's needed to build the right TurnorderCard in the view, it depends on this index.
-    int gameId;
-    int numPlayers; // it's needed to build the right offersPath in the View.
-    String message;
-    int age;
+    private List<ViewType> observers;
+    private ClientPlayer homePlayer;
+    private ArrayList<ClientPlayer> otherPlayers;
+    private ArrayList<String> playerOrderInTurnOrderCard;
+    private ArrayList<ArrayList<Integer>> board;
+    private Map<Character, String> positionToNickname;
+    private ArrayList<String> finalRank;
+    private int turnOrderCardIndex; // it's needed to build the right TurnorderCard in the view, it depends on this index.
+    private int gameId;
+    private int numPlayers; // it's needed to build the right offersPath in the View.
+    private String message;
+    private int age;
+    private ClientState state;
 
     public ClientModel() {
         this.observers = new ArrayList<>();
@@ -40,10 +42,12 @@ public class ClientModel {
         this.otherPlayers = new ArrayList<>();
         this.playerOrderInTurnOrderCard = new ArrayList<>();
         this.board = new ArrayList<>();
+        this.positionToNickname = new HashMap<>();
         this.turnOrderCardIndex = 0;
         this.gameId = -1;
         this.numPlayers = 0;
         this.message = "";
+        this.state = null;
     }
 
     //Observer methods
@@ -105,13 +109,20 @@ public class ClientModel {
         return this.otherPlayers;
     }
 
+    public ArrayList<ClientPlayer> getAllPlayers() {
+        ArrayList<ClientPlayer> allPlayers = new ArrayList<>();
+        allPlayers.add(homePlayer);
+        allPlayers.addAll(otherPlayers);
+        return allPlayers;
+    }
+
     public int getGameId(){
         return this.gameId;
     }
 
     public int getPlayerPositionInTurnOrderCard(String nickname){
         return playerOrderInTurnOrderCard.indexOf(nickname);
-        // se non presente indexOf ritorna -1
+        // if not present returns -1;
     }
 
     public ArrayList<String> getFinalRank() {
@@ -122,7 +133,23 @@ public class ClientModel {
         return playerOrderInTurnOrderCard;
     }
 
+    public Map<Character, String> getPositionToNickname() {
+        return new HashMap<>(positionToNickname);
+    }
 
+    //Helper methods to get player positions from the positionToNickname map
+    public Character getPlayerPosition(String nickname) {
+        for (Map.Entry<Character, String> entry : positionToNickname.entrySet()) {
+            if (entry.getValue().equals(nickname)) {
+                return entry.getKey();
+            }
+        }
+        return null;
+    }
+
+    public Character getHomePlayerPosition() {
+        return getPlayerPosition(homePlayer.getNickname());
+    }
 
 
     //SETTERS
@@ -150,10 +177,6 @@ public class ClientModel {
         this.homePlayer = homePlayer;
     }
 
-    public void setOtherPlayers(ArrayList<ClientPlayer> otherPlayers) {
-        this.otherPlayers = otherPlayers;
-    }
-
     public void setBoard(ArrayList<ArrayList<Integer>> board) {
         this.board = board;
     }
@@ -164,6 +187,21 @@ public class ClientModel {
 
     public void setFinalRank(ArrayList<String> finalRank) {
         this.finalRank = finalRank;
+    }
+
+    public void checkAndEventuallySetPickState() {
+        for (String nickname : playerOrderInTurnOrderCard) {
+            if (nickname != null) return;
+        }
+        this.state = ClientState.PICK;
+    }
+
+    public void setPlaceState() {
+        this.state = ClientState.PLACE;
+    }
+
+    public void setState(String state) {
+        this.state = ClientState.valueOf(state);
     }
 
 
@@ -186,7 +224,13 @@ public class ClientModel {
     public void updatePlayerPosition(String nickname, Character playerPosition) {
         ClientPlayer player = getPlayerByNickname(nickname);
         if (player != null) {
-            player.setPlayerPosition(playerPosition);
+            Character oldPosition = getPlayerPosition(nickname);
+            if (oldPosition != null) {
+                positionToNickname.remove(oldPosition);
+            }
+            if (playerPosition != null) {
+                positionToNickname.put(playerPosition, nickname);
+            }
         }
     }
 
@@ -228,19 +272,34 @@ public class ClientModel {
     }
 
     //We put null if the player choose the position because if we remove we move all the other totem upwards
-    public void removePlayerFromTurnOrderCard(int index) {
-        this.playerOrderInTurnOrderCard.set(index, null);
+    public void removePlayerFromTurnOrderCard(String nickname) {
+        int index = playerOrderInTurnOrderCard.indexOf(nickname);
+        if (index != -1) {
+            playerOrderInTurnOrderCard.set(index, null);
+        }
+    }
+
+    public void returnToLobby() {
+        this.otherPlayers = new ArrayList<>();
+        this.playerOrderInTurnOrderCard = new ArrayList<>();
+        this.board = new ArrayList<>();
+        this.positionToNickname = new HashMap<>();
+        this.finalRank = new ArrayList<>();
+        this.gameId = -1;
+        this.state = null;
     }
 
     //Methods used by controller
 
     public boolean checkPickTurn() {
-        if (homePlayer.getPlayerPosition() == null || homePlayer.getPlayerPosition() == 'A') {
+        Character homePlayerPosition = getHomePlayerPosition();
+
+        if (homePlayerPosition == null || homePlayerPosition == 'A') {
             return false;
         }
         for (ClientPlayer player : otherPlayers) {
-            if (player.getPlayerPosition() != null &&
-                homePlayer.getPlayerPosition() > player.getPlayerPosition()) {
+            Character playerPos = getPlayerPosition(player.getNickname());
+            if (playerPos != null && homePlayerPosition > playerPos) {
                 return false;
             }
         }
@@ -260,21 +319,23 @@ public class ClientModel {
         if (row < 0) {
             return false;
         }
-        char position = homePlayer.getPlayerPosition();
+        Character position = getHomePlayerPosition();
+
         //In these track card you can pick only from top
-        if (position == 'C' || position == 'F' && row == BOTTOM_DECKABLE_ROW || row == BOTTOM_BUILDING_ROW) {
+        if ((position == 'C' || position == 'F') && (row == BOTTOM_DECKABLE_ROW || row == BOTTOM_BUILDING_ROW)) {
             return false;
         }
         //In these track card you can pick only from the bottom
-        if (position == 'B' || position == 'D' && row == TOP_BUILDING_ROW || row == TOP_DECKABLE_ROW) {
+        if ((position == 'B' || position == 'D') && (row == TOP_BUILDING_ROW || row == TOP_DECKABLE_ROW)) {
             return false;
         }
         return true;
     }
 
     public boolean checkPlaceTurn() {
-        if (playerOrderInTurnOrderCard.getFirst().equals(getHomePlayerNickname())) {
-            return true;
+        for (String nickname : playerOrderInTurnOrderCard) {
+            if (nickname == null) continue;
+            return nickname.equals(homePlayer.getNickname());
         }
         return false;
     }
@@ -284,11 +345,17 @@ public class ClientModel {
         if (!validPositions.contains(position)) {
             return false;
         }
-        for (ClientPlayer player : otherPlayers) {
-            if (player.getPlayerPosition() != null && player.getPlayerPosition().equals(position)) {
-                return false;
-            }
+        if (positionToNickname.containsKey(position)) {
+            return false;
         }
         return true;
+    }
+
+    public boolean checkPickState() {
+        return state == ClientState.PICK;
+    }
+
+    public boolean checkPlaceState() {
+        return state == ClientState.PLACE;
     }
 }

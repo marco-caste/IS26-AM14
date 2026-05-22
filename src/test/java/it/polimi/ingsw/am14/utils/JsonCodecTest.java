@@ -32,7 +32,7 @@ class JsonCodecTest {
         nicknameToGameId.put("Alice", 1);
         nicknameToGameId.put("Bob", 2);
 
-        LobbyController lobby = new LobbyController(nicknameToGameId, new HashMap<>());
+        LobbyController lobby = new LobbyController(nicknameToGameId, new HashMap<>(), 0);
 
         Path saveFile = tempDir.resolve("custom_save.json");
         jsonCodec.writeSaveData(lobby, saveFile.toString());
@@ -47,7 +47,7 @@ class JsonCodecTest {
         nicknameToGameId.put("Alice", 7);
         nicknameToGameId.put("Bob", 7);
 
-        LobbyController lobby = new LobbyController(nicknameToGameId, new HashMap<>());
+        LobbyController lobby = new LobbyController(nicknameToGameId, new HashMap<>(), 0);
 
         Path saveFile = tempDir.resolve("save.json");
         jsonCodec.writeSaveData(lobby, saveFile.toString());
@@ -71,7 +71,7 @@ class JsonCodecTest {
         nicknameToGameId.put("Alice", 3);
         nicknameToGameId.put("Bob", 5);
 
-        LobbyController original = new LobbyController(nicknameToGameId, new HashMap<>());
+        LobbyController original = new LobbyController(nicknameToGameId, new HashMap<>(), 0);
 
         Path saveFile = tempDir.resolve("roundtrip.json");
         jsonCodec.writeSaveData(original, saveFile.toString());
@@ -87,7 +87,7 @@ class JsonCodecTest {
 
     @Test
     void writeSaveData_shouldThrowRuntimeException_whenPathIsInvalid() {
-        LobbyController lobby = new LobbyController(new HashMap<>(), new HashMap<>());
+        LobbyController lobby = new LobbyController(new HashMap<>(), new HashMap<>(), 0);
 
         Path invalidPath = tempDir.resolve("missing_folder").resolve("save.json");
 

@@ -252,6 +252,8 @@ public class GUIView extends Application implements ViewType {
     @Override
     public void renderEndGame(String message) {
         showEndGameScene();
+        updateEndGameRankingBox();
+        updateGlobalRankingBox();
     }
 
     @Override
@@ -272,8 +274,8 @@ public class GUIView extends Application implements ViewType {
     @Override
     public void renderException(String message) {
         if(!updateTop(message)) {
-            if(!updateChoiceScene())
-                updateLogin(message);
+            loginErororLabel.setText(message);
+            gameChoiceErrorLabel.setText(message);
         }
     }
 
@@ -995,7 +997,6 @@ public class GUIView extends Application implements ViewType {
             //check per gli update che arrivano prima che la scena venga creata, così evitiamo errori di null pointer
     }
 
-
     private StackPane createCenter() {
         StackPane centerWrapper = new StackPane();
         centerWrapper.setStyle("-fx-background-color: transparent;");
@@ -1088,7 +1089,6 @@ public class GUIView extends Application implements ViewType {
         for (String nickname : modelReference.getPlayerOrderInTurnOrderCard()) {
             if (nickname == null) continue; // se è null vuol dire che in quella posizione non c'è nessun player, quindi salto
             ClientPlayer player = modelReference.getPlayerByNickname(nickname);
-            if(player == null) continue;
             String color = player.getTotemColor().toLowerCase();
 
             int pos = modelReference.getPlayerPositionInTurnOrderCard(player.getNickname()); // we get the playerOrder to understand in which slot of the turn order card we have to put the totem
@@ -1708,28 +1708,28 @@ public class GUIView extends Application implements ViewType {
         endGameScene = new Scene(root, SCENE_WIDTH, SCENE_HEIGHT);
     }
 
-    private void updateEndGameRankingBox() {
-        endGameRankingBox.getChildren().clear();
+    public void updateEndGameRankingBox() {
+        localRankingBox.getChildren().clear();
 
         ArrayList<String> ranking = modelReference.getFinalRank();
 
-        for (int i = 0; i < ranking.size(); i++) {
+        for (int i = ranking.size()-1; i>=0; i--) {
             String name = ranking.get(i);
-            Label lbl = new Label((i + 1) + "°  " + name +" "+ modelReference.getPlayerByNickname(name).getNumPrestigePoints()+ " pts");
+            Label lbl = new Label((ranking.size()-i) + "°  " + name +" "+ modelReference.getPlayerByNickname(name).getNumPrestigePoints()+ " pts");
             lbl.setStyle("""
             -fx-text-fill: white;
             -fx-font-size: 16;
             -fx-font-weight: bold;
         """);
-            endGameRankingBox.getChildren().add(lbl);
+            localRankingBox.getChildren().add(lbl);
         }
     }
 
-    private void updateGlobalRankingBox() {
+    public void updateGlobalRankingBox() {
         globalRankingBox.getChildren().clear();
         ArrayList<String> global = modelReference.getFinalRank(); // metodo tuo
 
-        for (int i = 0; i < global.size(); i++) {
+        for (int i = global.size()-1; i>=0; i--) {
             String name = global.get(i);
             Label lbl = new Label(name);
             lbl.setStyle("-fx-text-fill: white; -fx-font-size: 16; -fx-font-weight: bold;");

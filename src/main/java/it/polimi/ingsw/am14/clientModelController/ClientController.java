@@ -2,23 +2,34 @@ package it.polimi.ingsw.am14.clientModelController;
 
 import it.polimi.ingsw.am14.network.EntryPointFactory;
 import it.polimi.ingsw.am14.network.VirtualServer;
-import it.polimi.ingsw.am14.network.messages.events.ExceptionEvent;
+import it.polimi.ingsw.am14.network.messages.events.Event;
+import it.polimi.ingsw.am14.network.messages.events.LoginSuccesfulEvent;
 import it.polimi.ingsw.am14.view.ViewType;
 import it.polimi.ingsw.am14.view.viewEvents.ExceptionViewEvent;
 import it.polimi.ingsw.am14.view.viewEvents.NetworkErrorViewEvent;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import static it.polimi.ingsw.am14.utils.Constants.PING_TIMEOUT;
 import static it.polimi.ingsw.am14.utils.Constants.TotemColors;
 
 public class ClientController {
     private ClientModel model;
     private VirtualServer server;
+    private long lastPingReceived;
+    List<Thread> threads = new ArrayList<>();
 
     public void pickCard(int cardId) {
         //Model check
         if (server == null) {
             handleException("You are not connected to a server");
+            return;
+        }
+
+        //State check
+        if (!model.checkPickState()) {
+            handleException("You can't pick a card right now");
             return;
         }
 
@@ -44,8 +55,6 @@ public class ClientController {
             handleException("You can't pick an event card");
             return;
         }
-
-        //TODO: State check
 
         //Turn check
         if (!model.checkPickTurn()) {
@@ -74,7 +83,11 @@ public class ClientController {
             return;
         }
 
-        //TODO: State check
+        //State check
+        if (!model.checkPlaceState()) {
+            handleException("You can't place a totem right now");
+            return;
+        }
 
         //Turn check
         if (!model.checkPlaceTurn()) {
@@ -113,7 +126,7 @@ public class ClientController {
                     connectionMode,
                     serverIP,
                     serverPort,
-                    playerNickname,
+                    playerNickname.toLowerCase(),
                     view,
                     this
             );
@@ -129,9 +142,8 @@ public class ClientController {
             handleException("You are not connected to a server");
             return;
         }
-
         this.server = null;
-        this.model = null;
+        //this.model = null;
         handleNetworkError("Server is not responding. Try to reconnect later. Shutting down connection...");
     }
 
@@ -196,6 +208,49 @@ public class ClientController {
             server.joinGame(model.getHomePlayerNickname(), gameId, totemColor);
         } catch (Exception e) {
             handleNetworkError("A network error occurred while joining the game");
+        }
+    }
+
+    public void updateLastPing() {
+        lastPingReceived = System.currentTimeMillis();
+    }
+
+    public void checkPing(){
+        Thread thread = new Thread(() -> {
+            try {
+                while (!Thread.currentThread().isInterrupted()) {
+                    Thread.sleep(PING_TIMEOUT);
+                    long now = System.currentTimeMillis();
+                    if (now - lastPingReceived > PING_TIMEOUT) {
+                        disconnect();
+                        threads.forEach(Thread::interrupt);
+                        threads = new ArrayList<>();
+                        Thread.currentThread().interrupt();
+                        break;
+                    }
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }, "Client-PingReceiver");
+        thread.start();
+    }
+
+    public void addThread(Thread thread) {
+        threads.add(thread);
+    }
+
+    public void update(Event event) {
+        event.effect(model);
+        try {
+            LoginSuccesfulEvent loginEvent = (LoginSuccesfulEvent) event;
+            addThread(server.pingServer(loginEvent.getPlayerNickname()));
+            updateLastPing();
+            checkPing();
+        } catch (ClassCastException e) {
+            // not a LoginSuccesfulEvent, do nothing
+        } catch (Exception e) {
+            handleNetworkError("A network error occurred while processing the event");
         }
     }
 
