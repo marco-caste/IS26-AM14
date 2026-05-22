@@ -28,6 +28,8 @@ public class JsonCodec implements Codec {
     public LobbyController readSaveData(String filePath) {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+        objectMapper.setVisibility(PropertyAccessor.GETTER, JsonAutoDetect.Visibility.NONE);
+        objectMapper.setVisibility(PropertyAccessor.IS_GETTER, JsonAutoDetect.Visibility.NONE);
         try {
             return objectMapper.readValue(new File(filePath), new TypeReference<LobbyController>(){});
         } catch (IOException e) {
@@ -43,6 +45,8 @@ public class JsonCodec implements Codec {
     public void writeSaveData(LobbyController controller, String filePath) {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+        objectMapper.setVisibility(PropertyAccessor.GETTER, JsonAutoDetect.Visibility.NONE);
+        objectMapper.setVisibility(PropertyAccessor.IS_GETTER, JsonAutoDetect.Visibility.NONE);
 
         try {
             objectMapper.writeValue(new File(filePath), controller);

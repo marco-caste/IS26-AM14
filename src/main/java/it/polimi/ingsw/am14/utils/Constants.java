@@ -7,8 +7,8 @@ import java.util.Map;
  * Contains all shared constants between client and server, such as ping timeout, message types, etc.
  */
 public abstract class Constants {
-    public static final int PING_TIMEOUT = 15_000; // 15 seconds
-    public static final int PING_INTERVAL = 5_000; // 5 seconds
+    public static final int PING_TIMEOUT = 30000;   // TODO: RIMETTERE A 10
+    public static final int PING_INTERVAL = 2000;
     public static final int TOP_DECKABLE_ROW = 0;
     public static final int TOP_BUILDING_ROW = 1;
     public static final int BOTTOM_DECKABLE_ROW = 2;

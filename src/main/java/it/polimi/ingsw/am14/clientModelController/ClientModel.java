@@ -1,10 +1,13 @@
-package it.polimi.ingsw.am14.clientModel;
+package it.polimi.ingsw.am14.clientModelController;
 
 import it.polimi.ingsw.am14.view.ViewType;
+import it.polimi.ingsw.am14.view.viewEvents.ViewEvent;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import static it.polimi.ingsw.am14.utils.Constants.*;
 
 public class ClientModel {
 
@@ -20,8 +23,8 @@ public class ClientModel {
             );
 
     List<ViewType> observers;
-    ClientPlayer homePlayer ;
-    ArrayList<ClientPlayer> otherPlayers ;
+    ClientPlayer homePlayer;
+    ArrayList<ClientPlayer> otherPlayers;
     ArrayList<String> playerOrderInTurnOrderCard;
     ArrayList<ArrayList<Integer>> board;
     ArrayList<String> finalRank;
@@ -38,25 +41,20 @@ public class ClientModel {
         this.playerOrderInTurnOrderCard = new ArrayList<>();
         this.board = new ArrayList<>();
         this.turnOrderCardIndex = 0;
-        this.gameId = 0;
+        this.gameId = -1;
         this.numPlayers = 0;
         this.message = "";
     }
 
-    //OBSERVER METHODS
+    //Observer methods
     public void registerObserver(ViewType view) {
         observers.add(view);
     }
 
-    // TODO: parlare con gli altri per verificare insieme quale idea piace di più
-    //  1- Override usando delle classi Update che hanno un riferimento alla Gui e che hanno un metodo update implementato diversamente. Questo oggetto di tipo update dovrà essere passato nel clientModel
-    //  2- case switch
-    //  3-overloading nella GUI,per
-    //  ora fatto switch intanto per provare la GUI con update focalizzato
-    public void notifyObservers(String eventChoice){
+
+    public void notifyObservers(ViewEvent event){
         for(ViewType observer : observers){
-            observer.update(this, eventChoice);
-            System.out.println("Notified observer: " + observer.getClass().getSimpleName() + " with event: " + eventChoice);
+            observer.update(this, event);
         }
     }
 
@@ -71,6 +69,7 @@ public class ClientModel {
                 return player;
             }
         }
+        // se nickname != homeplayer o otherPlayers è vuota
         return null;
     }
 
@@ -151,6 +150,10 @@ public class ClientModel {
         this.homePlayer = homePlayer;
     }
 
+    public void setOtherPlayers(ArrayList<ClientPlayer> otherPlayers) {
+        this.otherPlayers = otherPlayers;
+    }
+
     public void setBoard(ArrayList<ArrayList<Integer>> board) {
         this.board = board;
     }
@@ -229,16 +232,63 @@ public class ClientModel {
         this.playerOrderInTurnOrderCard.set(index, null);
     }
 
-    public void clearGame() {
-        this.homePlayer = null;
-        this.otherPlayers.clear();
-        this.playerOrderInTurnOrderCard.clear();
-        this.board.clear();
-        this.turnOrderCardIndex = 0;
-        this.gameId = -1;
-        this.numPlayers = 0;
+    //Methods used by controller
+
+    public boolean checkPickTurn() {
+        if (homePlayer.getPlayerPosition() == null || homePlayer.getPlayerPosition() == 'A') {
+            return false;
+        }
+        for (ClientPlayer player : otherPlayers) {
+            if (player.getPlayerPosition() != null &&
+                homePlayer.getPlayerPosition() > player.getPlayerPosition()) {
+                return false;
+            }
+        }
+        return true;
     }
 
+    public int findRowFromCardId(int cardId) {
+        for (int i = 0; i < board.size(); i++) {
+            if (board.get(i).contains(cardId)) {
+                return i;
+            }
+        }
+        return -1; // Card not found
+    }
 
+    public boolean checkRow(int row) {
+        if (row < 0) {
+            return false;
+        }
+        char position = homePlayer.getPlayerPosition();
+        //In these track card you can pick only from top
+        if (position == 'C' || position == 'F' && row == BOTTOM_DECKABLE_ROW || row == BOTTOM_BUILDING_ROW) {
+            return false;
+        }
+        //In these track card you can pick only from the bottom
+        if (position == 'B' || position == 'D' && row == TOP_BUILDING_ROW || row == TOP_DECKABLE_ROW) {
+            return false;
+        }
+        return true;
+    }
 
+    public boolean checkPlaceTurn() {
+        if (playerOrderInTurnOrderCard.getFirst().equals(getHomePlayerNickname())) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean checkTotemPosition(char position) {
+        List<Character> validPositions = offersPath.get(numPlayers);
+        if (!validPositions.contains(position)) {
+            return false;
+        }
+        for (ClientPlayer player : otherPlayers) {
+            if (player.getPlayerPosition() != null && player.getPlayerPosition().equals(position)) {
+                return false;
+            }
+        }
+        return true;
+    }
 }

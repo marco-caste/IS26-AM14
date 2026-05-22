@@ -2,12 +2,13 @@ package it.polimi.ingsw.am14.network.messages.events;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import it.polimi.ingsw.am14.clientModel.ClientModel;
-import it.polimi.ingsw.am14.clientModel.ClientPlayer;
+import it.polimi.ingsw.am14.clientModelController.ClientModel;
+import it.polimi.ingsw.am14.clientModelController.ClientPlayer;
 import it.polimi.ingsw.am14.model.boardComponents.Board;
 import it.polimi.ingsw.am14.model.cards.Card;
 import it.polimi.ingsw.am14.model.gameLogic.Player;
 import it.polimi.ingsw.am14.network.NetworkLayer;
+import it.polimi.ingsw.am14.view.viewEvents.PlayerReconnectedViewEvent;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,7 +21,7 @@ import static it.polimi.ingsw.am14.utils.Constants.BOTTOM_BUILDING_ROW;
 
 public class PlayerReconnectedEvent extends ServerEvent {
 
-    //TODO: incompleta manca la turnOrderCard se c'è qualcuno sopra
+    //TODO: State
     private final int gameId;
     private final int turnOrderCardIndex;
     private final int numPlayers;
@@ -33,9 +34,10 @@ public class PlayerReconnectedEvent extends ServerEvent {
     private final Map<String, Integer> nicknameToTotalBuildingDiscount;
     private final Map<String, Integer> nicknameToTotalGatheringDiscount;
     private final Map<String, Character> nicknameToPlayerPosition;
+    private final ArrayList<String> playersOrderInTurnOrderCard;
     private final Map<String, int []> nicknameToPlayerTribe;
 
-    public PlayerReconnectedEvent(String playerNickname, int gameId, final Board board, int numPlayers, List<Player> players) {
+    public PlayerReconnectedEvent(String playerNickname, int gameId, Board board, int numPlayers, List<Player> players) {
         super("Player \"" + playerNickname + "\" has re-established their connection to game [" + gameId + "].");
         this.playerNickname = playerNickname;
         this.gameId = gameId;
@@ -65,6 +67,10 @@ public class PlayerReconnectedEvent extends ServerEvent {
                         .map(Card::getId)
                         .collect(Collectors.toCollection(ArrayList::new))
         );
+
+        this.playersOrderInTurnOrderCard = board.getTurnOrderCard().getPlayerOrder().stream()
+                .map(Player::getNickname)
+                .collect(Collectors.toCollection(ArrayList::new));
 
         nicknameToTotemColor = new HashMap<>();
         nicknameToNumFood = new HashMap<>();
@@ -102,6 +108,7 @@ public class PlayerReconnectedEvent extends ServerEvent {
             @JsonProperty("nicknameToTotalBuildingDiscount") Map<String, Integer> nicknameToTotalBuildingDiscount,
             @JsonProperty("nicknameToTotalGatheringDiscount") Map<String, Integer> nicknameToTotalGatheringDiscount,
             @JsonProperty("nicknameToPlayerPosition") Map<String, Character> nicknameToPlayerPosition,
+            @JsonProperty("playersOrderInTurnOrderCard") ArrayList<String> playersOrderInTurnOrderCard,
             @JsonProperty("nicknameToPlayerTribe") Map<String, int []> nicknameToPlayerTribe) {
         super(description);
         this.gameId = gameId;
@@ -116,6 +123,7 @@ public class PlayerReconnectedEvent extends ServerEvent {
         this.nicknameToTotalBuildingDiscount = nicknameToTotalBuildingDiscount;
         this.nicknameToTotalGatheringDiscount = nicknameToTotalGatheringDiscount;
         this.nicknameToPlayerPosition = nicknameToPlayerPosition;
+        this.playersOrderInTurnOrderCard = playersOrderInTurnOrderCard;
         this.nicknameToPlayerTribe = nicknameToPlayerTribe;
     }
 
@@ -126,7 +134,7 @@ public class PlayerReconnectedEvent extends ServerEvent {
 
     @Override
     public void effect(ClientModel model) {
-        model.setMessage(description);
+//        model.setMessage(description);
         if (model.getHomePlayerNickname() == null) {
             nicknameToTotemColor.forEach((nickname, totemColor) -> {
                 ClientPlayer player = new ClientPlayer(nickname);
@@ -147,8 +155,7 @@ public class PlayerReconnectedEvent extends ServerEvent {
                     model.getPlayerByNickname(nickname).setTotalBuildingDiscount(totalBuildingDiscount));
             nicknameToTotalGatheringDiscount.forEach((nickname, totalGatheringDiscount) ->
                     model.getPlayerByNickname(nickname).setTotalGatheringDiscount(totalGatheringDiscount));
-            nicknameToPlayerPosition.forEach((nickname, playerPosition) ->
-                    model.getPlayerByNickname(nickname).setPlayerPosition(playerPosition));
+            nicknameToPlayerPosition.forEach(model::updatePlayerPosition);
             nicknameToPlayerTribe.forEach((nickname, playerTribe) -> {
                 for (int tribeElement : playerTribe) {
                     model.getPlayerByNickname(nickname).addToPlayerTribe(tribeElement);
@@ -158,7 +165,8 @@ public class PlayerReconnectedEvent extends ServerEvent {
             model.setNumPlayers(numPlayers);
             model.setGameId(gameId);
             model.setTurnOrderCardIndex(turnOrderCardIndex);
+            model.setPlayerOrderInTurnOrderCard(playersOrderInTurnOrderCard);
         }
-        model.notifyObservers("playerReconnected");
+        model.notifyObservers(new PlayerReconnectedViewEvent(description));
     }
 }

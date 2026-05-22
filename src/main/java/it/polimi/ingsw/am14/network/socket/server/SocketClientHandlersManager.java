@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am14.network.socket.server;
 
+import it.polimi.ingsw.am14.network.EventBuffer;
 import it.polimi.ingsw.am14.network.NetworkLayer;
 import it.polimi.ingsw.am14.controller.LobbyController;
 import it.polimi.ingsw.am14.network.messages.requests.ClientRequest;
@@ -24,6 +25,23 @@ public class SocketClientHandlersManager {
 
     private final Set<SocketClientHandler> waitingClients;
 
+    // waitingClientsMethods
+    public void addWaitingClient(SocketClientHandler handler) {
+        synchronized (waitingClients) {
+            waitingClients.add(handler);
+        }
+    }
+    public void removeWaitingClient(SocketClientHandler handler) {
+        synchronized (waitingClients) {
+            waitingClients.remove(handler);
+        }
+    }
+    public boolean waitingClientsContains(SocketClientHandler handler) {
+        synchronized (waitingClients) {
+            return waitingClients.contains(handler);
+        }
+    }
+
     public SocketClientHandlersManager(ServerSocket listenSocket, ServerSocket listenPingSocket, LobbyController controller, NetworkLayer networkLayer) {
         this.listenSocket = listenSocket;
         this.listenPingSocket = listenPingSocket;
@@ -46,9 +64,8 @@ public class SocketClientHandlersManager {
                         clientSocket
                 );
 
-                synchronized(this.waitingClients) {
-                    waitingClients.add(handler);
-                }
+                addWaitingClient(handler);
+
 
                 networkLayer.updateBufferMap(handler);
 
@@ -58,14 +75,9 @@ public class SocketClientHandlersManager {
                 Thread thread1 = new Thread(() -> {
                     try {
                         handler.runVirtualView();
-                    } catch (IOException e) {
-                        //TODO: sistemare
-                        System.err.println("[Server] Connection lost for client handler: " + e.getMessage());
-                        cleanupClient(handler);
                     } catch (Exception e) {
-                        //TODO: sistemare
-                        System.err.println("[Server] Connection lost or error in listener thread: " + e.getMessage());
-                        cleanupClient(handler);
+                        System.err.println("[Server] Client disconnected: " + e.getMessage());
+                        handler.closeConnection();
                     }
                 }, "ServerThread-Listener" + Thread_number);
                 thread1.start();
@@ -73,23 +85,27 @@ public class SocketClientHandlersManager {
                 Thread thread2 = new Thread(() -> {
                     try {
                         while (!Thread.currentThread().isInterrupted()) {
-                            synchronized (networkLayer.getBuffer(handler)) {
+                            EventBuffer buffer = networkLayer.getBuffer(handler);
+                            if (buffer == null) {
+                                System.err.println("[Server] Buffer null for client, buffering thread exiting");
+                                return;
+                            }
+                            synchronized (buffer) {
                                 if (Thread.currentThread().isInterrupted()) {
                                     return;
                                 }
-                                while (networkLayer.getBuffer(handler).isEmpty() 
+                                while (buffer.isEmpty()
                                        && !Thread.currentThread().isInterrupted()) {
                                     try {
-                                        networkLayer.getBuffer(handler).wait();    // lazy wait
+                                        buffer.wait();
                                     } catch (InterruptedException e) {
                                         Thread.currentThread().interrupt();
                                         return;
                                     }
                                 }
-                                
-                                if (!networkLayer.getBuffer(handler).isEmpty() 
+                                if (!buffer.isEmpty()
                                     && !Thread.currentThread().isInterrupted()) {
-                                    List<Event> eventsToSend = networkLayer.getBuffer(handler).flushBuffer();
+                                    List<Event> eventsToSend = buffer.flushBuffer();
                                     for (Event event : eventsToSend) {
                                         handler.update(event);
                                     }
@@ -107,7 +123,6 @@ public class SocketClientHandlersManager {
                 networkLayer.updateClientThreads(handler, thread2);
                 
             } catch (IOException e) {
-                //TODO: da sistemare
                 System.err.println("[Server] Error setting up client handler: " + e.getMessage());
                 try {
                     clientSocket.close();
@@ -138,15 +153,20 @@ public class SocketClientHandlersManager {
                     try {
                         handler.runPingServer();
                     } catch (Exception e) {
-                        //TODO:
+                        System.err.println("[Server] Error closing socket: " + e.getMessage());
                     }
                 }, "ServerThreadPing-" + nickname);
                 pingThread.start();
                 networkLayer.updateClientThreads(handler, pingThread);
-                pingServer(nickname); //TODO: è ridondante?
+                pingServer(nickname);
             }
             catch (Exception e) {
-                //TODO:
+                System.err.println("[Server] Error setting up ping handler: " + e.getMessage());
+                try {
+                    clientPingSocket.close();
+                } catch (IOException ex) {
+                    System.err.println("[Server] Error closing ping socket: " + ex.getMessage());
+                }
             }
         }
     }
@@ -154,13 +174,13 @@ public class SocketClientHandlersManager {
     public void receiveRequest(ClientRequest request, SocketClientHandler sender){
         try {
             // if sender is still in waiting room, the only possible request is to connect to the server (meaning: to declare a nickname).
-            if (waitingClients.contains(sender)) {
+            if (waitingClientsContains(sender)) {
                 networkLayer.updateNicknameMap(request.getNickname(), sender);
             }
 
             request.dispatchRequest(this.controller);
 
-            waitingClients.remove(sender);
+            removeWaitingClient(sender);
 
             this.controller.getGameIdByNickname(request.getNickname()).ifPresentOrElse(
                     (id) -> networkLayer.updateClients(id, sender),
@@ -174,20 +194,5 @@ public class SocketClientHandlersManager {
 
     public void pingServer(String nickname){
         controller.handlePingRequest(nickname);
-    }
-
-    private void cleanupClient(SocketClientHandler handler) {
-        try {
-            networkLayer.notifyBufferForClient(handler);
-            networkLayer.removeThreadsByClient(handler);
-            networkLayer.removeBuffer(handler);
-            synchronized(this.waitingClients) {
-                waitingClients.remove(handler);
-            }
-            handler.closeConnection();
-            System.err.println("[Server] Client handler cleaned up successfully");
-        } catch (Exception e) {
-            System.err.println("[Server] Error during client cleanup: " + e.getMessage());
-        }
     }
 }

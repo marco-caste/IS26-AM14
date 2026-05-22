@@ -17,9 +17,9 @@ public class TrackCardTest {
     @BeforeEach
     public void setUp() {
         player = new Player("P1", TotemColor.WHITE);
-        foodTrackCard = new TrackCard('a', 0, 0, 3);
-        topPickTrackCard = new TrackCard('f', 2, 0, 0);
-        bottomPickTrackCard = new TrackCard('b', 0, 1, 0);
+        foodTrackCard = new TrackCard('a', 0, 0, 3, null);
+        topPickTrackCard = new TrackCard('f', 2, 0, 0, null);
+        bottomPickTrackCard = new TrackCard('b', 0, 1, 0, null);
     }
 
     @Test

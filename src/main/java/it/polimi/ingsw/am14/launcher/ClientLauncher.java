@@ -1,4 +1,4 @@
-package it.polimi.ingsw.am14;
+package it.polimi.ingsw.am14.launcher;
 
 import it.polimi.ingsw.am14.view.GUIView;
 import it.polimi.ingsw.am14.view.TUIView;

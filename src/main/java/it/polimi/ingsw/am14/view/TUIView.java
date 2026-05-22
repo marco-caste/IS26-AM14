@@ -1,14 +1,10 @@
 package it.polimi.ingsw.am14.view;
 
-import it.polimi.ingsw.am14.network.EntryPointFactory;
-import it.polimi.ingsw.am14.network.VirtualServer;
-import it.polimi.ingsw.am14.network.rmi.RmiClientLauncher;
-import it.polimi.ingsw.am14.network.rmi.client.RmiClient;
-import it.polimi.ingsw.am14.network.socket.SocketClientLauncher;
-import it.polimi.ingsw.am14.network.socket.client.VirtualServerSocket;
-import it.polimi.ingsw.am14.clientModel.ClientModel;
+import it.polimi.ingsw.am14.clientModelController.ClientController;
+import it.polimi.ingsw.am14.view.viewEvents.UserDisconnectedViewEvent;
+import it.polimi.ingsw.am14.view.viewEvents.ViewEvent;
+import it.polimi.ingsw.am14.clientModelController.ClientModel;
 import org.jline.reader.*;
-import org.jline.reader.impl.completer.StringsCompleter;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import org.jline.utils.AttributedString;
@@ -16,14 +12,11 @@ import org.jline.utils.AttributedStyle;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.List;
-
-import static it.polimi.ingsw.am14.utils.Constants.TotemColors;
 
 public class TUIView implements ViewType {
 
     private ClientModel modelReference = null;
-    private VirtualServer server;
+    private ClientController controller;
     private String chosenNickname = null;
     private Terminal terminal;
     private LineReader lineReader;
@@ -31,9 +24,7 @@ public class TUIView implements ViewType {
 
     @Override
     public void run() throws IOException {
-        // simplest completer that tabs in the commands;
-        // TODO: implementare un completer più avanzato (vedi documentazione JLine)
-        Completer stringsCompleter = new StringsCompleter("help", "exit", "connect");
+        this.controller = new ClientController();
 
         try {
 
@@ -42,9 +33,14 @@ public class TUIView implements ViewType {
                     .ffm(true)
                     .build();
 
+            // TODO: completer funziona strano, "context" sembra non funzionare
             lineReader = LineReaderBuilder.builder()
                     .terminal(terminal)
-                    .completer(stringsCompleter)
+                    .completer(new ContextAwareCompleter())
+                    .option(LineReader.Option.AUTO_LIST, true) // Automatically list options
+                    .option(LineReader.Option.LIST_PACKED, true) // Display completions in a compact form
+                    .option(LineReader.Option.AUTO_MENU, true) // Show menu automatically
+                    .option(LineReader.Option.MENU_COMPLETE, true) // Cycle through completions
                     .build();
 
             writer = terminal.writer();
@@ -138,19 +134,84 @@ public class TUIView implements ViewType {
     }
 
     @Override
-    public void update(ClientModel model, String eventChoice) {
+    public void update(ClientModel model, ViewEvent event) {
 
-        if (model != null && this.modelReference == null)
+        if (model != null && this.modelReference == null) {
             this.modelReference = model;
-        // SOLUZIONE: reader.printAbove(model.getDescription());
-        // allows to print a received message above the current prompt, avoiding the race conditions on writer (?)
-        lineReader.printAbove("[Server]: " + this.modelReference.getMessage() + "\nBoard:\n" + this.modelReference.getBoard().toString());
+            this.chosenNickname = model.getHomePlayerNickname();
+            if (chosenNickname.equalsIgnoreCase("marcob")) {
+                lineReader.printAbove("Porterai minecreft?");
+            }
+        }
+        event.render(this);
     }
 
     @Override
-    public void disconnect() {
-        server = null;
-        this.update(null, "");
+    public void renderLogin(String message) {
+        lineReader.printAbove("[Server]: " + message);
+    }
+
+    @Override
+    public void renderPlayerJoin(String message) {
+        lineReader.printAbove("[Server]: " + message);
+    }
+
+    @Override
+    public void renderGameStart(String message) {
+        lineReader.printAbove("[Server]: " + message);
+        lineReader.printAbove(modelReference.getBoard().toString());
+    }
+
+    @Override
+    public void renderTotemPlaced(String message) {
+        lineReader.printAbove("[Server]: " + message);
+    }
+
+    @Override
+    public void renderCardPicked(String message) {
+        lineReader.printAbove("[Server]: " + message);
+        lineReader.printAbove(modelReference.getBoard().toString());
+    }
+
+    @Override
+    public void renderEndRound(String message) {
+        lineReader.printAbove("[Server]: " + message);
+        lineReader.printAbove(modelReference.getBoard().toString());
+    }
+
+    @Override
+    public void renderEndGame(String message) {
+        lineReader.printAbove("[Server]: " + message);
+        StringBuilder scoreBoard = new StringBuilder();
+        for (String player : modelReference.getFinalRank()) {
+            scoreBoard.append(player).append(": ").append(modelReference.getPlayerByNickname(player).getNumPrestigePoints()).append(" points\n");
+        }
+        lineReader.printAbove(scoreBoard.toString());
+    }
+
+    @Override
+    public void renderDisconnection(String message) {
+        lineReader.printAbove("[Server]: " + message);
+    }
+
+    @Override
+    public void renderReconnection(String message) {
+        lineReader.printAbove("[Server]: " + message);
+    }
+
+    @Override
+    public void renderGameRestarted(String message) {
+        lineReader.printAbove("[Server]: " + message);
+    }
+
+    @Override
+    public void renderException(String message) {
+        lineReader.printAbove("[Server]: " + message);
+    }
+
+    @Override
+    public void handleNetworkError(String errorMessage) {
+        lineReader.printAbove("[Network Error]: " + errorMessage);
     }
 
     private void show(String[] args) throws IllegalArgumentException{
@@ -200,14 +261,12 @@ public class TUIView implements ViewType {
         if (args.length < 4) {
             throw new IllegalArgumentException("Invalid command format. Usage: pick [nickname] [cardID] [row]");
         }
-        if (server == null) {
-            throw new IllegalArgumentException("You must connect to a server before picking a card.");
-        }
         if (!chosenNickname.equals(args[1])) {
             throw new IllegalArgumentException("You must use the same nickname as written on the prompt.");
         }
         try {
-            server.pickCard(args[1], Integer.parseInt(args[2]), Integer.parseInt(args[3]));
+            //TODO: passargli sola la card id
+            controller.pickCard(Integer.parseInt(args[2]));
         } catch (Exception e) {
             throw new RuntimeException("[Client] A network error occurred while sending your request\nDetails: " + e.getMessage());
         }
@@ -219,14 +278,12 @@ public class TUIView implements ViewType {
         if (args.length < 3) {
             throw new IllegalArgumentException("Invalid command format. Usage: place [nickname] [position]");
         }
-        if (server == null) {
-            throw new IllegalArgumentException("You must connect to a server before placing the totem.");
-        }
         if (!chosenNickname.equals(args[1])) {
             throw new IllegalArgumentException("You must use the same nickname as written on the prompt.");
         }
         try {
-            server.placeTotem(args[1], args[2].charAt(0));
+            //TODO: da rifare
+            controller.placeTotem(args[2].charAt(0));
         } catch (Exception e) {
             throw new RuntimeException("[Client] A network error occurred while sending your request\nDetails: " + e.getMessage());
         }
@@ -240,15 +297,32 @@ public class TUIView implements ViewType {
         if (args.length < 2) {
             throw new IllegalArgumentException("Invalid command format. Usage: connect [socket|rmi]");
         }
-        writer.println("please specify the server IP, port and your nickname");
+        
+        // Extract the connection mode from command
+        String connectionMode = args[1];
+        
+        // Request connection parameters from user
+        writer.println("Please specify the server IP, port and your nickname:");
         terminal.flush();
-        String IP = lineReader.readLine("IP: ");
-        String port = lineReader.readLine("Port: ");
-        chosenNickname = lineReader.readLine("Nickname: ").trim();
-        this.server = EntryPointFactory.connect(new String[]{args[1], IP, port, chosenNickname}, this);
+        
+        String serverIP = lineReader.readLine("IP: ");
+        String portInput = lineReader.readLine("Port: ");
+        String playerNickname = lineReader.readLine("Nickname: ").trim();
+        
+        // Parse port to integer with validation
+        int serverPort;
+        try {
+            serverPort = Integer.parseInt(portInput);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Port must be a valid integer number, got: " + portInput);
+        }
+
+        controller.connect(connectionMode, serverIP, serverPort, playerNickname, this);
+        
         writer.println("Client launched successfully!");
         writer.println("Connecting to server...");
         terminal.flush();
+        
         // no need to wait for a response from the server up to this date (29/4),
         // it does not yet send any LoginSuccessful event.
         writer.println("Connected to server successfully!");
@@ -260,24 +334,9 @@ public class TUIView implements ViewType {
         if (args.length < 4) {
             throw new IllegalArgumentException("Invalid command format. Usage: create [nickname] [numPlayers] [totemColor]");
         }
-        if (server == null) {
-            throw new IllegalArgumentException("You must connect to a server before creating a game.");
-        }
-        if (!chosenNickname.equals(args[1])) {
-            // avoids coherence issues between the nickname used to connect to the server and the one used to create the game
-            // TODO: è possibile che diventi necessario un controllo lato server
-            // TODO 2: suspicious: è strano dover specificare il nickname anche nella create, quando già lo si è specificato nella connect.
-            throw new IllegalArgumentException("You must use the same nickname as written on the prompt.");
-        }
-        if (!List.of(TotemColors).contains(args[3].toLowerCase())) {
-            // avoids sending an invalid totem color to the server,
-            // which would cause the server to reject the game creation request and send an error message back to the client
-            // there is a check on server side only for colors already selected by other players (necessarily on there)
-            // TL;DR: preemptive check for speed reasons
-            throw new IllegalArgumentException("Invalid totem color. Available colors: white, purple, yellow, red, blue.");
-        }
         try {
-            server.createGame(args[1], Integer.parseInt(args[2]), args[3].toLowerCase());
+            //TODO: DA RIFARE
+            controller.createGame(Integer.parseInt(args[2]), args[3].toLowerCase());
         } catch (Exception e) {
             throw new RuntimeException("[Client] A network error occurred while sending your request\nDetails: " + e.getMessage());
         }
@@ -289,17 +348,9 @@ public class TUIView implements ViewType {
         if (args.length < 4) {
             throw new IllegalArgumentException("Invalid command format. Usage: join [nickname] [gameId] [totemColor]");
         }
-        if (server == null) {
-            throw new IllegalArgumentException("You must connect to a server before joining a game.");
-        }
-        if (!chosenNickname.equals(args[1])) {
-            throw new IllegalArgumentException("You must use the same nickname as written on the prompt.");
-        }
-        if (!List.of(TotemColors).contains(args[3].toLowerCase())) {
-            throw new IllegalArgumentException("Invalid totem color. Available colors: white, purple, yellow, red, blue.");
-        }
         try {
-            server.joinGame(args[1], Integer.parseInt(args[2]), args[3].toLowerCase());
+            //TODO: da rifare
+            controller.joinGame(Integer.parseInt(args[2]), args[3].toLowerCase());
         } catch (Exception e) {
             throw new RuntimeException("[Client] A network error occurred while sending your request\nDetails: " + e.getMessage());
         }

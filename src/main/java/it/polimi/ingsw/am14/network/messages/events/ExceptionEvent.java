@@ -2,7 +2,8 @@ package it.polimi.ingsw.am14.network.messages.events;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import it.polimi.ingsw.am14.clientModel.ClientModel;
+import it.polimi.ingsw.am14.view.viewEvents.ExceptionViewEvent;
+import it.polimi.ingsw.am14.clientModelController.ClientModel;
 
 public class ExceptionEvent extends Event {
 
@@ -14,6 +15,6 @@ public class ExceptionEvent extends Event {
 
     public void effect(ClientModel model) {
         model.setMessage(description);
-        model.notifyObservers("exception");
+        model.notifyObservers(new ExceptionViewEvent(description));
     }
 }

@@ -1,10 +1,12 @@
 package it.polimi.ingsw.am14.network.rmi.client;
 
+import it.polimi.ingsw.am14.clientModelController.ClientController;
 import it.polimi.ingsw.am14.network.VirtualServer;
 import it.polimi.ingsw.am14.network.messages.events.Event;
 import it.polimi.ingsw.am14.network.messages.events.ExceptionEvent;
+import it.polimi.ingsw.am14.network.messages.events.LoginSuccesfulEvent;
 import it.polimi.ingsw.am14.network.rmi.server.VirtualClientRmi;
-import it.polimi.ingsw.am14.clientModel.ClientModel;
+import it.polimi.ingsw.am14.clientModelController.ClientModel;
 
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -16,18 +18,28 @@ import static it.polimi.ingsw.am14.utils.Constants.*;
 public class RmiClient extends UnicastRemoteObject implements VirtualClientRmi, VirtualServer {
 
     private final ClientModel model;
+    private final ClientController controller;
     private VirtualServerRmi server;
     private static long lastPingReceived;
 
-    public RmiClient(ClientModel model) throws RemoteException {
+    public RmiClient(ClientModel model, ClientController controller) throws RemoteException {
         super();
         this.model = model;
+        this.controller = controller;
     }
 
     @Override
     public void update(Event update) {
         new Thread(() -> {
             update.effect(model);
+            try {
+                LoginSuccesfulEvent event = (LoginSuccesfulEvent) update;
+                event.startPinging(this);
+            } catch (ClassCastException e) {
+                // not a LoginSuccesfulEvent, do nothing
+            } catch (RemoteException e) {
+                // overridden by the ping listener, do nothing
+            }
         }).start();
     }
 
@@ -40,21 +52,15 @@ public class RmiClient extends UnicastRemoteObject implements VirtualClientRmi, 
 
     @Override
     public void pingClient() throws RemoteException {
-        // TODO: receiving pings from server
-        // if timer expires, disconnect from server and notify the view
-        // TODO: how to disconnect rmi client from server?
-        // current solution: will call again connect, which overwrites the server reference
         lastPingReceived = System.currentTimeMillis();
     }
 
     // METHODS EXPOSED TO THE VIEW
-
-    public void connect(VirtualClientRmi client, String nickname, String ipAddress, int port) throws RemoteException {
+    public void connect(String nickname, String ipAddress, int port) throws RemoteException {
         Registry registry = LocateRegistry.getRegistry(ipAddress, port);
         try {
             this.server = (VirtualServerRmi) registry.lookup(serverName);
             server.connect(this, nickname);
-            this.pingServer(nickname);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
@@ -104,33 +110,33 @@ public class RmiClient extends UnicastRemoteObject implements VirtualClientRmi, 
     }
 
     @Override
-    public void pingServer(String nickname) throws Exception {
-        // starts sending pings to the server
+    public void pingServer(String nickname){
+        lastPingReceived = System.currentTimeMillis();
+
         new Thread(() -> {
             try {
-                while (true) {
-                    Thread.sleep(PING_INTERVAL); // PING_INTERVAL
-
+                while (!Thread.currentThread().isInterrupted()) {
+                    Thread.sleep(PING_INTERVAL);
                     server.pingServer(nickname);
                 }
-            } catch (InterruptedException | RemoteException e) {
+            } catch (Exception e) {
                 Thread.currentThread().interrupt();
             }
-        }).start();
+        }, "RMIClient-Pinger").start();
 
-        new Thread (() -> {
+        new Thread(() -> {
             try {
-                Thread.sleep(PING_TIMEOUT);
-
-                long now = System.currentTimeMillis();
-                if (now - lastPingReceived > PING_TIMEOUT) {
-                    // timeout expired, disconnect from server and notify the view
-                    model.setMessage("[Client] Network error: server is not responding. Try to reconnect later.\nShutting down connection...");
-                    //model.disconnect();
+                while (!Thread.currentThread().isInterrupted()) {
+                    Thread.sleep(PING_TIMEOUT);
+                    long now = System.currentTimeMillis();
+                    if (now - lastPingReceived > PING_TIMEOUT) {
+                        controller.disconnect();
+                        break;
+                    }
                 }
             } catch (InterruptedException e) {
-                throw new RuntimeException(e.getMessage());
+                Thread.currentThread().interrupt();
             }
-        }).start();
+        }, "RMIClient-PingReceiver").start();
     }
 }

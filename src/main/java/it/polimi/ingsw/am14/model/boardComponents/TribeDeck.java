@@ -44,7 +44,6 @@ public class TribeDeck {
 
         // pushes the shuffled cards in the Queue;
 
-        // SOLUZIONE PROVVISORIA
         ShamanEvent finalShaman = new ShamanEvent(3, 94);
         SustenanceEvent finalSustenance = new SustenanceEvent(3, 95);
 

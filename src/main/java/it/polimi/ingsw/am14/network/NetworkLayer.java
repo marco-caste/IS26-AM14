@@ -10,6 +10,7 @@ import java.util.Set;
 
 public class NetworkLayer implements Observer {
 
+    // TODO: FINE SINCRONIZZAZIONE
     private final Map<Integer, Set<VirtualClient>> gameIdToClients;
     private final Map<String, VirtualClient> nicknameToClient;
     private final Map<VirtualClient, EventBuffer> clientToBuffer;
@@ -118,6 +119,14 @@ public class NetworkLayer implements Observer {
         }
     }
 
+    public void removeClientFromGameId(VirtualClient client, int gameId) {
+        synchronized (this.gameIdToClients) {
+            if (this.gameIdToClients.containsKey(gameId)) {
+                this.gameIdToClients.get(gameId).remove(client);
+            }
+        }
+    }
+
     public void notifyBufferForClient(VirtualClient client) {
         EventBuffer buffer = getBuffer(client);
         if (buffer != null) {
@@ -144,7 +153,9 @@ public class NetworkLayer implements Observer {
                 try {
                     client.pingClient();
                 } catch (Exception e) {
-                    throw new RuntimeException(e.getMessage());
+                    // TODO: è normale che il client venga pingato 4 volte dopo la disconnessione, deve scadere il timeout.
+                    // potrebbe essere non necessario stampare questo errore.
+                    System.err.println("[NetworkLayer] Failed to ping client: " + e.getMessage());
                 }
             }
         }
