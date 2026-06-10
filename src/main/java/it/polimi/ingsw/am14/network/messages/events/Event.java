@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am14.network.messages.events;
 
+import it.polimi.ingsw.am14.clientModelController.ClientController;
 import it.polimi.ingsw.am14.network.NetworkLayer;
 import it.polimi.ingsw.am14.clientModelController.ClientModel;
 
@@ -41,5 +42,14 @@ public abstract class Event implements Serializable {
 
     public String getDescription() {
         return description;
+    }
+
+    /**
+     * Hook method called after event processing.
+     * Subclasses can override to perform custom controller logic.
+     * Default implementation does nothing.
+     */
+    public void onEventProcessed(ClientController controller, ClientModel model) {
+        // Default: do nothing. Override in specific events, visitor pattern
     }
 }

@@ -240,18 +240,19 @@ public class ClientController {
         threads.add(thread);
     }
 
-    public void update(Event event) {
-        event.effect(model);
+    public void initializePing(String playerNickname) {
         try {
-            LoginSuccesfulEvent loginEvent = (LoginSuccesfulEvent) event;
-            addThread(server.pingServer(loginEvent.getPlayerNickname()));
+            addThread(server.pingServer(playerNickname));
             updateLastPing();
             checkPing();
-        } catch (ClassCastException e) {
-            // not a LoginSuccesfulEvent, do nothing
         } catch (Exception e) {
-            handleNetworkError("A network error occurred while processing the event");
+            handleNetworkError("A network error occurred while initializing ping");
         }
+    }
+
+    public void update(Event event) {
+        event.effect(model);
+        event.onEventProcessed(this, model);
     }
 
     private void handleException(String description) {
