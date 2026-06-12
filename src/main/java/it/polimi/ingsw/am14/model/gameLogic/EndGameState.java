@@ -86,21 +86,16 @@ class EndGameState extends GameState {
                     }
                 }).toList();
 
-        // observer pattern: sends event to event buffer
-        context.notifyObservers(
-                new EndGameEvent(context.getBoard(), ranking, context.getGameId())
-        );
-
-        // at the end, we will display a ranking of players, in the form of
-        // player - prestigePoints - foodAvailable
-        // sorted by prestigePoints and food.
-
         //database saving and showing of the global ranking
         for(Player p : players) {
             MyJDBC.saveToDB(context.getGameId(), p.getNickname(), p.getNumPrestigePoints(), context.getNumPlayers());
         }
-        List<String> rank = MyJDBC.readRanking(context.getNumPlayers());
+        List<String> globalRank = MyJDBC.readRanking(context.getNumPlayers());
 
-        //TODO capire come vogliamo che venga mostrata la classifica globale, se con un evento o con un altro metodo
+        // observer pattern: sends event to event buffer
+        context.notifyObservers(
+                new EndGameEvent(context.getBoard(), ranking, context.getGameId(), globalRank)
+        );
+
     }
 }

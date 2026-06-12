@@ -21,10 +21,11 @@ public class EndGameEvent extends UpdateEvent {
     private final ArrayList<ArrayList<Integer>> board;
     private final Map<String, ArrayList<Integer>> playersAttributes;
     private ArrayList<String> finalRank = new ArrayList<>();
+    private List<String> globalRank;
     @JsonIgnore
     private int gameId;
 
-    public EndGameEvent(final Board board, final List<Player> finalRanking, int gameId) {
+    public EndGameEvent(final Board board, final List<Player> finalRanking, int gameId, final List<String> globalRank) {
         super("");
         this.gameId = gameId;
 
@@ -59,6 +60,7 @@ public class EndGameEvent extends UpdateEvent {
             playersAttributes.get(player.getNickname()).add(player.getNumFood());
             playersAttributes.get(player.getNickname()).add(player.getNumPrestigePoints());
         }
+        this.globalRank = globalRank;
         this.description = "End of game, the board has been updated, the final ranking has been calculated";
     }
 
@@ -67,11 +69,13 @@ public class EndGameEvent extends UpdateEvent {
             @JsonProperty("description") String description,
             @JsonProperty("finalRank") ArrayList<String> finalRank,
             @JsonProperty("board") ArrayList<ArrayList<Integer>> board,
-            @JsonProperty("playersAttributes") Map<String, ArrayList<Integer>> playersAttributes){
+            @JsonProperty("playersAttributes") Map<String, ArrayList<Integer>> playersAttributes,
+            @JsonProperty("globalRank") List<String> globalRank){
         super(description);
         this.board = board;
         this.playersAttributes = playersAttributes;
         this.finalRank= finalRank;
+        this.globalRank = globalRank;
     }
 
     public void bufferize(NetworkLayer networkLayer) {
@@ -83,6 +87,7 @@ public class EndGameEvent extends UpdateEvent {
         model.setBoard(this.board);
         model.updatePlayerRoundAttributes(this.playersAttributes);
         model.setFinalRank(this.finalRank);
+        model.setGlobalRank(this.globalRank);
         //TODO: model.setGameId(-1);
         model.notifyObservers( new EndGameViewEvent(description));
     }
