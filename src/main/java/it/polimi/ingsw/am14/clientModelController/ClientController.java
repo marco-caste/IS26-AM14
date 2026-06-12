@@ -15,6 +15,8 @@ public class ClientController {
     private ClientModel model;
     private VirtualServer server;
 
+    // TODO: AVVIO DEL PING QUI
+
     public void pickCard(int cardId) {
         //Model check
         if (server == null) {
@@ -138,9 +140,9 @@ public class ClientController {
             return;
         }
 
+        handleNetworkError("Server is not responding. Try to reconnect later. Shutting down connection...");
         this.server = null;
         this.model = null;
-        handleNetworkError("Server is not responding. Try to reconnect later. Shutting down connection...");
     }
 
     public void createGame(int numPlayers, String totemColor) {
