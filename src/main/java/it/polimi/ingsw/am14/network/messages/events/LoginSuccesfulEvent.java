@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import it.polimi.ingsw.am14.clientModelController.ClientModel;
 import it.polimi.ingsw.am14.clientModelController.ClientPlayer;
+import it.polimi.ingsw.am14.clientModelController.ClientController;
 import it.polimi.ingsw.am14.network.NetworkLayer;
 import it.polimi.ingsw.am14.network.VirtualServer;
 import it.polimi.ingsw.am14.view.viewEvents.LoginViewEvent;
@@ -35,12 +36,13 @@ public class LoginSuccesfulEvent extends ServerEvent {
         model.notifyObservers(new LoginViewEvent(description));
     }
 
-    public String getPlayerNickname() {
-        return playerNickname;
-    }
-
     @Override
     public void bufferize(NetworkLayer network) {
         network.addToEventBuffer(network.getClientBy(playerNickname), this);
+    }
+
+    @Override
+    public void onEventProcessed(ClientController controller) {
+        controller.initializePing(this.playerNickname);
     }
 }

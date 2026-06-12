@@ -56,9 +56,9 @@ public class ClientModel {
     }
 
 
-    public void notifyObservers(ViewEvent event){
+    public void notifyObservers(ViewEvent viewEvent){
         for(ViewType observer : observers){
-            observer.update(this, event);
+            observer.update(this, viewEvent);
         }
     }
 

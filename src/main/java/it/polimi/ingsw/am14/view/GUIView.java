@@ -151,7 +151,7 @@ public class GUIView extends Application implements ViewType {
 
 
     @Override
-    public void update(ClientModel model, ViewEvent event) {
+    public void update(ClientModel model, ViewEvent viewEvent) {
 
         // TODO: da rimuovere
         String eventChoice = "test";
@@ -163,7 +163,7 @@ public class GUIView extends Application implements ViewType {
         updateType = eventChoice;
 
         Platform.runLater(() -> {
-            event.render(this);
+            viewEvent.render(this);
 //            switch (eventChoice) {
 //                case "login" -> updateLogin();
 //                case "gameChoice" -> {
