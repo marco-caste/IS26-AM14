@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am14.network.messages.events;
 
+import it.polimi.ingsw.am14.clientModelController.ClientController;
 import it.polimi.ingsw.am14.network.NetworkLayer;
 import it.polimi.ingsw.am14.clientModelController.ClientModel;
 
@@ -31,7 +32,6 @@ public abstract class Event implements Serializable {
     protected String description;
 
     public void effect(ClientModel model){}
-    // TODO: SOTTOCLASSI
 
     public Event(String description) {
         this.description = description;
@@ -41,5 +41,15 @@ public abstract class Event implements Serializable {
 
     public String getDescription() {
         return description;
+    }
+
+    /**
+     * This method is called by the ClientController after the event has been processed and the model has been updated.
+     * It can be used to trigger any additional actions that need to be performed after the event has been processed,
+     * such as updating the view or sending additional requests to the server.
+     *
+     * @param controller the ClientController that processed the event
+     */
+    public void onEventProcessed(ClientController controller) {
     }
 }

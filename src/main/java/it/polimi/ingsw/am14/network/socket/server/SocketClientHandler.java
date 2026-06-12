@@ -62,10 +62,10 @@ public class SocketClientHandler implements VirtualClientSocket{
     }
 
     @Override
-    public void update(Event update){
+    public void update(Event event){
         if (!socket.isClosed()) {
-            String updateString = jsonCodec.writeEvent(update);
-            output.println(updateString);
+            String eventString = jsonCodec.writeEvent(event);
+            output.println(eventString);
             output.flush();
         }
     }

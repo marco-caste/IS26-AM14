@@ -17,7 +17,7 @@ public class RmiClientLauncher {
         ClientModel model = new ClientModel();
         model.registerObserver(view);
 
-        RmiClient client = new RmiClient(model, controller);
+        RmiClient client = new RmiClient(controller);
 
         // builds an unbounded RMI client, the connection will happen later
         return Map.of(client, model);

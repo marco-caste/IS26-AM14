@@ -13,5 +13,5 @@ public interface VirtualServerSocket extends VirtualServer {
     @Override
     void pickCard(String nickname, int cardId, int row);
     @Override
-    void pingServer(String nickname);
+    Thread pingServer(String nickname);
 }

@@ -4,7 +4,6 @@ import it.polimi.ingsw.am14.network.messages.requests.*;
 import it.polimi.ingsw.am14.utils.JsonCodec;
 
 import java.io.BufferedWriter;
-import java.io.IOException;
 import java.io.PrintWriter;
 
 import static it.polimi.ingsw.am14.utils.Constants.PING_INTERVAL;
@@ -14,9 +13,11 @@ public class SocketServerHandler implements VirtualServerSocket{
     private final PrintWriter output;
     private PrintWriter pingOutput;
     private final JsonCodec jsonWriter = new JsonCodec();
+    private final SocketClient client;
 
-    public SocketServerHandler(BufferedWriter output) {
+    public SocketServerHandler(BufferedWriter output, SocketClient client) {
         this.output = new PrintWriter(output);
+        this.client = client;
     }
 
     @Override
@@ -66,26 +67,29 @@ public class SocketServerHandler implements VirtualServerSocket{
     }
 
     @Override
-    public void pingServer(String nickname) {
-        new Thread(() -> {
-            try {
-                while (true) {
-                    Thread.sleep(PING_INTERVAL);
+    public Thread pingServer(String nickname) {
+        BufferedWriter output = client.setPingSocket();
+        if (output!=null) {
+            pingOutput = new PrintWriter(output);
+            Thread thread = new Thread(() -> {
+                try {
+                    while (true) {
+                        Thread.sleep(PING_INTERVAL);
 
-                    PingClientRequest request = new PingClientRequest(nickname);
-                    String message = jsonWriter.writeClientRequest(request);
-                    synchronized (output) {
-                        pingOutput.println(message);
-                        pingOutput.flush();
+                        PingClientRequest request = new PingClientRequest(nickname);
+                        String message = jsonWriter.writeClientRequest(request);
+                        synchronized (output) {
+                            pingOutput.println(message);
+                            pingOutput.flush();
+                        }
                     }
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
                 }
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-        }, "SocketClient-pinger-" + nickname).start();
-    }
-
-    public void setPingOutput(BufferedWriter pingOutput) {
-        this.pingOutput = new PrintWriter(pingOutput);
+            }, "SocketClient-pinger-" + nickname);
+            thread.start();
+            return thread;
+        }
+        return null;
     }
 }
