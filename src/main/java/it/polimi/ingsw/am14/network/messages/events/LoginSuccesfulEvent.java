@@ -36,17 +36,13 @@ public class LoginSuccesfulEvent extends ServerEvent {
         model.notifyObservers(new LoginViewEvent(description));
     }
 
-    public String getPlayerNickname() {
-        return playerNickname;
-    }
-
     @Override
     public void bufferize(NetworkLayer network) {
         network.addToEventBuffer(network.getClientBy(playerNickname), this);
     }
 
     @Override
-    public void onEventProcessed(ClientController controller, ClientModel model) {
+    public void onEventProcessed(ClientController controller) {
         controller.initializePing(this.playerNickname);
     }
 }

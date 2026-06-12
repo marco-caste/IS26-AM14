@@ -252,7 +252,7 @@ public class ClientController {
 
     public void update(Event event) {
         event.effect(model);
-        event.onEventProcessed(this, model);
+        event.onEventProcessed(this);
     }
 
     private void handleException(String description) {

@@ -32,7 +32,6 @@ public abstract class Event implements Serializable {
     protected String description;
 
     public void effect(ClientModel model){}
-    // TODO: SOTTOCLASSI
 
     public Event(String description) {
         this.description = description;
@@ -45,11 +44,12 @@ public abstract class Event implements Serializable {
     }
 
     /**
-     * Hook method called after event processing.
-     * Subclasses can override to perform custom controller logic.
-     * Default implementation does nothing.
+     * This method is called by the ClientController after the event has been processed and the model has been updated.
+     * It can be used to trigger any additional actions that need to be performed after the event has been processed,
+     * such as updating the view or sending additional requests to the server.
+     *
+     * @param controller the ClientController that processed the event
      */
-    public void onEventProcessed(ClientController controller, ClientModel model) {
-        // Default: do nothing. Override in specific events, visitor pattern
+    public void onEventProcessed(ClientController controller) {
     }
 }
