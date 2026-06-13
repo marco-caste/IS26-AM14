@@ -120,7 +120,7 @@ public class GUIView extends Application implements ViewType {
     }
 
     private final Map<String, Map<StatType, Label>> playerStatLabels = new HashMap<>();
-    private String updateType;
+
 
     @Override
     public void start(Stage primaryStage) {
@@ -153,52 +153,14 @@ public class GUIView extends Application implements ViewType {
     @Override
     public void update(ClientModel model, ViewEvent viewEvent) {
 
-        // TODO: da rimuovere
-        String eventChoice = "test";
-        // TODO: Sotituire il model con il client controller
+        System.out.println("Received update: " + viewEvent.getClass().getSimpleName() + " with message: " + viewEvent.toString());
         if (this.modelReference == null)
             this.modelReference = model;
-        System.out.println("GUI update received: " + eventChoice);
 
-        updateType = eventChoice;
+        isButtonAlreadySelected = false;
 
         Platform.runLater(() -> {
             viewEvent.render(this);
-//            switch (eventChoice) {
-//                case "login" -> updateLogin();
-//                case "gameChoice" -> {
-//                    updateChoiceScene();
-//                    updateLobby();
-//                }
-//                case "lobbyUpdate" -> updateLobby();
-//                case "gameStart" -> gameCreation();
-//                case "pickUpdate","endRound" -> {
-//                    updateBoard();
-//                    updateSelectedTribe();
-//                    updateTop(modelReference.getMessage());
-//                    updatePlayerStats();
-//                    updateoffersPathBox();
-//                }
-//                case "positionUpdate" -> {
-//                    updateoffersPathBox();
-//                    updateTop(modelReference.getMessage());
-//                }
-//                //case "gameOver" -> showEndGameScene(); da fare ancora
-//                case "exception" -> {
-//                        updateTop(modelReference.getMessage()); // controllo di esistenza della scena nei singoli metodi
-//                        updateChoiceScene();
-//                        updateLogin();
-//                    // verificare con Marco e Lorenzo
-//                    // if (model.getMessage().equals("The connection with the server has been lost. Please try to reconnect.")) {
-//                        //disconnect();
-//
-//                    // mi updeta il messaggio di exception nelle varie scene. IN lobby non serve in quanto non abbiamo possibilità di exception
-//
-//                }
-//                case "endGame" -> showEndGameScene();
-//
-//                //TODO: parte di riconnessione
-//            }
 
         });
     }
@@ -271,18 +233,20 @@ public class GUIView extends Application implements ViewType {
     // TODO: da fare
     }
 
+
     @Override
     public void renderException(String message) {
-        if(!updateTop(message)) {
-            loginErororLabel.setText(message);
-            gameChoiceErrorLabel.setText(message);
-        }
+        if(gameScene!= null) updateTop(message);
+        if(loginScene!= null) loginErororLabel.setText(message);
+        if(gameChoiceScene!=null) gameChoiceErrorLabel.setText(message);
     }
 
     @Override
     public void handleNetworkError(String errorMessage) {
         primaryStage.setScene(loginScene);
+        loginErororLabel.setText(errorMessage);
     }
+
 
 
     private BorderPane createLoginScene() {
@@ -373,16 +337,14 @@ public class GUIView extends Application implements ViewType {
 
 
         connectButton.setOnAction(event -> {
-
-            if (!(isButtonAlreadySelected)){
-
-                isButtonAlreadySelected = true;
+            if(!isButtonAlreadySelected) {
                 String insertedNickname = nicknameField.getText().trim().toLowerCase();
                 String insertedIp = ipField.getText().trim();
                 String insertedPort = portField.getText().trim();
 
-                if (insertedNickname.isEmpty()) {
-                    loginErororLabel.setText("Insert a valid Nickname");
+                if (insertedNickname.isEmpty()|| insertedIp.isEmpty() || insertedPort.isEmpty()) {
+                    loginErororLabel.setText("Insert all the fields to connect.");
+                    isButtonAlreadySelected = false;
                     return;
                 }
 
@@ -434,7 +396,6 @@ public class GUIView extends Application implements ViewType {
 
     private void showGameChoiceScene() {
         if (gameChoiceScene == null) {
-            isButtonAlreadySelected = false;
             gameChoiceScene = new Scene(createGameChoiceScene(), SCENE_WIDTH, SCENE_HEIGHT);
         }
 
@@ -636,6 +597,7 @@ public class GUIView extends Application implements ViewType {
                     gameId = Integer.parseInt(gameIdText);
                 } catch (NumberFormatException e) {
                     gameChoiceErrorLabel.setText("Please enter a valid numeric game ID.");
+                    isButtonAlreadySelected = false;
                     return;
                 }
 
@@ -831,7 +793,7 @@ public class GUIView extends Application implements ViewType {
         -fx-effect: dropshadow(gaussian, black, 7, 0.9, 1, 1);
     """);
 
-        ImageView totem = createAngryTotem(color.toLowerCase());
+        ImageView totem = createAngryTotem(color.toLowerCase(),"lobby" );
 
         box.getChildren().addAll(name, totem);
 
@@ -846,14 +808,16 @@ public class GUIView extends Application implements ViewType {
             try {
                  portNumber = Integer.parseInt(port);
             } catch (NumberFormatException e) {
-                throw new IllegalArgumentException("Please enter a valid numeric port.");
+                loginErororLabel.setText("Please enter a valid numeric port.");
+                isButtonAlreadySelected = false;
+                return;
             }
 
             this.controllerReference.connect(netProtocol, IP, portNumber, chosenNickname, this);
 
         } catch (Exception e) {
-            Label error = (Label) loginBox.getChildren().getLast();
-            error.setText(e.getMessage());
+            loginErororLabel.setText("A network error occurred while sending your request. Please try again.");
+            isButtonAlreadySelected = false;
         }
     }
 
@@ -884,7 +848,6 @@ public class GUIView extends Application implements ViewType {
     public void gameCreation() {
 
         if (gameScene == null) {
-            isButtonAlreadySelected = false;
             createGameScene();
         }
 
@@ -989,12 +952,10 @@ public class GUIView extends Application implements ViewType {
         return topBox;
     }
 
-    public boolean updateTop (String message){
-        if (topBox == null) return false;
+    public void updateTop (String message){
+        if (topBox == null) return ;
         serverMessage.setText(message);
-        return true;
 
-            //check per gli update che arrivano prima che la scena venga creata, così evitiamo errori di null pointer
     }
 
     private StackPane createCenter() {
@@ -1345,8 +1306,6 @@ public class GUIView extends Application implements ViewType {
         if (tribeCardsBox == null || selectedTribeNickname == null) {
             return;
         }
-
-        isButtonAlreadySelected = false; // aggiornata la tribe, do la possibilità ai player di andare a fare un nuovo pick
         tribeCardsBox.getChildren().clear();
 
         if (selectedTribeLabel != null) {
@@ -1611,12 +1570,12 @@ public class GUIView extends Application implements ViewType {
 
 
 
-    private ImageView createAngryTotem(String totemColor) {
+    private ImageView createAngryTotem(String totemColor, String totemType) {
         ImageView totem = new ImageView(
                 getClass().getResource("/totemLobby/" + totemColor + ".png").toExternalForm()
         );
 
-        if(updateType.equals("endGame"))
+        if(totemType.equals("endGame"))
             totem.setFitWidth(END_TOTEM_WIDTH);
         else
             totem.setFitWidth(LOBBY_TOTEM_WIDTH);
@@ -1763,8 +1722,7 @@ public class GUIView extends Application implements ViewType {
 
 
             ImageView totem = createAngryTotem(
-                    player.getTotemColor().toLowerCase()
-            );
+                    player.getTotemColor().toLowerCase(), "endgame");
             Label nickname = new Label(player.getNickname());
             nickname.setStyle("""
         -fx-text-fill: white;
