@@ -152,10 +152,7 @@ public class NetworkLayer implements Observer {
             for (VirtualClient client : this.nicknameToClient.values()) {
                 try {
                     client.pingClient();
-                } catch (Exception e) {
-                    // TODO: è normale che il client venga pingato 4 volte dopo la disconnessione, deve scadere il timeout.
-                    // potrebbe essere non necessario stampare questo errore.
-                    System.err.println("[NetworkLayer] Failed to ping client: " + e.getMessage());
+                } catch (Exception _) {
                 }
             }
         }

@@ -12,14 +12,9 @@ import java.util.Map;
 
 public class RmiClientLauncher {
 
-    public static Map<RmiClient, ClientModel> launch(ViewType view, ClientController controller) throws IOException, NotBoundException, RemoteException {
-
-        ClientModel model = new ClientModel();
-        model.registerObserver(view);
-
-        RmiClient client = new RmiClient(controller);
+    public static RmiClient launch(ClientController controller) throws IOException, NotBoundException, RemoteException {
 
         // builds an unbounded RMI client, the connection will happen later
-        return Map.of(client, model);
+        return new RmiClient(controller);
     }
 }

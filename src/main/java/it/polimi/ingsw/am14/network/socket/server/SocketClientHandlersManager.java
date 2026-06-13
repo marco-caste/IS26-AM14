@@ -178,7 +178,7 @@ public class SocketClientHandlersManager {
                 networkLayer.updateNicknameMap(request.getNickname(), sender);
             }
 
-            request.dispatchRequest(this.controller);
+            request.dispatchRequest(controller);
 
             removeWaitingClient(sender);
 

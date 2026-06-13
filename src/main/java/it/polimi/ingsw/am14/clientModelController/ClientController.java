@@ -109,11 +109,9 @@ public class ClientController {
     }
 
     public void connect(String connectionMode, String serverIP, int serverPort, String playerNickname, ViewType view) {
-        // Only one connection
-        if (this.server != null) {
-            handleException("You are already connected");
-            return;
-        }
+
+        model = new ClientModel();
+        model.registerObserver(view);
 
         // Validate server port
         if (serverPort <= 0 || serverPort > 65535) {
@@ -122,18 +120,15 @@ public class ClientController {
         }
 
         try {
-            Object[] result = EntryPointFactory.connect(
+            server = EntryPointFactory.connect(
                     connectionMode,
                     serverIP,
                     serverPort,
                     playerNickname.toLowerCase(),
-                    view,
                     this
             );
-            this.server = (VirtualServer) result[0];
-            this.model = (ClientModel) result[1];
         } catch (Exception e) {
-            handleNetworkError("A network error occurred while connecting to the server");
+            handleNetworkError("Failed to connect to the server");
         }
     }
 
@@ -145,7 +140,7 @@ public class ClientController {
 
         handleNetworkError("Server is not responding. Try to reconnect later. Shutting down connection...");
         this.server = null;
-        //this.model = null;
+        this.model = null;
     }
 
     public void createGame(int numPlayers, String totemColor) {
@@ -257,8 +252,7 @@ public class ClientController {
     }
 
     private void handleException(String description) {
-        ExceptionViewEvent event = new ExceptionViewEvent(description);
-        model.notifyObservers(event);
+        model.notifyObservers(new ExceptionViewEvent(description));
     }
 
     private void handleNetworkError(String errorMessage) {
