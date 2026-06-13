@@ -359,6 +359,7 @@ public class ClientModel {
         return true;
     }
 
+
     public boolean checkPickState() {
         return state == ClientState.PICK;
     }
