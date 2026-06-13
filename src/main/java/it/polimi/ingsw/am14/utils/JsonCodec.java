@@ -38,6 +38,20 @@ public class JsonCodec implements Codec {
     }
 
     /**
+     * @param filePath not null, path of the file where the card descriptions data is stored
+     * @return a map of card descriptions read from the specified file path, where the keys are the card IDs and the values are the corresponding descriptions
+     */
+    @Override
+    public Map<Integer, String> readCardDescriptions(String filePath) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            return objectMapper.readValue(new File(filePath), new TypeReference<Map<Integer, String>>(){});
+        } catch (IOException e) {
+            throw new RuntimeException("[JsonCodec] Failed to read card descriptions from file: " + filePath);
+        }
+    }
+
+    /**
      * @param controller    not null, the Game object to be saved
      * @param filePath      not null, path of the file where the save data will be stored
      */

@@ -65,6 +65,10 @@ public class ClientModel {
 
 
     //GETTERS
+    public int getTurnOrderCardIndex() {
+        return turnOrderCardIndex;
+    }
+
     public ClientPlayer getPlayerByNickname(String nickname) {
         if (homePlayer != null && homePlayer.getNickname().equals(nickname)) {
             return homePlayer;
