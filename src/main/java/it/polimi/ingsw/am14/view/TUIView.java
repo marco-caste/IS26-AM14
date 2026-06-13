@@ -1,17 +1,21 @@
 package it.polimi.ingsw.am14.view;
 
 import it.polimi.ingsw.am14.clientModelController.ClientController;
-import it.polimi.ingsw.am14.view.viewEvents.UserDisconnectedViewEvent;
+import it.polimi.ingsw.am14.utils.JsonCodec;
 import it.polimi.ingsw.am14.view.viewEvents.ViewEvent;
 import it.polimi.ingsw.am14.clientModelController.ClientModel;
 import org.jline.reader.*;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import org.jline.utils.AttributedString;
+import org.jline.utils.AttributedStringBuilder;
 import org.jline.utils.AttributedStyle;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class TUIView implements ViewType {
 
@@ -21,10 +25,13 @@ public class TUIView implements ViewType {
     private Terminal terminal;
     private LineReader lineReader;
     private PrintWriter writer;
+    private static Map<Integer, String> cardDescriptions;
 
     @Override
     public void run() throws IOException {
         this.controller = new ClientController();
+        JsonCodec codec = new JsonCodec();
+        cardDescriptions = codec.readCardDescriptions("src/main/resources/CardDescriptions.json");
 
         try {
 
@@ -58,14 +65,14 @@ public class TUIView implements ViewType {
                 switch (tokens[0].toLowerCase()) {
                     case "help" -> {
                         writer.println("Available commands:");
-                        writer.println("  exit\n\n\t- Exit the application");
-                        writer.println("  help\n\n\t- Show this list");
-                        writer.println("  connect [socket|rmi]\n\n\t- Specify the networking technology to use");
-                        writer.println("  create [nickname] [numPlayers] [totemColor]\n\n\t- Create a new game");
-                        writer.println("  join [nickname] [gameId] [totemColor]\n\n\t- Join an existing game");
-                        writer.println("  pick [nickname] [cardID] [row]\n\n\t- Pick the specified card");
-                        writer.println("  place [nickname] [position]\n\n\t- Place the totem on the specified position");
-                        writer.println("  show [nickname|cardId|turnOrderCard|offersPath] <nickname> | <cardId row>\n\n\t- Show the current game state");
+                        writer.println("  exit\t- Exit the application");
+                        writer.println("  help\t- Show this list");
+                        writer.println("  connect [socket|rmi]\t- Specify the networking technology to use");
+                        writer.println("  create [nickname] [numPlayers] [totemColor]\t- Create a new game");
+                        writer.println("  join [nickname] [gameId] [totemColor]\t- Join an existing game");
+                        writer.println("  pick [nickname] [cardID] [row]\t- Pick the specified card");
+                        writer.println("  place [nickname] [position]\t- Place the totem on the specified position");
+                        writer.println("  show [nickname|cardId|board|offersPath] <nickname> | <cardId>\t- Show the current game state");
                         terminal.flush();
                     }
                     case "connect" -> {
@@ -136,6 +143,7 @@ public class TUIView implements ViewType {
     @Override
     public void update(ClientModel model, ViewEvent event) {
 
+        // if no model has yet been assigned -> assign
         if (model != null && this.modelReference == null) {
             this.modelReference = model;
             this.chosenNickname = model.getHomePlayerNickname();
@@ -159,25 +167,25 @@ public class TUIView implements ViewType {
     @Override
     public void renderGameStart(String message) {
         lineReader.printAbove("[Server]: " + message);
-        lineReader.printAbove(modelReference.getBoard().toString());
+        printBoard();
     }
 
     @Override
     public void renderTotemPlaced(String message) {
         lineReader.printAbove("[Server]: " + message);
-        lineReader.printAbove(modelReference.getBoard().toString());
+        printBoard();
     }
 
     @Override
     public void renderCardPicked(String message) {
         lineReader.printAbove("[Server]: " + message);
-        lineReader.printAbove(modelReference.getBoard().toString());
+        printBoard();
     }
 
     @Override
     public void renderEndRound(String message) {
         lineReader.printAbove("[Server]: " + message);
-        lineReader.printAbove(modelReference.getBoard().toString());
+        printBoard();
     }
 
     @Override
@@ -202,6 +210,8 @@ public class TUIView implements ViewType {
 
     @Override
     public void renderGameRestarted(String message) {
+        // TODO: stampare la board
+//        printBoard();
         lineReader.printAbove("[Server]: " + message);
     }
 
@@ -217,8 +227,10 @@ public class TUIView implements ViewType {
 
     private void show(String[] args) throws IllegalArgumentException{
         if (args.length < 2) {
-            throw new IllegalArgumentException("Invalid command format. Usage: show [nickname|cardId|turnOrderCard|offersPath] <nickname> | <cardId row>");
+            throw new IllegalArgumentException("Invalid command format. Usage: show [nickname|cardId|turnOrderCard|offersPath] <nickname> | <cardId>");
         }
+
+        // TODO: check model != null
 
 //        template: show [nickname|cardId|turnOrderCard|offersPath] <nickname> | <cardId row>
 
@@ -231,13 +243,14 @@ public class TUIView implements ViewType {
                 terminal.flush();
             }
             case "cardId" -> {
-                if (args.length < 4) {
-                    throw new IllegalArgumentException("Invalid command format. Usage: show cardId [cardId] [row]");
+                if (args.length < 3) {
+                    throw new IllegalArgumentException("Invalid command format. Usage: show cardId [cardId]");
                 }
-                writer.println("fetches a card description from a json file");
+                writer.println(cardDescriptions.get(Integer.parseInt(args[2])));
+                terminal.flush();
             }
-            case "turnOrderCard" -> {
-                writer.println("fetches the turnOrderCard from client model");
+            case "board" -> {
+                printBoard();
             }
             case "offersPath" -> {
                 writer.println("fetches the offers path from client model");
@@ -246,15 +259,8 @@ public class TUIView implements ViewType {
         }
 
         /*
-
-
-        use a alternate_ca_mode for showing:
-        - on the left, the 4 rows in the board filled with card ids
-        - on the right, the details queried by user
-            - stats of a player
-            - details of a card
-            - details of the offers path
-            - the turn order card
+        TODO: check di fattibilità:
+        use alternate_ca_mode for showing the board constantly updated by the server.
          */
     }
 
@@ -266,7 +272,6 @@ public class TUIView implements ViewType {
             throw new IllegalArgumentException("You must use the same nickname as written on the prompt.");
         }
         try {
-            //TODO: passargli sola la card id
             controller.pickCard(Integer.parseInt(args[2]));
         } catch (Exception e) {
             throw new RuntimeException("[Client] A network error occurred while sending your request\nDetails: " + e.getMessage());
@@ -283,9 +288,9 @@ public class TUIView implements ViewType {
             throw new IllegalArgumentException("You must use the same nickname as written on the prompt.");
         }
         try {
-            //TODO: da rifare
+            // TODO: da rifare
             // TODO: toUpperCase su char
-            controller.placeTotem(args[2].charAt(0));
+            controller.placeTotem(Character.toUpperCase(args[2].charAt(0)));
         } catch (Exception e) {
             throw new RuntimeException("[Client] A network error occurred while sending your request\nDetails: " + e.getMessage());
         }
@@ -323,12 +328,6 @@ public class TUIView implements ViewType {
         
         writer.println("Client launched successfully!");
         writer.println("Connecting to server...");
-        terminal.flush();
-        
-        // no need to wait for a response from the server up to this date (29/4),
-        // it does not yet send any LoginSuccessful event.
-        writer.println("Connected to server successfully!");
-        writer.println("Launching TUI...");
         terminal.flush();
     }
 
@@ -384,11 +383,174 @@ public class TUIView implements ViewType {
             writer.print(" ".repeat(Math.max(0, padding)));
             attributedLine.println(terminal);
         }
-        // oss: se avviene un resize della finestra, il titolo non viene centrato
+        // TODO oss: se avviene un resize della finestra, il titolo non viene centrato
         terminal.flush();
     }
 
     private void printBoard() {
+        ArrayList<ArrayList<Integer>> currentBoard = modelReference.getBoard();
+        int turnOrderCardIndex = modelReference.getTurnOrderCardIndex();
+        ArrayList<Character> offersPath = modelReference.getOffersPath();
 
+        int[] firstRowIndexes = currentBoard.stream()
+                .limit(2)
+                .flatMap(ArrayList::stream)
+                .mapToInt(Integer::intValue)
+                .toArray();
+        int[] thirdRowIndexes = currentBoard.stream()
+                .skip(2)
+                .limit(2)
+                .flatMap(ArrayList::stream)
+                .mapToInt(Integer::intValue)
+                .toArray();
+        int width = terminal.getWidth();
+
+
+        AttributedStringBuilder firstRowBuilder = new AttributedStringBuilder();
+        AttributedStringBuilder secondRowBuilder = new AttributedStringBuilder();
+        AttributedStringBuilder thirdRowBuilder = new AttributedStringBuilder();
+
+        AttributedStringBuilder
+                line1 = new AttributedStringBuilder(),
+                line2 = new AttributedStringBuilder(),
+                line3 = new AttributedStringBuilder(),
+                line4 = new AttributedStringBuilder();
+
+        // building the first row:
+        for (int firstRowIndex : firstRowIndexes) {
+            line1.append(colorCard(firstRowIndex, "┌─────┐ "));
+            line2.append(colorCard(firstRowIndex, "│     │ "));
+            line3.append(colorCard(firstRowIndex,
+                    "│" + (firstRowIndex < 10 ?
+                            String.format("  %d  ", firstRowIndex) :
+                            String.format(" %-3d ", firstRowIndex)) +
+                    "│ "
+                    ));
+            line4.append(colorCard(firstRowIndex, "└─────┘ "));
+        }
+        int padding = (width - line1.length()) / 2;
+        firstRowBuilder
+                .append(" ".repeat(Math.max(0, padding))).append(line1).append(" ".repeat(Math.max(0, padding))).append("\n")
+                .append(" ".repeat(Math.max(0, padding))).append(line2).append(" ".repeat(Math.max(0, padding))).append("\n")
+                .append(" ".repeat(Math.max(0, padding))).append(line3).append(" ".repeat(Math.max(0, padding))).append("\n")
+                .append(" ".repeat(Math.max(0, padding))).append(line2).append(" ".repeat(Math.max(0, padding))).append("\n")
+                .append(" ".repeat(Math.max(0, padding))).append(line4).append(" ".repeat(Math.max(0, padding))).append("\n");
+
+        line1 = new AttributedStringBuilder();
+        line2 = new AttributedStringBuilder();
+        line3 = new AttributedStringBuilder();
+        line4 = new AttributedStringBuilder();
+        // building the second row:
+        line1
+                .append("▐▀▀▀▀▀▌ ")
+                .append("╔═════╗ ".repeat(offersPath.size()));
+        line2
+                .append("▐     ▌ ")
+                .append("║     ║ ".repeat(offersPath.size()));
+        line3.append("▐").append(String.format("  %d  ", turnOrderCardIndex)).append("▌ ");
+        for (char trackCardName : offersPath)
+            line3.append("║").append(printTrackCard(trackCardName)).append("║ ");
+        line4
+                .append("▐▄▄▄▄▄▌ ")
+                .append("╚═════╝ ".repeat(offersPath.size()));
+        padding = (width - line1.length()) / 2;
+        secondRowBuilder
+                .append(" ".repeat(Math.max(0, padding))).append(line1).append(" ".repeat(Math.max(0, padding))).append("\n")
+                .append(" ".repeat(Math.max(0, padding))).append(line2).append(" ".repeat(Math.max(0, padding))).append("\n")
+                .append(" ".repeat(Math.max(0, padding))).append(line3).append(" ".repeat(Math.max(0, padding))).append("\n")
+                .append(" ".repeat(Math.max(0, padding))).append(line2).append(" ".repeat(Math.max(0, padding))).append("\n")
+                .append(" ".repeat(Math.max(0, padding))).append(line4).append(" ".repeat(Math.max(0, padding))).append("\n");
+
+        line1 = new AttributedStringBuilder();
+        line2 = new AttributedStringBuilder();
+        line3 = new AttributedStringBuilder();
+        line4 = new AttributedStringBuilder();
+        // building the third row:
+        for (int thirdRowIndex : thirdRowIndexes) {
+            line1.append(colorCard(thirdRowIndex, "┌─────┐ "));
+            line2.append(colorCard(thirdRowIndex, "│     │ "));
+            line3.append(colorCard(thirdRowIndex,
+                    "│" + (thirdRowIndex < 10 ?
+                            String.format("  %d  ", thirdRowIndex) :
+                            String.format(" %-3d ", thirdRowIndex)) +
+                            "│ "
+            ));
+            line4.append(colorCard(thirdRowIndex, "└─────┘ "));
+        }
+        padding = (width - line1.length()) / 2;
+        thirdRowBuilder
+                .append(" ".repeat(Math.max(0, padding))).append(line1).append(" ".repeat(Math.max(0, padding))).append("\n")
+                .append(" ".repeat(Math.max(0, padding))).append(line2).append(" ".repeat(Math.max(0, padding))).append("\n")
+                .append(" ".repeat(Math.max(0, padding))).append(line3).append(" ".repeat(Math.max(0, padding))).append("\n")
+                .append(" ".repeat(Math.max(0, padding))).append(line2).append(" ".repeat(Math.max(0, padding))).append("\n")
+                .append(" ".repeat(Math.max(0, padding))).append(line4).append(" ".repeat(Math.max(0, padding))).append("\n");
+
+        lineReader.printAbove(firstRowBuilder.toAttributedString());
+        lineReader.printAbove(secondRowBuilder.toAttributedString());
+        lineReader.printAbove(thirdRowBuilder.toAttributedString());
+
+        /*
+        OffersPath:
+        ╔═════╗
+        ║     ║
+        ║     ║
+        ║     ║
+        ╚═════╝
+        TurnOrderCard
+        ▐▀▀▀▀▀▌
+        ▐     ▌
+        ▐     ▌
+        ▐     ▌
+        ▐▄▄▄▄▄▌
+        Card:
+        ┌─────┐
+        │     │
+        │     │
+        │     │
+        └─────┘
+
+         */
+    }
+
+    record CardColors(int lower, int upper, AttributedStyle style) {}
+
+    private static final List<CardColors> COLORS = List.of(
+            new CardColors(0, 14,  AttributedStyle.DEFAULT.foreground(AttributedStyle.RED)),
+            new CardColors(15, 26,  AttributedStyle.DEFAULT.foreground(60, 42, 94)),
+            new CardColors(27, 37,  AttributedStyle.DEFAULT.foreground(255, 140, 0)),
+            new CardColors(38, 50,  AttributedStyle.DEFAULT.foreground(AttributedStyle.YELLOW)),
+            new CardColors(51, 70,  AttributedStyle.DEFAULT.foreground(AttributedStyle.CYAN)),
+            new CardColors(71, 83,  AttributedStyle.DEFAULT.foreground(147, 68, 97)),
+            new CardColors(84, 95,  AttributedStyle.DEFAULT.foreground(130, 79, 17)),
+            new CardColors(96, 116, AttributedStyle.DEFAULT.foreground(0, 100, 0))
+    );
+
+    private AttributedString colorCard(int index, String card) {
+        AttributedStyle style = COLORS.stream()
+                .filter(t -> index <= t.upper() && index >= t.lower())
+                .findFirst()
+                .map(CardColors::style)
+                .orElse(AttributedStyle.DEFAULT.foreground(AttributedStyle.WHITE));
+
+        return new AttributedString(card, style);
+    }
+
+    private AttributedString printTrackCard(Character trackCardName) {
+        return switch(trackCardName) {
+            case 'A', 'a' -> new AttributedString(" 1f  ", AttributedStyle.DEFAULT.foreground(237, 153, 107));
+            case 'B', 'b' -> new AttributedString(" 1↓  ", AttributedStyle.DEFAULT.foreground(AttributedStyle.RED));
+            case 'C', 'c' -> new AttributedString(" 1↑  ", AttributedStyle.DEFAULT.foreground(AttributedStyle.GREEN));
+            case 'D', 'd' -> new AttributedString(" 2↓  ", AttributedStyle.DEFAULT.foreground(AttributedStyle.RED));
+            case 'E', 'e' -> new AttributedStringBuilder().append(new AttributedString("2↓", AttributedStyle.DEFAULT.foreground(AttributedStyle.RED)))
+                    .append("/")
+                    .append(new AttributedString("1↑", AttributedStyle.DEFAULT.foreground(AttributedStyle.GREEN)))
+                    .toAttributedString();
+            case 'F', 'f' -> new AttributedString(" 2↑  ", AttributedStyle.DEFAULT.foreground(AttributedStyle.GREEN));
+            case 'G', 'g' -> new AttributedStringBuilder().append(new AttributedString("2↑", AttributedStyle.DEFAULT.foreground(AttributedStyle.GREEN)))
+                    .append("/")
+                    .append(new AttributedString("1↓", AttributedStyle.DEFAULT.foreground(AttributedStyle.RED)))
+                    .toAttributedString();
+            default -> new AttributedString("     ", AttributedStyle.DEFAULT.foreground(AttributedStyle.WHITE));
+        };
     }
 }

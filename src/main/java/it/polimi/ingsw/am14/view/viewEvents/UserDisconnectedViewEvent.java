@@ -11,6 +11,6 @@ public class UserDisconnectedViewEvent implements ViewEvent{
 
     @Override
     public void render(ViewType view) {
-        view.renderDisconnection(message);
+        view.renderDisconnection(message + ". Returning to lobby...");
     }
 }

@@ -12,27 +12,18 @@ import java.util.Map;
 
 public interface Codec {
 
-    // serviranno:
-    /*
-        DESERIALIZZAZIONE:
-    - un metodo per leggere le deckCard da file
-    - un metodo per leggere i building da file
-    - un metodo per leggere le trackCard da file
-
-    - un metodo per leggere il salvataggio della partita su file    ok
-    - un metodo per deserializzare eventi   ok
-    - un metodo per deserializzare le clientRequest   ok
-        SERIALIZZAZIONE:
-    - un metodo per serializzare eventi  ok
-    - un metodo per serializzare clientRequest  ok
-    - un metodo per serializzare il salvataggio della partita su file   ok
-     */
-
     /**
      * @param filePath not null, path of the file where the save data is stored
      * @return the saved Game object
      */
     LobbyController readSaveData(String filePath);
+
+    /**
+     *
+     * @param filePath not null, path of the file where the card descriptions data is stored
+     * @return a map of card descriptions read from the specified file path, where the keys are the card IDs and the values are the corresponding descriptions
+     */
+    Map<Integer, String> readCardDescriptions(String filePath);
 
     /**
      *
