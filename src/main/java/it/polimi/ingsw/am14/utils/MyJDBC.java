@@ -45,7 +45,7 @@ public class MyJDBC {
         while (rs.next()) {
             String tuple = place + ") " +
                     rs.getString("nickname") +
-                    " - " +
+                    "   " +
                     rs.getInt("total_score") + " punti ";
             rank.add(tuple);
             place++;

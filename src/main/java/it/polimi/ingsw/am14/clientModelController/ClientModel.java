@@ -29,6 +29,7 @@ public class ClientModel {
     private ArrayList<ArrayList<Integer>> board;
     private Map<Character, String> positionToNickname;
     private ArrayList<String> finalRank;
+    private List<String> globalRank;
     private int turnOrderCardIndex; // it's needed to build the right TurnorderCard in the view, it depends on this index.
     private int gameId;
     private int numPlayers; // it's needed to build the right offersPath in the View.
@@ -56,9 +57,9 @@ public class ClientModel {
     }
 
 
-    public void notifyObservers(ViewEvent event){
+    public void notifyObservers(ViewEvent viewEvent){
         for(ViewType observer : observers){
-            observer.update(this, event);
+            observer.update(this, viewEvent);
         }
     }
 
@@ -129,6 +130,10 @@ public class ClientModel {
         return finalRank;
     }
 
+    public List<String> getGlobalRank() {
+        return globalRank;
+    }
+
     public ArrayList<String> getPlayerOrderInTurnOrderCard() {
         return playerOrderInTurnOrderCard;
     }
@@ -187,6 +192,9 @@ public class ClientModel {
 
     public void setFinalRank(ArrayList<String> finalRank) {
         this.finalRank = finalRank;
+    }
+    public void setGlobalRank(List<String> globalRank) {
+        this.globalRank = globalRank;
     }
 
     public void checkAndEventuallySetPickState() {

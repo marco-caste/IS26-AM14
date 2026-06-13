@@ -5,6 +5,14 @@ import it.polimi.ingsw.am14.model.cards.buildings.Building;
 
 import java.util.*;
 
+/**
+ * <p>
+ *     The Tribe class represents the tribe of a player, containing all the hunters, inventors, shamans, gatherers, artists, builders and buildings of the player.
+ * </p>
+ * <p>
+ *     If a new type of card is added to the game, the developer must extend this class and add a new ArrayList of the new type of card, with its getter, setter, adder and sizer.
+ * </p>
+ */
 public class Tribe {
     private ArrayList<Hunter> hunters;
     private ArrayList<Inventor> inventors;

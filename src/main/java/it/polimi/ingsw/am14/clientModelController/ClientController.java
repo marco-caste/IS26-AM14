@@ -2,18 +2,23 @@ package it.polimi.ingsw.am14.clientModelController;
 
 import it.polimi.ingsw.am14.network.EntryPointFactory;
 import it.polimi.ingsw.am14.network.VirtualServer;
-import it.polimi.ingsw.am14.network.messages.events.ExceptionEvent;
+import it.polimi.ingsw.am14.network.messages.events.Event;
+import it.polimi.ingsw.am14.network.messages.events.LoginSuccesfulEvent;
 import it.polimi.ingsw.am14.view.ViewType;
 import it.polimi.ingsw.am14.view.viewEvents.ExceptionViewEvent;
 import it.polimi.ingsw.am14.view.viewEvents.NetworkErrorViewEvent;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import static it.polimi.ingsw.am14.utils.Constants.PING_TIMEOUT;
 import static it.polimi.ingsw.am14.utils.Constants.TotemColors;
 
 public class ClientController {
     private ClientModel model;
     private VirtualServer server;
+    private long lastPingReceived;
+    List<Thread> threads = new ArrayList<>();
 
     public void pickCard(int cardId) {
         //Model check
@@ -138,9 +143,9 @@ public class ClientController {
             return;
         }
 
-        this.server = null;
-        this.model = null;
         handleNetworkError("Server is not responding. Try to reconnect later. Shutting down connection...");
+        this.server = null;
+        //this.model = null;
     }
 
     public void createGame(int numPlayers, String totemColor) {
@@ -205,6 +210,50 @@ public class ClientController {
         } catch (Exception e) {
             handleNetworkError("A network error occurred while joining the game");
         }
+    }
+
+    public void updateLastPing() {
+        lastPingReceived = System.currentTimeMillis();
+    }
+
+    public void checkPing(){
+        Thread thread = new Thread(() -> {
+            try {
+                while (!Thread.currentThread().isInterrupted()) {
+                    Thread.sleep(PING_TIMEOUT);
+                    long now = System.currentTimeMillis();
+                    if (now - lastPingReceived > PING_TIMEOUT) {
+                        disconnect();
+                        threads.forEach(Thread::interrupt);
+                        threads = new ArrayList<>();
+                        Thread.currentThread().interrupt();
+                        break;
+                    }
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }, "Client-PingReceiver");
+        thread.start();
+    }
+
+    public void addThread(Thread thread) {
+        threads.add(thread);
+    }
+
+    public void initializePing(String playerNickname) {
+        try {
+            addThread(server.pingServer(playerNickname));
+            updateLastPing();
+            checkPing();
+        } catch (Exception e) {
+            handleNetworkError("A network error occurred while initializing ping");
+        }
+    }
+
+    public void update(Event event) {
+        event.effect(model);
+        event.onEventProcessed(this);
     }
 
     private void handleException(String description) {

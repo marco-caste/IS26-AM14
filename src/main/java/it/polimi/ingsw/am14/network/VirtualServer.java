@@ -7,5 +7,5 @@ public interface VirtualServer {
     void joinGame(String nickname, int gameId, String totemColor) throws Exception;
     void placeTotem(String nickname, char position) throws Exception;
     void pickCard(String nickname, int cardId, int row) throws Exception;
-    void pingServer(String nickname) throws RemoteException;
+    Thread pingServer(String nickname) throws RemoteException;
 }

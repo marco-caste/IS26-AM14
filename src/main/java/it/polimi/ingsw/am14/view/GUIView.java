@@ -151,7 +151,7 @@ public class GUIView extends Application implements ViewType {
 
 
     @Override
-    public void update(ClientModel model, ViewEvent event) {
+    public void update(ClientModel model, ViewEvent viewEvent) {
 
         // TODO: da rimuovere
         String eventChoice = "test";
@@ -163,7 +163,7 @@ public class GUIView extends Application implements ViewType {
         updateType = eventChoice;
 
         Platform.runLater(() -> {
-            event.render(this);
+            viewEvent.render(this);
 //            switch (eventChoice) {
 //                case "login" -> updateLogin();
 //                case "gameChoice" -> {
@@ -274,8 +274,8 @@ public class GUIView extends Application implements ViewType {
     @Override
     public void renderException(String message) {
         if(!updateTop(message)) {
-            if(!updateChoiceScene())
-                updateLogin(message);
+            loginErororLabel.setText(message);
+            gameChoiceErrorLabel.setText(message);
         }
     }
 
@@ -991,8 +991,8 @@ public class GUIView extends Application implements ViewType {
 
     public boolean updateTop (String message){
         if (topBox == null) return false;
-            serverMessage.setText(message);
-            return true;
+        serverMessage.setText(message);
+        return true;
 
             //check per gli update che arrivano prima che la scena venga creata, così evitiamo errori di null pointer
     }
@@ -1727,9 +1727,9 @@ public class GUIView extends Application implements ViewType {
 
     public void updateGlobalRankingBox() {
         globalRankingBox.getChildren().clear();
-        ArrayList<String> global = modelReference.getFinalRank(); // metodo tuo
+        List<String> global = modelReference.getGlobalRank();
 
-        for (int i = global.size()-1; i>=0; i--) {
+        for (int i = 0; i <= global.size()-1; i++) {
             String name = global.get(i);
             Label lbl = new Label(name);
             lbl.setStyle("-fx-text-fill: white; -fx-font-size: 16; -fx-font-weight: bold;");
@@ -1755,8 +1755,10 @@ public class GUIView extends Application implements ViewType {
         endGameTotemLayer.getChildren().clear();
 
         ArrayList<String> ranking = modelReference.getFinalRank();
+        int pos = 0;
 
-        for (int i = 0; i < Math.min(3, ranking.size()); i++) { // uso il minimo in quanto se sono in due il podio sarà solo da due
+        for (int i = Math.min(3, ranking.size())-1 ; i >= 0; i--) {// uso il minimo in quanto se sono in due il podio sarà solo da due
+
             ClientPlayer player = modelReference.getPlayerByNickname(ranking.get(i));
 
 
@@ -1777,11 +1779,12 @@ public class GUIView extends Application implements ViewType {
             totemBox.setMaxWidth(END_TOTEM_BOX_WIDTH);
             totemBox.getChildren().addAll(nickname, totem);
 
-            placeTotemOnPodium(totemBox, i);
+            placeTotemOnPodium(totemBox, pos);
+            pos++;
 
             endGameTotemLayer.getChildren().add(totemBox);
 
-        }
+            }
     }
 
 

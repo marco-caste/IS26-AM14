@@ -165,6 +165,7 @@ public class TUIView implements ViewType {
     @Override
     public void renderTotemPlaced(String message) {
         lineReader.printAbove("[Server]: " + message);
+        lineReader.printAbove(modelReference.getBoard().toString());
     }
 
     @Override
@@ -283,6 +284,7 @@ public class TUIView implements ViewType {
         }
         try {
             //TODO: da rifare
+            // TODO: toUpperCase su char
             controller.placeTotem(args[2].charAt(0));
         } catch (Exception e) {
             throw new RuntimeException("[Client] A network error occurred while sending your request\nDetails: " + e.getMessage());
