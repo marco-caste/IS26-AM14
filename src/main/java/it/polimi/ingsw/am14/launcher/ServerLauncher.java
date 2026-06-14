@@ -26,7 +26,8 @@ public class ServerLauncher {
 
 
 
-        /*if (Files.exists(savePath)) {
+        // TODO: UNCOMMENTARE E RISOLVERE EVENTUALI PROBLEMI CON IL SALVATAGGIO
+        if (Files.exists(savePath)) {
             JsonCodec jsonCodec = new JsonCodec();
             lobbyController = jsonCodec.readSaveData("src/main/Saves/save.json");
             lobbyController.setNetworkLayer(networkLayer);
@@ -37,9 +38,9 @@ public class ServerLauncher {
             }
         } else {
             lobbyController = new LobbyController(networkLayer);
-        }*/
+        }
 
-        lobbyController = new LobbyController(networkLayer);
+//        lobbyController = new LobbyController(networkLayer);
 
 
         Object[] technicalObjects = {

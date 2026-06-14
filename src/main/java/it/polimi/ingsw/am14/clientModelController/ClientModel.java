@@ -98,6 +98,7 @@ public class ClientModel {
     }
 
     public ArrayList<Character> getOffersPath() {
+        // TODO: RACE CONDITION TRA TUI E THREAD SOCKETCLIENT
         return new ArrayList<>(offersPath.get(numPlayers));
     }
 
@@ -106,7 +107,8 @@ public class ClientModel {
     }
 
     public String getHomePlayerNickname(){
-        return this.homePlayer.getNickname();
+        return (this.homePlayer == null) ?
+                "" : this.homePlayer.getNickname();
     }
 
     public ArrayList<ClientPlayer> getOtherPlayers() {

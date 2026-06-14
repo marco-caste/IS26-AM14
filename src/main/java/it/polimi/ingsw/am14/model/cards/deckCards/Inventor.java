@@ -16,7 +16,7 @@ public class Inventor extends CharacterCard{
     public Inventor(
             @JsonProperty("age") int age,
             @JsonProperty("id") int id,
-            @JsonProperty("inventionType") String invention
+            @JsonProperty("invention") String invention
     ) {
         super(age, id);
         this.invention = InventionType.valueOf(invention.toUpperCase());

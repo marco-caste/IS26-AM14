@@ -1,5 +1,8 @@
 package it.polimi.ingsw.am14.model.gameLogic;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.Objects;
 
 public class Player {
@@ -41,6 +44,36 @@ public class Player {
         this.numTopPicksLeft = 0;
         this.numBottomPicksLeft = 0;
         this.tribe = new Tribe();
+    }
+
+    @JsonCreator
+    public Player(
+            @JsonProperty("nickname") String nickname,
+            @JsonProperty("totemColor") TotemColor totemColor,
+            @JsonProperty("tribe") Tribe tribe,
+            @JsonProperty("numBottomPicksLeft") int numBottomPicksLeft,
+            @JsonProperty("numTopPicksLeft") int numTopPicksLeft,
+            @JsonProperty("numSetCompleted") int numSetCompleted,
+            @JsonProperty("addFoodStartOfRound") int addFoodStartOfRound,
+            @JsonProperty("addTopPick") int addTopPick,
+            @JsonProperty("totalGatheringDiscount") int totalGatheringDiscount,
+            @JsonProperty("totalBuildingDiscount") int totalBuildingDiscount,
+            @JsonProperty("numStars") int numStars,
+            @JsonProperty("numPrestigePoints") int numPrestigePoints,
+            @JsonProperty("numFood") int numFood) {
+        this.nickname = nickname;
+        this.totemColor = totemColor;
+        this.tribe = tribe;
+        this.numBottomPicksLeft = numBottomPicksLeft;
+        this.numTopPicksLeft = numTopPicksLeft;
+        this.numSetCompleted = numSetCompleted;
+        this.addFoodStartOfRound = addFoodStartOfRound;
+        this.addTopPick = addTopPick;
+        this.totalGatheringDiscount = totalGatheringDiscount;
+        this.totalBuildingDiscount = totalBuildingDiscount;
+        this.numStars = numStars;
+        this.numPrestigePoints = numPrestigePoints;
+        this.numFood = numFood;
     }
 
     // GETTERS:

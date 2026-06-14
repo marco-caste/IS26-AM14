@@ -153,7 +153,7 @@ public class SocketClientHandlersManager {
                     try {
                         handler.runPingServer();
                     } catch (Exception e) {
-                        System.err.println("[Server] Error closing socket: " + e.getMessage());
+                        System.err.println("[Server] Error running ping: " + e.getMessage());
                     }
                 }, "ServerThreadPing-" + nickname);
                 pingThread.start();

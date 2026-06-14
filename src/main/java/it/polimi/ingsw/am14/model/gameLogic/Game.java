@@ -62,6 +62,7 @@ public class Game implements Observable {
             @JsonProperty("currentRound") int currentRound,
             @JsonProperty("currentAge") int currentAge,
             @JsonProperty("gameId") int gameId) {
+        // TODO: ?
 //        this.currentState       = new WaitingRoomAfterCrashState();
         this.currentState       = lastCurrentState;
         this.previouslySavedState = lastCurrentState;

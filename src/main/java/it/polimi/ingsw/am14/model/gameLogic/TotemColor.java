@@ -5,5 +5,10 @@ public enum TotemColor {
     PURPLE,
     YELLOW,
     RED,
-    BLUE
+    BLUE;
+
+    @Override
+    public String toString() {
+        return this.name();
+    }
 }

@@ -1,5 +1,7 @@
 package it.polimi.ingsw.am14.controller;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import it.polimi.ingsw.am14.exceptions.*;
 import it.polimi.ingsw.am14.model.gameLogic.Game;
 
@@ -7,7 +9,10 @@ import java.sql.SQLException;
 
 public class GameController {
     private final Game game;
-    public GameController(Game game) {
+
+    @JsonCreator
+    public GameController(
+            @JsonProperty("game") Game game) {
         this.game = game;
     }
 

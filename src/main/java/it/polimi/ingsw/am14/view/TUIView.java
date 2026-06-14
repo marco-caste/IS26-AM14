@@ -17,8 +17,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static it.polimi.ingsw.am14.utils.Constants.foodTable;
+
 public class TUIView implements ViewType {
 
+    // TODO: ACCESSI A MODELREFERENCE GENERANO RACE CONDITION
+    // non è presente un meccanismo di sincronizzazione tra view e client-model per la renderizzazione.
     private ClientModel modelReference = null;
     private ClientController controller;
     private String chosenNickname = null;
@@ -53,8 +57,6 @@ public class TUIView implements ViewType {
             writer = terminal.writer();
 
             printGameTitle();
-            writer.println("Type 'help' for commands info.");
-            terminal.flush();
 
             String input;
             while ((input = lineReader.readLine(
@@ -64,24 +66,26 @@ public class TUIView implements ViewType {
 
                 switch (tokens[0].toLowerCase()) {
                     case "help" -> {
-                        writer.println("Available commands:");
-                        writer.println("  exit\t- Exit the application");
-                        writer.println("  help\t- Show this list");
-                        writer.println("  connect [socket|rmi]\t- Specify the networking technology to use");
-                        writer.println("  create [nickname] [numPlayers] [totemColor]\t- Create a new game");
-                        writer.println("  join [nickname] [gameId] [totemColor]\t- Join an existing game");
-                        writer.println("  pick [nickname] [cardID] [row]\t- Pick the specified card");
-                        writer.println("  place [nickname] [position]\t- Place the totem on the specified position");
-                        writer.println("  show [nickname|cardId|board|offersPath] <nickname> | <cardId>\t- Show the current game state");
-                        terminal.flush();
+                        lineReader.printAbove(
+                                """
+                                        Available commands:
+                                          exit\t- Exit the application
+                                          help\t- Show this list
+                                          connect [socket|rmi]\t- Specify the networking technology to use
+                                          create [nickname] [numPlayers] [totemColor]\t- Create a new game
+                                          join [nickname] [gameId] [totemColor]\t- Join an existing game
+                                          pick [nickname] [cardID] [row]\t- Pick the specified card
+                                          place [nickname] [position]\t- Place the totem on the specified position
+                                          show [nickname|cardId|board|turnOrderCard] <nickname> | <cardId>\t- Show the current game state
+                                        """
+                        );
                     }
                     case "connect" -> {
                         try {
                             this.connect(tokens);
                         } catch (IllegalArgumentException e) {
-                            writer.println(e.getMessage());
+                            lineReader.printAbove(e.getMessage());
                         }
-                        terminal.flush();
                     }
                     case "exit" -> {
                         terminal.flush();
@@ -91,45 +95,39 @@ public class TUIView implements ViewType {
                         try {
                             this.createGame(tokens);
                         } catch (RuntimeException e) {
-                            writer.println(e.getMessage());
-                            terminal.flush();
+                            lineReader.printAbove(e.getMessage());
                         }
                     }
                     case "join" -> {
                         try {
                             this.joinGame(tokens);
                         } catch (RuntimeException e) {
-                            writer.println(e.getMessage());
-                            terminal.flush();
+                            lineReader.printAbove(e.getMessage());
                         }
                     }
                     case "pick" -> {
                         try {
                             this.pickCard(tokens);
                         } catch (IllegalArgumentException e) {
-                            writer.println(e.getMessage());
-                            terminal.flush();
+                            lineReader.printAbove(e.getMessage());
                         }
                     }
                     case "place" -> {
                         try {
                             this.placeTotem(tokens);
                         } catch (IllegalArgumentException e) {
-                            writer.println(e.getMessage());
-                            terminal.flush();
+                            lineReader.printAbove(e.getMessage());
                         }
                     }
                     case "show" -> {
                         try {
                             this.show(tokens);
-                        } catch (IllegalArgumentException e) {
-                            writer.println(e.getMessage());
-                            terminal.flush();
+                        } catch (IllegalArgumentException | IllegalStateException e) {
+                            lineReader.printAbove(e.getMessage());
                         }
                     }
                     default -> {
-                        writer.println("Invalid option. Please type 'help' for a list of available commands.");
-                        terminal.flush();
+                        lineReader.printAbove("Invalid option. Please type 'help' for a list of available commands.");
                     }
                 }
             }
@@ -153,6 +151,9 @@ public class TUIView implements ViewType {
         }
         event.render(this);
     }
+
+    // TODO: STORIA DEI MESSAGGI DEL SERVER DA POTER MOSTRARE A SCHERMO COME
+    // TODO: ANDAMENTO DELLA PARTITA
 
     @Override
     public void renderLogin(String message) {
@@ -201,6 +202,7 @@ public class TUIView implements ViewType {
     @Override
     public void renderDisconnection(String message) {
         lineReader.printAbove("[Server]: " + message);
+        printGameTitle();
     }
 
     @Override
@@ -222,46 +224,42 @@ public class TUIView implements ViewType {
 
     @Override
     public void handleNetworkError(String errorMessage) {
-        lineReader.printAbove("[Network Error]: " + errorMessage);
+        lineReader.printAbove("[Network Error]: " + errorMessage + " Returning to main menu...");
+        printGameTitle();
     }
 
-    private void show(String[] args) throws IllegalArgumentException{
+    private void show(String[] args) throws IllegalArgumentException, IllegalStateException{
         if (args.length < 2) {
-            throw new IllegalArgumentException("Invalid command format. Usage: show [nickname|cardId|turnOrderCard|offersPath] <nickname> | <cardId>");
+            throw new IllegalArgumentException("Invalid command format. Usage: show [nickname|cardId|turnOrderCard|board] <nickname> | <cardId>");
         }
 
-        // TODO: check model != null
+        if (modelReference == null) {
+            throw new IllegalStateException("Please wait for the game to start.");
+        }
 
 //        template: show [nickname|cardId|turnOrderCard|offersPath] <nickname> | <cardId row>
 
-        switch (args[1]) {
+        switch (args[1].toLowerCase()) {
             case "nickname" -> {
                 if (args.length < 3) {
                     throw new IllegalArgumentException("Invalid command format. Usage: show nickname [nickname]");
                 }
-                writer.println(modelReference.getPlayerByNickname(args[2]).toString());
-                terminal.flush();
+                lineReader.printAbove(modelReference.getPlayerByNickname(args[2]).toString());
             }
-            case "cardId" -> {
+            case "cardid" -> {
                 if (args.length < 3) {
                     throw new IllegalArgumentException("Invalid command format. Usage: show cardId [cardId]");
                 }
-                writer.println(cardDescriptions.get(Integer.parseInt(args[2])));
-                terminal.flush();
+                lineReader.printAbove(cardDescriptions.get(Integer.parseInt(args[2])));
             }
             case "board" -> {
                 printBoard();
             }
-            case "offersPath" -> {
-                writer.println("fetches the offers path from client model");
+            case "turnordercard" -> {
+                printTurnOrderCard();
             }
             default -> throw new IllegalArgumentException("Invalid show option. Available options: nickname, cardId, turnOrderCard, offersPath.");
         }
-
-        /*
-        TODO: check di fattibilità:
-        use alternate_ca_mode for showing the board constantly updated by the server.
-         */
     }
 
     private void pickCard(String[] args) throws IllegalArgumentException {
@@ -276,8 +274,7 @@ public class TUIView implements ViewType {
         } catch (Exception e) {
             throw new RuntimeException("[Client] A network error occurred while sending your request\nDetails: " + e.getMessage());
         }
-        writer.println("Card pick request sent successfully!");
-        terminal.flush();
+        lineReader.printAbove("Card pick request sent successfully!");
     }
 
     private void placeTotem(String[] args) throws IllegalArgumentException {
@@ -289,13 +286,11 @@ public class TUIView implements ViewType {
         }
         try {
             // TODO: da rifare
-            // TODO: toUpperCase su char
             controller.placeTotem(Character.toUpperCase(args[2].charAt(0)));
         } catch (Exception e) {
             throw new RuntimeException("[Client] A network error occurred while sending your request\nDetails: " + e.getMessage());
         }
-        writer.println("Totem placement request sent successfully!");
-        terminal.flush();
+        lineReader.printAbove("Totem placement request sent successfully!");
     }
 
     // TODO: RIVEDERE PROMPT
@@ -306,6 +301,9 @@ public class TUIView implements ViewType {
         }
         
         // Extract the connection mode from command
+        if (!args[1].equalsIgnoreCase("socket") && !args[1].equalsIgnoreCase("rmi")) {
+            throw new IllegalArgumentException("Invalid connection mode. Available options: socket, rmi.");
+        }
         String connectionMode = args[1];
         
         // Request connection parameters from user
@@ -325,10 +323,6 @@ public class TUIView implements ViewType {
         }
 
         controller.connect(connectionMode, serverIP, serverPort, playerNickname, this);
-        
-        writer.println("Client launched successfully!");
-        writer.println("Connecting to server...");
-        terminal.flush();
     }
 
     private void createGame(String[] args) throws IllegalArgumentException {
@@ -341,8 +335,7 @@ public class TUIView implements ViewType {
         } catch (Exception e) {
             throw new RuntimeException("[Client] A network error occurred while sending your request\nDetails: " + e.getMessage());
         }
-        writer.println("Game creation request sent successfully!");
-        terminal.flush();
+        lineReader.printAbove("Game creation request sent successfully!");
     }
 
     private void joinGame(String[] args) throws IllegalArgumentException {
@@ -355,8 +348,7 @@ public class TUIView implements ViewType {
         } catch (Exception e) {
             throw new RuntimeException("[Client] A network error occurred while sending your request\nDetails: " + e.getMessage());
         }
-        writer.println("Game join request sent successfully!");
-        terminal.flush();
+        lineReader.printAbove("Game join request sent successfully!");
     }
 
     private void printGameTitle() {
@@ -373,23 +365,23 @@ public class TUIView implements ViewType {
                 "╚═╝     ╚═╝╚══════╝╚══════╝ ╚═════╝ ╚══════╝\n" +
                 "                                            ";
 
+        AttributedStringBuilder attributedTitleBuilder = new AttributedStringBuilder();
         int width = terminal.getWidth();
         String[] lines = asciiArtTitle.split("\n");
         for (String line : lines) {
             AttributedString attributedLine = new AttributedString(
-                    line, AttributedStyle.DEFAULT.foreground(AttributedStyle.RED));
+                    line + "\n", AttributedStyle.DEFAULT.foreground(AttributedStyle.RED));
             // lo spazio rimanente viene diviso a metà per centrare il testo.
             int padding = (width - attributedLine.length()) / 2;
-            writer.print(" ".repeat(Math.max(0, padding)));
-            attributedLine.println(terminal);
+            attributedTitleBuilder.append(" ".repeat(Math.max(0, padding)));
+            attributedTitleBuilder.append(attributedLine);
         }
-        // TODO oss: se avviene un resize della finestra, il titolo non viene centrato
-        terminal.flush();
+        lineReader.printAbove(attributedTitleBuilder.toAttributedString());
+        lineReader.printAbove("Type 'help' for commands info.");
     }
 
     private void printBoard() {
         ArrayList<ArrayList<Integer>> currentBoard = modelReference.getBoard();
-        int turnOrderCardIndex = modelReference.getTurnOrderCardIndex();
         ArrayList<Character> offersPath = modelReference.getOffersPath();
 
         int[] firstRowIndexes = currentBoard.stream()
@@ -440,6 +432,7 @@ public class TUIView implements ViewType {
         line2 = new AttributedStringBuilder();
         line3 = new AttributedStringBuilder();
         line4 = new AttributedStringBuilder();
+        AttributedStringBuilder turnOrderCardNameBuilder = new AttributedStringBuilder();
         // building the second row:
         line1
                 .append("▐▀▀▀▀▀▌ ")
@@ -447,9 +440,12 @@ public class TUIView implements ViewType {
         line2
                 .append("▐     ▌ ")
                 .append("║     ║ ".repeat(offersPath.size()));
-        line3.append("▐").append(String.format("  %d  ", turnOrderCardIndex)).append("▌ ");
-        for (char trackCardName : offersPath)
+        line3.append("▐     ▌ ");
+        turnOrderCardNameBuilder.append("▐     ▌ ");
+        for (char trackCardName : offersPath) {
             line3.append("║").append(printTrackCard(trackCardName)).append("║ ");
+            turnOrderCardNameBuilder.append("║  ").append(trackCardName).append("  ║ ");
+        }
         line4
                 .append("▐▄▄▄▄▄▌ ")
                 .append("╚═════╝ ".repeat(offersPath.size()));
@@ -458,7 +454,7 @@ public class TUIView implements ViewType {
                 .append(" ".repeat(Math.max(0, padding))).append(line1).append(" ".repeat(Math.max(0, padding))).append("\n")
                 .append(" ".repeat(Math.max(0, padding))).append(line2).append(" ".repeat(Math.max(0, padding))).append("\n")
                 .append(" ".repeat(Math.max(0, padding))).append(line3).append(" ".repeat(Math.max(0, padding))).append("\n")
-                .append(" ".repeat(Math.max(0, padding))).append(line2).append(" ".repeat(Math.max(0, padding))).append("\n")
+                .append(" ".repeat(Math.max(0, padding))).append(turnOrderCardNameBuilder).append(" ".repeat(Math.max(0, padding))).append("\n")
                 .append(" ".repeat(Math.max(0, padding))).append(line4).append(" ".repeat(Math.max(0, padding))).append("\n");
 
         line1 = new AttributedStringBuilder();
@@ -509,7 +505,69 @@ public class TUIView implements ViewType {
         │     │
         └─────┘
 
+        +=============+
+        |             |
+        |             |
+        |             |
+        |             |
+        |             |
+        |             |
+        |             |
+        |             |
+        +=============+
+
          */
+    }
+
+    private void printTurnOrderCard() {
+        ArrayList<String> turnOrderCard = modelReference.getPlayerOrderInTurnOrderCard();
+        int longestNicknameLength = modelReference.getAllPlayers().stream().mapToInt(p -> p.getNickname().length()).max().orElse(0);
+
+
+        AttributedStringBuilder turnOrderBuilder = new AttributedStringBuilder();
+        AttributedString limitLine = new AttributedString(
+                "+===" + "=".repeat(longestNicknameLength) + "===+\n",
+                AttributedStyle.DEFAULT.foreground(AttributedStyle.GREEN)
+        );
+        AttributedString emptyLine = new AttributedString(
+                "|" + " ".repeat(longestNicknameLength + 6) + "|\t",
+                AttributedStyle.DEFAULT.foreground(AttributedStyle.GREEN)
+        );
+        turnOrderBuilder.append(limitLine);
+        for (int i = 0; i < turnOrderCard.size(); i++) {
+            AttributedString nickname = new AttributedString(
+                    turnOrderCard.get(i) == null ? "" : turnOrderCard.get(i),
+                    AttributedStyle.DEFAULT.foreground(AttributedStyle.GREEN)
+            );
+            turnOrderBuilder.append(emptyLine);
+            turnOrderBuilder.append("\n");
+            if (!nickname.isEmpty()) {
+                turnOrderBuilder.append("|   ",
+                        AttributedStyle.DEFAULT.foreground(AttributedStyle.GREEN)
+                );
+                turnOrderBuilder.append(colorNickname(nickname.toString()));
+                turnOrderBuilder.append(" ".repeat(longestNicknameLength - nickname.length()) + "   |\t",
+                        AttributedStyle.DEFAULT.foreground(AttributedStyle.GREEN)
+                );
+            }
+            else
+                turnOrderBuilder.append(emptyLine);
+            turnOrderBuilder.append(
+                    new AttributedString(
+                            "← This player " +
+                                    (foodTable.get(modelReference.getNumPlayers()).get(i) > 0 ?
+                                            "gets " + foodTable.get(turnOrderCard.size()).get(i) + " food" :
+                                            "loses " + Math.abs(foodTable.get(turnOrderCard.size()).get(i)) + " food")
+                                    + " at the end of this round.\n",
+                            AttributedStyle.DEFAULT.foreground(AttributedStyle.WHITE)
+                    )
+            );
+        }
+        turnOrderBuilder.append(emptyLine);
+        turnOrderBuilder.append("\n");
+        turnOrderBuilder.append(limitLine);
+
+        lineReader.printAbove(turnOrderBuilder.toAttributedString());
     }
 
     record CardColors(int lower, int upper, AttributedStyle style) {}
@@ -533,6 +591,16 @@ public class TUIView implements ViewType {
                 .orElse(AttributedStyle.DEFAULT.foreground(AttributedStyle.WHITE));
 
         return new AttributedString(card, style);
+    }
+
+    private AttributedString colorNickname(String chosenNickname) {
+        return switch (modelReference.getPlayerByNickname(chosenNickname).getTotemColor()) {
+            case "purple" -> new AttributedString(chosenNickname, AttributedStyle.DEFAULT.foreground(147, 68, 97));
+            case "yellow" -> new AttributedString(chosenNickname, AttributedStyle.DEFAULT.foreground(AttributedStyle.YELLOW));
+            case "red" -> new AttributedString(chosenNickname, AttributedStyle.DEFAULT.foreground(AttributedStyle.RED));
+            case "blue" -> new AttributedString(chosenNickname, AttributedStyle.DEFAULT.foreground(AttributedStyle.CYAN));
+            default -> new AttributedString(chosenNickname, AttributedStyle.DEFAULT.foreground(AttributedStyle.WHITE));
+        };
     }
 
     private AttributedString printTrackCard(Character trackCardName) {

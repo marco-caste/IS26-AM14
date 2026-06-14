@@ -1,5 +1,7 @@
 package it.polimi.ingsw.am14.model.boardComponents;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import it.polimi.ingsw.am14.model.cards.deckCards.*;
 import it.polimi.ingsw.am14.utils.JsonCodec;
 
@@ -56,6 +58,18 @@ public class TribeDeck {
                 this.deckableDeck.push(c);
             }
         }
+    }
+
+    /**
+     * <p>
+     *     builds the TribeDeck object from a Stack of DeckCards
+     * </p>
+     * @param deckableDeck not null, the Stack of DeckCards to be used as the deck
+     */
+    @JsonCreator
+    public TribeDeck(
+            @JsonProperty("deckableDeck") Stack<DeckCard> deckableDeck) {
+        this.deckableDeck = deckableDeck;
     }
 
     // POP FROM DECK
