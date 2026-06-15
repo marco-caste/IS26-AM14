@@ -8,6 +8,9 @@ import it.polimi.ingsw.am14.exceptions.WrongTurnException;
 
 class PositionState extends GameState {
 
+    Boolean isThereFirstFood = false;
+    Player first = null;
+
     /**
      * <p>
      *     moves player p from the TurnOrderCard towards the required TrackCard:
@@ -25,6 +28,7 @@ class PositionState extends GameState {
     @Override
     protected void placeTotem(Game context, Player p, char trackCardName) throws UnknownPositionException, WrongTurnException, IllegalPlacementException {
 
+        String firstNickname = null;
         // retrieves data from the context
         TrackCard destinationTrackCard = context.getBoard().getOffersPath().offersPathGet(Character.toUpperCase(trackCardName));
         int currentPlayerIdx = context.getCurrentPlayerIndex();
@@ -49,6 +53,8 @@ class PositionState extends GameState {
             throw new IllegalPlacementException("TrackCard already occupied by " + destinationTrackCard.getPlayerTotem().getNickname());
         }
 
+
+
         // places p on the desired TrackCard and applies its effects
         destinationTrackCard.setPlayerTotem(p);
         destinationTrackCard.effect();
@@ -57,18 +63,38 @@ class PositionState extends GameState {
         // increases the currentPlayerIndex
         context.incrementCurrentPlayerIndexBy(1);
 
-        // observer pattern: sends event to event buffer
-        context.notifyObservers(
-                new TotemPlacedEvent(
-                        p.getNickname(),
-                        trackCardName,
-                        context.getGameId()
-                )
-        );
+
+        if(context.getCurrentPlayerIndex() == 5){
+            TrackCard foodTrackCard = context.getBoard().getOffersPath().offersPathGet(Character.toUpperCase('A'));
+            first = foodTrackCard.getPlayerTotem();
+
+            if(first != null){
+                foodTrackCard.setPlayerTotem(null);
+                isThereFirstFood = true;
+                firstNickname = first.getNickname();
+            }
+
+        }
+
 
         if (context.getCurrentPlayerIndex() > context.getNumPlayers() - 1) {
             this.nextState(context);
         }
+
+
+
+        context.notifyObservers(
+                new TotemPlacedEvent(
+                        p.getNickname(),
+                        trackCardName,
+                        context.getGameId(),
+                        p.getNumFood(),
+                        firstNickname
+                )
+        );
+
+        // observer pattern: sends event to event buffer
+
     }
 
     /**
@@ -81,11 +107,15 @@ class PositionState extends GameState {
      * @param context not null
      */
     @Override
+
     protected void nextState(Game context) {
         // updatest current state
         context.setCurrentState(new PickState());
         // empties TurnOrderCard
         context.getBoard().getTurnOrderCard().clearPlayerOrder();
+
+        if(isThereFirstFood)
+            context.getBoard().getTurnOrderCard().addPlayer(first);
         // sets currentPlayerIndex = 0
         context.setCurrentPlayerIndex(0);
     }
