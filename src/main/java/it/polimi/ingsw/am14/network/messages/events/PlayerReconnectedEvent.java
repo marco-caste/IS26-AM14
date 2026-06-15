@@ -2,6 +2,7 @@ package it.polimi.ingsw.am14.network.messages.events;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import it.polimi.ingsw.am14.clientModelController.ClientController;
 import it.polimi.ingsw.am14.clientModelController.ClientModel;
 import it.polimi.ingsw.am14.clientModelController.ClientPlayer;
 import it.polimi.ingsw.am14.model.boardComponents.Board;
@@ -167,5 +168,10 @@ public class PlayerReconnectedEvent extends ServerEvent {
             model.setPlayerOrderInTurnOrderCard(playersOrderInTurnOrderCard);
         }
         model.notifyObservers(new PlayerReconnectedViewEvent(description));
+    }
+
+    @Override
+    public void onEventProcessed(ClientController controller) {
+        controller.initializePing(playerNickname);
     }
 }

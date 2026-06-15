@@ -43,6 +43,6 @@ public class LoginSuccesfulEvent extends ServerEvent {
 
     @Override
     public void onEventProcessed(ClientController controller) {
-        controller.initializePing(this.playerNickname);
+        controller.initializePing(playerNickname);
     }
 }

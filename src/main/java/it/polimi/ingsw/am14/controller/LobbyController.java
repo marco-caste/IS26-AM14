@@ -132,8 +132,8 @@ public class LobbyController {
         }
         else {
             networkLayer.update(new LoginSuccesfulEvent(nickname));
-            setLastPingReceivedTime(nickname);
         }
+        setLastPingReceivedTime(nickname);
     }
 
     public void createGame(String nickname, int numPlayers, String totemColor) throws IllegalSetupException, WrongStateException, IllegalNicknameException {

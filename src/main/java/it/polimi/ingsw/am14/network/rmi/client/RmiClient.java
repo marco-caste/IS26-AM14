@@ -46,7 +46,7 @@ public class RmiClient extends UnicastRemoteObject implements VirtualClientRmi, 
     public void connect(String nickname, String ipAddress, int port) throws RemoteException {
         Registry registry = LocateRegistry.getRegistry(ipAddress, port);
         try {
-            this.server = (VirtualServerRmi) registry.lookup(serverName);
+            server = (VirtualServerRmi) registry.lookup(serverName);
             server.connect(this, nickname);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
