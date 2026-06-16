@@ -19,6 +19,7 @@ public class ClientController {
     private VirtualServer server;
     private long lastPingReceived;
     List<Thread> threads = new ArrayList<>();
+    private final Object dataLock = new Object();
 
     public void pickCard(int cardId) {
         //Model check
@@ -251,8 +252,10 @@ public class ClientController {
     }
 
     public void update(Event event) {
-        event.effect(model);
-        event.onEventProcessed(this);
+        synchronized (dataLock) {
+            event.effect(model);
+            event.onEventProcessed(this);
+        }
     }
 
     private void handleException(String description) {

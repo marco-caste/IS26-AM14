@@ -145,7 +145,6 @@ public class SocketClientHandlersManager {
                 String firstLine = pingInput.readLine();
                 ClientRequest request = jsonCodec.parseClientRequest(firstLine);
                 String nickname = request.getNickname();
-                //TODO: Bisogna effettuare un controllo che non sia stato ancora preso?
                 SocketClientHandler handler = (SocketClientHandler) networkLayer.getClientBy(nickname);
                 handler.setPingSocket(pingInput, pingOutput, clientPingSocket, nickname);
 

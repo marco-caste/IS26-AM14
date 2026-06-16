@@ -154,6 +154,7 @@ public class GUIView extends Application implements ViewType {
     public void update(ClientModel model, ViewEvent viewEvent) {
 
         System.out.println("Received update: " + viewEvent.getClass().getSimpleName() + " with message: " + viewEvent.toString());
+
         if (this.modelReference == null)
             this.modelReference = model;
 
@@ -164,8 +165,6 @@ public class GUIView extends Application implements ViewType {
 
         });
     }
-
-
 
 
 
@@ -184,12 +183,15 @@ public class GUIView extends Application implements ViewType {
     @Override
     public void renderGameStart(String message) {
         gameCreation();
+        updatePlayerStats();
     }
+
 
     @Override
     public void renderTotemPlaced(String message) {
         updateoffersPathBox();
         updateTop(message);
+        updatePlayerStats();
     }
 
     @Override
@@ -236,6 +238,7 @@ public class GUIView extends Application implements ViewType {
 
     @Override
     public void renderException(String message) {
+        System.out.println(message);
         if(gameScene!= null) updateTop(message);
         if(loginScene!= null) loginErororLabel.setText(message);
         if(gameChoiceScene!=null) gameChoiceErrorLabel.setText(message);
@@ -763,7 +766,7 @@ public class GUIView extends Application implements ViewType {
                 yRatio = 0.405;
             }
             case "white" -> {
-                xRatio = 0.770;
+                xRatio = 0.745;
                 yRatio = 0.395;
             }
             default -> {
@@ -1107,14 +1110,25 @@ public class GUIView extends Application implements ViewType {
 
     // it returns the ratio needed based on the position a totem should have on the turnOrderCard to be rightfully center based on playerPosition
     private PointRatio getTurnOrderSlotPosition(int index) {
-        return switch (index) {
-            case 0 -> new PointRatio(0.50, 0.25);  // x va bene y è da lavorarci // per foto non ritagliate va bene dopo aver fatto un po di prove
-            case 1 -> new PointRatio(0.50, 0.43);
-            case 2 -> new PointRatio(0.50, 0.61);
-            case 3 -> new PointRatio(0.50, 0.74);
-            case 4 -> new PointRatio(0.50, 0.87);
-            default -> throw new IllegalStateException("Unexpected value: " + index);
-        };
+        if (modelReference.getNumPlayers() < 4) {
+            return switch (index) {
+                case 0 -> new PointRatio(0.50, 0.25);  // x va bene y è da lavorarci // per foto non ritagliate va bene dopo aver fatto un po di prove
+                case 1 -> new PointRatio(0.50, 0.43);
+                case 2 -> new PointRatio(0.50, 0.61);
+                case 3 -> new PointRatio(0.50, 0.74);
+                case 4 -> new PointRatio(0.50, 0.87);
+                default -> throw new IllegalStateException("Unexpected value: " + index);
+            };
+        }
+            else{  return switch (index) {
+                case 0 -> new PointRatio(0.50, 0.17);  // x va bene y è da lavorarci // per foto non ritagliate va bene dopo aver fatto un po di prove
+                case 1 -> new PointRatio(0.50, 0.33);
+                case 2 -> new PointRatio(0.50, 0.51);
+                case 3 -> new PointRatio(0.50, 0.69);
+                case 4 -> new PointRatio(0.50, 0.82);
+                default -> throw new IllegalStateException("Unexpected value: " + index);
+            };
+        }
     }
 
 
@@ -1122,7 +1136,7 @@ public class GUIView extends Application implements ViewType {
         ImageView totem = createSmallTotem(color);
 
         // stesso principio di quanto visto per la turnOrderCard
-        PointRatio pos = new PointRatio(0.50, 0.30);  // x,y
+        PointRatio pos = new PointRatio(0.50, 0.20);  // x,y
 
         double x = BOARD_CARD_WIDTH * pos.x() - SMALL_TOTEM_WIDTH / 2;
         double y = BOARD_CARD_HEIGHT * pos.y() - SMALL_TOTEM_HEIGHT / 2;
@@ -1360,7 +1374,8 @@ public class GUIView extends Application implements ViewType {
         ArrayList<String> players = new ArrayList<>(modelReference.getOtherPlayers().stream().map(ClientPlayer::getNickname).toList());
         players.add(modelReference.getHomePlayer().getNickname());
 
-        for (String playerName : players) {
+        for (int i = players.size() - 1; i >= 0; i--) {
+            String playerName = players.get(i);
             playersStatsBox.getChildren().add(
                     createPlayerStats(playerName)
             );

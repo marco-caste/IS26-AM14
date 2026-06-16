@@ -12,8 +12,8 @@ import static it.polimi.ingsw.am14.utils.Constants.*;
 public class MyJDBC {
 
     public static void saveToDB(int game_id, String nickname, int finalScore, int numPlayers) throws SQLException {
-        String query = "INSERT INTO mesos_db (game_id, nickname, final_score, date, num_players) " +
-                "VALUES (?, ?, ?, ?, ?)";
+        String query = "INSERT INTO mesos_db (game_id, nickname, final_score, date, num_players, time) " +
+                "VALUES (?, ?, ?, ?, ?, ?)";
         Connection connection = DriverManager.getConnection(DBurl, DBusername, DBpassword);
         PreparedStatement ps = connection.prepareStatement(query);
 
@@ -22,6 +22,7 @@ public class MyJDBC {
         ps.setInt(3, finalScore);
         ps.setDate(4, new Date(System.currentTimeMillis()));
         ps.setInt(5, numPlayers);
+        ps.setTime(6, new Time(System.currentTimeMillis()));
 
         ps.executeUpdate();
 
