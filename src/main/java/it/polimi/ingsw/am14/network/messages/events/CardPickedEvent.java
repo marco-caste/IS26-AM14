@@ -44,10 +44,8 @@ public class CardPickedEvent extends UpdateEvent {
 
         String rowName;
         switch (row) {
-            case 0 -> rowName = "TOP_DECKABLE_ROW";
-            case 1 -> rowName = "TOP_BUILDING_ROW";
-            case 2 -> rowName = "BOTTOM_DECKABLE_ROW";
-            case 3 -> rowName = "BOTTOM_BUILDING_ROW";
+            case 0, 1 -> rowName = "top row";
+            case 2, 3 -> rowName = "bottom row";
             default -> throw new IllegalArgumentException("Row must be between 0 and 3");
         }
         this.playerNickname = playerNickname;
@@ -61,14 +59,14 @@ public class CardPickedEvent extends UpdateEvent {
         this.playerGatheringDiscount = playerGatheringDiscount;
 
         this.gameId = gameId;
-        this.description += "Player " + playerNickname + " has picked card with ID " + cardID + " from " + rowName;
+        this.description += "Player " + playerNickname + " has picked card with ID " + cardID + " from the " + rowName + ".";
 
         updatedTurnOrderCard.ifPresentOrElse(
                 (turnOrder) -> {
                     this.updatedTurnOrderCard = turnOrder.stream().
                             map(Player::getNickname).
                             collect(Collectors.toCollection(ArrayList::new));
-                    this.description += "Was " + playerNickname + "'s last pick, turnOrderCard has been updated\n";
+                    this.description += " Was " + playerNickname + "'s last pick, turnOrderCard has been updated.";
                 },
                 () -> this.updatedTurnOrderCard = null
         );

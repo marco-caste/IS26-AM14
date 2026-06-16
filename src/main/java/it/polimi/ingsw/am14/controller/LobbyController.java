@@ -28,7 +28,7 @@ public class LobbyController {
 
     private final Map<Integer, GameController> gameIdToGameController;
     private final Map<String, Integer> nicknameToGameId;
-    private int gameIdCounter = 0;
+    private int gameIdCounter;
     @JsonIgnore
     private NetworkLayer networkLayer;        // TODO: CHECK SINCRONIZZAZIONE
     @JsonIgnore
@@ -43,6 +43,7 @@ public class LobbyController {
         this.nicknameToGameId = new HashMap<>();
         this.networkLayer = networkLayer;
         this.lastPingReceivedTime = new HashMap<>();
+        this.gameIdCounter = 0;
     }
 
     @JsonCreator
@@ -143,6 +144,7 @@ public class LobbyController {
             GameController gameController = new GameController(game);
             addGameController(game.getGameId(), gameController);
             assignPlayerToGame(nickname, game.getGameId());
+            gameIdCounter++;
             gameController.onPlayerConnection(nickname, totemColor);
         }
         new Thread(() -> {
@@ -217,6 +219,12 @@ public class LobbyController {
                     disconnectUser(nickname);
                 }
             }
+        }
+    }
+
+    public void registerObserversAfterReconnection(NetworkLayer networkLayer) {
+        for (GameController gc: gameIdToGameController.values()) {
+            gc.getGame().addObserver(networkLayer);
         }
     }
 }

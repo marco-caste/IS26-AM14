@@ -62,7 +62,7 @@ public class TrackCard {
 
     @JsonIgnore
     public String getPlayerNickname() {
-        return playerTotem.getNickname();
+        return playerTotem == null ? null : playerTotem.getNickname();
     }
 
     /**

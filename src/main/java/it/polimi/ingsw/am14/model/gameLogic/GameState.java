@@ -19,7 +19,8 @@ import java.util.Optional;
         @JsonSubTypes.Type(value = PositionState.class, name = "positionState"),
         @JsonSubTypes.Type(value = PickState.class, name = "pickState"),
         @JsonSubTypes.Type(value = EndRoundState.class, name = "endRoundState"),
-        @JsonSubTypes.Type(value = EndGameState.class, name = "endGameState")
+        @JsonSubTypes.Type(value = EndGameState.class, name = "endGameState"),
+        @JsonSubTypes.Type(value = WaitingRoomAfterCrashState.class, name = "waitingRoomAfterCrashState")
 })
 
 abstract class GameState {

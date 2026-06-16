@@ -13,6 +13,8 @@ import java.util.Map;
 
 import static org.jline.builtins.Completers.TreeCompleter.node;
 
+// TODO: CANCELLARE
+
 public class ContextAwareCompleter implements Completer {
 
     private final Map<String, Completer> completers = new HashMap<>();

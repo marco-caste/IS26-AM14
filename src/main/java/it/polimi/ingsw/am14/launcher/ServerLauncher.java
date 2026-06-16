@@ -31,6 +31,7 @@ public class ServerLauncher {
             JsonCodec jsonCodec = new JsonCodec();
             lobbyController = jsonCodec.readSaveData("src/main/Saves/save.json");
             lobbyController.setNetworkLayer(networkLayer);
+            lobbyController.registerObserversAfterReconnection(networkLayer);
             try {
                 Files.delete(savePath);
             } catch (IOException e) {
@@ -39,8 +40,6 @@ public class ServerLauncher {
         } else {
             lobbyController = new LobbyController(networkLayer);
         }
-
-//        lobbyController = new LobbyController(networkLayer);
 
 
         Object[] technicalObjects = {

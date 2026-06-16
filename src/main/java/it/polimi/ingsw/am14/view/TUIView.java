@@ -10,6 +10,7 @@ import org.jline.terminal.TerminalBuilder;
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStringBuilder;
 import org.jline.utils.AttributedStyle;
+import org.jline.utils.InfoCmp;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -30,12 +31,14 @@ public class TUIView implements ViewType {
     private LineReader lineReader;
     private PrintWriter writer;
     private static Map<Integer, String> cardDescriptions;
+    private List<String> gameHistory;
 
     @Override
     public void run() throws IOException {
         this.controller = new ClientController();
         JsonCodec codec = new JsonCodec();
         cardDescriptions = codec.readCardDescriptions("src/main/resources/CardDescriptions.json");
+        gameHistory = new ArrayList<>();
 
         try {
 
@@ -44,14 +47,8 @@ public class TUIView implements ViewType {
                     .ffm(true)
                     .build();
 
-            // TODO: completer funziona strano, "context" sembra non funzionare
             lineReader = LineReaderBuilder.builder()
                     .terminal(terminal)
-                    .completer(new ContextAwareCompleter())
-                    .option(LineReader.Option.AUTO_LIST, true) // Automatically list options
-                    .option(LineReader.Option.LIST_PACKED, true) // Display completions in a compact form
-                    .option(LineReader.Option.AUTO_MENU, true) // Show menu automatically
-                    .option(LineReader.Option.MENU_COMPLETE, true) // Cycle through completions
                     .build();
 
             writer = terminal.writer();
@@ -67,16 +64,22 @@ public class TUIView implements ViewType {
                 switch (tokens[0].toLowerCase()) {
                     case "help" -> {
                         lineReader.printAbove(
+                                // TODO: COLORI
                                 """
                                         Available commands:
                                           exit\t- Exit the application
                                           help\t- Show this list
                                           connect [socket|rmi]\t- Specify the networking technology to use
-                                          create [nickname] [numPlayers] [totemColor]\t- Create a new game
-                                          join [nickname] [gameId] [totemColor]\t- Join an existing game
-                                          pick [nickname] [cardID] [row]\t- Pick the specified card
-                                          place [nickname] [position]\t- Place the totem on the specified position
-                                          show [nickname|cardId|board|turnOrderCard] <nickname> | <cardId>\t- Show the current game state
+                                          create [numPlayers] [totemColor]\t- Create a new game
+                                          join [gameId] [totemColor]\t- Join an existing game
+                                          pick [cardID]\t- Pick the specified card
+                                          place [position]\t- Place the totem on the specified position
+                                          show [nickname|cardId|board|turnOrderCard|gameHistory] <nickname> | <cardId>\t- Show information about the current game
+                                          \tshow nickname <nickname>\t- Show information about the specified player
+                                          \tshow cardId <cardId>\t- Show information about the specified card
+                                          \tshow board\t- Show the current state of the board
+                                          \tshow turnOrderCard\t- Show the current turn order card
+                                          \tshow gameHistory\t- Show the history of the latest game
                                         """
                         );
                     }
@@ -152,8 +155,7 @@ public class TUIView implements ViewType {
         event.render(this);
     }
 
-    // TODO: STORIA DEI MESSAGGI DEL SERVER DA POTER MOSTRARE A SCHERMO COME
-    // TODO: ANDAMENTO DELLA PARTITA
+    // TODO: SINCRONIZZARE SU LINEREADER
 
     @Override
     public void renderLogin(String message) {
@@ -167,30 +169,35 @@ public class TUIView implements ViewType {
 
     @Override
     public void renderGameStart(String message) {
-        lineReader.printAbove("[Server]: " + message);
+        gameHistory.add(message);
         printBoard();
+        lineReader.printAbove("[Server]: " + message);
     }
 
     @Override
     public void renderTotemPlaced(String message) {
-        lineReader.printAbove("[Server]: " + message);
+        gameHistory.add(message);
         printBoard();
+        lineReader.printAbove("[Server]: " + message);
     }
 
     @Override
     public void renderCardPicked(String message) {
-        lineReader.printAbove("[Server]: " + message);
+        gameHistory.add(message);
         printBoard();
+        lineReader.printAbove("[Server]: " + message);
     }
 
     @Override
     public void renderEndRound(String message) {
-        lineReader.printAbove("[Server]: " + message);
+        gameHistory.add(message);
         printBoard();
+        lineReader.printAbove("[Server]: " + message);
     }
 
     @Override
     public void renderEndGame(String message) {
+        gameHistory.add(message);
         lineReader.printAbove("[Server]: " + message);
         StringBuilder scoreBoard = new StringBuilder();
         for (String player : modelReference.getFinalRank()) {
@@ -201,19 +208,25 @@ public class TUIView implements ViewType {
 
     @Override
     public void renderDisconnection(String message) {
+        this.modelReference = null;
+        gameHistory.clear();
+        terminal.puts(InfoCmp.Capability.clear_screen);
+        terminal.flush();
         lineReader.printAbove("[Server]: " + message);
-        printGameTitle();
+        lineReader.printAbove("Type join to enter a game or create to start a new one.");
     }
 
     @Override
     public void renderReconnection(String message) {
+        gameHistory.add(message);
+        this.chosenNickname = modelReference.getHomePlayerNickname();
         lineReader.printAbove("[Server]: " + message);
     }
 
     @Override
     public void renderGameRestarted(String message) {
-        // TODO: stampare la board
-//        printBoard();
+        gameHistory.add(message);
+        printBoard();
         lineReader.printAbove("[Server]: " + message);
     }
 
@@ -225,19 +238,19 @@ public class TUIView implements ViewType {
     @Override
     public void handleNetworkError(String errorMessage) {
         lineReader.printAbove("[Network Error]: " + errorMessage + " Returning to main menu...");
+        this.chosenNickname = "";
+        this.modelReference = null;
         printGameTitle();
     }
 
     private void show(String[] args) throws IllegalArgumentException, IllegalStateException{
         if (args.length < 2) {
-            throw new IllegalArgumentException("Invalid command format. Usage: show [nickname|cardId|turnOrderCard|board] <nickname> | <cardId>");
+            throw new IllegalArgumentException("Invalid command format. Usage: show [nickname|cardId|turnOrderCard|board|gameHistory] <nickname> | <cardId>");
         }
 
         if (modelReference == null) {
             throw new IllegalStateException("Please wait for the game to start.");
         }
-
-//        template: show [nickname|cardId|turnOrderCard|offersPath] <nickname> | <cardId row>
 
         switch (args[1].toLowerCase()) {
             case "nickname" -> {
@@ -258,19 +271,27 @@ public class TUIView implements ViewType {
             case "turnordercard" -> {
                 printTurnOrderCard();
             }
+            case "gamehistory" -> {
+                if (gameHistory.isEmpty()) {
+                    lineReader.printAbove("No game history available.");
+                } else {
+                    StringBuilder historyBuilder = new StringBuilder();
+                    for (String event : gameHistory) {
+                        historyBuilder.append(event).append("\n");
+                    }
+                    lineReader.printAbove(historyBuilder.toString());
+                }
+            }
             default -> throw new IllegalArgumentException("Invalid show option. Available options: nickname, cardId, turnOrderCard, offersPath.");
         }
     }
 
     private void pickCard(String[] args) throws IllegalArgumentException {
-        if (args.length < 4) {
-            throw new IllegalArgumentException("Invalid command format. Usage: pick [nickname] [cardID] [row]");
-        }
-        if (!chosenNickname.equals(args[1])) {
-            throw new IllegalArgumentException("You must use the same nickname as written on the prompt.");
+        if (args.length < 2) {
+            throw new IllegalArgumentException("Invalid command format. Usage: pick [cardID]");
         }
         try {
-            controller.pickCard(Integer.parseInt(args[2]));
+            controller.pickCard(Integer.parseInt(args[1]));
         } catch (Exception e) {
             throw new RuntimeException("[Client] A network error occurred while sending your request\nDetails: " + e.getMessage());
         }
@@ -278,22 +299,17 @@ public class TUIView implements ViewType {
     }
 
     private void placeTotem(String[] args) throws IllegalArgumentException {
-        if (args.length < 3) {
-            throw new IllegalArgumentException("Invalid command format. Usage: place [nickname] [position]");
-        }
-        if (!chosenNickname.equals(args[1])) {
-            throw new IllegalArgumentException("You must use the same nickname as written on the prompt.");
+        if (args.length < 2) {
+            throw new IllegalArgumentException("Invalid command format. Usage: place [position]");
         }
         try {
-            // TODO: da rifare
-            controller.placeTotem(Character.toUpperCase(args[2].charAt(0)));
+            controller.placeTotem(Character.toUpperCase(args[1].charAt(0)));
         } catch (Exception e) {
             throw new RuntimeException("[Client] A network error occurred while sending your request\nDetails: " + e.getMessage());
         }
         lineReader.printAbove("Totem placement request sent successfully!");
     }
 
-    // TODO: RIVEDERE PROMPT
     private void connect(String[] args) throws IllegalArgumentException {
 
         if (args.length < 2) {
@@ -303,6 +319,10 @@ public class TUIView implements ViewType {
         // Extract the connection mode from command
         if (!args[1].equalsIgnoreCase("socket") && !args[1].equalsIgnoreCase("rmi")) {
             throw new IllegalArgumentException("Invalid connection mode. Available options: socket, rmi.");
+        }
+
+        if (this.controller.isConnected()) {
+            throw new IllegalArgumentException("You are already connected to a server.");
         }
         String connectionMode = args[1];
         
@@ -326,12 +346,11 @@ public class TUIView implements ViewType {
     }
 
     private void createGame(String[] args) throws IllegalArgumentException {
-        if (args.length < 4) {
-            throw new IllegalArgumentException("Invalid command format. Usage: create [nickname] [numPlayers] [totemColor]");
+        if (args.length < 3) {
+            throw new IllegalArgumentException("Invalid command format. Usage: create [numPlayers] [totemColor]");
         }
         try {
-            //TODO: DA RIFARE
-            controller.createGame(Integer.parseInt(args[2]), args[3].toLowerCase());
+            controller.createGame(Integer.parseInt(args[1]), args[2].toLowerCase());
         } catch (Exception e) {
             throw new RuntimeException("[Client] A network error occurred while sending your request\nDetails: " + e.getMessage());
         }
@@ -339,12 +358,11 @@ public class TUIView implements ViewType {
     }
 
     private void joinGame(String[] args) throws IllegalArgumentException {
-        if (args.length < 4) {
-            throw new IllegalArgumentException("Invalid command format. Usage: join [nickname] [gameId] [totemColor]");
+        if (args.length < 3) {
+            throw new IllegalArgumentException("Invalid command format. Usage: join [gameId] [totemColor]");
         }
         try {
-            //TODO: da rifare
-            controller.joinGame(Integer.parseInt(args[2]), args[3].toLowerCase());
+            controller.joinGame(Integer.parseInt(args[1]), args[2].toLowerCase());
         } catch (Exception e) {
             throw new RuntimeException("[Client] A network error occurred while sending your request\nDetails: " + e.getMessage());
         }
@@ -377,6 +395,7 @@ public class TUIView implements ViewType {
             attributedTitleBuilder.append(attributedLine);
         }
         lineReader.printAbove(attributedTitleBuilder.toAttributedString());
+        // TODO: COLORARE DI VERDE PER RENDERE BEN VISIBILE
         lineReader.printAbove("Type 'help' for commands info.");
     }
 
@@ -521,7 +540,11 @@ public class TUIView implements ViewType {
 
     private void printTurnOrderCard() {
         ArrayList<String> turnOrderCard = modelReference.getPlayerOrderInTurnOrderCard();
-        int longestNicknameLength = modelReference.getAllPlayers().stream().mapToInt(p -> p.getNickname().length()).max().orElse(0);
+        int longestNicknameLength = modelReference.getAllPlayers().stream()
+                .mapToInt(p -> p.getNickname().length())
+                .max()
+                .orElse(0);
+        int numPlayers = modelReference.getNumPlayers();
 
 
         AttributedStringBuilder turnOrderBuilder = new AttributedStringBuilder();
@@ -534,7 +557,7 @@ public class TUIView implements ViewType {
                 AttributedStyle.DEFAULT.foreground(AttributedStyle.GREEN)
         );
         turnOrderBuilder.append(limitLine);
-        for (int i = 0; i < turnOrderCard.size(); i++) {
+        for (int i = 0; i < numPlayers; i++) {
             AttributedString nickname = new AttributedString(
                     turnOrderCard.get(i) == null ? "" : turnOrderCard.get(i),
                     AttributedStyle.DEFAULT.foreground(AttributedStyle.GREEN)
@@ -555,9 +578,9 @@ public class TUIView implements ViewType {
             turnOrderBuilder.append(
                     new AttributedString(
                             "← This player " +
-                                    (foodTable.get(modelReference.getNumPlayers()).get(i) > 0 ?
-                                            "gets " + foodTable.get(turnOrderCard.size()).get(i) + " food" :
-                                            "loses " + Math.abs(foodTable.get(turnOrderCard.size()).get(i)) + " food")
+                                    (foodTable.get(numPlayers).get(i) > 0 ?
+                                            "gets " + foodTable.get(numPlayers).get(i) + " food" :
+                                            "loses " + Math.abs(foodTable.get(numPlayers).get(i)) + " food")
                                     + " at the end of this round.\n",
                             AttributedStyle.DEFAULT.foreground(AttributedStyle.WHITE)
                     )
@@ -609,7 +632,7 @@ public class TUIView implements ViewType {
             case 'B', 'b' -> new AttributedString(" 1↓  ", AttributedStyle.DEFAULT.foreground(AttributedStyle.RED));
             case 'C', 'c' -> new AttributedString(" 1↑  ", AttributedStyle.DEFAULT.foreground(AttributedStyle.GREEN));
             case 'D', 'd' -> new AttributedString(" 2↓  ", AttributedStyle.DEFAULT.foreground(AttributedStyle.RED));
-            case 'E', 'e' -> new AttributedStringBuilder().append(new AttributedString("2↓", AttributedStyle.DEFAULT.foreground(AttributedStyle.RED)))
+            case 'E', 'e' -> new AttributedStringBuilder().append(new AttributedString("1↓", AttributedStyle.DEFAULT.foreground(AttributedStyle.RED)))
                     .append("/")
                     .append(new AttributedString("1↑", AttributedStyle.DEFAULT.foreground(AttributedStyle.GREEN)))
                     .toAttributedString();
