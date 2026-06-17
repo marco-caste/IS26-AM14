@@ -48,13 +48,13 @@ class PickState extends GameState {
         int availableBottomCharacters = countAvailableCharacterCardsFromBottomRow(context, player);
 
         // skip
-        if (safeCard.isEmpty()) {
-            handlePlayerSkipAction(player, context, availableTopCharacters, availableBottomCharacters, playerTotemPosition);
-            return;
-        }
+//        if (safeCard.isEmpty()) {
+//            handlePlayerSkipAction(player, context, availableTopCharacters, availableBottomCharacters, playerTotemPosition);
+//            return;
+//        }
 
         Card selectedCard = safeCard.get();
-        if (!selectedCard.isPickable(player)){
+        if (!selectedCard.isPickable(player)) {
             throw new IllegalPickException("You can't pick this card");
         }
 
@@ -94,25 +94,30 @@ class PickState extends GameState {
         }
 
         // CHECK PLAYER SUCCESSIVO + CLIENT UPDATE:
-
         // Il prossimo pick puo restare al player corrente o passare al successivo.
         if (player.getNumTopPicksLeft() != 0 || player.getNumBottomPicksLeft() != 0) {
-            boolean currentPlayerHasMorePicks = determineIfCurrentPlayerCanContinuePickingFromBothRows(player, context, availableTopCharacters, availableBottomCharacters, playerTotemPosition);
+            boolean currentPlayerHasMorePicks = determineIfCurrentPlayerCanContinuePickingFromBothRows(player, context, availableTopCharacters, availableBottomCharacters, playerTotemPosition, selectedCard, row);
+            // caso 1: posso pickare --> true -- was last pick false
+            // caso 2: non posso pickare ma sono l'ultimo --->true --was last pick true
+            // caso 3: non posso pickare ma non sono l'ultimo --> false --> was last pick true
+
             if (!currentPlayerHasMorePicks) {
-                findAndActivateNextPlayerInTurnOrder(context, availableTopCharacters, availableBottomCharacters, playerTotemPosition);
+                findAndActivateNextPlayerInTurnOrder(context, availableTopCharacters, availableBottomCharacters, playerTotemPosition, selectedCard, row);
+                this.update(player, selectedCard, row, context, true);
             }
-            // client update
-            this.update(player, selectedCard, row, context, false);
+
+
         } else {  // dobbiamo analizzare cosa avviene dopo il pick del player corrente che ha appena finito i pick
             finalizeCurrentPlayerTurn(context, player, playerTotemPosition); // riportiamo il player corrente nella turnOrderCard
+
             // client update
             this.update(player, selectedCard, row, context, true);
 
             if (context.getCurrentPlayerIndex() == context.getNumPlayers()) { // se il player era l'ultimo
                 handleAllPlayersFinishedTheirPicksPhase(context, availableTopCharacters); // verifico se devo fare la transizione di stato
 
-            } else  {  // se il player non è l'ultimo --> verifico se il prossimo player può anora pickare
-                findAndActivateNextPlayerInTurnOrder(context, availableTopCharacters, availableBottomCharacters, playerTotemPosition);
+            } else {  // se il player non è l'ultimo --> verifico se il prossimo player può anora pickare
+                findAndActivateNextPlayerInTurnOrder(context, availableTopCharacters, availableBottomCharacters, playerTotemPosition, selectedCard, row);
             }
         }
     }
@@ -129,30 +134,30 @@ class PickState extends GameState {
                 .count());
     }
 
-    private void handlePlayerSkipAction(Player player,
-                            Game context,
-                            int availableTopCharacters,
-                            int availableBottomCharacters,
-                            Character playerTotemPosition) throws ForcedPickException, SQLException {
-        if (!((availableTopCharacters == 0 || player.getNumTopPicksLeft() == 0)
-                && (availableBottomCharacters == 0 || player.getNumBottomPicksLeft() == 0))) {
-            throw new ForcedPickException("You can't skip the turn you have to pick the remaining character Card First");
-        }
-
-        player.setNumTopPicksLeft(0);
-        player.setNumBottomPicksLeft(0);
-
-        if (context.getCurrentPlayerIndex() < context.getNumPlayers()) {
-            finalizeCurrentPlayerTurn(context, player, playerTotemPosition);
-            // client update
-            this.update(player, null, -1, context, true);
-            findAndActivateNextPlayerInTurnOrder(context, availableTopCharacters, availableBottomCharacters, playerTotemPosition);
-        } else {
-            // client update
-            this.update(player, null, -1, context, true);
-            nextState(context);
-        }
-    }
+//    private void handlePlayerSkipAction(Player player,
+//                            Game context,
+//                            int availableTopCharacters,
+//                            int availableBottomCharacters,
+//                            Character playerTotemPosition) throws ForcedPickException, SQLException {
+//        if (!((availableTopCharacters == 0 || player.getNumTopPicksLeft() == 0)
+//                && (availableBottomCharacters == 0 || player.getNumBottomPicksLeft() == 0))) {
+//            throw new ForcedPickException("You can't skip the turn you have to pick the remaining character Card First");
+//        }
+//
+//        player.setNumTopPicksLeft(0);
+//        player.setNumBottomPicksLeft(0);
+//
+//        if (context.getCurrentPlayerIndex() < context.getNumPlayers()) {
+//            finalizeCurrentPlayerTurn(context, player, playerTotemPosition);
+//            // client update
+//            this.update(player, null, -1, context, true);
+//            findAndActivateNextPlayerInTurnOrder(context, availableTopCharacters, availableBottomCharacters, playerTotemPosition);
+//        } else {
+//            // client update
+//            this.update(player, null, -1, context, true);
+//            nextState(context);
+//        }
+//    }
 
     private boolean isExceptionalAddTopPickTurn(Player player, Game context) {
         return player.getNumTopPicksLeft() + player.getNumBottomPicksLeft() == 0
@@ -218,31 +223,40 @@ class PickState extends GameState {
         return availableBottomCharacters > 0 && player.getNumBottomPicksLeft() > 0;
     }
 
-    private boolean determineIfCurrentPlayerCanContinuePickingFromBothRows(Player player, Game context, int availableTopCharacters, int availableBottomCharacters, Character playerTotem) throws SQLException {
+    private boolean determineIfCurrentPlayerCanContinuePickingFromBothRows(Player player, Game context, int availableTopCharacters, int availableBottomCharacters, Character playerTotem, Card selectedCard, int row) throws SQLException {
         boolean canPickFromTopRow = canPlayerAffordAnyBuildingInTopRow(player, context, availableTopCharacters);
         boolean canPickFromBottomRow = canPlayerAffordAnyBuildingInBottomRow(player, context, availableBottomCharacters);
 
         if (canPickFromTopRow || canPickFromBottomRow) {
+            this.update(player, selectedCard, row, context, false);
             return true;
         }
 
         finalizeCurrentPlayerTurn(context, player, playerTotem);
-        return handleAllPlayersFinishedTheirPicksPhase(context, availableTopCharacters);
+        System.out.println(canPickFromTopRow + "<pick alto pick basso> " + canPickFromBottomRow);
+        if (handleAllPlayersFinishedTheirPicksPhase(context, availableTopCharacters)) {
+            this.update(player, selectedCard, row, context, true);
+            return true;
+        }
+        return false;
     }
 
 
-    private void findAndActivateNextPlayerInTurnOrder(Game context, int availableTopCharacters, int availableBottomCharacters, Character playerTotemPosition) throws SQLException {
+    private void findAndActivateNextPlayerInTurnOrder(Game context, int availableTopCharacters, int availableBottomCharacters, Character playerTotemPosition, Card selectedCard, int row) throws SQLException {
         Character currentTotemPosition = playerTotemPosition;
         while (context.getCurrentPlayerIndex() < context.getNumPlayers()) {
             TotemSlot nextSlot = findNextPlayerTotemAfterPosition(context, currentTotemPosition);
 
-            boolean currentPlayerCanStillPick = determineIfCurrentPlayerCanContinuePickingFromBothRows(nextSlot.player, context, availableTopCharacters, availableBottomCharacters, nextSlot.position);
+            boolean currentPlayerCanStillPick = determineIfCurrentPlayerCanContinuePickingFromBothRows(nextSlot.player, context, availableTopCharacters, availableBottomCharacters, nextSlot.position, selectedCard, row);
+            System.out.println("il giocatore: "+ nextSlot.player.getNickname()+ "puo pescare"  + currentPlayerCanStillPick);
             if (currentPlayerCanStillPick) {
                 return;
             }
+            this.update(nextSlot.player, selectedCard, row, context, true);
             currentTotemPosition = nextSlot.position;
         }
     }
+
 
     private TotemSlot findFirstPlayerTotemOnOffersPath(Game context) {
         for (Character key : context.getBoard().getOffersPath().offersPathKeySet()) {
