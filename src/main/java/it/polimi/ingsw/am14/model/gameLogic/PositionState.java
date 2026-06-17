@@ -69,9 +69,9 @@ class PositionState extends GameState {
             first = foodTrackCard.getPlayerTotem();
 
             if(first != null){
-                foodTrackCard.setPlayerTotem(null);
-                isThereFirstFood = true;
                 firstNickname = first.getNickname();
+                isThereFirstFood = true;
+                foodTrackCard.setPlayerTotem(null);
             }
 
         }
@@ -114,10 +114,14 @@ class PositionState extends GameState {
         // empties TurnOrderCard
         context.getBoard().getTurnOrderCard().clearPlayerOrder();
 
-        if(isThereFirstFood)
+        if(isThereFirstFood) {
             context.getBoard().getTurnOrderCard().addPlayer(first);
-        // sets currentPlayerIndex = 0
-        context.setCurrentPlayerIndex(0);
+            context.setCurrentPlayerIndex(1);
+        }
+        else {
+            // sets currentPlayerIndex = 0
+            context.setCurrentPlayerIndex(0);
+        }
     }
 
     @Override
