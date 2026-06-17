@@ -42,7 +42,6 @@ public abstract class GameFactory {
             );
         }
 
-        gameIdCounter++;
         // setup: phase 8 - to be continued in WaitingRoomState.onPlayerConnection() and WaitingRoomState.nextState()
         return newGame;
 

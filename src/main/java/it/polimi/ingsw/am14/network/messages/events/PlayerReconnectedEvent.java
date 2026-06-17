@@ -21,6 +21,7 @@ import static it.polimi.ingsw.am14.utils.Constants.BOTTOM_BUILDING_ROW;
 
 public class PlayerReconnectedEvent extends ServerEvent {
 
+    // TODO: AGGIUNGERE AGE
     private final int gameId;
     private final int turnOrderCardIndex;
     private final int numPlayers;
@@ -68,7 +69,17 @@ public class PlayerReconnectedEvent extends ServerEvent {
         );
 
         this.playersOrderInTurnOrderCard = board.getTurnOrderCard().getPlayerOrder().stream()
-                .map(Player::getNickname)
+                .map(
+                        (player) -> {
+                            // in the turnOrderCard we admit null values for players that are in the offersPath
+                            // and thus not in the turnOrderCard. In this case we return an empty string for the nickname.
+                            if (player == null) {
+                                return "";
+                            } else {
+                                return player.getNickname();
+                            }
+                        }
+                )
                 .collect(Collectors.toCollection(ArrayList::new));
 
         nicknameToTotemColor = new HashMap<>();
@@ -133,10 +144,12 @@ public class PlayerReconnectedEvent extends ServerEvent {
 
     @Override
     public void effect(ClientModel model) {
-//        model.setMessage(description);
-        if (model.getHomePlayerNickname() == null) {
+        // use isEmpty because model.getHomePlayerNickname does not return null values;
+        // in case homePlayer is null, it returns an empty String.
+        if (model.getHomePlayerNickname().isEmpty()) {
             nicknameToTotemColor.forEach((nickname, totemColor) -> {
                 ClientPlayer player = new ClientPlayer(nickname);
+                // TODO: confronto tra nickname e totemColor?
                 if (nickname.equals(nicknameToTotemColor.get(nickname))) {
                     model.setHomePlayer(player);
                 } else {

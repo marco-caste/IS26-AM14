@@ -54,7 +54,7 @@ public class Game implements Observable {
     // called if the server shuts down, gets the arguments from the latest JSON snapshot
     @JsonCreator
     public Game(
-            @JsonProperty("lastState") GameState lastCurrentState,
+            @JsonProperty("currentState") GameState lastCurrentState,
             @JsonProperty("players") List<Player> lastPlayers,
             @JsonProperty("board") Board lastBoard,
             @JsonProperty("currentPlayerIdx") int lastCurrentPlayerIndex,
@@ -64,6 +64,7 @@ public class Game implements Observable {
             @JsonProperty("gameId") int gameId) {
         // TODO: ?
         this.currentState       = new WaitingRoomAfterCrashState();
+//        this.currentState       = lastCurrentState;
         this.previouslySavedState = lastCurrentState;
         this.players            = lastPlayers;
         this.board              = lastBoard;

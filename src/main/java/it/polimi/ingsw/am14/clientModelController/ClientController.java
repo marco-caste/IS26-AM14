@@ -247,6 +247,10 @@ public class ClientController {
         }
     }
 
+    public boolean isConnected() {
+        return server != null;
+    }
+
     public void update(Event event) {
         synchronized (dataLock) {
             event.effect(model);

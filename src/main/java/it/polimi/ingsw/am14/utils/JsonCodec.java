@@ -152,7 +152,7 @@ public class JsonCodec implements Codec {
             return objectMapper.readValue(new File(filePath), new TypeReference<List<List<DeckCard>>>(){}).stream().
                     limit(numPlayers - 1).flatMap(Collection::stream).toList();
         } catch (IOException e) {
-            throw new RuntimeException("[JsonCodec] Failed to read deck cards from file: " + filePath);
+            throw new RuntimeException("[JsonCodec] Failed to read deck cards from file: " + filePath + "\n" + e.getMessage());
         }
     }
 
