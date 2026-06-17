@@ -108,6 +108,12 @@ public class LobbyController {
         }
     }
 
+    private boolean isPlayerConnected(String nickname) {
+        synchronized (dataLock) {
+            return lastPingReceivedTime.containsKey(nickname);
+        }
+    }
+
     public void setNetworkLayer(NetworkLayer networkLayer) {
         this.networkLayer = networkLayer;
     }
@@ -127,13 +133,11 @@ public class LobbyController {
                 gameId = -1;
             }
         }
+        networkLayer.update(new LoginSuccesfulEvent(nickname));
+        setLastPingReceivedTime(nickname);
         if (gameId >=0) {
             this.joinGame(nickname, gameId, null);
         }
-        else {
-            networkLayer.update(new LoginSuccesfulEvent(nickname));
-        }
-        setLastPingReceivedTime(nickname);
     }
 
     public void createGame(String nickname, int numPlayers, String totemColor) throws IllegalSetupException, WrongStateException, IllegalNicknameException {
@@ -195,7 +199,16 @@ public class LobbyController {
             if (gameId >= 0) {
                 // if user was in a game, remove the game controller.
                 removeGameController(gameId);
-                getPlayersByGameId(gameId).forEach(this::addPlayerToLobby);
+                getPlayersByGameId(gameId).forEach(playerNickname -> {
+                    if (isPlayerConnected(playerNickname)) {
+                        //If player is connected returns to lobby in order to be able to reconnect to the game if he wants to
+                        addPlayerToLobby(playerNickname);
+                    } else {
+                        // If player is not connected (because the other players were waiting for him after a server crash and quit before his join)
+                        // remove him from the lobby so that he can use his name again
+                        removePlayerFromLobby(playerNickname);
+                    }
+                });
             }
             networkLayer.update(new PlayerDisconnectedEvent(nickname, gameId));
         }
