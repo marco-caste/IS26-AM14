@@ -146,39 +146,37 @@ public class PlayerReconnectedEvent extends ServerEvent {
     public void effect(ClientModel model) {
         // use isEmpty because model.getHomePlayerNickname does not return null values;
         // in case homePlayer is null, it returns an empty String.
-        if (model.getHomePlayerNickname().isEmpty()) {
-            nicknameToTotemColor.forEach((nickname, totemColor) -> {
-                ClientPlayer player = new ClientPlayer(nickname);
-                // TODO: confronto tra nickname e totemColor?
-                if (nickname.equals(nicknameToTotemColor.get(nickname))) {
-                    model.setHomePlayer(player);
-                } else {
-                    model.addPlayer(player);
-                }
-                player.setTotemColor(totemColor);
-            });
-            nicknameToNumFood.forEach((nickname, numFood) ->
-                    model.getPlayerByNickname(nickname).setNumFood(numFood));
-            nicknameToNumPrestigePoints.forEach((nickname, numPrestigePoints) ->
-                    model.getPlayerByNickname(nickname).setNumPrestigePoints(numPrestigePoints));
-            nicknameToNumStars.forEach((nickname, numStars) ->
-                    model.getPlayerByNickname(nickname).setNumStars(numStars));
-            nicknameToTotalBuildingDiscount.forEach((nickname, totalBuildingDiscount) ->
-                    model.getPlayerByNickname(nickname).setTotalBuildingDiscount(totalBuildingDiscount));
-            nicknameToTotalGatheringDiscount.forEach((nickname, totalGatheringDiscount) ->
-                    model.getPlayerByNickname(nickname).setTotalGatheringDiscount(totalGatheringDiscount));
-            nicknameToPlayerPosition.forEach(model::updatePlayerPosition);
-            nicknameToPlayerTribe.forEach((nickname, playerTribe) -> {
-                for (int tribeElement : playerTribe) {
-                    model.getPlayerByNickname(nickname).addToPlayerTribe(tribeElement);
-                }
-            });
-            model.setBoard(board);
-            model.setNumPlayers(numPlayers);
-            model.setGameId(gameId);
-            model.setTurnOrderCardIndex(turnOrderCardIndex);
-            model.setPlayerOrderInTurnOrderCard(playersOrderInTurnOrderCard);
-        }
+
+        nicknameToTotemColor.forEach((nickname, totemColor) -> {
+            ClientPlayer player = new ClientPlayer(nickname);
+            if (!nickname.equals(model.getHomePlayerNickname())) {
+                model.addPlayer(player);
+            } else {
+                model.setHomePlayer(player);
+            }
+            player.setTotemColor(totemColor);
+        });
+        nicknameToNumFood.forEach((nickname, numFood) ->
+                model.getPlayerByNickname(nickname).setNumFood(numFood));
+        nicknameToNumPrestigePoints.forEach((nickname, numPrestigePoints) ->
+                model.getPlayerByNickname(nickname).setNumPrestigePoints(numPrestigePoints));
+        nicknameToNumStars.forEach((nickname, numStars) ->
+                model.getPlayerByNickname(nickname).setNumStars(numStars));
+        nicknameToTotalBuildingDiscount.forEach((nickname, totalBuildingDiscount) ->
+                model.getPlayerByNickname(nickname).setTotalBuildingDiscount(totalBuildingDiscount));
+        nicknameToTotalGatheringDiscount.forEach((nickname, totalGatheringDiscount) ->
+                model.getPlayerByNickname(nickname).setTotalGatheringDiscount(totalGatheringDiscount));
+        nicknameToPlayerPosition.forEach(model::updatePlayerPosition);
+        nicknameToPlayerTribe.forEach((nickname, playerTribe) -> {
+            for (int tribeElement : playerTribe) {
+                model.getPlayerByNickname(nickname).addToPlayerTribe(tribeElement);
+            }
+        });
+        model.setBoard(board);
+        model.setNumPlayers(numPlayers);
+        model.setGameId(gameId);
+        model.setTurnOrderCardIndex(turnOrderCardIndex);
+        model.setPlayerOrderInTurnOrderCard(playersOrderInTurnOrderCard);
         model.notifyObservers(new PlayerReconnectedViewEvent(description));
     }
 }

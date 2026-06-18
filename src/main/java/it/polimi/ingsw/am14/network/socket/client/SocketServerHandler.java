@@ -1,6 +1,7 @@
 package it.polimi.ingsw.am14.network.socket.client;
 
 import it.polimi.ingsw.am14.network.messages.requests.*;
+import it.polimi.ingsw.am14.utils.Codec;
 import it.polimi.ingsw.am14.utils.JsonCodec;
 
 import java.io.BufferedWriter;
@@ -12,12 +13,13 @@ public class SocketServerHandler implements VirtualServerSocket{
 
     private final PrintWriter output;
     private PrintWriter pingOutput;
-    private final JsonCodec jsonWriter = new JsonCodec();
+    private final Codec jsonWriter;
     private final SocketClient client;
 
     public SocketServerHandler(BufferedWriter output, SocketClient client) {
         this.output = new PrintWriter(output);
         this.client = client;
+        this.jsonWriter = new JsonCodec();
     }
 
     @Override

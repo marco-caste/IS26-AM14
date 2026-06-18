@@ -1,6 +1,7 @@
 package it.polimi.ingsw.am14.view;
 
 import it.polimi.ingsw.am14.clientModelController.ClientController;
+import it.polimi.ingsw.am14.utils.Codec;
 import it.polimi.ingsw.am14.utils.JsonCodec;
 import it.polimi.ingsw.am14.view.viewEvents.ViewEvent;
 import it.polimi.ingsw.am14.clientModelController.ClientModel;
@@ -32,11 +33,12 @@ public class TUIView implements ViewType {
     private PrintWriter writer;
     private static Map<Integer, String> cardDescriptions;
     private List<String> gameHistory;
+    private final Object renderLock = new Object();
 
     @Override
     public void run() throws IOException {
         this.controller = new ClientController();
-        JsonCodec codec = new JsonCodec();
+        Codec codec = new JsonCodec();
         cardDescriptions = codec.readCardDescriptions("src/main/resources/CardDescriptions.json");
         gameHistory = new ArrayList<>();
 
@@ -159,85 +161,108 @@ public class TUIView implements ViewType {
 
     @Override
     public void renderLogin(String message) {
-        lineReader.printAbove("[Server]: " + message);
+        synchronized (renderLock) {
+            lineReader.printAbove("[Server]: " + message);
+        }
     }
 
     @Override
     public void renderPlayerJoin(String message) {
-        lineReader.printAbove("[Server]: " + message);
+        synchronized (renderLock) {
+            lineReader.printAbove("[Server]: " + message);
+        }
     }
 
     @Override
     public void renderGameStart(String message) {
         gameHistory.add(message);
         printBoard();
-        lineReader.printAbove("[Server]: " + message);
+        synchronized (renderLock) {
+            lineReader.printAbove("[Server]: " + message);
+        }
     }
 
     @Override
     public void renderTotemPlaced(String message) {
         gameHistory.add(message);
-        printBoard();
-        lineReader.printAbove("[Server]: " + message);
+        synchronized (renderLock) {
+            lineReader.printAbove("[Server]: " + message);
+        }
     }
 
     @Override
     public void renderCardPicked(String message) {
         gameHistory.add(message);
         printBoard();
-        lineReader.printAbove("[Server]: " + message);
+        synchronized (renderLock) {
+            lineReader.printAbove("[Server]: " + message);
+        }
     }
 
     @Override
     public void renderEndRound(String message) {
         gameHistory.add(message);
         printBoard();
-        lineReader.printAbove("[Server]: " + message);
+        synchronized (renderLock) {
+            lineReader.printAbove("[Server]: " + message);
+        }
     }
 
     @Override
     public void renderEndGame(String message) {
         gameHistory.add(message);
-        lineReader.printAbove("[Server]: " + message);
         StringBuilder scoreBoard = new StringBuilder();
         for (String player : modelReference.getFinalRank()) {
             scoreBoard.append(player).append(": ").append(modelReference.getPlayerByNickname(player).getNumPrestigePoints()).append(" points\n");
         }
-        lineReader.printAbove(scoreBoard.toString());
+        synchronized (renderLock) {
+            lineReader.printAbove("[Server]: " + message);
+            lineReader.printAbove(scoreBoard.toString());
+        }
     }
 
     @Override
     public void renderDisconnection(String message) {
         this.modelReference = null;
         gameHistory.clear();
-        terminal.puts(InfoCmp.Capability.clear_screen);
-        terminal.flush();
-        lineReader.printAbove("[Server]: " + message);
-        lineReader.printAbove("Type join to enter a game or create to start a new one.");
+        synchronized (renderLock) {
+            terminal.puts(InfoCmp.Capability.clear_screen);
+            terminal.flush();
+            lineReader.printAbove("[Server]: " + message);
+            lineReader.printAbove("Type join to enter a game or create to start a new one.");
+        }
     }
 
     @Override
     public void renderReconnection(String message) {
         gameHistory.add(message);
         this.chosenNickname = modelReference.getHomePlayerNickname();
-        lineReader.printAbove("[Server]: " + message);
+        synchronized (renderLock) {
+            lineReader.printAbove("[Server]: " + message);
+        }
     }
 
     @Override
     public void renderGameRestarted(String message) {
         gameHistory.add(message);
         printBoard();
-        lineReader.printAbove("[Server]: " + message);
+        synchronized (renderLock) {
+            lineReader.printAbove("[Server]: " + message);
+        }
     }
 
     @Override
     public void renderException(String message) {
-        lineReader.printAbove("[Server]: " + message);
+        synchronized (renderLock) {
+            lineReader.printAbove("[Server]: " + message);
+        }
     }
 
     @Override
     public void handleNetworkError(String errorMessage) {
-        lineReader.printAbove("[Network Error]: " + errorMessage + " Returning to main menu...");
+        synchronized (renderLock) {
+            lineReader.printAbove("[Network Error]: " + errorMessage + " Returning to main menu...");
+        }
         this.chosenNickname = "";
         this.modelReference = null;
         printGameTitle();
@@ -394,9 +419,12 @@ public class TUIView implements ViewType {
             attributedTitleBuilder.append(" ".repeat(Math.max(0, padding)));
             attributedTitleBuilder.append(attributedLine);
         }
-        lineReader.printAbove(attributedTitleBuilder.toAttributedString());
-        // TODO: COLORARE DI VERDE PER RENDERE BEN VISIBILE
-        lineReader.printAbove("Type 'help' for commands info.");
+        synchronized (renderLock) {
+            lineReader.printAbove(attributedTitleBuilder.toAttributedString());
+            lineReader.printAbove(new AttributedString(
+                    "Type 'help' for commands info.", AttributedStyle.DEFAULT.foreground(AttributedStyle.GREEN)
+            ));
+        }
     }
 
     private void printBoard() {
@@ -500,9 +528,11 @@ public class TUIView implements ViewType {
                 .append(" ".repeat(Math.max(0, padding))).append(line2).append(" ".repeat(Math.max(0, padding))).append("\n")
                 .append(" ".repeat(Math.max(0, padding))).append(line4).append(" ".repeat(Math.max(0, padding))).append("\n");
 
-        lineReader.printAbove(firstRowBuilder.toAttributedString());
-        lineReader.printAbove(secondRowBuilder.toAttributedString());
-        lineReader.printAbove(thirdRowBuilder.toAttributedString());
+        synchronized (renderLock) {
+            lineReader.printAbove(firstRowBuilder.toAttributedString());
+            lineReader.printAbove(secondRowBuilder.toAttributedString());
+            lineReader.printAbove(thirdRowBuilder.toAttributedString());
+        }
 
         /*
         OffersPath:

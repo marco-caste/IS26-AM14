@@ -9,6 +9,7 @@ import it.polimi.ingsw.am14.network.NetworkLayer;
 import it.polimi.ingsw.am14.exceptions.*;
 import it.polimi.ingsw.am14.model.gameLogic.Game;
 import it.polimi.ingsw.am14.model.gameLogic.GameFactory;
+import it.polimi.ingsw.am14.utils.Codec;
 import it.polimi.ingsw.am14.utils.JsonCodec;
 
 import java.sql.SQLException;
@@ -153,7 +154,7 @@ public class LobbyController {
         }
         new Thread(() -> {
             synchronized (saveFilePath) {
-                JsonCodec parser = new JsonCodec();
+                Codec parser = new JsonCodec();
                 parser.writeSaveData(this, saveFilePath);
             }
         }, "Save-Thread-pick").start();
@@ -173,7 +174,7 @@ public class LobbyController {
                 .placeTotem(nickname, position);
         new Thread(() -> {
             synchronized (saveFilePath) {
-                JsonCodec parser = new JsonCodec();
+                Codec parser = new JsonCodec();
                 parser.writeSaveData(this, saveFilePath);
             }
         }, "Save-Thread-place").start();
@@ -185,7 +186,7 @@ public class LobbyController {
                 .pickCard(nickname, cardId, row);
         new Thread(() -> {
             synchronized (saveFilePath) {
-                JsonCodec parser = new JsonCodec();
+                Codec parser = new JsonCodec();
                 parser.writeSaveData(this, saveFilePath);
             }
         }, "Save-Thread-pick").start();

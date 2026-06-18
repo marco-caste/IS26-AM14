@@ -6,6 +6,7 @@ import it.polimi.ingsw.am14.controller.LobbyController;
 import it.polimi.ingsw.am14.network.messages.requests.ClientRequest;
 import it.polimi.ingsw.am14.network.messages.events.Event;
 import it.polimi.ingsw.am14.network.messages.events.ExceptionEvent;
+import it.polimi.ingsw.am14.utils.Codec;
 import it.polimi.ingsw.am14.utils.JsonCodec;
 
 import java.io.*;
@@ -19,7 +20,7 @@ public class SocketClientHandlersManager {
     private final ServerSocket listenPingSocket;
     private final LobbyController controller;
     private final NetworkLayer networkLayer;
-    private final JsonCodec jsonCodec = new JsonCodec();
+    private final Codec jsonCodec;
 
     private static int Thread_number = 0;
 
@@ -48,6 +49,7 @@ public class SocketClientHandlersManager {
         this.waitingClients = new HashSet<>();
         this.networkLayer = networkLayer;
         this.controller = controller;
+        this.jsonCodec = new JsonCodec();
     }
 
     public void runServer() throws IOException {

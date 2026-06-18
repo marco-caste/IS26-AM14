@@ -2,6 +2,7 @@ package it.polimi.ingsw.am14.model.boardComponents;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import it.polimi.ingsw.am14.utils.Codec;
 import it.polimi.ingsw.am14.utils.JsonCodec;
 
 import java.util.HashSet;
@@ -19,7 +20,7 @@ public class OffersPath {
      * @param numPlayers between 2 and 5
      */
     public OffersPath(int numPlayers) {
-        JsonCodec jsonCodec = new JsonCodec();
+        Codec jsonCodec = new JsonCodec();
 
         this.offersPath = jsonCodec.readTrackCards("src/main/resources/trackCards.json", numPlayers);
     }

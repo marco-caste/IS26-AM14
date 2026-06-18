@@ -4,6 +4,7 @@ import it.polimi.ingsw.am14.network.NetworkLayer;
 import it.polimi.ingsw.am14.controller.LobbyController;
 import it.polimi.ingsw.am14.network.rmi.RmiServerLauncher;
 import it.polimi.ingsw.am14.network.socket.SocketServerLauncher;
+import it.polimi.ingsw.am14.utils.Codec;
 import it.polimi.ingsw.am14.utils.JsonCodec;
 
 import java.io.IOException;
@@ -28,7 +29,7 @@ public class ServerLauncher {
 
         // TODO: UNCOMMENTARE E RISOLVERE EVENTUALI PROBLEMI CON IL SALVATAGGIO
         if (Files.exists(savePath)) {
-            JsonCodec jsonCodec = new JsonCodec();
+            Codec jsonCodec = new JsonCodec();
             lobbyController = jsonCodec.readSaveData("src/main/Saves/save.json");
             lobbyController.setNetworkLayer(networkLayer);
             lobbyController.registerObserversAfterReconnection(networkLayer);

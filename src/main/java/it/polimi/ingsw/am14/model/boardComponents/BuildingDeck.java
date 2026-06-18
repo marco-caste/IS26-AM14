@@ -4,6 +4,7 @@ package it.polimi.ingsw.am14.model.boardComponents;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import it.polimi.ingsw.am14.model.cards.buildings.Building;
+import it.polimi.ingsw.am14.utils.Codec;
 import it.polimi.ingsw.am14.utils.JsonCodec;
 
 import java.util.*;
@@ -35,7 +36,7 @@ public class BuildingDeck {
         this.buildingDecks.put(2, new ArrayList<>());
         this.buildingDecks.put(3, new ArrayList<>());
         // reads values from JSON data file, puts Buildings in the corresponding eras;
-        JsonCodec jsonCodec = new JsonCodec();
+        Codec jsonCodec = new JsonCodec();
 
         Map<Integer, ArrayList<Building>> completeDecks = new HashMap<>();
 

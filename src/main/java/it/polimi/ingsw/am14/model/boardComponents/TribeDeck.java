@@ -3,6 +3,7 @@ package it.polimi.ingsw.am14.model.boardComponents;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import it.polimi.ingsw.am14.model.cards.deckCards.*;
+import it.polimi.ingsw.am14.utils.Codec;
 import it.polimi.ingsw.am14.utils.JsonCodec;
 
 import java.util.*;
@@ -27,7 +28,7 @@ public class TribeDeck {
         // reads values from JSON data file, puts DeckCards in the corresponding eras;
         Map<Integer, ArrayList<DeckCard>> decks = new HashMap<>();
 
-        JsonCodec jsonCodec = new JsonCodec();
+        Codec jsonCodec = new JsonCodec();
 
         decks.put(1, jsonCodec.readDeckCards("src/main/resources/DeckCards.json", numPlayers).stream().
                 filter(c -> c.getAge() == 1).

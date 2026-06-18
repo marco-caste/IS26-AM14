@@ -2,6 +2,7 @@ package it.polimi.ingsw.am14.network.socket.client;
 
 import it.polimi.ingsw.am14.clientModelController.ClientController;
 import it.polimi.ingsw.am14.network.messages.events.Event;
+import it.polimi.ingsw.am14.utils.Codec;
 import it.polimi.ingsw.am14.utils.JsonCodec;
 
 import java.io.*;
@@ -13,7 +14,7 @@ public class SocketClient {
     private final BufferedReader input;
     private BufferedReader pingInput;
     private final ClientController controller;
-    private final JsonCodec jsonWriter = new JsonCodec();
+    private final Codec jsonWriter;
     private static int Thread_number = 0;
 
 
@@ -21,6 +22,7 @@ public class SocketClient {
         this.input = input;
         this.socket = socket;
         this.controller = controller;
+        this.jsonWriter = new JsonCodec();
     }
 
     public void run() {

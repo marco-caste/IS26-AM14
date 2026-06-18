@@ -2,6 +2,7 @@ package it.polimi.ingsw.am14.network.socket.server;
 import it.polimi.ingsw.am14.network.messages.requests.ClientRequest;
 import it.polimi.ingsw.am14.network.messages.events.Event;
 import it.polimi.ingsw.am14.network.messages.events.ExceptionEvent;
+import it.polimi.ingsw.am14.utils.Codec;
 import it.polimi.ingsw.am14.utils.JsonCodec;
 
 import java.io.BufferedReader;
@@ -14,7 +15,7 @@ public class SocketClientHandler implements VirtualClientSocket{
     private final BufferedReader input;
     private final PrintWriter output;
     private final Socket socket;
-    private final JsonCodec jsonCodec = new JsonCodec();
+    private final Codec jsonCodec;
     private BufferedReader pingInput;
     private PrintWriter pingOutput;
     private Socket pingSocket;
@@ -25,6 +26,7 @@ public class SocketClientHandler implements VirtualClientSocket{
         this.input = input;
         this.output = output;
         this.socket = socket;
+        this.jsonCodec = new JsonCodec();
     }
 
     public void runVirtualView() throws IOException {

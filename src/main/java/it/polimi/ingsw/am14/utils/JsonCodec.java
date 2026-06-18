@@ -33,7 +33,7 @@ public class JsonCodec implements Codec {
         try {
             return objectMapper.readValue(new File(filePath), new TypeReference<LobbyController>(){});
         } catch (IOException e) {
-            throw new RuntimeException("[JsonCodec] Failed to read save data from file: " + filePath + "\n" + e.getMessage());
+            throw new RuntimeException("[JsonCodec] Failed to read save data from file: " + filePath);
         }
     }
 
@@ -65,7 +65,7 @@ public class JsonCodec implements Codec {
         try {
             objectMapper.writeValue(new File(filePath), controller);
         } catch (IOException e) {
-            throw new RuntimeException("[JsonCodec] Failed to write save data to file: " + filePath + ": " + e.getMessage());
+            throw new RuntimeException("[JsonCodec] Failed to write save data to file: " + filePath);
         }
     }
 
@@ -152,7 +152,7 @@ public class JsonCodec implements Codec {
             return objectMapper.readValue(new File(filePath), new TypeReference<List<List<DeckCard>>>(){}).stream().
                     limit(numPlayers - 1).flatMap(Collection::stream).toList();
         } catch (IOException e) {
-            throw new RuntimeException("[JsonCodec] Failed to read deck cards from file: " + filePath + "\n" + e.getMessage());
+            throw new RuntimeException("[JsonCodec] Failed to read deck cards from file: " + filePath);
         }
     }
 
