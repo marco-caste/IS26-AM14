@@ -13,50 +13,58 @@ import java.util.Map;
 public interface Codec {
 
     /**
-     * @param filePath not null, path of the file where the save data is stored
-     * @return the saved Game object
+     * Reads the saved game data from the specified file and reconstructs the corresponding {@code LobbyController}.
+     *
+     * @param filePath the path of the save file to read
+     * @return the {@code LobbyController} restored from the save data
      */
     LobbyController readSaveData(String filePath);
 
     /**
+     * Reads the card descriptions from the specified file.
      *
-     * @param filePath not null, path of the file where the card descriptions data is stored
-     * @return a map of card descriptions read from the specified file path, where the keys are the card IDs and the values are the corresponding descriptions
+     * @param filePath the path of the file containing the card descriptions
+     * @return a map where each card ID is associated with its description
      */
     Map<Integer, String> readCardDescriptions(String filePath);
 
     /**
+     * Writes the current game state to the specified file.
      *
-     * @param controller not null, the LobbyController object to be saved
-     * @param filePath not null, path of the file where the save data will be stored
+     * @param controller the {@code LobbyController} to serialize
+     * @param filePath the path of the file where the save data will be written
      */
     void writeSaveData(LobbyController controller, String filePath);
 
     /**
+     * Parses a client request from its string representation.
      *
-     * @param input not null, the string to be parsed into a ClientRequest
-     * @return the ClientRequest object represented by the input string
+     * @param input the string to parse
+     * @return the corresponding {@code ClientRequest}
      */
     ClientRequest parseClientRequest(String input);
 
     /**
+     * Serializes a client request into its string representation.
      *
-     * @param request not null, the ClientRequest object to be serialized
-     * @return a string representation of the ClientRequest object
+     * @param request the {@code ClientRequest} to serialize
+     * @return the serialized request as a string
      */
     String writeClientRequest(ClientRequest request);
 
     /**
+     * Parses an event from its string representation.
      *
-     * @param input not null, the string to be parsed into an Event
-     * @return the Event object represented by the input string
+     * @param input the string to parse
+     * @return the corresponding {@code Event}
      */
     Event parseEvent(String input);
 
     /**
+     * Serializes an event into its string representation.
      *
-     * @param event not null, the Event object to be serialized
-     * @return a string representation of the Event object
+     * @param event the {@code Event} to serialize
+     * @return the serialized event as a string
      */
     String writeEvent(Event event);
 

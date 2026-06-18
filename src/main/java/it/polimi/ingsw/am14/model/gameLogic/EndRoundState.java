@@ -3,14 +3,18 @@ package it.polimi.ingsw.am14.model.gameLogic;
 import it.polimi.ingsw.am14.network.messages.events.EndRoundEvent;
 import it.polimi.ingsw.am14.model.boardComponents.Board;
 
-
+/**
+ * <p>
+ *     This class represents the state of the game when a round ends.
+ *     It handles the end-of-round logic, including resolving bonuses/maluses, discarding characters, switching cards, and managing age transitions.
+ * </p>
+ */
 class EndRoundState extends GameState {
 
     /**
+     * {@inheritDoc}
      * <p>
-     *     changes the current State of the game:
-     *     - sets context.currentState to a new PositionState
-     * </p>
+     *     for this state, the next state is always {@link PositionState}
      * @param context not null
      */
     @Override
@@ -19,16 +23,7 @@ class EndRoundState extends GameState {
     }
 
     /**
-     * <p>
-     *     ends the currentRound and prepares for the following one:
-     *     - resolves the bonus/malus of TurnOrderCard
-     *     - queues the events in the Board and solves their effects
-     *     - moves deckCards from topRow to bottomRow, removing the pre-existing instance of the latter
-     *     - adds 1 to currentRound
-     *     - if next round is the last (= 10), puts all the remaining cards in the deck on the board,
-     *          otherwise puts the correct amount according to rules
-     *     - carries out the age change if conditions are met
-     * </p>
+     * {@inheritDoc}
      * @param context not null
      */
     @Override

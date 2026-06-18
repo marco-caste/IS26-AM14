@@ -21,20 +21,91 @@ import java.util.Map;
 
 import static it.polimi.ingsw.am14.utils.Constants.foodTable;
 
+/**
+ * The TUIView class implements the ViewType interface and provides a text-based user interface for the game. It manages the terminal input and output, renders game events, and interacts with the client model and controller to facilitate user commands and display game information. The class uses the JLine library to handle terminal interactions and supports various commands for connecting to a server, creating or joining games, picking cards, placing totems, and displaying game information.
+ * <h3>Supported Commands:</h3>
+ * <ul>
+ *     <li><b>help</b> - Displays a comprehensive list of all available commands and their usage</li>
+ *     <li><b>connect [socket|rmi]</b> - Establishes a connection to the server using the specified protocol.
+ *         Prompts for server IP, port, and player nickname. Validates that the client is not already connected</li>
+ *     <li><b>exit</b> - Terminates the application and closes the terminal</li>
+ *     <li><b>create [numPlayers] [totemColor]</b> - Creates a new game session with the specified number of players
+ *         and assigns the caller's totem color</li>
+ *     <li><b>join [gameId] [totemColor]</b> - Joins an existing game identified by gameId and assigns the caller's
+ *         totem color</li>
+ *     <li><b>pick [cardID]</b> - Selects and plays a card identified by its numeric ID during the game phase</li>
+ *     <li><b>place [position]</b> - Places the player's totem at the specified board position (case-insensitive)</li>
+ *     <li><b>show [option] [args]</b> - Displays game information based on the specified option:
+ *         <ul>
+ *             <li>show nickname [nickname] - Displays information about a specific player</li>
+ *             <li>show cardId [cardId] - Displays the description of a card by its ID</li>
+ *             <li>show board - Displays the current state of the game board with all cards and tracks</li>
+ *             <li>show turnOrderCard - Displays the turn order card with player order and food values</li>
+ *             <li>show gameHistory - Displays the complete history of events from the current game</li>
+ *         </ul>
+ *     </li>
+ * </ul>
+ *
+ * <p>
+ * Each command is case-insensitive. Invalid commands trigger an error message prompting the user to type 'help'
+ * for command information. Command-specific exceptions (IllegalArgumentException, RuntimeException) are caught
+ * and displayed to the user without terminating the application loop.
+ * </p>
+ */
 public class TUIView implements ViewType {
 
     // TODO: ACCESSI A MODELREFERENCE GENERANO RACE CONDITION
     // non è presente un meccanismo di sincronizzazione tra view e client-model per la renderizzazione.
+    /**
+     * Reference to the client model
+     */
     private ClientModel modelReference = null;
+    /**
+     * Reference to the client controller
+     */
     private ClientController controller;
-    private String chosenNickname = null;
+    /**
+     * The nickname chosen by the player, used for command prompts and display purposes
+     */
+    private String chosenNickname = "";
+    /**
+     * The terminal instance for handling input and output in the text-based user interface
+     */
     private Terminal terminal;
+    /**
+     * The line reader for reading user input from the terminal
+     */
     private LineReader lineReader;
+    /**
+     * The print writer for outputting text to the terminal
+     */
     private PrintWriter writer;
+    /**
+     * A map containing card descriptions, where the key is the card ID and the value is the card description string
+     */
     private static Map<Integer, String> cardDescriptions;
+    /**
+     * A list to maintain the history of game events, allowing the user to review past actions and messages during the current game session
+     */
     private List<String> gameHistory;
+    /**
+     * An object used as a lock for synchronizing rendering operations to ensure thread safety when multiple threads may be updating the terminal output concurrently
+     */
     private final Object renderLock = new Object();
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This method initializes the terminal and line reader, prints the game title, and enters an interactive loop
+     * to read and process user commands. The method manages the text-based user interface and delegates command
+     * execution to specialized handler methods.
+     * </p>
+     *
+     * @throws IOException If an IOException occurs during terminal initialization or if a critical I/O error
+     *                     occurs during input reading
+     * @throws RuntimeException If an EndOfFileException or UserInterruptException is caught (e.g., Ctrl+D or Ctrl+C),
+     *                          indicating the user wants to exit the application
+     */
     @Override
     public void run() throws IOException {
         this.controller = new ClientController();
@@ -143,6 +214,13 @@ public class TUIView implements ViewType {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * If no model has yet been assigned, it assigns the provided model to the view and sets the chosen nickname to the home player's nickname. Finally, it calls the render method of the event, passing this view as an argument.
+     * @param model the client model to update the view with
+     * @param event the event that triggered the update
+     */
     @Override
     public void update(ClientModel model, ViewEvent event) {
 
@@ -151,14 +229,19 @@ public class TUIView implements ViewType {
             this.modelReference = model;
             this.chosenNickname = model.getHomePlayerNickname();
             if (chosenNickname.equalsIgnoreCase("marcob")) {
-                lineReader.printAbove("Porterai minecreft?");
+                lineReader.printAbove("Porterai minecref?");
             }
         }
         event.render(this);
     }
 
-    // TODO: SINCRONIZZARE SU LINEREADER
-
+    /**
+     * {@inheritDoc}
+     * <p>
+     *     This method synchronizes on the renderLock object to ensure thread safety while rendering the login message. It uses the lineReader to print the message above the current input line, prefixed with "[Server]: ".
+     * </p>
+     * @param message the message to render
+     */
     @Override
     public void renderLogin(String message) {
         synchronized (renderLock) {
@@ -166,6 +249,13 @@ public class TUIView implements ViewType {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     *     This method synchronizes on the renderLock object to ensure thread safety while rendering the player join message. It uses the lineReader to print the message above the current input line, prefixed with "[Server]: ".
+     * </p>
+     * @param message the message to render
+     */
     @Override
     public void renderPlayerJoin(String message) {
         synchronized (renderLock) {
@@ -173,6 +263,13 @@ public class TUIView implements ViewType {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     *     This method adds the provided message to the game history, calls the printBoard method to update the board display, and synchronizes on the renderLock object to ensure thread safety while rendering the game start message. It uses the lineReader to print the message above the current input line, prefixed with "[Server]: ".
+     * </p>
+     * @param message the message to render
+     */
     @Override
     public void renderGameStart(String message) {
         gameHistory.add(message);
@@ -182,6 +279,13 @@ public class TUIView implements ViewType {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     *     This method adds the provided message to the game history and synchronizes on the renderLock object to ensure thread safety while rendering the totem placement message. It uses the lineReader to print the message above the current input line, prefixed with "[Server]: ".
+     * </p>
+     * @param message the message to render
+     */
     @Override
     public void renderTotemPlaced(String message) {
         gameHistory.add(message);
@@ -190,6 +294,13 @@ public class TUIView implements ViewType {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     *     This method adds the provided message to the game history, calls the printBoard method to update the board display, and synchronizes on the renderLock object to ensure thread safety while rendering the card pick message. It uses the lineReader to print the message above the current input line, prefixed with "[Server]: ".
+     * </p>
+     * @param message the message to render
+     */
     @Override
     public void renderCardPicked(String message) {
         gameHistory.add(message);
@@ -199,6 +310,13 @@ public class TUIView implements ViewType {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     *     This method adds the provided message to the game history, calls the printBoard method to update the board display, and synchronizes on the renderLock object to ensure thread safety while rendering the end round message. It uses the lineReader to print the message above the current input line, prefixed with "[Server]: ".
+     * </p>
+     * @param message the message to render
+     */
     @Override
     public void renderEndRound(String message) {
         gameHistory.add(message);
@@ -208,6 +326,13 @@ public class TUIView implements ViewType {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     *     This method adds the provided message to the game history, constructs a scoreboard string based on the final player rankings and their prestige points, and synchronizes on the renderLock object to ensure thread safety while rendering the end game message. It uses the lineReader to print the message above the current input line, prefixed with "[Server]: ", followed by the constructed scoreboard.
+     * </p>
+     * @param message the message to render
+     */
     @Override
     public void renderEndGame(String message) {
         gameHistory.add(message);
@@ -221,6 +346,13 @@ public class TUIView implements ViewType {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     *     This method sets the model reference to null, clears the game history, and synchronizes on the renderLock object to ensure thread safety while rendering the disconnection message. It uses the lineReader to clear the screen and print the disconnection message above the current input line, prefixed with "[Server]: ", followed by instructions for the user to join or create a new game.
+     * </p>
+     * @param message the message to render
+     */
     @Override
     public void renderDisconnection(String message) {
         this.modelReference = null;
@@ -233,6 +365,13 @@ public class TUIView implements ViewType {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     *     This method adds the provided message to the game history, sets the chosen nickname to the home player's nickname from the model reference, and synchronizes on the renderLock object to ensure thread safety while rendering the reconnection message. It uses the lineReader to print the message above the current input line, prefixed with "[Server]: ".
+     * </p>
+     * @param message the message to render
+     */
     @Override
     public void renderReconnection(String message) {
         gameHistory.add(message);
@@ -242,6 +381,13 @@ public class TUIView implements ViewType {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     *     This method adds the provided message to the game history, calls the printBoard method to update the board display, and synchronizes on the renderLock object to ensure thread safety while rendering the game restarted message. It uses the lineReader to print the message above the current input line, prefixed with "[Server]: ".
+     * </p>
+     * @param message the message to render
+     */
     @Override
     public void renderGameRestarted(String message) {
         gameHistory.add(message);
@@ -251,6 +397,13 @@ public class TUIView implements ViewType {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     *     This method synchronizes on the renderLock object to ensure thread safety while rendering the exception message. It uses the lineReader to print the message above the current input line, prefixed with "[Server]: ".
+     * </p>
+     * @param message the exception message to render
+     */
     @Override
     public void renderException(String message) {
         synchronized (renderLock) {
@@ -258,6 +411,13 @@ public class TUIView implements ViewType {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     *     This method synchronizes on the renderLock object to ensure thread safety while rendering the network error message. It uses the lineReader to print the message above the current input line, prefixed with "[Network Error]: ", followed by instructions for the user to return to the main menu. It then resets the chosen nickname and model reference, and calls the printGameTitle method to display the game title.
+     * </p>
+     * @param errorMessage the network error message to render
+     */
     @Override
     public void handleNetworkError(String errorMessage) {
         synchronized (renderLock) {
@@ -369,6 +529,7 @@ public class TUIView implements ViewType {
 
         controller.connect(connectionMode, serverIP, serverPort, playerNickname, this);
     }
+
 
     private void createGame(String[] args) throws IllegalArgumentException {
         if (args.length < 3) {
@@ -623,7 +784,7 @@ public class TUIView implements ViewType {
         lineReader.printAbove(turnOrderBuilder.toAttributedString());
     }
 
-    record CardColors(int lower, int upper, AttributedStyle style) {}
+    private record CardColors(int lower, int upper, AttributedStyle style) {}
 
     private static final List<CardColors> COLORS = List.of(
             new CardColors(0, 14,  AttributedStyle.DEFAULT.foreground(AttributedStyle.RED)),
