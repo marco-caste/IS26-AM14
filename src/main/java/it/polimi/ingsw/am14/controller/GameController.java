@@ -19,7 +19,7 @@ public class GameController {
         }
     }
 
-    public void placeTotem(String nickname, char position) throws WrongStateException, WrongTurnException, UnknownPositionException, IllegalPlacementException, UnknownNicknameException {
+    public void placeTotem(String nickname, char position) throws WrongStateException, WrongTurnException, UnknownPositionException, IllegalPlacementException, UnknownNicknameException, SQLException, IllegalPickException, ForcedPickException {
         synchronized (game) {
             game.placeTotem(nickname, position);
 //            JsonParser parser = new JsonParser();
