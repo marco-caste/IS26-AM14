@@ -51,9 +51,9 @@ public class CardPickedEvent extends UpdateEvent {
         this.gameId = gameId;
 
         if (ID < 0)
-            this.description += "Pick phase has started";
+            this.description += "Pick phase has started. ";
         else
-            this.description += "Player " + playerNickname + "has picked";
+            this.description += "Player " + playerNickname + " picked card " + ID + ". ";
 
 
         updatedTurnOrderCard.ifPresentOrElse(
@@ -61,7 +61,7 @@ public class CardPickedEvent extends UpdateEvent {
                     this.updatedTurnOrderCard = turnOrder.stream().
                             map(Player::getNickname).
                             collect(Collectors.toCollection(ArrayList::new));
-                    this.description += " Was " + playerNickname + "'s last pick, turnOrderCard has been updated.";
+                    this.description += "Was " + playerNickname + "'s last pick, turnOrderCard has been updated.";
                 },
                 () -> this.updatedTurnOrderCard = null
         );

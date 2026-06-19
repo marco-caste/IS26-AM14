@@ -12,14 +12,29 @@ import java.util.Map;
 import static it.polimi.ingsw.am14.utils.Constants.foodTable;
 import static it.polimi.ingsw.am14.utils.Constants.initialFood;
 
+/**
+ * <p>
+ *     represents the turn order card, which represents the order of players in the game and the bonuses/maluses they receive at the end of each round
+ * </p>
+ */
 public class TurnOrderCard {
+    /**
+     * <p>
+     *     the number of players in the game, between 2 and 5
+     * </p>
+     */
     private final int numPlayers;
+    /**
+     * <p>
+     *     the order of players in the game, represented as an ArrayList of Player objects
+     * </p>
+     */
     private final ArrayList<Player> playerOrder;
 
 
     /**
      * <p>
-     *     builds a TurnOrderCard object
+     *     builds a TurnOrderCard object with the given number of players and an empty player order
      * </p>
      * @param numPlayers between 2 and 5
      */
@@ -30,10 +45,10 @@ public class TurnOrderCard {
 
     /**
      * <p>
-     *     constructor used by Jackson to deserialize the TurnOrderCard object from JSON
+     *     constructor used by the Codec to deserialize the TurnOrderCard object from data file
      * </p>
-     * @param numPlayers
-     * @param playerOrder
+     * @param numPlayers the number of players in the game
+     * @param playerOrder an ordered list of players in the game
      */
     @JsonCreator
     public TurnOrderCard(
@@ -45,9 +60,7 @@ public class TurnOrderCard {
 
     /**
      * <p>
-     *     applies the effects of the cases to the corresponding player:
-     *     - visits each case except the last and adds the corresponding bonus to player
-     *     - removes food or prestigePoints to the last player
+     *     resolves the bonus/malus for each player at the end of the round, according to the rules of the game and to which position they are in the player order. The last player in the order must pay either food or prestige points, if they do not have any food left. The other players receive a bonus according to their position in the order.
      * </p>
      */
     public void resolveBonusOrMalus(){
@@ -67,24 +80,11 @@ public class TurnOrderCard {
     }
 
     // CLEAR PLAYERS
-
-    /**
-     * <p>
-     *     calls this.playerOrder.clear()
-     * </p>
-     */
     public void clearPlayerOrder() {
         this.playerOrder.clear();
     }
 
     // ADDS PLAYER
-
-    /**
-     * <p>
-     *     adds p to this.playerOrder
-     * </p>
-     * @param p not null
-     */
     public void addPlayer(Player p) {
         this.playerOrder.add(p);
     }
@@ -94,8 +94,8 @@ public class TurnOrderCard {
     /**
      * <p>
      *     carries out phase 10 of the setup operations, as in the rule book:
-     *     - shuffles the playerOrder
-     *     - sets the initial players' food
+     *     <li>shuffle the player order</li>
+     *     <li>set the initial food for each player according to the number of players</li>
      * </p>
      */
     public void setupPhaseTen() {
@@ -111,10 +111,11 @@ public class TurnOrderCard {
 
     /**
      * <p>
-     *     returns the player at position index in this.PlayerOrder
+     *     returns the player at position index in the player order.
      * </p>
-     * @param index >= 0
-     * @return this.playerOrder.get(index)
+     * @param index the index of the player to remove, must be >= 0
+     * @return the player at position index in the player order
+     * @throws NullPointerException if the player at position index has already been removed from the player order
      */
     public Player getPlayer(int index) throws NullPointerException{
         if (this.playerOrder.get(index) == null)
@@ -126,6 +127,12 @@ public class TurnOrderCard {
         return new ArrayList<>(playerOrder);
     }
 
+    /**
+     * <p>
+     *     removes the player at position {@code playerIndex} from the player order by setting their reference to null.
+     * </p>
+     * @param playerIndex the index of the player to remove, must be >= 0
+     */
     public void removePlayer(int playerIndex) {
         this.playerOrder.set(playerIndex, null);
     }

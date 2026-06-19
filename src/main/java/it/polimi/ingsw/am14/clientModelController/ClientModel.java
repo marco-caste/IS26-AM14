@@ -12,9 +12,6 @@ import static it.polimi.ingsw.am14.utils.Constants.*;
 
 public class ClientModel {
 
-    //TODO: conviene aggiungere un array di tutti i clientPlayers in modo ogni volta nella gui di fare una add dell'homePlayer a otherPlayers per avere un array di tutti i player
-    //TODO: fatti questi aggiornamenti cambiare la gui
-
     private static final Map<Integer, List<Character>> offersPath = Map.of(
             2, List.of('B','C','E','F'),
             3, List.of('B','C','D','E','F'),
@@ -98,7 +95,6 @@ public class ClientModel {
     }
 
     public ArrayList<Character> getOffersPath() {
-        // TODO: RACE CONDITION TRA TUI E THREAD SOCKETCLIENT
         return new ArrayList<>(offersPath.get(numPlayers));
     }
 

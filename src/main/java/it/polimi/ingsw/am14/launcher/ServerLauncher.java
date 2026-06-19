@@ -14,12 +14,25 @@ import java.nio.file.Path;
 import static it.polimi.ingsw.am14.utils.Constants.PING_INTERVAL;
 import static it.polimi.ingsw.am14.utils.Constants.PING_TIMEOUT;
 
+/**
+ * ServerLauncher is the main class that starts the server for the game.
+ * It initializes the network layer, lobby controller, and handles saving/loading game state.
+ */
 public class ServerLauncher {
 //    args[0] = socket port
 //    args[1] = rmi port
+    /**
+     * The main method that starts the server. Launches 4 Threads:
+     * <li>The socket server Thread, on which socket connections will be handled</li>
+     * <li>The RMI server Thread, on which RMI connections will be handled</li>
+     * <li>The ping Thread, which will send a ping to all clients every {@code PING_INTERVAL} milliseconds</li>
+     * <li>The timeout Thread, which will check if any client has not responded to a ping within {@code PING_TIMEOUT} milliseconds</li>
+     *
+     * @param args command line arguments, where args[0] is the socket port and args[1] is the RMI port.
+     */
     public static void main(String[] args) {
 
-        // costruzione degli oggetti tecnici
+        // technical objects building
         NetworkLayer networkLayer = new NetworkLayer();
         LobbyController lobbyController;
 
@@ -27,7 +40,6 @@ public class ServerLauncher {
 
 
 
-        // TODO: UNCOMMENTARE E RISOLVERE EVENTUALI PROBLEMI CON IL SALVATAGGIO
         if (Files.exists(savePath)) {
             Codec jsonCodec = new JsonCodec();
             lobbyController = jsonCodec.readSaveData("src/main/Saves/save.json");

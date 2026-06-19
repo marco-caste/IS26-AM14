@@ -12,7 +12,16 @@ import java.util.stream.Collectors;
 
 import static it.polimi.ingsw.am14.utils.Constants.initialBuildings;
 
+/**
+ * <p>
+ *     represents the deck of buildings used in the game
+ * </p>
+ */
 public class BuildingDeck {
+    /**
+     * the buildingDecks map contains the decks of buildings for each age
+     * the key is the age (1, 2, or 3) and the value is the list of buildings for that age
+     */
     private final Map<Integer, ArrayList<Building>> buildingDecks;
 
     // organizes the number of buildings to use in the game according
@@ -22,13 +31,9 @@ public class BuildingDeck {
 
     /**
      * <p>
-     *     builds a deck of buildings
-     *     - retrieves data from Json using BuildingManager class
-     *     - shuffles the buildings separately
-     *     - puts the correct number of buildings per age in this.buildingDecks,
-     *          according to this.initialBuildings
+     *     builds a building deck for the given number of players. Will read the buildings from memory and shuffle them, then will take the right number of buildings for each age according to the number of players.
      * </p>
-     * @param numPlayers between 2 and 5
+     * @param numPlayers the number of players in the game
      */
     public BuildingDeck(int numPlayers){
         this.buildingDecks = new HashMap<>();
@@ -68,7 +73,7 @@ public class BuildingDeck {
 
     /**
      * <p>
-     *     builds a building deck from the given map of building decks, used for JSON deserialization
+     *     builds a building deck from the given map of building decks, used for deserialization
      * </p>
      * @param buildingDecks a map of building decks, where the keys are the ages and the values are the corresponding lists of buildings
      */
@@ -78,24 +83,12 @@ public class BuildingDeck {
         this.buildingDecks = buildingDecks;
     }
 
-    // SIZE OF THE BUILDING ARRAY AT AGE age
-
-    /**
-     *
-     * @param age between 1 and 3, included
-     * @return the size of the building deck of age "age"
-     */
+    // SIZE OF THE BUILDING ARRAY AT AGE "age"
     public int buildingDeckSize(int age) {
         return this.buildingDecks.get(age).size();
     }
 
-    // GETS AN ARRAYLIST OF BUILDINGS (PROTECTED, CANNOT BE CALLED FROM OUTSIDE)
-
-    /**
-     *
-     * @param age between 1 and 3, included
-     * @return the list of buildings of age "age"
-     */
+    // GETTER FOR THE BUILDING DECKS
     protected ArrayList<Building> getBuildings(int age) {
         return this.buildingDecks.get(age);
     }
@@ -104,8 +97,8 @@ public class BuildingDeck {
 
     /**
      *
-     * @param age between 1 and 3, included
-     * @param position between 0 and this.buildingDeckSize(age) - 1
+     * @param age the age of the building to retrieve, must be between 1 and 3, included
+     * @param position the position in the deck of the building to retrieve, must be between 0 and the size of the building deck for the given age, excluded
      * @return the building of age "age" in position "position"
      */
     public Building getBuilding(int age, int position) {
