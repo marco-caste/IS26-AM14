@@ -31,16 +31,6 @@ public class CardPickedEvent extends UpdateEvent {
         super("");
         int ID = card == null ? -1 : card.getId();
 
-        if (ID < 0) {
-            this.description += "Player " + playerNickname + " has skipped the turn";
-            this.playerNickname = playerNickname;
-            this.cardID = -1;
-            this.row = -1;
-            this.playerFood = playerFood;
-            this.playerPrestigePoints = playerPrestigePoints;
-
-            return;
-        }
 
         String rowName;
         switch (row) {
@@ -59,9 +49,13 @@ public class CardPickedEvent extends UpdateEvent {
         this.playerNumStars = playerNumStars;
         this.wasLastPick = wasLastPick;
         this.playerGatheringDiscount = playerGatheringDiscount;
-
         this.gameId = gameId;
-        this.description += "Player " + playerNickname + " has picked card with ID " + cardID + " from " + rowName;
+
+        if (ID < 0)
+            this.description += "Pick phase has started";
+        else
+            this.description += "Player " + playerNickname + " has picked card with ID " + cardID + " from " + rowName;
+
 
         updatedTurnOrderCard.ifPresentOrElse(
                 (turnOrder) -> {
@@ -113,15 +107,21 @@ public class CardPickedEvent extends UpdateEvent {
     @Override
     public void effect(ClientModel model) {
         model.setMessage(description);
+        System.out.println("CardPickedEvent.effect: wasLastPick = " + wasLastPick);
+        System.out.println("CardPickedEvent.effect: updatedTurnOrderCard = " + updatedTurnOrderCard);
+        System.out.println("CardPickedEvent.effect: playerNickname = " + playerNickname);
+
         if (cardID != -1) {
             model.updatePlayerTribe(playerNickname, cardID);
             model.removePickedCardFromBoard(row, cardID);
             model.updatePickPlayerStats(playerNickname, playerFood, playerPrestigePoints,playerNumStars, playerBuildingDiscount, playerGatheringDiscount);
-            if (wasLastPick) {
-                model.updatePlayerPosition(playerNickname, null );
-                model.setPlayerOrderInTurnOrderCard(updatedTurnOrderCard);
-            }
         }
+
+        if (wasLastPick ) {
+            model.updatePlayerPosition(playerNickname, null );
+            model.setPlayerOrderInTurnOrderCard(updatedTurnOrderCard);
+        }
+
         //TODO: dobbiamo aggiornare anche la posizione nelle trackCard? o facciamo tutto a fine turno lasciando lo spostamento delle pedine a endROund? Secondo me andrebbe fatto quando un player ha terminato di pickare
         model.notifyObservers(new PickUpdateViewEvent(description));
     }

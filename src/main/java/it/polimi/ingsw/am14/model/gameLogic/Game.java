@@ -84,7 +84,7 @@ public class Game implements Observable {
      * @throws WrongTurnException if this.currentState.placeTotem() throws it
      * @throws UnknownPositionException if this.currentState.placeTotem() throws it
      */
-    public void placeTotem(String nickname, char position) throws WrongStateException, WrongTurnException, UnknownPositionException, IllegalPlacementException, UnknownNicknameException {
+    public void placeTotem(String nickname, char position) throws WrongStateException, WrongTurnException, UnknownPositionException, IllegalPlacementException, UnknownNicknameException, SQLException, IllegalPickException, ForcedPickException {
         // Find player by nickname
         Player player = findPlayerByNickname(nickname);
         this.currentState.placeTotem(this, player, position);

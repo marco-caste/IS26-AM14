@@ -37,7 +37,7 @@ abstract class GameState {
      * @throws UnknownPositionException if an override call throws it
      * @throws WrongTurnException if an override call throws it
      */
-    protected void placeTotem(Game context, Player player, char position) throws WrongStateException, UnknownPositionException, WrongTurnException, IllegalPlacementException {
+    protected void placeTotem(Game context, Player player, char position) throws WrongStateException, UnknownPositionException, WrongTurnException, IllegalPlacementException, SQLException, IllegalPickException, ForcedPickException {
         throw new WrongStateException("Not in the right state to place a totem");
     }
 
@@ -71,7 +71,7 @@ abstract class GameState {
      *
      * @param context not null
      */
-    protected abstract void nextState(Game context) throws SQLException;
+    protected abstract void nextState(Game context) throws SQLException, IllegalPickException, ForcedPickException;
     // does nothing because only the model controls calls to this method
 
     /**
@@ -79,6 +79,9 @@ abstract class GameState {
      * @param context not null
      */
     protected void endRound(Game context) throws SQLException {
+    }
+
+    protected void controlPick(Game context, boolean addTopPick, Card selectedCard, int row) throws IllegalPickException, ForcedPickException, SQLException{
     }
 
     //Used for resetting state in clientModel

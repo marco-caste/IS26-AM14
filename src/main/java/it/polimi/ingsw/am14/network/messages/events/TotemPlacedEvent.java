@@ -32,6 +32,7 @@ public class TotemPlacedEvent extends UpdateEvent {
         this.first = first;
     }
 
+
     @JsonCreator
     public TotemPlacedEvent(
             @JsonProperty("description") String description,
@@ -55,16 +56,17 @@ public class TotemPlacedEvent extends UpdateEvent {
 
     @Override
     public void effect(ClientModel model) {
-//        model.setMessage(description);
+        model.setMessage(description);
         model.updatePlayerPosition(playerNickname, trackCardName);
         model.removePlayerFromTurnOrderCard(playerNickname);
-        model.checkAndEventuallySetPickState();
+
         if( first != null){
             firstTurnOrderCard.add(first);
             model.updatePlayerPosition(first, null);
             model.setPlayerOrderInTurnOrderCard(firstTurnOrderCard);
         }
         model.updatePlayerFood(playerNickname, numFood);
+        model.checkAndEventuallySetPickState();
         model.notifyObservers(new PositionUpdateViewEvent(description));
 
     }

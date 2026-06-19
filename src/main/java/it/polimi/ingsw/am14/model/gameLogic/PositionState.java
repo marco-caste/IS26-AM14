@@ -1,10 +1,10 @@
 package it.polimi.ingsw.am14.model.gameLogic;
 
+import it.polimi.ingsw.am14.exceptions.*;
 import it.polimi.ingsw.am14.network.messages.events.TotemPlacedEvent;
 import it.polimi.ingsw.am14.model.boardComponents.TrackCard;
-import it.polimi.ingsw.am14.exceptions.IllegalPlacementException;
-import it.polimi.ingsw.am14.exceptions.UnknownPositionException;
-import it.polimi.ingsw.am14.exceptions.WrongTurnException;
+
+import java.sql.SQLException;
 
 class PositionState extends GameState {
 
@@ -26,7 +26,7 @@ class PositionState extends GameState {
      * @throws WrongTurnException if it's not p's turn to play
      */
     @Override
-    protected void placeTotem(Game context, Player p, char trackCardName) throws UnknownPositionException, WrongTurnException, IllegalPlacementException {
+    protected void placeTotem(Game context, Player p, char trackCardName) throws UnknownPositionException, WrongTurnException, IllegalPlacementException, SQLException, IllegalPickException, ForcedPickException {
 
         String firstNickname = null;
         // retrieves data from the context
@@ -76,13 +76,6 @@ class PositionState extends GameState {
 
         }
 
-
-        if (context.getCurrentPlayerIndex() > context.getNumPlayers() - 1) {
-            this.nextState(context);
-        }
-
-
-
         context.notifyObservers(
                 new TotemPlacedEvent(
                         p.getNickname(),
@@ -92,6 +85,11 @@ class PositionState extends GameState {
                         firstNickname
                 )
         );
+
+        if (context.getCurrentPlayerIndex() > context.getNumPlayers() - 1) {
+            this.nextState(context);
+        }
+
 
         // observer pattern: sends event to event buffer
 
@@ -108,9 +106,10 @@ class PositionState extends GameState {
      */
     @Override
 
-    protected void nextState(Game context) {
+    protected void nextState(Game context) throws SQLException, IllegalPickException, ForcedPickException {
         // updatest current state
-        context.setCurrentState(new PickState());
+        context.setCurrentState(new ControlState());
+        System.out.println("[PositionState] Next state: " + context.getCurrentState().getStateName());
         // empties TurnOrderCard
         context.getBoard().getTurnOrderCard().clearPlayerOrder();
 
@@ -118,6 +117,8 @@ class PositionState extends GameState {
             context.getBoard().getTurnOrderCard().addPlayer(first);
         // sets currentPlayerIndex = 0
         context.setCurrentPlayerIndex(0);
+
+        context.getCurrentState().controlPick(context, false, null, 1);
     }
 
     @Override

@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import it.polimi.ingsw.am14.controller.LobbyController;
 import it.polimi.ingsw.am14.exceptions.*;
 
+import java.sql.SQLException;
+
 public class PlaceTotemClientRequest extends ClientRequest {
 
     private final char position;
@@ -17,7 +19,7 @@ public class PlaceTotemClientRequest extends ClientRequest {
         this.position = position;
     }
 
-    public void dispatchRequest(LobbyController controller) throws IllegalNicknameException, WrongStateException, WrongTurnException, UnknownPositionException, IllegalPlacementException, UnknownNicknameException {
+    public void dispatchRequest(LobbyController controller) throws IllegalNicknameException, WrongStateException, WrongTurnException, UnknownPositionException, IllegalPlacementException, UnknownNicknameException, SQLException, IllegalPickException, ForcedPickException {
         controller.placeTotem(this.nickname, this.position);
     }
 }

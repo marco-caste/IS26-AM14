@@ -36,8 +36,8 @@
   [
     {
       "name": "G",
-      "numPickTop": 1,
-      "numPickBottom": 2,
+      "numPickTop": 2,
+      "numPickBottom": 1,
       "numFood": 0
     }
   ],
