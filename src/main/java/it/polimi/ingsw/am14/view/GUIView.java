@@ -1121,9 +1121,9 @@ public class GUIView extends Application implements ViewType {
             };
         }
             else{  return switch (index) {
-                case 0 -> new PointRatio(0.50, 0.17);  // x va bene y è da lavorarci // per foto non ritagliate va bene dopo aver fatto un po di prove
-                case 1 -> new PointRatio(0.50, 0.33);
-                case 2 -> new PointRatio(0.50, 0.51);
+                case 0 -> new PointRatio(0.50, 0.12);  // x va bene y è da lavorarci // per foto non ritagliate va bene dopo aver fatto un po di prove
+                case 1 -> new PointRatio(0.50, 0.32);
+                case 2 -> new PointRatio(0.50, 0.49);
                 case 3 -> new PointRatio(0.50, 0.69);
                 case 4 -> new PointRatio(0.50, 0.82);
                 default -> throw new IllegalStateException("Unexpected value: " + index);
@@ -1770,15 +1770,15 @@ public class GUIView extends Application implements ViewType {
         switch (rankingPosition) {
             case 0 -> { // primo posto, centro
                 xRatio = 0.500;
-                yRatio = 0.330;
+                yRatio = 0.270;
             }
             case 1 -> { // secondo posto, sinistra
                 xRatio = 0.275;
-                yRatio = 0.365;
+                yRatio = 0.360;
             }
             case 2 -> { // terzo posto, destra
                 xRatio = 0.720;
-                yRatio = 0.400;
+                yRatio = 0.375;
             }
             default -> {
                 xRatio = 0.5;

@@ -10,20 +10,20 @@ import java.util.ArrayList;
 
 public class Inventor extends CharacterCard{
 
-    private final InventionType invention;
+    private final InventionType inventionType;
 
     @JsonCreator
     public Inventor(
             @JsonProperty("age") int age,
             @JsonProperty("id") int id,
-            @JsonProperty("inventionType") String invention
+            @JsonProperty("inventionType") String inventionType
     ) {
         super(age, id);
-        this.invention = InventionType.valueOf(invention.toUpperCase());
+        this.inventionType = InventionType.valueOf(inventionType.toUpperCase());
     }
 
     public InventionType getInvention(){
-        return invention;
+        return inventionType;
     }
 
 
@@ -39,7 +39,7 @@ public class Inventor extends CharacterCard{
     private void checkInventorPairBuilding(Player player, Game context){
 
         if(player.getTribe().getInventors().stream()
-                .noneMatch(x-> x.getInvention().equals(this.invention))){
+                .noneMatch(x-> x.getInvention().equals(this.inventionType))){
             return;
         }
         // if we don't have the inventor match we don't need to check if we have the building match, so we return immediately

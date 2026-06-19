@@ -1,5 +1,7 @@
 package it.polimi.ingsw.am14.model.boardComponents;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import it.polimi.ingsw.am14.model.gameLogic.Player;
 
 import java.util.ArrayList;
@@ -24,6 +26,21 @@ public class TurnOrderCard {
     public TurnOrderCard(int numPlayers) {
         this.numPlayers = numPlayers;
         this.playerOrder = new ArrayList<>();
+    }
+
+    /**
+     * <p>
+     *     constructor used by Jackson to deserialize the TurnOrderCard object from JSON
+     * </p>
+     * @param numPlayers
+     * @param playerOrder
+     */
+    @JsonCreator
+    public TurnOrderCard(
+            @JsonProperty("numPlayers") int numPlayers,
+            @JsonProperty("playerOrder") ArrayList<Player> playerOrder) {
+        this.numPlayers = numPlayers;
+        this.playerOrder = playerOrder;
     }
 
     /**

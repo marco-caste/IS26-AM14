@@ -3,6 +3,7 @@ package it.polimi.ingsw.am14.model.gameLogic;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import it.polimi.ingsw.am14.controller.LobbyController;
 import it.polimi.ingsw.am14.network.Observer;
 import it.polimi.ingsw.am14.network.messages.events.Event;
 import it.polimi.ingsw.am14.exceptions.*;
@@ -12,33 +13,69 @@ import it.polimi.ingsw.am14.model.cards.Card;
 import java.sql.SQLException;
 import java.util.*;
 
+/**
+ * <p>
+ *     Represents a game instance, managing the game state, players, board, and game progression.
+ *     The game follows a state machine pattern, where the current state determines the allowed actions and transitions.
+ * </p>
+ * <p>
+ *     This class also works as an interface between the Model, of which it is the most important piece, and the Controller.
+ *     It implements the Observable interface, allowing observers (e.g., network components) to be notified of game events.
+ * </p>
+ */
 public class Game implements Observable {
+    /**
+     * The current state of the game, which determines the allowed actions and transitions.
+     */
     private GameState currentState;
+    /**
+     * The previously saved state of the game, used for restoring the game after a crash or shutdown.
+     */
     @JsonIgnore
     private GameState previouslySavedState;
+    /**
+     * The list of players participating in the game.
+     */
     private final List<Player> players;
+    /**
+     * The game board, which contains the game components and manages the game logic.
+     */
     private final Board board;
+    // TODO: GIUSTO?
+    /**
+     * The index of the current player in the players list.
+     */
     private int currentPlayerIndex;
+    /**
+     * The total number of players in the game.
+     */
     private final int numPlayers;
+    /**
+     * The current round of the game, starting from 1, all the way up to 10.
+     */
     private int currentRound;
+    /**
+     * The current age of the game, starting from 1, all the way up to 3.
+     */
     private int currentAge;
+    /**
+     * The unique identifier for this game instance.
+     */
     private final int gameId;
 
+    /**
+     * The list of observers that are notified of game events.
+     */
     @JsonIgnore
     private final List<Observer> observers = new ArrayList<>();
 
 
     /**
      * <p>
-     *     creates game data according to the game logic:
-     *     - sets current state as WaitingRoomState
-     *     - builds this.players as ArrayList of numPlayers elements
-     *     - sets this.currentPlayerIndex as default
-     *     - sets this.numPlayers as numPlayers
-     *     - sets this.currentAge and this.currentRound as 1
-     *     - calls Board constructor
-     * </p>
+     *     Creates a new game with the specified number of players and game ID.
+     *     The game starts in the {@link WaitingRoomState} state, with an empty list of players, the current player index set to 0, the current round and age set to 1, and a new {@link Board} instance initialized for the specified number of players.
      * @param numPlayers between 2 and 5
+     * @param gameId unique identifier for this game instance, provided by the {@link LobbyController}.
      */
     public Game(int numPlayers, int gameId) {
         this.gameId             = gameId;
@@ -52,9 +89,23 @@ public class Game implements Observable {
     }
 
     // called if the server shuts down, gets the arguments from the latest JSON snapshot
+    /**
+     * <p>
+     *     Creates a new game instance from the provided parameters, typically used for restoring a game after a server crash or shutdown.
+     *     The game state is initialized to {@link WaitingRoomAfterCrashState}, and the previously saved state is set to the provided last current state.
+     * </p>
+     * @param lastCurrentState the last saved state of the game before the crash
+     * @param lastPlayers the list of players in the game before the crash
+     * @param lastBoard the game board state before the crash
+     * @param lastCurrentPlayerIndex the index of the current player before the crash
+     * @param numPlayers the total number of players in the game
+     * @param currentRound the current round of the game before the crash
+     * @param currentAge the current age of the game before the crash
+     * @param gameId unique identifier for this game instance.
+     */
     @JsonCreator
     public Game(
-            @JsonProperty("lastState") GameState lastCurrentState,
+            @JsonProperty("currentState") GameState lastCurrentState,
             @JsonProperty("players") List<Player> lastPlayers,
             @JsonProperty("board") Board lastBoard,
             @JsonProperty("currentPlayerIdx") int lastCurrentPlayerIndex,
@@ -62,8 +113,9 @@ public class Game implements Observable {
             @JsonProperty("currentRound") int currentRound,
             @JsonProperty("currentAge") int currentAge,
             @JsonProperty("gameId") int gameId) {
-//        this.currentState       = new WaitingRoomAfterCrashState();
-        this.currentState       = lastCurrentState;
+        // TODO: ?
+        this.currentState       = new WaitingRoomAfterCrashState();
+//        this.currentState       = lastCurrentState;
         this.previouslySavedState = lastCurrentState;
         this.players            = lastPlayers;
         this.board              = lastBoard;
@@ -76,13 +128,13 @@ public class Game implements Observable {
 
     /**
      * <p>
-     *     calls this.currentState.placeTotem()
+     *     performs the place totem action given the current state of the game.
      * </p>
-     * @param nickname not null
-     * @param position any char
-     * @throws WrongStateException if this.currentState.placeTotem() throws it
-     * @throws WrongTurnException if this.currentState.placeTotem() throws it
-     * @throws UnknownPositionException if this.currentState.placeTotem() throws it
+     * @param nickname the nickname of the player placing the totem
+     * @param position the track position where the totem is to be placed
+     * @throws WrongStateException if {@code this.currentState.placeTotem()} throws it
+     * @throws WrongTurnException if {@code this.currentState.placeTotem()} throws it
+     * @throws UnknownPositionException if {@code this.currentState.placeTotem()} throws it
      */
     public void placeTotem(String nickname, char position) throws WrongStateException, WrongTurnException, UnknownPositionException, IllegalPlacementException, UnknownNicknameException, SQLException, IllegalPickException, ForcedPickException {
         // Find player by nickname
@@ -92,15 +144,15 @@ public class Game implements Observable {
 
     /**
      * <p>
-     *     calls this.currentState.pickCard()
+     *     performs the pick card action given the current state of the game.
      * </p>
-     * @param nickname not null
-     * @param cardId not null, use -1 for skip
-     * @param row between 0 and 3, -1 for skip
-     * @throws WrongStateException if this.currentState.pickCard() throws it
-     * @throws WrongTurnException if this.currentState.pickCard() throws it
-     * @throws IllegalPickException if this.currentState.pickCard() throws it or card not found
-     * @throws ForcedPickException if this.currentState.pickCard() throws it
+     * @param nickname the nickname of the player picking the card
+     * @param cardId the id of the card to be picked
+     * @param row the row from which to pick, between 0 and 3
+     * @throws WrongStateException if {@code this.currentState.pickCard()} throws it
+     * @throws WrongTurnException if {@code this.currentState.pickCard()} throws it
+     * @throws IllegalPickException if {@code this.currentState.pickCard()} throws it or card not found
+     * @throws ForcedPickException if {@code this.currentState.pickCard()} throws it
      * @throws UnknownNicknameException if the nickname is not found
      */
     public void pickCard(String nickname, int cardId, int row) throws WrongStateException, WrongTurnException, IllegalPickException, ForcedPickException, UnknownNicknameException, SQLException {
@@ -150,9 +202,9 @@ public class Game implements Observable {
     }
 
     /**
-     *
-     * @param nickname not null
-     * @param totemColor not null
+     * connects a player to the game, if the current state allows it.
+     * @param nickname the nickname of the player connecting to the game
+     * @param totemColor the totem color of the player connecting to the game
      * @throws WrongStateException if this.currentState.onPlayerConnection() throws it
      */
     public void onPlayerConnection(String nickname, String totemColor) throws WrongStateException {
@@ -190,7 +242,6 @@ public class Game implements Observable {
         return previouslySavedState;
     }
     public String previouslySavedStateName() {return previouslySavedState.getStateName();} //Only for client update
-
     /**
      *
      * @return a copy of this.players
@@ -212,7 +263,7 @@ public class Game implements Observable {
 
     /**
      * <p>
-     *     adds increment to this.currentPlayerIndex
+     *     Adds increment to this.currentPlayerIndex
      * </p>
      * @param increment >= 0
      */
@@ -222,7 +273,7 @@ public class Game implements Observable {
 
     /**
      * <p>
-     *     adds increment to this.currentRound
+     *     Adds increment to this.currentRound
      * </p>
      * @param increment >= 0
      */
@@ -232,7 +283,7 @@ public class Game implements Observable {
 
     /**
      * <p>
-     *     adds increment to this.currentAge
+     *     Adds increment to this.currentAge
      * </p>
      * @param increment >= 0
      */
@@ -242,9 +293,9 @@ public class Game implements Observable {
 
     /**
      * <p>
-     *     adds player to this.players
+     *     Adds player to this.players
      * </p>
-     * @param player not null
+     * @param player the player to add to the game, must not be null
      */
     public void addPlayer(Player player) {
         this.players.add(player);
@@ -254,7 +305,7 @@ public class Game implements Observable {
 
     /**
      * <p>
-     *     called in setup phases, is relevant while not all players have connected;
+     *     Called in setup phases, is relevant while not all players have connected;
      *     has result always equal to getNumPlayers() in non-setup game phases
      * </p>
      * @return this.players.size()
@@ -265,7 +316,7 @@ public class Game implements Observable {
 
     // OBSERVER PATTERN towards the network layer:
     /**
-     * @param observer not null - the observer to add
+     * @param observer the observer to add, must not be null
      */
     @Override
     public void addObserver(Observer observer) {
@@ -273,7 +324,7 @@ public class Game implements Observable {
     }
 
     /**
-     * @param observer not null - the observer to remove
+     * @param observer the observer to remove, must not be null
      */
     @Override
     public void removeObserver(Observer observer) {
@@ -281,11 +332,10 @@ public class Game implements Observable {
     }
 
     /**
-     * @param event not null - the event to notify to observers
+     * @param event the event to notify to observers, must not be null
      */
     @Override
     public void notifyObservers(Event event) {
-        //TODO: è solo uno, togliere for
         for (Observer observer : observers) {
             observer.update(event);
         }

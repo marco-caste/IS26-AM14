@@ -65,6 +65,10 @@ public class ClientModel {
 
 
     //GETTERS
+    public int getTurnOrderCardIndex() {
+        return turnOrderCardIndex;
+    }
+
     public ClientPlayer getPlayerByNickname(String nickname) {
         if (homePlayer != null && homePlayer.getNickname().equals(nickname)) {
             return homePlayer;
@@ -74,7 +78,6 @@ public class ClientModel {
                 return player;
             }
         }
-        // se nickname != homeplayer o otherPlayers è vuota
         return null;
     }
 
@@ -95,6 +98,7 @@ public class ClientModel {
     }
 
     public ArrayList<Character> getOffersPath() {
+        // TODO: RACE CONDITION TRA TUI E THREAD SOCKETCLIENT
         return new ArrayList<>(offersPath.get(numPlayers));
     }
 
@@ -103,7 +107,8 @@ public class ClientModel {
     }
 
     public String getHomePlayerNickname(){
-        return this.homePlayer.getNickname();
+        return (this.homePlayer == null) ?
+                "" : this.homePlayer.getNickname();
     }
 
     public ArrayList<ClientPlayer> getOtherPlayers() {

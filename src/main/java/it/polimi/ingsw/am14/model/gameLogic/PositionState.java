@@ -6,27 +6,31 @@ import it.polimi.ingsw.am14.model.boardComponents.TrackCard;
 
 import java.sql.SQLException;
 
+/**
+ * <p>
+ *     Represents the state of the game where players are placing their totems on the board.
+ *     In this state, players can place their totems on available track cards, and the game will handle the placement logic,
+ *     including checking for valid positions, applying effects, and transitioning to the next state when all players have placed their totems.
+ * </p>
+ */
 class PositionState extends GameState {
 
     Boolean isThereFirstFood = false;
     Player first = null;
 
     /**
-     * <p>
-     *     moves player p from the TurnOrderCard towards the required TrackCard:
-     *     - sets trackCard.playerTotem to p
-     *     - calls trackCard.effect()
-     *     - increments game.currentPlayerIndex by 1
-     *     - triggers a state transition if p has been the last player to position their totem
-     * </p>
-     * @param context not null
-     * @param p not null
-     * @param trackCardName any char
-     * @throws UnknownPositionException if there is no TrackCard with name trackCardName
-     * @throws WrongTurnException if it's not p's turn to play
+     * {@inheritDoc}
+     *
+     * @param context the game context where the action is performed (must not be null)
+     * @param player the player performing the placement (must not be null)
+     * @param trackCardName single-character identifier of the target track card
+     * @throws UnknownPositionException if the specified track identifier is invalid
+     * @throws WrongTurnException if the provided player is not the current player
+     * @throws IllegalPlacementException if the target track is already occupied or the placement is otherwise forbidden
      */
+
     @Override
-    protected void placeTotem(Game context, Player p, char trackCardName) throws UnknownPositionException, WrongTurnException, IllegalPlacementException, SQLException, IllegalPickException, ForcedPickException {
+    protected void placeTotem(Game context, Player player, char trackCardName) throws UnknownPositionException, WrongTurnException, IllegalPlacementException, SQLException, IllegalPickException, ForcedPickException {
 
         String firstNickname = null;
         // retrieves data from the context
@@ -45,8 +49,8 @@ class PositionState extends GameState {
             throw new RuntimeException("[PositionState] " + e.getMessage());
         }
 
-        if (!expectedCurrentPlayer.equals(p)) {
-            throw new WrongTurnException("It's not " + p.getNickname() + "'s turn");
+        if (!expectedCurrentPlayer.equals(player)) {
+            throw new WrongTurnException("It's not " + player.getNickname() + "'s turn");
         }
 
         if(destinationTrackCard.getPlayerTotem() != null) {
@@ -56,7 +60,7 @@ class PositionState extends GameState {
 
 
         // places p on the desired TrackCard and applies its effects
-        destinationTrackCard.setPlayerTotem(p);
+        destinationTrackCard.setPlayerTotem(player);
         destinationTrackCard.effect();
         // removes p from the TurnOrderCard
         context.getBoard().getTurnOrderCard().removePlayer(currentPlayerIdx);
@@ -69,38 +73,39 @@ class PositionState extends GameState {
             first = foodTrackCard.getPlayerTotem();
 
             if(first != null){
-                foodTrackCard.setPlayerTotem(null);
-                isThereFirstFood = true;
                 firstNickname = first.getNickname();
+                isThereFirstFood = true;
+                foodTrackCard.setPlayerTotem(null);
             }
 
         }
 
-        context.notifyObservers(
-                new TotemPlacedEvent(
-                        p.getNickname(),
-                        trackCardName,
-                        context.getGameId(),
-                        p.getNumFood(),
-                        firstNickname
-                )
-        );
 
         if (context.getCurrentPlayerIndex() > context.getNumPlayers() - 1) {
             this.nextState(context);
         }
 
 
+
+        context.notifyObservers(
+                new TotemPlacedEvent(
+                        player.getNickname(),
+                        trackCardName,
+                        context.getGameId(),
+                        player.getNumFood(),
+                        firstNickname
+                )
+        );
+
         // observer pattern: sends event to event buffer
 
     }
 
+    // TODO: IL PROSSIMO STATO NON è PIù PICK STATE, MA CONTROLSTATE
     /**
+     * {@inheritDoc}
      * <p>
-     *     changes the current State of the game:
-     *     - sets context.currentState to a new PickState
-     *     - sets context.currentPlayerIndex to 0
-     *     - clears the TurnOrderCard's players array
+     *     For this state, the next state is always {@link PickState}.
      * </p>
      * @param context not null
      */
@@ -109,7 +114,6 @@ class PositionState extends GameState {
     protected void nextState(Game context) throws SQLException, IllegalPickException, ForcedPickException {
         // updatest current state
         context.setCurrentState(new ControlState());
-        System.out.println("[PositionState] Next state: " + context.getCurrentState().getStateName());
         // empties TurnOrderCard
         context.getBoard().getTurnOrderCard().clearPlayerOrder();
 

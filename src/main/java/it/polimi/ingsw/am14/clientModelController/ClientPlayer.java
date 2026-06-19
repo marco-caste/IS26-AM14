@@ -1,17 +1,19 @@
 package it.polimi.ingsw.am14.clientModelController;
 
+import it.polimi.ingsw.am14.model.gameLogic.TotemColor;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class ClientPlayer {
     private String nickname;
-    private String totemColor;
+    private TotemColor totemColor;
     private int numFood;
     private int numPrestigePoints;
     private int numStars;
     private int totalBuildingDiscount;
     private int totalGatheringDiscount;
-    private List<Integer> playerTribe = new ArrayList<Integer>();
+    private List<Integer> playerTribe = new ArrayList<>();
 
     public ClientPlayer(String nickname) {
         this.nickname = nickname;
@@ -22,7 +24,7 @@ public class ClientPlayer {
     }
 
     public void setTotemColor(String totemColor) {
-        this.totemColor = totemColor;
+        this.totemColor = TotemColor.valueOf(totemColor.toUpperCase());
     }
 
     public void setNumFood(int numFood) {
@@ -42,6 +44,10 @@ public class ClientPlayer {
     }
 
     public String getTotemColor() {
+        return totemColor.toString().toLowerCase();
+    }
+
+    public TotemColor getTotemColorAsEnum() {
         return totemColor;
     }
 
@@ -65,10 +71,10 @@ public class ClientPlayer {
 
     @Override
     public String toString() {
-        return  "nickname='" + nickname + '\'' +
-                ", totemColor='" + totemColor + '\'' +
-                ", numFood=" + numFood +
-                ", numPrestigePoints=" + numPrestigePoints;
+        return  "nickname='" + nickname + "'\n" +
+                "totemColor='" + totemColor.toString().toLowerCase() + "'\n" +
+                "numFood=" + numFood + "\n" +
+                "numPrestigePoints=" + numPrestigePoints;
     }
 
     public void setNumStars(int numStars) {

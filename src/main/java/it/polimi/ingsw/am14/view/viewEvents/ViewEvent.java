@@ -2,16 +2,18 @@ package it.polimi.ingsw.am14.view.viewEvents;
 
 import it.polimi.ingsw.am14.view.ViewType;
 
+/**
+ * <p>
+ *     Interface representing a view event in the game. A view event is an action or change in the game state that needs to be rendered on the user interface.
+ *     Each view event must implement the render method, which defines how the event should be displayed on the provided view.
+ * </p>
+ */
 public interface ViewEvent {
     /**
      * <p>
-     *     This method is used to render the event on the view. It will be called in the network layer,
-     *     once a network event has been received on the server.
-     *     It will need to cast the view to the correct type in order to call the correct methods.
-     *     Each different ViewEvent will then call a series of methods exposed by the view, in order to
-     *     update the view with the new information.
+     *     Renders this event on the provided view. The specific rendering behavior will depend on the type of event and the capabilities of the view.
      * </p>
-     * @param view not null, the view that will handle this event
+     * @param view the view that will handle this event
      */
     void render(ViewType view);
 

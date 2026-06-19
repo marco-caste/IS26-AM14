@@ -1,7 +1,10 @@
 package it.polimi.ingsw.am14.model.boardComponents;
 
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import it.polimi.ingsw.am14.model.cards.buildings.Building;
+import it.polimi.ingsw.am14.utils.Codec;
 import it.polimi.ingsw.am14.utils.JsonCodec;
 
 import java.util.*;
@@ -33,7 +36,7 @@ public class BuildingDeck {
         this.buildingDecks.put(2, new ArrayList<>());
         this.buildingDecks.put(3, new ArrayList<>());
         // reads values from JSON data file, puts Buildings in the corresponding eras;
-        JsonCodec jsonCodec = new JsonCodec();
+        Codec jsonCodec = new JsonCodec();
 
         Map<Integer, ArrayList<Building>> completeDecks = new HashMap<>();
 
@@ -61,6 +64,18 @@ public class BuildingDeck {
                this.buildingDecks.get(i).add(completeDecks.get(i).get(j));
             }
         }
+    }
+
+    /**
+     * <p>
+     *     builds a building deck from the given map of building decks, used for JSON deserialization
+     * </p>
+     * @param buildingDecks a map of building decks, where the keys are the ages and the values are the corresponding lists of buildings
+     */
+    @JsonCreator
+    public BuildingDeck(
+            @JsonProperty("buildingDecks") Map<Integer, ArrayList<Building>> buildingDecks) {
+        this.buildingDecks = buildingDecks;
     }
 
     // SIZE OF THE BUILDING ARRAY AT AGE age

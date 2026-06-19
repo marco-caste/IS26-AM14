@@ -34,10 +34,8 @@ public class CardPickedEvent extends UpdateEvent {
 
         String rowName;
         switch (row) {
-            case 0 -> rowName = "TOP_DECKABLE_ROW";
-            case 1 -> rowName = "TOP_BUILDING_ROW";
-            case 2 -> rowName = "BOTTOM_DECKABLE_ROW";
-            case 3 -> rowName = "BOTTOM_BUILDING_ROW";
+            case 0, 1 -> rowName = "top row";
+            case 2, 3 -> rowName = "bottom row";
             default -> throw new IllegalArgumentException("Row must be between 0 and 3");
         }
         this.playerNickname = playerNickname;
@@ -62,7 +60,7 @@ public class CardPickedEvent extends UpdateEvent {
                     this.updatedTurnOrderCard = turnOrder.stream().
                             map(Player::getNickname).
                             collect(Collectors.toCollection(ArrayList::new));
-                    this.description += "Was " + playerNickname + "'s last pick, turnOrderCard has been updated\n";
+                    this.description += " Was " + playerNickname + "'s last pick, turnOrderCard has been updated.";
                 },
                 () -> this.updatedTurnOrderCard = null
         );
@@ -107,10 +105,6 @@ public class CardPickedEvent extends UpdateEvent {
     @Override
     public void effect(ClientModel model) {
         model.setMessage(description);
-        System.out.println("CardPickedEvent.effect: wasLastPick = " + wasLastPick);
-        System.out.println("CardPickedEvent.effect: updatedTurnOrderCard = " + updatedTurnOrderCard);
-        System.out.println("CardPickedEvent.effect: playerNickname = " + playerNickname);
-
         if (cardID != -1) {
             model.updatePlayerTribe(playerNickname, cardID);
             model.removePickedCardFromBoard(row, cardID);
@@ -121,8 +115,6 @@ public class CardPickedEvent extends UpdateEvent {
             model.updatePlayerPosition(playerNickname, null );
             model.setPlayerOrderInTurnOrderCard(updatedTurnOrderCard);
         }
-
-        //TODO: dobbiamo aggiornare anche la posizione nelle trackCard? o facciamo tutto a fine turno lasciando lo spostamento delle pedine a endROund? Secondo me andrebbe fatto quando un player ha terminato di pickare
         model.notifyObservers(new PickUpdateViewEvent(description));
     }
 }
