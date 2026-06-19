@@ -27,6 +27,7 @@ class ControlState extends GameState {
         char playerTotemPosition = findFirstPlayerTotemOnOffersPath(context).getPosition();
 
 
+        System.out.println("addTopPick : " + wasAdditionalPick);
         // we don't need to check anything in this case --> obbligatorio in quanto i controllo non sono pensati per funzionare nel caso dell addTopPick
         if(wasAdditionalPick){
           goToEndRound = true;
@@ -114,7 +115,6 @@ class ControlState extends GameState {
         finalizeCurrentPlayerTurn(context, player, playerTotem);
 
         return (handleAllPlayersFinishedTheirPicksPhase(context, availableTopCharacters));
-
     }
 
 
@@ -215,7 +215,7 @@ class ControlState extends GameState {
     protected void nextState(Game context) throws SQLException {
         if (goToEndRound) {
             context.setCurrentPlayerIndex(0);
-            if (context.getCurrentRound() == 11) {
+            if (context.getCurrentRound() == 10) {
                 context.setCurrentState(new EndGameState());
                 context.getCurrentState().endRound(context);
             } else {
