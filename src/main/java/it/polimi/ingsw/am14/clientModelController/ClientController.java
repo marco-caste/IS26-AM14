@@ -34,17 +34,6 @@ public class ClientController {
             return;
         }
 
-        //Skip check
-        if (cardId == -1) {
-            try {
-                server.pickCard(model.getHomePlayerNickname(), cardId, 4);
-                return;
-            } catch (Exception e) {
-                handleNetworkError("A network error occurred while skipping the turn.");
-                return;
-            }
-        }
-
         //cardId check
         if (cardId > 116) {
             handleException("Invalid card Id.");

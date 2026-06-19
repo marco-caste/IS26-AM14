@@ -22,19 +22,27 @@ class ControlState extends GameState {
         goToEndRound = false;
         selectedCard=card;
         row = rowChosen;
+
+        // we don't need to check anything in this case --> obbligatorio in quanto i controllo non sono pensati per funzionare nel caso dell addTopPick
+        if(wasAdditionalPick){
+            goToEndRound = true;
+
+            context.getPlayers().stream()
+                    .filter(player -> player.getAddTopPick() == 1)
+                    .findFirst()
+                    .ifPresent(player -> {
+                        update(player, selectedCard, row, context,true);
+                        try {
+                            nextState(context);
+                        } catch (SQLException _) {}
+                    });
+
+            return;
+        }
+
         // it's never null because controlPick is called if and only if there is atLeast a player on the offersPath
         pickingPlayer = findFirstPlayerTotemOnOffersPath(context).getPlayer();
         char playerTotemPosition = findFirstPlayerTotemOnOffersPath(context).getPosition();
-
-
-        System.out.println("addTopPick : " + wasAdditionalPick);
-        // we don't need to check anything in this case --> obbligatorio in quanto i controllo non sono pensati per funzionare nel caso dell addTopPick
-        if(wasAdditionalPick){
-          goToEndRound = true;
-          update(pickingPlayer, selectedCard, row, context,true);
-          nextState(context);
-          return;
-        }
 
 
         //Check Phase Start
@@ -166,7 +174,7 @@ class ControlState extends GameState {
             if (playerWithAdditionalTopPick.isPresent()) {
                 Player playerWithExtraTop = playerWithAdditionalTopPick.get();
                 if (!canPlayerAffordAnyBuildingInTopRow(playerWithExtraTop, context, availableTopCharacters)) {
-                   goToEndRound = true;
+                    goToEndRound = true;
                 }
             } else {
                 goToEndRound= true;
@@ -188,8 +196,10 @@ class ControlState extends GameState {
         // quindi per questi player che non stanno pickando verrà chiamato comunque l'update. In quel caso però passiamo la carta = null in quanto non dobbiamo registrare un pick
         // ma eventualemente solo un update della turnorderCard e trackCard nel caso nemmeno il player successivo possa skippare.
 
-        if(!(pickingPlayer.equals(player))) {
-            card = null;
+        if(pickingPlayer!= null){
+            if(!(pickingPlayer.equals(player))) {
+                card = null;
+            }
         }
 
         context.notifyObservers(

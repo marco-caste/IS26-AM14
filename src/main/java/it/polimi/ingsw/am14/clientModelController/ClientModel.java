@@ -329,19 +329,6 @@ public class ClientModel {
     }
 
     public boolean checkRow(int row) {
-        if (row < 0) {
-            return false;
-        }
-        Character position = getHomePlayerPosition();
-
-        //In these track card you can pick only from top
-        if ((position == 'C' || position == 'F') && (row == BOTTOM_DECKABLE_ROW || row == BOTTOM_BUILDING_ROW)) {
-            return false;
-        }
-        //In these track card you can pick only from the bottom
-        if ((position == 'B' || position == 'D') && (row == TOP_BUILDING_ROW || row == TOP_DECKABLE_ROW)) {
-            return false;
-        }
         return true;
     }
 
