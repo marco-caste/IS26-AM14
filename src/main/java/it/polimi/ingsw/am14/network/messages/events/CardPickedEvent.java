@@ -14,15 +14,15 @@ import java.util.stream.Collectors;
 
 public class CardPickedEvent extends UpdateEvent {
 
-    private String playerNickname;
-    private int cardID;
-    private int row;
-    private int playerFood;
-    private int playerPrestigePoints;
-    private int playerNumStars;
-    private boolean wasLastPick;
-    private int playerBuildingDiscount;
-    private int playerGatheringDiscount;
+    private final String playerNickname;
+    private final int cardID;
+    private final int row;
+    private final int playerFood;
+    private final int playerPrestigePoints;
+    private final int playerNumStars;
+    private final boolean wasLastPick;
+    private final int playerBuildingDiscount;
+    private final int playerGatheringDiscount;
     private ArrayList<String> updatedTurnOrderCard;
     private int gameId; // only used for bufferization, will not be sent to the client
 
@@ -38,6 +38,7 @@ public class CardPickedEvent extends UpdateEvent {
             case 2, 3 -> rowName = "bottom row";
             default -> throw new IllegalArgumentException("Row must be between 0 and 3");
         }
+
         this.playerNickname = playerNickname;
         this.cardID = ID;
         this.row = row;
@@ -52,7 +53,7 @@ public class CardPickedEvent extends UpdateEvent {
         if (ID < 0)
             this.description += "Pick phase has started";
         else
-            this.description += "Player " + playerNickname + " has picked card with ID " + cardID + " from " + rowName;
+            this.description += "Player " + playerNickname + "has picked";
 
 
         updatedTurnOrderCard.ifPresentOrElse(

@@ -80,7 +80,7 @@ abstract class GameState {
      * @throws UnknownPositionException if an override call throws it
      * @throws WrongTurnException if an override call throws it
      */
-    protected void placeTotem(Game context, Player player, char position) throws WrongStateException, UnknownPositionException, WrongTurnException, IllegalPlacementException {
+    protected void placeTotem(Game context, Player player, char position) throws WrongStateException, UnknownPositionException, WrongTurnException, IllegalPlacementException, SQLException, IllegalPickException, ForcedPickException {
         throw new WrongStateException("Not in the right state to place a totem");
     }
 
@@ -121,7 +121,7 @@ abstract class GameState {
      * @param context the game context in which this action is performed
      * @throws SQLException if an SQL error occurs
      */
-    protected abstract void nextState(Game context) throws SQLException;
+    protected abstract void nextState(Game context) throws SQLException, IllegalPickException, ForcedPickException;
 
     /**
      * <p>

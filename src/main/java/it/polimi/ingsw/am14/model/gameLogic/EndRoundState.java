@@ -53,6 +53,9 @@ class EndRoundState extends GameState {
         if (context.getCurrentRound() == 10) {
             currentBoard.pickDeckableAndAddToTop(currentBoard.getTribeDeck().deckSize() - 4);
             // there is no need to check the age change at final turn, so the method returns after calling nextState
+            context.notifyObservers(
+                    new EndRoundEvent(context.getBoard(), context.getPlayers(), context.getGameId(), context.getCurrentAge())
+            );
 
             this.nextState(context);
             return;

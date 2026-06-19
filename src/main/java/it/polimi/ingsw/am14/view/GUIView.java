@@ -63,7 +63,9 @@ public class GUIView extends Application implements ViewType {
 
     //topGameScene
     private Label serverMessage;
-    private VBox topBox;
+    private Label roundCounter;
+    private Integer round;
+    private StackPane topPane;
 
     //centerGameScene
     private HBox topCenterBox;
@@ -205,6 +207,7 @@ public class GUIView extends Application implements ViewType {
 
     @Override
     public void renderEndRound(String message) {
+        round++;
         updateBoard();
         updateSelectedTribe();
         updateTop(message);
@@ -941,23 +944,34 @@ public class GUIView extends Application implements ViewType {
         }
     }
 
-    private VBox createTop() {
-        topBox = new VBox(10);
-        topBox.setStyle("-fx-background-color: rgb(255,0,0); -fx-padding: 15;");
+    private StackPane createTop() {
+        topPane = new StackPane();
+        topPane.setStyle("-fx-background-color: rgb(255,0,0); -fx-padding: 15;");
 
         serverMessage = new Label();
         serverMessage.setStyle("-fx-text-fill: #ffffff; -fx-font-size: 20; -fx-font-weight: bold;");
-        topBox.setAlignment(Pos.CENTER);
 
-        topBox.getChildren().add(serverMessage);
+        roundCounter = new Label();
+        roundCounter.setStyle("-fx-text-fill: #ffffff; -fx-font-size: 15; -fx-font-weight: bold;");
+
+        round = 1;
+
+        StackPane.setAlignment(serverMessage, Pos.CENTER);
+        StackPane.setAlignment(roundCounter, Pos.CENTER_RIGHT);
+
+        topPane.getChildren().addAll(serverMessage, roundCounter);
 
         updateTop("Game has Started");
-        return topBox;
+
+        return topPane;
     }
 
+
     public void updateTop (String message){
-        if (topBox == null) return ;
+        if (topPane == null) return ;
         serverMessage.setText(message);
+        String roundString = "Current Round: " + round.toString();
+        roundCounter.setText(roundString);
 
     }
 

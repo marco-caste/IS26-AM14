@@ -34,7 +34,9 @@ public class JsonCodec implements Codec {
         try {
             return objectMapper.readValue(new File(filePath), new TypeReference<LobbyController>(){});
         } catch (IOException e) {
+            System.out.println(e.getMessage());
             throw new RuntimeException("[JsonCodec] Failed to read save data from file: " + filePath);
+
         }
     }
 

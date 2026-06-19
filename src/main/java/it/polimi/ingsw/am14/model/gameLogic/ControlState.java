@@ -22,7 +22,7 @@ class ControlState extends GameState {
         goToEndRound = false;
         selectedCard=card;
         row = rowChosen;
-        // it's never null because controlPick is called if and only if there is stil a player on the offersPath
+        // it's never null because controlPick is called if and only if there is atLeast a player on the offersPath
         pickingPlayer = findFirstPlayerTotemOnOffersPath(context).getPlayer();
         char playerTotemPosition = findFirstPlayerTotemOnOffersPath(context).getPosition();
 
@@ -215,7 +215,7 @@ class ControlState extends GameState {
     protected void nextState(Game context) throws SQLException {
         if (goToEndRound) {
             context.setCurrentPlayerIndex(0);
-            if (context.getCurrentRound() == 10) {
+            if (context.getCurrentRound() == 11) {
                 context.setCurrentState(new EndGameState());
                 context.getCurrentState().endRound(context);
             } else {
