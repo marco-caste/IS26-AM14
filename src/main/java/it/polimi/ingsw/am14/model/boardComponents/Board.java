@@ -380,8 +380,9 @@ public class Board {
      * </p>
      * @param numPlayers between 2 and 4
      */
+
     public void pickDeckableAndAddToTop(int numPlayers) {
-        for (int i = 0; i < numPlayers + 4; i++) {
+        for (int i = 0; i < numPlayers + 4 ; i++) {
             this.topDeckableRow.add(this.tribeDeck.deckPop());
         }
     }

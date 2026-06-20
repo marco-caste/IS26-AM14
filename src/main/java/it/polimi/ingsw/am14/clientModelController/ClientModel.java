@@ -109,6 +109,7 @@ public class ClientModel {
     public String getHomePlayerNickname(){
         return (this.homePlayer == null) ?
                 "" : this.homePlayer.getNickname();
+
     }
 
     public ArrayList<ClientPlayer> getOtherPlayers() {
@@ -161,6 +162,9 @@ public class ClientModel {
         return getPlayerPosition(homePlayer.getNickname());
     }
 
+    public ClientState getClientState(){
+        return this.state;
+    }
 
     //SETTERS
     public void setMessage(String message) {
@@ -204,6 +208,7 @@ public class ClientModel {
 
     public void checkAndEventuallySetPickState() {
         for (String nickname : playerOrderInTurnOrderCard) {
+            System.out.println(playerOrderInTurnOrderCard);
             if (nickname != null) return;
         }
         this.state = ClientState.PICK;
@@ -339,6 +344,7 @@ public class ClientModel {
         }
         return false;
     }
+
 
     public boolean checkTotemPosition(char position) {
         List<Character> validPositions = offersPath.get(numPlayers);

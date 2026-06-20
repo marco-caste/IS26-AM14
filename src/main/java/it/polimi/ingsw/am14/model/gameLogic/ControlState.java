@@ -239,9 +239,5 @@ class ControlState extends GameState {
         }
     }
 
-    @Override
-    protected String getStateName() {
-        return "CONTROL";
-    }
 }
 

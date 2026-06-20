@@ -29,7 +29,7 @@ public class ClientController {
         }
 
         //State check
-        if (!model.checkPickState()) {
+        if(!model.checkPickState()) {
             handleException("You can't pick a card right now.");
             return;
         }
