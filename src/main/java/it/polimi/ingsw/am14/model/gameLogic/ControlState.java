@@ -93,6 +93,7 @@ class ControlState extends GameState {
         context.incrementCurrentPlayerIndexBy(1);
         context.getBoard().getOffersPath().offersPathGet(playerTotemPosition).setPlayerTotem(null);
         context.getBoard().getTurnOrderCard().addPlayer(player);
+        System.out.println(" turnOrderCard : " + context.getBoard().getTurnOrderCard().getPlayerOrder().getFirst().getNickname());
         this.update(player, selectedCard, row, context, true);
     }
 
@@ -201,6 +202,8 @@ class ControlState extends GameState {
                 card = null;
             }
         }
+
+        System.out.println(" turnOrderCardInUpdate: " + currentTurnOrderCard);
 
         context.notifyObservers(
                 new CardPickedEvent(

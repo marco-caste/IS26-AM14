@@ -138,7 +138,6 @@ public class GUIView extends Application implements ViewType {
     @Override
     public void update(ClientModel model, ViewEvent viewEvent) {
 
-        if (this.modelReference == null)
             this.modelReference = model;
 
         isButtonAlreadySelected = false;
@@ -690,9 +689,12 @@ public class GUIView extends Application implements ViewType {
             players.addAll(modelReference.getOtherPlayers());
         }
 
+
+
         for (ClientPlayer player : players) {
             if (player == null) continue;
             playerNumber++;
+
 
             String color = player.getTotemColor();
 
@@ -1138,6 +1140,8 @@ public class GUIView extends Application implements ViewType {
             HBox box = (HBox) bottomCenterBox.getChildren().get(i);
             updateCenterCards(i + 2, box);
         }
+
+
 
         if (modelReference.getAge() > 0) { // update fatto solo se ho l'age mi arriva con l'evento di endRound
             ImageView deck = new ImageView(

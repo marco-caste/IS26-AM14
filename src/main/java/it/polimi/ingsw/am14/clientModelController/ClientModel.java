@@ -168,10 +168,8 @@ public class ClientModel {
     }
 
     public void setPlayerOrderInTurnOrderCard(ArrayList<String> playerOrderInTurnOrderCard) {
-        if(playerOrderInTurnOrderCard == null)
-            this.playerOrderInTurnOrderCard = new ArrayList<>();
-        else
             this.playerOrderInTurnOrderCard = playerOrderInTurnOrderCard;
+            System.out.println("Player order in turn order card updated: " + playerOrderInTurnOrderCard);
     }
 
     public void setTurnOrderCardIndex(int turnOrderCardIndex) {
