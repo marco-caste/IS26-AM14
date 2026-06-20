@@ -101,11 +101,10 @@ class PositionState extends GameState {
 
     }
 
-    // TODO: IL PROSSIMO STATO NON è PIù PICK STATE, MA CONTROLSTATE
     /**
      * {@inheritDoc}
      * <p>
-     *     For this state, the next state is always {@link PickState}.
+     *     For this state, the next state is always {@link ControlState}.
      * </p>
      * @param context not null
      */

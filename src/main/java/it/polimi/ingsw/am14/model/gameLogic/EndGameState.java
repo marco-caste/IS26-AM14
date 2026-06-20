@@ -20,7 +20,6 @@ import java.util.stream.Collectors;
  */
 class EndGameState extends GameState {
 
-    // TODO: of unknown necessity
     @Override
     protected void nextState(Game context) {}
 

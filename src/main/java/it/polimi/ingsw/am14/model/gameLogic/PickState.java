@@ -30,7 +30,6 @@ class PickState extends GameState {
 
         // In questo progetto `null` equivale a skip: lo normalizziamo a Optional vuoto.
         TotemSlot currentSlot = findFirstPlayerTotemOnOffersPath(context);
-        System.out.println("Current slot: " + currentSlot);
         Player currentPlayer = (currentSlot == null ? null : currentSlot.getPlayer());
         wasAdditionalTopPick = false;
 

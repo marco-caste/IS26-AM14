@@ -11,6 +11,10 @@ import java.io.IOException;
  * It determines whether to launch the GUI or TUI based on the provided arguments.
  */
 public class ClientLauncher {
+    // TODO: NEL README SPECIFICARE I PARAMETRI DA RIGA DI COMANDO E COME VANNO IMPOSTATI.
+    // comandi:
+    // .\mvnw package -Pclient
+    // java -jar target/AM14-Client.jar par1
     /**
      * The main method serves as the entry point for the client application.
      * It checks the provided arguments to determine whether to launch the GUI or TUI.

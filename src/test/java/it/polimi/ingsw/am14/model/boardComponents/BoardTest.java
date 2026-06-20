@@ -4,10 +4,13 @@ import it.polimi.ingsw.am14.model.cards.Card;
 import it.polimi.ingsw.am14.model.cards.buildings.Building;
 import it.polimi.ingsw.am14.model.cards.buildings.types.ImmediateBuilding;
 import it.polimi.ingsw.am14.model.cards.deckCards.*;
+import it.polimi.ingsw.am14.model.gameLogic.Player;
+import it.polimi.ingsw.am14.model.gameLogic.TotemColor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -571,5 +574,18 @@ class BoardTest {
 
         assertEquals(numBuildings, boardStub.getTopBuildingRow().size());
         assertEquals(buildings, boardStub.getTopBuildingRow());
+    }
+
+    @Test
+    void findPlayerPosition() {
+        Player p1 = new Player("P1", TotemColor.WHITE);
+        Player p2 = new Player("P2", TotemColor.RED);
+
+        boardStub.getOffersPath().offersPathGet('B').setPlayerTotem(p1);
+        boardStub.getOffersPath().offersPathGet('E').setPlayerTotem(p2);
+
+        assertEquals(Optional.of('B'), boardStub.findPlayerPosition("P1"));
+        assertEquals(Optional.of('E'), boardStub.findPlayerPosition("P2"));
+        assertTrue(boardStub.findPlayerPosition("Unknown").isEmpty());
     }
 }

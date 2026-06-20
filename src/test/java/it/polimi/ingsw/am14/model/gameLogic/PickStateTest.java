@@ -772,4 +772,10 @@ public class PickStateTest {
         assertEquals(p2, game.getBoard().getTurnOrderCard().getPlayer(1));
         assertEquals(p3, game.getBoard().getTurnOrderCard().getPlayer(2));
     }
+
+    @Test
+    public void testGetStateName() {
+        PickState state = new PickState();
+        assertEquals("PICK", state.getStateName());
+    }
 }

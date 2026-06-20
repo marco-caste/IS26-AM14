@@ -3,7 +3,6 @@ package it.polimi.ingsw.am14.clientModelController;
 import it.polimi.ingsw.am14.network.EntryPointFactory;
 import it.polimi.ingsw.am14.network.VirtualServer;
 import it.polimi.ingsw.am14.network.messages.events.Event;
-import it.polimi.ingsw.am14.network.messages.events.LoginSuccesfulEvent;
 import it.polimi.ingsw.am14.view.ViewType;
 import it.polimi.ingsw.am14.view.viewEvents.ExceptionViewEvent;
 import it.polimi.ingsw.am14.view.viewEvents.NetworkErrorViewEvent;

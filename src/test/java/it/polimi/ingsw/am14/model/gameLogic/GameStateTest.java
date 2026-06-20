@@ -7,8 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class GameStateTest {
 
@@ -46,6 +45,16 @@ public class GameStateTest {
     @Test
     public void testEndRoundDefaultDoesNothing() {
         assertDoesNotThrow(() -> gameState.endRound(null));
+    }
+
+    @Test
+    public void testControlPickDefaultDoesNothing() {
+        assertDoesNotThrow(() -> gameState.controlPick(null, false, null, 0));
+    }
+
+    @Test
+    public void testGetStateNameDefaultReturnsNull() {
+        assertNull(gameState.getStateName());
     }
 }
 

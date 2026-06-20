@@ -36,22 +36,26 @@ public class LobbyController {
     private final Map<String, Long> lastPingReceivedTime;
     @JsonIgnore
     private final Object dataLock = new Object();
+    private String saveFilePath;
     @JsonIgnore
-    private final String saveFilePath = "src/main/Saves/save.json";
+    private final Object saveFileLock = new Object();
 
-    public LobbyController(NetworkLayer networkLayer) {
+    public LobbyController(NetworkLayer networkLayer, String saveFilePath) {
         this.gameIdToGameController = new HashMap<>();
         this.nicknameToGameId = new HashMap<>();
         this.networkLayer = networkLayer;
         this.lastPingReceivedTime = new HashMap<>();
         this.gameIdCounter = 0;
+        this.saveFilePath = saveFilePath;
     }
 
     @JsonCreator
     public LobbyController(
             @JsonProperty("nicknameToGameId") Map<String, Integer> nicknameToGameId,
             @JsonProperty("gameIdToGameController") Map<Integer, GameController> gameIdToGameController,
-            @JsonProperty("gameIdCounter") int gameIdCounter) {
+            @JsonProperty("gameIdCounter") int gameIdCounter,
+            @JsonProperty("saveFilePath") String saveFilePath) {
+        this.saveFilePath = saveFilePath;
         this.gameIdToGameController = gameIdToGameController;
         this.nicknameToGameId = nicknameToGameId;
         this.networkLayer = new NetworkLayer();
@@ -153,7 +157,7 @@ public class LobbyController {
             gameController.onPlayerConnection(nickname, totemColor);
         }
         new Thread(() -> {
-            synchronized (saveFilePath) {
+            synchronized (saveFileLock) {
                 Codec parser = new JsonCodec();
                 parser.writeSaveData(this, saveFilePath);
             }
@@ -173,7 +177,7 @@ public class LobbyController {
                 .orElseThrow(() -> new IllegalNicknameException("Player with the specified nickname is not assigned to any game"))
                 .placeTotem(nickname, position);
         new Thread(() -> {
-            synchronized (saveFilePath) {
+            synchronized (saveFileLock) {
                 Codec parser = new JsonCodec();
                 parser.writeSaveData(this, saveFilePath);
             }
@@ -185,7 +189,7 @@ public class LobbyController {
                 .orElseThrow(() -> new IllegalNicknameException("Player with the specified nickname is not assigned to any game"))
                 .pickCard(nickname, cardId, row);
         new Thread(() -> {
-            synchronized (saveFilePath) {
+            synchronized (saveFileLock) {
                 Codec parser = new JsonCodec();
                 parser.writeSaveData(this, saveFilePath);
             }

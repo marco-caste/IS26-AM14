@@ -1,13 +1,11 @@
 package it.polimi.ingsw.am14.clientModelController;
 
-import it.polimi.ingsw.am14.model.gameLogic.TotemColor;
-
 import java.util.ArrayList;
 import java.util.List;
 
 public class ClientPlayer {
     private String nickname;
-    private TotemColor totemColor;
+    private String totemColor;
     private int numFood;
     private int numPrestigePoints;
     private int numStars;
@@ -24,7 +22,7 @@ public class ClientPlayer {
     }
 
     public void setTotemColor(String totemColor) {
-        this.totemColor = TotemColor.valueOf(totemColor.toUpperCase());
+        this.totemColor = totemColor;
     }
 
     public void setNumFood(int numFood) {
@@ -44,11 +42,7 @@ public class ClientPlayer {
     }
 
     public String getTotemColor() {
-        return totemColor.toString().toLowerCase();
-    }
-
-    public TotemColor getTotemColorAsEnum() {
-        return totemColor;
+        return totemColor.toLowerCase();
     }
 
     public int getNumFood() {
@@ -72,7 +66,7 @@ public class ClientPlayer {
     @Override
     public String toString() {
         return  "nickname='" + nickname + "'\n" +
-                "totemColor='" + totemColor.toString().toLowerCase() + "'\n" +
+                "totemColor='" + totemColor.toLowerCase() + "'\n" +
                 "numFood=" + numFood + "\n" +
                 "numPrestigePoints=" + numPrestigePoints;
     }
