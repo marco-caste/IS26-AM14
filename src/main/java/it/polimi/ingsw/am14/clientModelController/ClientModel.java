@@ -301,6 +301,7 @@ public class ClientModel {
     //Methods used by controller
 
     public boolean checkPickTurn() {
+        if (playerOrderInTurnOrderCard.size() == numPlayers) return true;
         Character homePlayerPosition = getHomePlayerPosition();
 
         if (homePlayerPosition == null || homePlayerPosition == 'A') {

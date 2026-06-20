@@ -19,21 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class WaitingRoomStateTest {
 
     private Game buildWaitingGame(int numPlayers) {
-        TurnOrderCard turnOrderCard = new TurnOrderCard(numPlayers);
-        Board board = new Board(
-                turnOrderCard,
-                null,
-                null,
-                null,
-                new ArrayList<DeckCard>(),
-                new ArrayList<Building>(),
-                new ArrayList<DeckCard>(),
-                new ArrayList<Building>(),
-                new ArrayList<EventCard>(),
-                new ArrayList<EventCard>()
-        );
-
-        return new Game(new WaitingRoomState(), new ArrayList<>(), board, 0, numPlayers, 1, 1,1);
+        return new Game(numPlayers, 1);
     }
 
     @Test
