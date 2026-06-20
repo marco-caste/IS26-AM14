@@ -136,4 +136,15 @@ public class TurnOrderCard {
     public void removePlayer(int playerIndex) {
         this.playerOrder.set(playerIndex, null);
     }
+
+    /**
+     * <p>
+     *     sets the reference of the player at position {@code playerIndex} in the player order to the given {@code player} object.
+     * </p>
+     * @param playerIndex the index of the player to set, must be >= 0
+     * @param player the player object to set at position {@code playerIndex}
+     */
+    public void setPlayerReference(int playerIndex, Player player) {
+        this.playerOrder.set(playerIndex, player);
+    }
 }

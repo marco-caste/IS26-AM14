@@ -58,7 +58,6 @@ public class ServerLauncher {
             }
         } else {
             String parameter = savePath.getParent().toString();
-            System.out.println("Given to the lobbycontroller: " + parameter);
             lobbyController = new LobbyController(networkLayer, parameter);
         }
 
