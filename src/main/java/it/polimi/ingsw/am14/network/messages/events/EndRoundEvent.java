@@ -16,6 +16,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Event representing the end of a round during the game.
+ * Inherits from {@link UpdateEvent}.
+ * It contains the updated state of the board, the updated attributes
+ * for all players, and the current age of the game.
+ */
+
 public class EndRoundEvent extends UpdateEvent {
 
     // attributes
@@ -24,6 +31,15 @@ public class EndRoundEvent extends UpdateEvent {
     @JsonIgnore
     private int gameId; // only used for bufferization, will not be sent to the client
     private final int currentAge;
+
+    /**
+     * Constructs an {@code EndRoundEvent} triggered by the server model at the end of a round.
+     *
+     * @param board      the current {@link Board} state at the end of the round.
+     * @param players    the list of {@link Player} objects participating in the game.
+     * @param gameId     the unique ID of the game this event belongs to.
+     * @param currentAge the updated current age of the game.
+     */
 
     public EndRoundEvent(final Board board,final List<Player> players, int gameId, int currentAge) {
         this.gameId = gameId;
@@ -67,6 +83,15 @@ public class EndRoundEvent extends UpdateEvent {
     }
 
     // called by the JSON parser
+    /**
+     * Constructs an {@code EndRoundEvent} from JSON data, used by Jackson upon receiving a message.
+     *
+     * @param board             the state of the board represented by lists of card IDs.
+     * @param playersAttributes a map associating each player's nickname with a list of their attributes (food and prestige points).
+     * @param description       the description of the event.
+     * @param currentAge        the current age of the game.
+     */
+
     @JsonCreator
     public EndRoundEvent(
             @JsonProperty("board") ArrayList<ArrayList<Integer>> board,
@@ -79,14 +104,32 @@ public class EndRoundEvent extends UpdateEvent {
         this.currentAge = currentAge;
     }
 
+    /**
+     * Gets the unique identifier of the game.
+     *
+     * @return the game ID.
+     */
 
     public int getGameId() {
         return gameId;
     }
 
+    /**
+     * Bufferizes the event into the network layer to be broadcasted to all connected clients.
+     *
+     * @param networkLayer the network layer used to broadcast the event.
+     */
+
     public void bufferize(NetworkLayer networkLayer) {
         networkLayer.broadcastUpdate(this, gameId);
     }
+
+    /**
+     * Applies the effect of this event to the provided client model, updating the local side attributes
+     * for the new round and notifying the view observers.
+     *
+     * @param model the {@link ClientModel} representing the client-side state of the game.
+     */
 
     @Override
     public void effect(ClientModel model) {
@@ -99,10 +142,22 @@ public class EndRoundEvent extends UpdateEvent {
     }
 
 
-    //getter
+
+    /**
+     * Gets the current board state represented by multi-dimensional lists of card IDs.
+     *
+     * @return an {@code ArrayList} containing lists of integer card IDs for each row on the board.
+     */
+
     public ArrayList<ArrayList<Integer>>  getBoard() {
         return board;
     }
+
+    /**
+     * Gets the current attributes associated with each player.
+     *
+     * @return a map associating player nicknames with a list containing their food and prestige points.
+     */
 
     public Map<String,ArrayList<Integer>> getPlayerAttributes()  {
         return playersAttributes;

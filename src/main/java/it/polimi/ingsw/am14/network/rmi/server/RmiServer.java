@@ -11,17 +11,35 @@ import it.polimi.ingsw.am14.network.rmi.client.VirtualServerRmi;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
-
+/**
+ * RMI server implementation handling connections and inbound requests from remote clients.
+ * Forwards respective actions to the {@link LobbyController} and manages dedicated asynchronous threads
+ * to safely deliver outbound events to clients via the {@link NetworkLayer}.
+ */
 public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
     private final LobbyController lobbyController;
     private final NetworkLayer networkLayer;
 
-
+    /**
+     * Constructs a new {@code RmiServer}.
+     *
+     * @param lobbyController the controller handling game and lobby synchronizations.
+     * @param networkLayer    the networking layer managing active clients, threads, and buffers.
+     * @throws RemoteException if an RMI error prevents the object from being exported.
+     */
     public RmiServer(LobbyController lobbyController, NetworkLayer networkLayer) throws RemoteException {
         super();
         this.lobbyController = lobbyController;
         this.networkLayer = networkLayer;
     }
+
+    /**
+     * Connects a remote client and initializes a buffer flushing thread to send pending events asynchronously.
+     * Also handles connection rejection by notifying the client of duplicate nicknames.
+     *
+     * @param client   the remote reference to the {@link VirtualClientRmi} representing the user.
+     * @param nickname the selected username for the player.
+     */
 
     @Override
     public void connect(VirtualClientRmi client, String nickname) {
@@ -87,7 +105,13 @@ public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
             }
         }, "RMIConnect-" + nickname).start();
     }
-
+    /**
+     * Spawns a localized thread to process a new game creation request.
+     *
+     * @param nickname   the nickname of the user starting the game.
+     * @param numPlayers the chosen number of players.
+     * @param totemColor the initial assigned totem color.
+     */
     @Override
     public void createGame(String nickname, int numPlayers, String totemColor) {
         new Thread(() -> {
@@ -113,7 +137,13 @@ public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
             }
         }, "RMICreate-" + nickname).start();
     }
-
+    /**
+     * Spawns a localized thread to process joining an existing game.
+     *
+     * @param nickname   the nickname of the joining player.
+     * @param gameId     the unique identifier for the targeted game.
+     * @param totemColor the newly joined player's requested totem color.
+     */
     @Override
     public void joinGame(String nickname, int gameId, String totemColor) {
         new Thread(() -> {
@@ -140,6 +170,12 @@ public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
         }, "RMIJoin-" + nickname).start();
     }
 
+    /**
+     * Spawns a localized thread to handle totem placements.
+     *
+     * @param nickname the nickname of the active player placing their totem.
+     * @param position the symbol representing the specific placement side for the starter card.
+     */
     @Override
     public void placeTotem(String nickname, char position) {
         new Thread(() -> {
@@ -159,7 +195,13 @@ public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
             }
         }, "RMIPlace-" + nickname).start();
     }
-
+    /**
+     * Spawns a localized thread to process a pick card action request.
+     *
+     * @param nickname the nickname of the player taking the action.
+     * @param cardId   the identifier of the chosen card to be picked.
+     * @param row      an integer representing the row structure index containing the card.
+     */
     @Override
     public void pickCard(String nickname, int cardId, int row) {
         new Thread(() -> {
@@ -179,7 +221,12 @@ public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
             }
         }, "RMIPick-" + nickname).start();
     }
-
+    /**
+     * Spawns a thread to acknowledge a remote client ping, successfully confirming a live state on the server.
+     *
+     * @param nickname the nickname of the client sending the ping request.
+     * @return null, as the connection timeout loop runs on the server controller asynchronously.
+     */
     @Override
     public Thread pingServer(String nickname) {
         new Thread(() -> {

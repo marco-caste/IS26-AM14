@@ -6,7 +6,11 @@ import it.polimi.ingsw.am14.utils.JsonCodec;
 
 import java.io.*;
 import java.net.Socket;
-
+/**
+ * Socket client implementation that listens for incoming messages and pings from the server.
+ * It manages dedicated threads to asynchronously process main game events and connection heartbeats,
+ * forwarding them to the {@link ClientController}.
+ */
 public class SocketClient {
     private final Socket socket;
     private Socket pingSocket;
@@ -16,13 +20,23 @@ public class SocketClient {
     private final JsonCodec jsonWriter = new JsonCodec();
     private static int Thread_number = 0;
 
-
+    /**
+     * Constructs a new {@code SocketClient}.
+     *
+     * @param input      the {@link BufferedReader} used to read incoming messages from the server.
+     * @param socket     the primary {@link Socket} connection to the server.
+     * @param controller the {@link ClientController} responsible for handling client-side game logic and updates.
+     */
     public SocketClient(BufferedReader input, Socket socket, ClientController controller) {
         this.input = input;
         this.socket = socket;
         this.controller = controller;
     }
 
+    /**
+     * Starts the main listener thread for the client.
+     * It continuously reads incoming messages from the server and handles them asynchronously.
+     */
     public void run() {
         Thread_number++;
         Thread thread = new Thread(() -> {
@@ -36,7 +50,12 @@ public class SocketClient {
         controller.addThread(thread);
     }
 
-
+    /**
+     * Internal listener loop that reads serialized strings from the input stream,
+     * parses them into {@link Event} objects using the JSON codec, and forwards them to the controller.
+     *
+     * @throws IOException if an error occurs while reading from the stream or if the connection drops.
+     */
     private void runVirtualServer() throws IOException {
         String line;
         try {
@@ -49,6 +68,12 @@ public class SocketClient {
         }
     }
 
+    /**
+     * Establishes a secondary socket connection on the server's adjacent port specifically for ping messages.
+     * Starts a dedicated listener thread to process incoming pings and keep the connection alive.
+     *
+     * @return a {@link BufferedWriter} associated with the ping socket's output stream, or {@code null} if the connection fails.
+     */
     public BufferedWriter setPingSocket() {
         try {
             pingSocket = new Socket(socket.getInetAddress(), socket.getPort()+1);
@@ -71,6 +96,12 @@ public class SocketClient {
         }
     }
 
+    /**
+     * Internal listener loop for the secondary ping socket.
+     * Continuously reads incoming ping requests and notifies the controller to update the last seen timestamp.
+     *
+     * @throws IOException if an error occurs while reading from the ping stream.
+     */
     private void runPingClient() throws IOException {
         while (pingInput.readLine() != null) {
             controller.updateLastPing();
