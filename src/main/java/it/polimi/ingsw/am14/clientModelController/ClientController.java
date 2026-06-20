@@ -47,12 +47,10 @@ public class ClientController {
         }
 
         //Turn check
-        /*
         if (!model.checkPickTurn()) {
             handleException("It's not your turn to pick a card.");
             return;
         }
-        */
 
         //Card check in specific rows
         int row = model.findRowFromCardId(cardId);

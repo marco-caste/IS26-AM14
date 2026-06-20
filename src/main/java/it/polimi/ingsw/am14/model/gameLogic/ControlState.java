@@ -49,7 +49,7 @@ class ControlState extends GameState {
         int availableTopCharacters = countAvailableCharacterCardsFromTopRow(context, pickingPlayer);
         int availableBottomCharacters = countAvailableCharacterCardsFromBottomRow(context, pickingPlayer);
 
-        // entra in questo primo if sia nel caso normale( classico pick) sia quando viene chiamato dal position state per controllare il primo player
+        // if the current player has still picks left, we check if he can pick from both rows, otherwise we find the next player in turn order
         if (pickingPlayer.getNumTopPicksLeft() != 0 || pickingPlayer.getNumBottomPicksLeft() != 0) {
             boolean currentPlayerHasMorePicks = determineIfCurrentPlayerCanContinuePickingFromBothRows(pickingPlayer, context, availableTopCharacters, availableBottomCharacters, playerTotemPosition);
             if (!currentPlayerHasMorePicks) {

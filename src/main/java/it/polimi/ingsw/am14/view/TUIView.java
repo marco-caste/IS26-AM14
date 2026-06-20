@@ -54,8 +54,6 @@ import static it.polimi.ingsw.am14.utils.Constants.foodTable;
  */
 public class TUIView implements ViewType {
 
-    // TODO: ACCESSI A MODELREFERENCE GENERANO RACE CONDITION
-    // non è presente un meccanismo di sincronizzazione tra view e client-model per la renderizzazione.
     /**
      * Reference to the client model
      */

@@ -12,9 +12,6 @@ import static it.polimi.ingsw.am14.utils.Constants.*;
 
 public class ClientModel {
 
-    //TODO: conviene aggiungere un array di tutti i clientPlayers in modo ogni volta nella gui di fare una add dell'homePlayer a otherPlayers per avere un array di tutti i player
-    //TODO: fatti questi aggiornamenti cambiare la gui
-
     private static final Map<Integer, List<Character>> offersPath = Map.of(
             2, List.of('B','C','E','F'),
             3, List.of('B','C','D','E','F'),
@@ -98,7 +95,6 @@ public class ClientModel {
     }
 
     public ArrayList<Character> getOffersPath() {
-        // TODO: RACE CONDITION TRA TUI E THREAD SOCKETCLIENT
         return new ArrayList<>(offersPath.get(numPlayers));
     }
 
@@ -310,6 +306,7 @@ public class ClientModel {
     //Methods used by controller
 
     public boolean checkPickTurn() {
+        if (playerOrderInTurnOrderCard.size() == numPlayers) return true;
         Character homePlayerPosition = getHomePlayerPosition();
 
         if (homePlayerPosition == null || homePlayerPosition == 'A') {
@@ -334,6 +331,21 @@ public class ClientModel {
     }
 
     public boolean checkRow(int row) {
+        Character position = getHomePlayerPosition();
+
+        //AddTopPick Case
+        if (position == null) {
+            return row == TOP_BUILDING_ROW || row == TOP_DECKABLE_ROW;
+        }
+
+        //In these track card you can pick only from top
+        if ((position == 'C' || position == 'F') && (row == BOTTOM_DECKABLE_ROW || row == BOTTOM_BUILDING_ROW)) {
+            return false;
+        }
+        //In these track card you can pick only from the bottom
+        if ((position == 'B' || position == 'D') && (row == TOP_BUILDING_ROW || row == TOP_DECKABLE_ROW)) {
+            return false;
+        }
         return true;
     }
 
