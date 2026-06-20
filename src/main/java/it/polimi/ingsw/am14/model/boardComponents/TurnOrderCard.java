@@ -136,4 +136,8 @@ public class TurnOrderCard {
     public void removePlayer(int playerIndex) {
         this.playerOrder.set(playerIndex, null);
     }
+
+    public void setPlayerReference(int i, Player p) {
+        playerOrder.set(i, p);
+    }
 }

@@ -168,10 +168,12 @@ public class Game implements Observable {
     }
 
     private Player findPlayerByNickname(String nickname) throws UnknownNicknameException {
-        return players.stream()
-                .filter(p -> p.getNickname().equals(nickname))
-                .findFirst()
-                .orElseThrow(() -> new UnknownNicknameException("Player not found: " + nickname));
+        for (int i = 0; i < players.size(); i++) {
+            if (players.get(i).getNickname().equals(nickname)) {
+                return players.get(i);
+            }
+        }
+        throw new UnknownNicknameException("Player not found: " + nickname);
     }
 
     private Optional<Card> findCardById(int cardId, int row) throws IllegalPickException {

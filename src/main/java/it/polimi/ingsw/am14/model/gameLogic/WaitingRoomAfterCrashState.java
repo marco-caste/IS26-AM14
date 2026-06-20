@@ -20,6 +20,32 @@ public class WaitingRoomAfterCrashState extends GameState {
         );
         addNumPlayersConnected();
         if (numPlayersReconnected == game.getNumPlayers()) {
+
+            for (Player p : game.getPlayers()) {
+                Player p1;
+                for (int i = 0; i < game.getPlayers().size(); i++) {
+                    if (!game.getBoard().getTurnOrderCard().getPlayerOrder().isEmpty()) {
+                        try {
+                            p1 = game.getBoard().getTurnOrderCard().getPlayer(i);
+                        } catch (NullPointerException _) {
+                            continue;
+                        }
+                        if (p.getNickname().equals(p1.getNickname())) {
+                            game.getBoard().getTurnOrderCard().setPlayerReference(i, p);
+                        }
+                    }
+                }
+                for (Character trackCardName : game.getBoard().getOffersPath().offersPathKeySet()) {
+                    p1 = game.getBoard().getOffersPath().offersPathGet(trackCardName).getPlayerTotem();
+                    if (p1 == null) {
+                        continue;
+                    }
+                    if (p.getNickname().equals(p1.getNickname())) {
+                        game.getBoard().getOffersPath().offersPathGet(trackCardName).setPlayerTotem(p);
+                    }
+                }
+            }
+
             this.nextState(game);
             game.notifyObservers(
                     new GameRestartedEvent(
@@ -30,6 +56,8 @@ public class WaitingRoomAfterCrashState extends GameState {
             );
         }
     }
+
+
 
     @Override
     protected void nextState(Game context) {

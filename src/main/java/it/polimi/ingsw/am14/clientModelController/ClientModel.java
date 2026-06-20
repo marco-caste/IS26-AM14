@@ -168,7 +168,10 @@ public class ClientModel {
     }
 
     public void setPlayerOrderInTurnOrderCard(ArrayList<String> playerOrderInTurnOrderCard) {
-        this.playerOrderInTurnOrderCard = playerOrderInTurnOrderCard;
+        if(playerOrderInTurnOrderCard == null)
+            this.playerOrderInTurnOrderCard = new ArrayList<>();
+        else
+            this.playerOrderInTurnOrderCard = playerOrderInTurnOrderCard;
     }
 
     public void setTurnOrderCardIndex(int turnOrderCardIndex) {
@@ -246,6 +249,8 @@ public class ClientModel {
                 positionToNickname.put(playerPosition, nickname);
             }
         }
+        else
+            positionToNickname.put(playerPosition, nickname);
     }
 
     public void updatePlayerFood(String nickname, int numFood) {
