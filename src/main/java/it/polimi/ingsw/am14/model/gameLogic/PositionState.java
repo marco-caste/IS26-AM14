@@ -80,13 +80,6 @@ class PositionState extends GameState {
 
         }
 
-
-        if (context.getCurrentPlayerIndex() > context.getNumPlayers() - 1) {
-            this.nextState(context);
-        }
-
-
-
         context.notifyObservers(
                 new TotemPlacedEvent(
                         player.getNickname(),
@@ -96,6 +89,17 @@ class PositionState extends GameState {
                         firstNickname
                 )
         );
+
+        if (context.getCurrentPlayerIndex() > context.getNumPlayers() - 1) {
+            this.nextState(context);
+        }
+
+
+
+
+
+
+
 
         // observer pattern: sends event to event buffer
 

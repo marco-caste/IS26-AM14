@@ -21,31 +21,33 @@ public class WaitingRoomAfterCrashState extends GameState {
         addNumPlayersConnected();
         if (numPlayersReconnected == game.getNumPlayers()) {
 
-            // "synchronizes" the player references after deserialization.
-            for (Player p : game.getPlayers()) {
-                Player p1;
-                for (int i = 0; i < game.getPlayers().size(); i++) {
+            try {
+                for (Player p : game.getPlayers()) {
+                    Player p1;
                     if (!game.getBoard().getTurnOrderCard().getPlayerOrder().isEmpty()) {
-                        try {
-                            p1 = game.getBoard().getTurnOrderCard().getPlayer(i);
-                        } catch (NullPointerException _) {
+                        for (int i = 0; i < game.getBoard().getTurnOrderCard().getPlayerOrder().size(); i++) {
+
+                            try {
+                                p1 = game.getBoard().getTurnOrderCard().getPlayer(i);
+                            } catch (NullPointerException _) {
+                                continue;
+                            }
+                            if (p.getNickname().equals(p1.getNickname())) {
+                                game.getBoard().getTurnOrderCard().setPlayerReference(i, p);
+                            }
+                        }
+                    }
+                    for (Character trackCardName : game.getBoard().getOffersPath().offersPathKeySet()) {
+                        p1 = game.getBoard().getOffersPath().offersPathGet(trackCardName).getPlayerTotem();
+                        if (p1 == null) {
                             continue;
                         }
                         if (p.getNickname().equals(p1.getNickname())) {
-                            game.getBoard().getTurnOrderCard().setPlayerReference(i, p);
+                            game.getBoard().getOffersPath().offersPathGet(trackCardName).setPlayerTotem(p);
                         }
                     }
                 }
-                for (Character trackCardName : game.getBoard().getOffersPath().offersPathKeySet()) {
-                    p1 = game.getBoard().getOffersPath().offersPathGet(trackCardName).getPlayerTotem();
-                    if (p1 == null) {
-                        continue;
-                    }
-                    if (p.getNickname().equals(p1.getNickname())) {
-                        game.getBoard().getOffersPath().offersPathGet(trackCardName).setPlayerTotem(p);
-                    }
-                }
-            }
+            } catch (Exception _) {}
 
             this.nextState(game);
             game.notifyObservers(

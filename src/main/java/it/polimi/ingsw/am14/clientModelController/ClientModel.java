@@ -103,6 +103,7 @@ public class ClientModel {
     public String getHomePlayerNickname(){
         return (this.homePlayer == null) ?
                 "" : this.homePlayer.getNickname();
+
     }
 
     public ArrayList<ClientPlayer> getOtherPlayers() {
@@ -155,6 +156,9 @@ public class ClientModel {
         return getPlayerPosition(homePlayer.getNickname());
     }
 
+    public ClientState getClientState(){
+        return this.state;
+    }
 
     //SETTERS
     public void setMessage(String message) {
@@ -162,7 +166,8 @@ public class ClientModel {
     }
 
     public void setPlayerOrderInTurnOrderCard(ArrayList<String> playerOrderInTurnOrderCard) {
-        this.playerOrderInTurnOrderCard = playerOrderInTurnOrderCard;
+            this.playerOrderInTurnOrderCard = playerOrderInTurnOrderCard;
+            System.out.println("Player order in turn order card updated: " + playerOrderInTurnOrderCard);
     }
 
     public void setTurnOrderCardIndex(int turnOrderCardIndex) {
@@ -198,6 +203,7 @@ public class ClientModel {
 
     public void checkAndEventuallySetPickState() {
         for (String nickname : playerOrderInTurnOrderCard) {
+            System.out.println(playerOrderInTurnOrderCard);
             if (nickname != null) return;
         }
         this.state = ClientState.PICK;
@@ -239,6 +245,8 @@ public class ClientModel {
                 positionToNickname.put(playerPosition, nickname);
             }
         }
+        else
+            positionToNickname.put(playerPosition, nickname);
     }
 
     public void updatePlayerFood(String nickname, int numFood) {
@@ -324,6 +332,21 @@ public class ClientModel {
     }
 
     public boolean checkRow(int row) {
+        Character position = getHomePlayerPosition();
+
+        //AddTopPick Case
+        if (position == null) {
+            return row == TOP_BUILDING_ROW || row == TOP_DECKABLE_ROW;
+        }
+
+        //In these track card you can pick only from top
+        if ((position == 'C' || position == 'F') && (row == BOTTOM_DECKABLE_ROW || row == BOTTOM_BUILDING_ROW)) {
+            return false;
+        }
+        //In these track card you can pick only from the bottom
+        if ((position == 'B' || position == 'D') && (row == TOP_BUILDING_ROW || row == TOP_DECKABLE_ROW)) {
+            return false;
+        }
         return true;
     }
 
@@ -334,6 +357,7 @@ public class ClientModel {
         }
         return false;
     }
+
 
     public boolean checkTotemPosition(char position) {
         List<Character> validPositions = offersPath.get(numPlayers);

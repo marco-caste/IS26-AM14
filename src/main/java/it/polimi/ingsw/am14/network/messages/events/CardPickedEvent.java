@@ -112,6 +112,8 @@ public class CardPickedEvent extends UpdateEvent {
             model.updatePickPlayerStats(playerNickname, playerFood, playerPrestigePoints,playerNumStars, playerBuildingDiscount, playerGatheringDiscount);
         }
 
+        System.out.println(updatedTurnOrderCard);
+        System.out.println(wasLastPick);
         if (wasLastPick) {
             model.updatePlayerPosition(playerNickname, null );
             model.setPlayerOrderInTurnOrderCard(updatedTurnOrderCard);

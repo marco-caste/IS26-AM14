@@ -417,8 +417,9 @@ public class Board {
      * </p>
      * @param numPlayers the number of players in the game, between 2 and 5
      */
+
     public void pickDeckableAndAddToTop(int numPlayers) {
-        for (int i = 0; i < numPlayers + 4; i++) {
+        for (int i = 0; i < numPlayers + 4 ; i++) {
             this.topDeckableRow.add(this.tribeDeck.deckPop());
         }
     }

@@ -3,6 +3,7 @@ package it.polimi.ingsw.am14.controller;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import it.polimi.ingsw.am14.network.messages.events.ExceptionEvent;
 import it.polimi.ingsw.am14.network.messages.events.LoginSuccesfulEvent;
 import it.polimi.ingsw.am14.network.messages.events.PlayerDisconnectedEvent;
 import it.polimi.ingsw.am14.network.NetworkLayer;
@@ -142,12 +143,17 @@ public class LobbyController {
         networkLayer.update(new LoginSuccesfulEvent(nickname));
         setLastPingReceivedTime(nickname);
         if (gameId >=0) {
-            this.joinGame(nickname, gameId, null);
+            getGameController(gameId).orElseThrow(() -> new IllegalGameIdException("Game with the specified ID does not exist"))
+                    .onPlayerConnection(nickname, null);
         }
     }
 
     public void createGame(String nickname, int numPlayers, String totemColor) throws IllegalSetupException, WrongStateException, IllegalNicknameException {
         synchronized (dataLock) {
+            if (hasPlayerAGameAssigned(nickname)) {
+                networkLayer.update(new ExceptionEvent("Player with the specified nickname is already assigned to a game"));
+                return;
+            }
             Game game = GameFactory.setup(numPlayers, gameIdCounter);
             game.addObserver(networkLayer);
             GameController gameController = new GameController(game);
@@ -165,6 +171,12 @@ public class LobbyController {
     }
 
     public void joinGame(String nickname, int gameId, String totemColor) throws WrongStateException, IllegalGameIdException {
+        synchronized (dataLock) {
+            if (hasPlayerAGameAssigned(nickname)) {
+                networkLayer.update(new ExceptionEvent("Player with the specified nickname is already assigned to a game"));
+                return;
+            }
+        }
         getGameController(gameId).orElseThrow(() -> new IllegalGameIdException("Game with the specified ID does not exist"))
                 .onPlayerConnection(nickname, totemColor);
         synchronized (dataLock) {
