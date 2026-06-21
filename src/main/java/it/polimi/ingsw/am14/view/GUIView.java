@@ -3,7 +3,6 @@ package it.polimi.ingsw.am14.view;
 import it.polimi.ingsw.am14.clientModelController.ClientController;
 import it.polimi.ingsw.am14.clientModelController.ClientModel;
 import it.polimi.ingsw.am14.clientModelController.ClientPlayer;
-import it.polimi.ingsw.am14.model.gameLogic.TotemColor;
 import it.polimi.ingsw.am14.view.viewEvents.ViewEvent;
 import javafx.animation.TranslateTransition;
 import javafx.application.Application;
@@ -546,15 +545,15 @@ public class GUIView extends Application implements ViewType {
         playersNumberBox.setValue(2);
         playersNumberBox.setMaxWidth(240);
 
-        ComboBox<TotemColor> totemColorBox = new ComboBox<>();
+        ComboBox<String> totemColorBox = new ComboBox<>();
         totemColorBox.getItems().addAll(
-                TotemColor.RED,
-                TotemColor.BLUE,
-                TotemColor.PURPLE,
-                TotemColor.WHITE,
-                TotemColor.YELLOW
+                "RED",
+                "BLUE",
+                "PURPLE",
+                "WHITE",
+                "YELLOW"
         );
-        totemColorBox.setValue(TotemColor.RED);
+        totemColorBox.setValue("RED");
         totemColorBox.setMaxWidth(240);
 
         TextField idField = new TextField();
@@ -627,7 +626,7 @@ public class GUIView extends Application implements ViewType {
 
                 isButtonAlreadySelected = true;
                 String insertedNickname = modelReference.getHomePlayerNickname();
-                String totemColorChoice = totemColorBox.getValue().toString().toLowerCase();
+                String totemColorChoice = totemColorBox.getValue().toLowerCase();
                 int numPlayersChoice = playersNumberBox.getValue();
 
                 createGame(insertedNickname, numPlayersChoice, totemColorChoice);
@@ -651,7 +650,7 @@ public class GUIView extends Application implements ViewType {
                 }
 
                 String insertedNickname = modelReference.getHomePlayerNickname();
-                String totemColorChoice = totemColorBox.getValue().toString().toLowerCase();
+                String totemColorChoice = totemColorBox.getValue().toLowerCase();
 
                 joinGame(insertedNickname, gameId, totemColorChoice);
             }
