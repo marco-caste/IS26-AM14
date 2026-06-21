@@ -24,7 +24,10 @@ import javafx.util.Duration;
 
 import java.io.IOException;
 import java.util.*;
-
+/**
+ * JavaFX application representing the Graphical User Interface (GUI) of the client.
+ * It implements {@link ViewType} to handle updates incoming from the model and render them accordingly.
+ */
 public class GUIView extends Application implements ViewType {
 
     private ClientModel modelReference;
@@ -103,7 +106,12 @@ public class GUIView extends Application implements ViewType {
     // ============================================================
     // Application lifecycle
     // ============================================================
-
+    /**
+     * Initializes and starts the primary stage for the JavaFX application.
+     * Sets up the initial login scene.
+     *
+     * @param primaryStage the primary stage for this application
+     */
     @Override
     public void start(Stage primaryStage) {
         this.controllerReference = new ClientController();
@@ -128,13 +136,24 @@ public class GUIView extends Application implements ViewType {
         primaryStage.show();
 
     }
-
+    /**
+     * Runs the view. For JavaFX, it doesn't need to call start() manually
+     * since it's automatically handled after launch().
+     *
+     * @throws IOException if an I/O error occurs
+     */
     @Override
     public void run() throws IOException {
         // Do not call start() here.
         // JavaFX automatically calls start(Stage primaryStage) after launch().
     }
-
+    /**
+     * Updates the GUI state based on an incoming event from the model.
+     * Must be run on the JavaFX Application Thread.
+     *
+     * @param model     the client model containing the current game state
+     * @param viewEvent the event to be rendered
+     */
     @Override
     public void update(ClientModel model, ViewEvent viewEvent) {
 
@@ -151,31 +170,51 @@ public class GUIView extends Application implements ViewType {
     // ============================================================
     // View rendering callbacks
     // ============================================================
-
+    /**
+     * Renders the login scene with an optional message.
+     *
+     * @param message the message to display, such as an error or status update
+     */
     @Override
     public void renderLogin(String message) {
         updateLogin("");
     }
-
+    /**
+     * Renders updating logic when a player joins the game lobby.
+     *
+     * @param message an optional message from the server
+     */
     @Override
     public void renderPlayerJoin(String message) {
         updateChoiceScene();
         updateLobby();
     }
-
+    /**
+     * Renders the transition from the lobby to the actual game interface.
+     *
+     * @param message an optional message from the server
+     */
     @Override
     public void renderGameStart(String message) {
         gameCreation();
         updatePlayerStats();
     }
-
+    /**
+     * Updates the UI when a totem has been successfully placed.
+     *
+     * @param message an optional message from the server
+     */
     @Override
     public void renderTotemPlaced(String message) {
         updateoffersPathBox();
         updateTop(message);
         updatePlayerStats();
     }
-
+    /**
+     * Updates the UI when a card has been successfully picked.
+     *
+     * @param message an optional message from the server
+     */
     @Override
     public void renderCardPicked(String message) {
         updateBoard();
@@ -184,7 +223,11 @@ public class GUIView extends Application implements ViewType {
         updatePlayerStats();
         updateoffersPathBox();
     }
-
+    /**
+     * Renders the end-of-round state and progresses the round counter.
+     *
+     * @param message an optional message from the server
+     */
     @Override
     public void renderEndRound(String message) {
         round++;
@@ -195,14 +238,22 @@ public class GUIView extends Application implements ViewType {
         updateoffersPathBox();
 
     }
-
+    /**
+     * Renders the end-game screen with final rankings and podium.
+     *
+     * @param message an optional message from the server
+     */
     @Override
     public void renderEndGame(String message) {
         showEndGameScene();
         updateEndGameRankingBox();
         updateGlobalRankingBox();
     }
-
+    /**
+     * Handles UI rendering when an unexpected disconnection occurs.
+     *
+     * @param message the disconnection cause or status message
+     */
     @Override
     public void renderDisconnection(String message) {
         primaryStage.setScene(gameChoiceScene);
@@ -214,26 +265,42 @@ public class GUIView extends Application implements ViewType {
 
 
     }
-
+    /**
+     * Handles UI rendering when a successful reconnection occurs.
+     *
+     * @param message the reconnection status message
+     */
     @Override
     public void renderReconnection(String message) {
         updateChoiceScene();
         updateLobby();
     }
-
+    /**
+     * Rebuilds and renders the game view if it gets restarted (e.g., after reconnection in a started game).
+     *
+     * @param message the status message
+     */
     @Override
     public void renderGameRestarted(String message) {
         gameCreation();
         updatePlayerStats();
     }
-
+    /**
+     * Informs the user about exceptions or errors returned from the server logic.
+     *
+     * @param message the exception payload or text
+     */
     @Override
     public void renderException(String message) {
         if (gameScene != null) updateTop(message);
         if (loginScene != null) loginErororLabel.setText(message);
         if (gameChoiceScene != null) gameChoiceErrorLabel.setText(message);
     }
-
+    /**
+     * Shows a network error prominently to the user and returns them to the login.
+     *
+     * @param errorMessage the connection error message
+     */
     @Override
     public void handleNetworkError(String errorMessage) {
         primaryStage.setScene(loginScene);
@@ -388,7 +455,7 @@ public class GUIView extends Application implements ViewType {
         primaryStage.setScene(gameChoiceScene);
     }
 
-    public void updateLogin(String message) {
+    private void updateLogin(String message) {
         if (loginBox == null) return;
 
         loginErororLabel.setText(message);
@@ -592,7 +659,7 @@ public class GUIView extends Application implements ViewType {
         return root;
     }
 
-    public boolean updateChoiceScene() {
+    private boolean updateChoiceScene() {
 
         if (gameChoiceScene == null) { // Ignore updates that arrive before the scene is created.
             return false;}
@@ -678,7 +745,7 @@ public class GUIView extends Application implements ViewType {
         return box;
     }
 
-    public void updateLobby() {
+    private void updateLobby() {
         if (lobbyScene == null) return;
 
         int playerNumber = 0;
@@ -813,7 +880,7 @@ public class GUIView extends Application implements ViewType {
 
     }
 
-    public void gameCreation() {
+    private void gameCreation() {
 
         if (gameScene == null) {
             createGameScene();
@@ -922,7 +989,7 @@ public class GUIView extends Application implements ViewType {
         return topPane;
     }
 
-    public void updateTop (String message) {
+    private void updateTop (String message) {
         if (topPane == null) return;
         serverMessage.setText(message);
         String roundString = "Current Round: " + round.toString();
@@ -1105,7 +1172,7 @@ public class GUIView extends Application implements ViewType {
         }
     }
 
-    public void updateoffersPathBox() {
+    private void updateoffersPathBox() {
 
         // Update turn order card totems.
         turnOrderCardTotemLayer.getChildren().clear(); // Clear and redraw totems based on the updated turn order.
@@ -1134,7 +1201,7 @@ public class GUIView extends Application implements ViewType {
         }
     }
 
-    public void updateBoard() {
+    private void updateBoard() {
 
         for (int i = 0; i < 2; i++) {
             HBox box = (HBox) topCenterBox.getChildren().get(i);
@@ -1255,7 +1322,7 @@ public class GUIView extends Application implements ViewType {
         return button;
     }
 
-    public void updateSelectedTribe() {
+    private void updateSelectedTribe() {
         if (tribeCardsBox == null || selectedTribeNickname == null) {
             return;
         }
@@ -1406,7 +1473,7 @@ public class GUIView extends Application implements ViewType {
 
     }
 
-    public void updatePlayerStats() {
+    private void updatePlayerStats() {
 
         ArrayList<ClientPlayer> clientPlayers = new ArrayList<>(modelReference.getOtherPlayers());
         clientPlayers.add(modelReference.getHomePlayer());
@@ -1603,7 +1670,7 @@ public class GUIView extends Application implements ViewType {
         gameEndingScene = new Scene(root, SCENE_WIDTH, SCENE_HEIGHT);
     }
 
-    public void updateEndGameRankingBox() {
+    private void updateEndGameRankingBox() {
         localRankingBox.getChildren().clear();
 
         ArrayList<String> ranking = modelReference.getFinalRank();
@@ -1620,7 +1687,7 @@ public class GUIView extends Application implements ViewType {
         }
     }
 
-    public void updateGlobalRankingBox() {
+    private void updateGlobalRankingBox() {
         globalRankingBox.getChildren().clear();
         List<String> global = modelReference.getGlobalRank();
 
@@ -1632,7 +1699,7 @@ public class GUIView extends Application implements ViewType {
         }
     }
 
-    public void showEndGameScene() {
+    private void showEndGameScene() {
         if (gameEndingScene == null) {
             createEndGameScene();
         }

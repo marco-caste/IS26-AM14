@@ -10,9 +10,27 @@ import it.polimi.ingsw.am14.model.gameLogic.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-
+/**
+ * Represents a Shaman Event card within the game deck.
+ * <p>
+ * This class extends {@link EventCard}. When triggered, it evaluates the star counts across all players.
+ * The player(s) with the most stars receive a prestige point bonus and trigger bonus-related building
+ * effects. Conversely, the player(s) with the fewest stars suffer a prestige point penalty and trigger
+ * penalty-related building interactions.
+ * </p>
+ * <p>
+ * Both outcomes are handled dynamically to account for potential ties, and building interactions
+ * are dispatched using specialized Visitor classes.
+ * </p>
+ */
 public class ShamanEvent extends EventCard {
-
+    /**
+     * Constructs a new {@code ShamanEvent} card with the specified age and unique identifier.
+     * This constructor is annotated with {@link JsonCreator} for Jackson JSON deserialization.
+     *
+     * @param age the historical age/era this card belongs to (passed to super)
+     * @param id  the unique identifier of the card (passed to super)
+     */
     @JsonCreator
     public ShamanEvent(
             @JsonProperty("age") int age,
@@ -72,7 +90,21 @@ public class ShamanEvent extends EventCard {
 
     }
 
-
+    /**
+     * Applies the global shaman event effect by computing star rankings and dispatching rewards or penalties.
+     * <p>
+     * This method retrieves the lists of maximum and minimum star holders. It then distributes
+     * bonuses via {@link #prestigePointsWon(Player, Game)} to the leaders, and applies penalties
+     * via {@link #prestigePointsLoss(Player, Game)} to those lagging behind.
+     * </p>
+     * <p>
+     * Note: Unlike other events, this concrete implementation currently does not call {@code removeEvent(context)}
+     * at the end of its execution block.
+     * </p>
+     *
+     * @param player  the current active {@link Player} triggering the step
+     * @param context the current {@link Game} context used to filter players and pass down to visitors
+     */
     @Override
     public void applyEffect (Player player, Game context){
 

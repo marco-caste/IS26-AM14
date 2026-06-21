@@ -7,7 +7,17 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Optional;
 
-
+/**
+ * State implementation that handles the control, validation, and orchestration logic immediately
+ * following a player's card pick phase.
+ * <p>
+ * This class acts as a state router within the State Pattern of the game framework. It evaluates
+ * player pick balances across different board rows (Top/Bottom, Character/Building), processes
+ * extra picks (such as {@code wasAdditionalPick} and special abilities), handles player totem rotations
+ * on the {@code OffersPath}, updates turn orders, and safely decides whether the game should prompt
+ * the next eligible player or transition toward round or game termination.
+ * </p>
+ */
 
 class ControlState extends GameState {
 
@@ -15,7 +25,25 @@ class ControlState extends GameState {
     Card selectedCard;
     int row;
     Player pickingPlayer;
-
+    /**
+     * Executes the primary control cycle after a player attempts or completes a card pick.
+     * <p>
+     * The routine evaluates the pick under two main flows:
+     * <ul>
+     *   <li><b>Additional Pick Flow:</b> Instantly finalized and routed to update models if the choice
+     *       stems from a temporary additional placement condition.</li>
+     *   <li><b>Standard Round Flow:</b> Dynamically reads player totems on the track, checks affordable
+     *       buildings or pickable characters via custom constraints, shifts turn counters, and computes
+     *       whether control remains with the current player or moves down the turn queue.</li>
+     * </ul>
+     * </p>
+     *
+     * @param context           the central {@link Game} orchestrator managing rules and states
+     * @param wasAdditionalPick {@code true} if this step covers an extra top pick; {@code false} for regular drafts
+     * @param card              the targeted {@link Card} artifact involved in the action
+     * @param rowChosen         the row index where the selection was performed
+     * @throws SQLException     if a database or state persistence error occurs during state transitions
+     */
     @Override
     protected void controlPick(Game context, boolean wasAdditionalPick, Card card, int rowChosen) throws SQLException {
 
@@ -223,7 +251,17 @@ class ControlState extends GameState {
         );
     }
 
-
+    /**
+     * Shifts control dynamically into the next state destination based on internal decision flags.
+     * <p>
+     * If {@code goToEndRound} evaluates to true, counters reset and control shifts to either
+     * {@link EndGameState} (if round limit 10 is hit) or a generic {@link EndRoundState}.
+     * Otherwise, loops context access smoothly back to a standard {@link PickState}.
+     * </p>
+     *
+     * @param context       the tracking {@link Game} driver instance
+     * @throws SQLException if a subsequent transaction context mapping encounters failures
+     */
     @Override
     protected void nextState(Game context) throws SQLException {
         if (goToEndRound) {

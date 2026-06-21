@@ -13,7 +13,17 @@ import java.util.ArrayList;
 import java.util.Optional;
 
 import static it.polimi.ingsw.am14.utils.Constants.*;
-
+/**
+ * State implementation that manages the active drafting phase where players interactively
+ * claim or purchase cards from the game board layout.
+ * <p>
+ * This class validates whether the requesting player is legally permitted to execute a pick based
+ * on current turn orders or specific end-of-round extra pick allowances (e.g., additional top row picks).
+ * It handles the subtraction of available pick actions, updates board slots, delegates resource
+ * consumption for buildings, triggers card effects, and checks for tribe workforce set completions via
+ * targeted Visitor classes.
+ * </p>
+ */
 class PickState extends GameState {
 
     boolean wasAdditionalTopPick ;
@@ -21,7 +31,28 @@ class PickState extends GameState {
     int row;
 
     // TODO: dobbiamo andare a togliere l'optional per card in quanto non più necessario. Se lo tolgo qui ho un errore nel clientController
-
+    /**
+     * Executes a legal card drafting action requested by a player.
+     * <p>
+     * The processing pipeline operates as follows:
+     * <ol>
+     * <li>Extracts the card payload from the network-safe container wrapping the input data.</li>
+     * <li>Resolves whether an exceptional turn override is active (players claiming bonus top row allocations).</li>
+     * <li>Enforces chronological turn integrity against the top-most unfilled totem slot on the tracking pathway.</li>
+     * <li>Validates quantitative limits to ensure the user possesses remaining action tokens for the requested row.</li>
+     * <li>Branches logic based on row constants to handle character collection vs structural building purchases, updating models accordingly.</li>
+     * </ol>
+     * </p>
+     *
+     * @param context       the central {@link Game} context manager directing rules and status flows
+     * @param player        the {@link Player} attempting to claim the structural layout item
+     * @param safeCard      an {@link Optional} containing the target card reference (kept for client controller interface safety)
+     * @param rowChosen     the board row identifier from which the item is being taken
+     * @throws IllegalPickException if the selected item violates row restrictions or remaining actions equal zero
+     * @throws ForcedPickException  if the target configuration conflicts with explicit game selection constraints
+     * @throws WrongTurnException    if the executing identity's turn token does not align with the current active slot layout
+     * @throws SQLException         if state logging or network serialization triggers a transactional problem
+     */
     protected void pickCard(Game context, Player player, Optional<Card>  safeCard, int rowChosen)
             throws IllegalPickException, ForcedPickException, WrongTurnException, SQLException {
 
@@ -173,13 +204,28 @@ class PickState extends GameState {
     }
 
 
-
+    /**
+     * Shifts control to the verification phase by generating a new state instance.
+     * <p>
+     * Forwards control markers smoothly into {@link ControlState} and launches
+     * {@link ControlState#controlPick(Game, boolean, Card, int)} to compute next eligible turn orders.
+     * </p>
+     *
+     * @param context               the central game monitoring instance {@link Game}
+     * @throws SQLException         if system transaction propagation hits internal blockages
+     * @throws IllegalPickException if sequential selection validation hits a formatting failure
+     * @throws ForcedPickException  if downstream parameters detect validation veto exceptions
+     */
     @Override
     protected void nextState(Game context) throws SQLException, IllegalPickException, ForcedPickException {
         context.setCurrentState(new ControlState());
         context.getCurrentState().controlPick(context,wasAdditionalTopPick, selectedCard, row);
     }
-
+    /**
+     * Exposes the canonical text identifier assigned to this component state.
+     *
+     * @return a text String representing the state mode ("PICK")
+     */
     @Override
     protected String getStateName() {
         return "PICK";
