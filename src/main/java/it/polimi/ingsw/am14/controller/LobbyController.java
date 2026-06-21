@@ -23,11 +23,6 @@ import java.util.Set;
 import static it.polimi.ingsw.am14.utils.Constants.PING_TIMEOUT;
 
 public class LobbyController {
-    // TODO: USATO SOLO NEI TEST
-    public Map<Integer, GameController> getGameIdToGameController() {
-        return gameIdToGameController;
-    }
-
     private final Map<Integer, GameController> gameIdToGameController;
     private final Map<String, Integer> nicknameToGameId;
     private int gameIdCounter;

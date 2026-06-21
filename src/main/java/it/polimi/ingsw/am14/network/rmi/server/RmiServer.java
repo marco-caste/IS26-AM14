@@ -54,7 +54,6 @@ public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
                         while (!Thread.currentThread().isInterrupted()) {
                             EventBuffer buffer = networkLayer.getBuffer(client);
                             if (buffer == null) {
-                                System.err.println("[RMI Server] Buffer null for client " + nickname + ", buffering thread exiting");
                                 return;
                             }
                             synchronized (buffer) {
@@ -77,7 +76,6 @@ public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
                                         try {
                                             client.update(event);
                                         } catch (RemoteException e) {
-                                            System.err.println("[RMI Server] Client '" + nickname + "' unreachable during update: " + e.getMessage());
                                             Thread.currentThread().interrupt();
                                             return;
                                         }
@@ -85,24 +83,24 @@ public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
                                 }
                             }
                         }
-                    } catch (Exception e) {
-                        System.err.println("[RMI Server] Error in buffering thread for " + nickname + ": " + e.getMessage());
+                    } catch (Exception _) {
                     }
                 }, "RMIServerBuffer-" + nickname);
                 thread.start();
 
                 networkLayer.updateClientThreads(client, thread);
                 lobbyController.connectUser(nickname);
+                lobbyController.getGameIdByNickname(nickname).ifPresentOrElse(
+                        (id) -> networkLayer.updateClients(id, client),
+                        () -> { }
+                );
             } catch (IllegalNicknameException e) {
-                System.err.println("[RMI Server] Connection rejected - nickname '" + nickname + "' already in use");
                 try {
                     client.reportError(new ExceptionEvent("Nickname already in use"));
-                } catch (RemoteException ex) {
-                    System.err.println("[RMI Server] Failed to notify client about duplicate nickname: " + ex.getMessage());
+                } catch (RemoteException _) {
                 }
-            } catch (Exception e) {
-                System.err.println("[RMI Server] Error during client connection for '" + nickname + "': " + e.getMessage());
-            }
+            } catch (Exception _) {
+                }
         }, "RMIConnect-" + nickname).start();
     }
     /**

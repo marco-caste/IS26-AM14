@@ -255,7 +255,9 @@ public class ClientController {
      * moment an active ping payload safely arrived from the server.
      */
     public void updateLastPing() {
-        lastPingReceived = System.currentTimeMillis();
+        synchronized (dataLock) {
+            lastPingReceived = System.currentTimeMillis();
+        }
     }
     /**
      * Launches a dedicated background watchdog thread that loops at regular intervals to monitor
@@ -272,12 +274,14 @@ public class ClientController {
                 while (!Thread.currentThread().isInterrupted()) {
                     Thread.sleep(PING_TIMEOUT);
                     long now = System.currentTimeMillis();
-                    if (now - lastPingReceived > PING_TIMEOUT) {
-                        disconnect();
-                        threads.forEach(Thread::interrupt);
-                        threads = new ArrayList<>();
-                        Thread.currentThread().interrupt();
-                        break;
+                    synchronized (dataLock) {
+                        if (now - lastPingReceived > PING_TIMEOUT) {
+                            disconnect();
+                            threads.forEach(Thread::interrupt);
+                            threads = new ArrayList<>();
+                            Thread.currentThread().interrupt();
+                            break;
+                        }
                     }
                 }
             } catch (InterruptedException e) {
@@ -328,6 +332,7 @@ public class ClientController {
      */
     public void update(Event event) {
         synchronized (dataLock) {
+            System.out.println("Update: " + event.getDescription());
             event.effect(model);
             event.onEventProcessed(this);
         }
