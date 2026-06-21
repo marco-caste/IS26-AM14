@@ -2,7 +2,16 @@ package it.polimi.ingsw.am14.clientModelController;
 
 import java.util.ArrayList;
 import java.util.List;
-
+/**
+ * A localized model representation tracking a specific participant's identity, assets, and modifiers.
+ * <p>
+ * This class serves as a lightweight, synchronized mirror of a player's server-side attributes within
+ * the client-side architecture. It manages credentials (nickname, cosmetic configuration tokens), volatile
+ * resource balances (food reserves, absolute score counters), and persistent passive effects unlocked
+ * via building interactions (such as developmental star pools or cost-reduction multipliers).
+ * These metrics are read directly by rendering view screens to update user-specific UI dashboards.
+ * </p>
+ */
 public class ClientPlayer {
     private String nickname;
     private String totemColor;
@@ -12,7 +21,12 @@ public class ClientPlayer {
     private int totalBuildingDiscount;
     private int totalGatheringDiscount;
     private List<Integer> playerTribe = new ArrayList<>();
-
+    /**
+     * Constructs a baseline {@code ClientPlayer} instance with an unassigned status configuration,
+     * bound to a unique username token.
+     *
+     * @param nickname the descriptive text username selected by the participant
+     */
     public ClientPlayer(String nickname) {
         this.nickname = nickname;
     }
@@ -62,7 +76,11 @@ public class ClientPlayer {
     public int getTotalBuildingDiscount() {return totalBuildingDiscount;}
 
     public int getTotalGatheringDiscount() {return totalGatheringDiscount;}
-
+    /**
+     * Generates an aligned text representation highlighting core tracking attributes for console diagnostics.
+     *
+     * @return formatted diagnostic text string summarizing primary stats
+     */
     @Override
     public String toString() {
         return  "nickname='" + nickname + "'\n" +

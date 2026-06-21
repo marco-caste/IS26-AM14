@@ -284,6 +284,7 @@ public class GUIView extends Application implements ViewType {
     public void renderGameRestarted(String message) {
         gameCreation();
         updatePlayerStats();
+        updateoffersPathBox();
     }
     /**
      * Informs the user about exceptions or errors returned from the server logic.

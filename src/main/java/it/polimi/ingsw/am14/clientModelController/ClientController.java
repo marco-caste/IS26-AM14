@@ -345,11 +345,7 @@ public class ClientController {
     private void handleException(String description) {
         model.notifyObservers(new ExceptionViewEvent(description));
     }
-    /**
-     * Encapsulates severe low-level network failure descriptions and broadcasts them to active UI monitors.
-     *
-     * @param errorMessage text summary detailing the physical network socket or RMI linkage breakage
-     */
+
     private void handleNetworkError(String errorMessage) {
         model.notifyObservers(new NetworkErrorViewEvent(errorMessage));
     }
