@@ -110,185 +110,53 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>3.6.3</version>
             </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.6.2</version>
+
+                <executions>
+                    <execution>
+                        <id>build-complete-jar</id>
+                        <phase>package</phase>
+
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+
+                        <configuration>
+                            <!-- Replace the ordinary project JAR with the fat JAR. -->
+                            <shadedArtifactAttached>false</shadedArtifactAttached>
+
+                            <!-- Keep the original project POM unchanged. -->
+                            <createDependencyReducedPom>false</createDependencyReducedPom>
+
+                            <!-- Remove invalid signatures from shaded dependencies. -->
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+
+                            <transformers>
+                                <!-- Required by service-loader based libraries such as JLine. -->
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+
+                                <!-- Dispatcher that selects ClientLauncher or ServerLauncher. -->
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>it.polimi.ingsw.am14.launcher.LauncherDispatcher</mainClass>
+                                </transformer>
+                            </transformers>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
-
-    <profiles>
-
-        <!-- ========================================================= -->
-        <!-- CLIENT JAR                                                -->
-        <!-- ========================================================= -->
-
-        <profile>
-            <id>client</id>
-
-            <build>
-                <finalName>AM14-Client</finalName>
-
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-shade-plugin</artifactId>
-                        <version>3.6.2</version>
-
-                        <executions>
-                            <execution>
-                                <id>build-client-jar</id>
-                                <phase>package</phase>
-
-                                <goals>
-                                    <goal>shade</goal>
-                                </goals>
-
-                                <configuration>
-                                    <!-- Replace the ordinary project JAR. -->
-                                    <shadedArtifactAttached>false</shadedArtifactAttached>
-
-                                    <!-- Do not generate a modified POM. -->
-                                    <createDependencyReducedPom>false</createDependencyReducedPom>
-
-                                    <filters>
-                                        <!--
-                                            Filter only this project's files.
-
-                                            Jackson, JLine, JavaFX and the other
-                                            dependencies are not affected by
-                                            these package exclusions.
-                                        -->
-                                        <filter>
-                                            <artifact>
-                                                it.polimi.ingsw:am14
-                                            </artifact>
-
-                                            <includes>
-                                                <include>it/polimi/ingsw/am14/clientModelController/**</include>
-                                                <include>it/polimi/ingsw/am14/launcher/ClientLauncher.class</include>
-                                                <!-- Possibilmente rimuovere -->
-                                                <include>it/polimi/ingsw/am14/model/gameLogic/TotemColor.class</include>
-                                                <include>it/polimi/ingsw/am14/network/**</include>
-                                                <include>it/polimi/ingsw/am14/utils/**</include>
-                                                <include>it/polimi/ingsw/am14/view/**</include>
-                                                <include>background/**</include>
-                                                <include>cardsFront/**</include>
-                                                <include>colour/**</include>
-                                                <include>deck/**</include>
-                                                <include>stats/**</include>
-                                                <include>totem/**</include>
-                                                <include>totemLobby/**</include>
-                                                <include>trackCards/**</include>
-                                                <include>turnOrderCard/**</include>
-                                                <include>CardDescriptions.json</include>
-                                            </includes>
-                                        </filter>
-                                        <!--
-                                            Remove signatures belonging to dependency
-                                            JARs. They become invalid after shading.
-                                        -->
-                                        <filter>
-                                            <artifact>*:*</artifact>
-
-                                            <excludes>
-                                                <exclude>META-INF/*.SF</exclude>
-                                                <exclude>META-INF/*.DSA</exclude>
-                                                <exclude>META-INF/*.RSA</exclude>
-                                            </excludes>
-                                        </filter>
-                                    </filters>
-
-                                    <transformers>
-                                        <!-- Merge service-loader definitions. -->
-                                        <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
-
-                                        <!-- Executable JAR entry point. -->
-                                        <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                            <mainClass>
-                                                it.polimi.ingsw.am14.launcher.ClientLauncher
-                                            </mainClass>
-                                        </transformer>
-                                    </transformers>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-
-        <!-- ========================================================= -->
-        <!-- SERVER JAR                                                -->
-        <!-- ========================================================= -->
-
-        <profile>
-            <id>server</id>
-
-            <build>
-                <finalName>AM14-Server</finalName>
-
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-shade-plugin</artifactId>
-                        <version>3.6.2</version>
-
-                        <executions>
-                            <execution>
-                                <id>build-server-jar</id>
-                                <phase>package</phase>
-
-                                <goals>
-                                    <goal>shade</goal>
-                                </goals>
-
-                                <configuration>
-                                    <shadedArtifactAttached>false</shadedArtifactAttached>
-                                    <createDependencyReducedPom>false</createDependencyReducedPom>
-
-                                    <filters>
-                                        <!-- Filter only your own project. -->
-                                        <filter>
-                                            <artifact>
-                                                it.polimi.ingsw:am14
-                                            </artifact>
-
-                                            <includes>
-                                                <include>it/polimi/ingsw/am14/model/**</include>
-                                                <include>it/polimi/ingsw/am14/network/**</include>
-                                                <include>it/polimi/ingsw/am14/utils/**</include>
-                                                <include>it/polimi/ingsw/am14/exceptions/**</include>
-                                                <include>it/polimi/ingsw/am14/controller/**</include>
-                                                <include>it/polimi/ingsw/am14/launcher/ServerLauncher.class</include>
-                                                <include>Buildings.json</include>
-                                                <include>DeckCards.json</include>
-                                                <include>TrackCards.json</include>
-                                            </includes>
-                                        </filter>
-
-                                        <filter>
-                                            <artifact>*:*</artifact>
-
-                                            <excludes>
-                                                <exclude>META-INF/*.SF</exclude>
-                                                <exclude>META-INF/*.DSA</exclude>
-                                                <exclude>META-INF/*.RSA</exclude>
-                                            </excludes>
-                                        </filter>
-                                    </filters>
-
-                                    <transformers>
-                                        <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
-
-                                        <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                            <mainClass>
-                                                it.polimi.ingsw.am14.launcher.ServerLauncher
-                                            </mainClass>
-                                        </transformer>
-                                    </transformers>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 </project>

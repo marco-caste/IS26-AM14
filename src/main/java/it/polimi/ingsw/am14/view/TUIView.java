@@ -135,23 +135,40 @@ public class TUIView implements ViewType {
                 switch (tokens[0].toLowerCase()) {
                     case "help" -> {
                         lineReader.printAbove(
-                                // TODO: COLORI
-                                """
+                                new AttributedString(
+                                    """
                                         Available commands:
-                                          exit\t- Exit the application
-                                          help\t- Show this list
-                                          connect [socket|rmi]\t- Specify the networking technology to use
-                                          create [numPlayers] [totemColor]\t- Create a new game
-                                          join [gameId] [totemColor]\t- Join an existing game
-                                          pick [cardID]\t- Pick the specified card
-                                          place [position]\t- Place the totem on the specified position
-                                          show [nickname|cardId|board|turnOrderCard|gameHistory] <nickname> | <cardId>\t- Show information about the current game
-                                          \tshow nickname <nickname>\t- Show information about the specified player
-                                          \tshow cardId <cardId>\t- Show information about the specified card
-                                          \tshow board\t- Show the current state of the board
-                                          \tshow turnOrderCard\t- Show the current turn order card
-                                          \tshow gameHistory\t- Show the history of the latest game
-                                        """
+                                          %-66s - %s
+                                          %-66s - %s
+                                          %-66s - %s
+                                          %-66s - %s
+                                          %-66s - %s
+                                          %-66s - %s
+                                          %-66s - %s
+                                          %-66s - %s
+                                          %-66s - %s
+                                          %-66s - %s
+                                          %-66s - %s
+                                          %-66s - %s
+                                          %-66s - %s
+                                        """.formatted(
+                                            "exit", "Exit the application",
+                                            "help", "Show this list",
+                                            "connect [socket|rmi]", "Specify the networking technology to use",
+                                            "create [numPlayers] [totemColor]", "Create a new game",
+                                            "join [gameId] [totemColor]", "Join an existing game",
+                                            "pick [cardID]", "Pick the specified card",
+                                            "place [position]", "Place the totem on the specified position",
+                                            "show [nickname|cardId|board|TOC|gameHistory] <nickname> | <cardId>",
+                                            "Show information about the current game",
+                                            "\tshow nickname <nickname>", "Show information about the specified player",
+                                            "\tshow cardId <cardId>", "Show information about the specified card",
+                                            "\tshow board", "Show the current state of the board",
+                                            "\tshow TOC", "Show the current turn order card",
+                                            "\tshow gameHistory", "Show the history of the latest game"
+                                        ),
+                                    AttributedStyle.DEFAULT.foreground(AttributedStyle.GREEN)
+                                )
                         );
                     }
                     case "connect" -> {
@@ -287,6 +304,7 @@ public class TUIView implements ViewType {
     @Override
     public void renderTotemPlaced(String message) {
         gameHistory.add(message);
+        printBoard();
         synchronized (renderLock) {
             lineReader.printAbove("[Server]: " + message);
         }
@@ -301,10 +319,12 @@ public class TUIView implements ViewType {
      */
     @Override
     public void renderCardPicked(String message) {
-        gameHistory.add(message);
-        printBoard();
-        synchronized (renderLock) {
-            lineReader.printAbove("[Server]: " + message);
+        if (!canDiscardPickUpdate(message)) {
+            gameHistory.add(message);
+            printBoard();
+            synchronized (renderLock) {
+                lineReader.printAbove("[Server]: " + message);
+            }
         }
     }
 
@@ -334,13 +354,30 @@ public class TUIView implements ViewType {
     @Override
     public void renderEndGame(String message) {
         gameHistory.add(message);
-        StringBuilder scoreBoard = new StringBuilder();
+        AttributedStringBuilder scoreBoard = new AttributedStringBuilder();
+        scoreBoard.append(new AttributedString(
+                "Final Scoreboard for this game:\n",
+                AttributedStyle.DEFAULT.foreground(AttributedStyle.RED)
+        ));
         for (String player : modelReference.getFinalRank()) {
-            scoreBoard.append(player).append(": ").append(modelReference.getPlayerByNickname(player).getNumPrestigePoints()).append(" points\n");
+            scoreBoard.append(new AttributedString(
+                    "\t" + player + ": " + modelReference.getPlayerByNickname(player).getNumPrestigePoints() + " points\n",
+                    AttributedStyle.DEFAULT.foreground(AttributedStyle.WHITE)
+            ));
+        }
+        scoreBoard.append(new AttributedString(
+                "The standing global ranking is:\n",
+                AttributedStyle.DEFAULT.foreground(AttributedStyle.RED)
+        ));
+        for (String entry : modelReference.getGlobalRank()) {
+            scoreBoard.append(new AttributedString(
+                    "\t" + entry + "\n",
+                    AttributedStyle.DEFAULT.foreground(AttributedStyle.WHITE)
+            ));
         }
         synchronized (renderLock) {
             lineReader.printAbove("[Server]: " + message);
-            lineReader.printAbove(scoreBoard.toString());
+            lineReader.printAbove(scoreBoard.toAttributedString());
         }
     }
 
@@ -428,7 +465,7 @@ public class TUIView implements ViewType {
 
     private void show(String[] args) throws IllegalArgumentException, IllegalStateException{
         if (args.length < 2) {
-            throw new IllegalArgumentException("Invalid command format. Usage: show [nickname|cardId|turnOrderCard|board|gameHistory] <nickname> | <cardId>");
+            throw new IllegalArgumentException("Invalid command format. Usage: show [nickname|cardId|TOC|board|gameHistory] <nickname> | <cardId>");
         }
 
         if (modelReference == null) {
@@ -440,7 +477,10 @@ public class TUIView implements ViewType {
                 if (args.length < 3) {
                     throw new IllegalArgumentException("Invalid command format. Usage: show nickname [nickname]");
                 }
-                lineReader.printAbove(modelReference.getPlayerByNickname(args[2]).toString());
+                lineReader.printAbove(new AttributedString(
+                        modelReference.getPlayerByNickname(args[2]).toString(),
+                        AttributedStyle.DEFAULT.foreground(AttributedStyle.CYAN)
+                ));
             }
             case "cardid" -> {
                 if (args.length < 3) {
@@ -451,21 +491,21 @@ public class TUIView implements ViewType {
             case "board" -> {
                 printBoard();
             }
-            case "turnordercard" -> {
+            case "toc" -> {
                 printTurnOrderCard();
             }
             case "gamehistory" -> {
                 if (gameHistory.isEmpty()) {
                     lineReader.printAbove("No game history available.");
                 } else {
-                    StringBuilder historyBuilder = new StringBuilder();
+                    AttributedStringBuilder historyBuilder = new AttributedStringBuilder();
                     for (String event : gameHistory) {
-                        historyBuilder.append(event).append("\n");
+                        historyBuilder.append(event, AttributedStyle.DEFAULT.foreground(AttributedStyle.YELLOW)).append("\n");
                     }
-                    lineReader.printAbove(historyBuilder.toString());
+                    lineReader.printAbove(historyBuilder.toAttributedString());
                 }
             }
-            default -> throw new IllegalArgumentException("Invalid show option. Available options: nickname, cardId, turnOrderCard, offersPath.");
+            default -> throw new IllegalArgumentException("Invalid show option. Available options: nickname, cardId, TOC, offersPath.");
         }
     }
 
@@ -643,10 +683,13 @@ public class TUIView implements ViewType {
         line1
                 .append("▐▀▀▀▀▀▌ ")
                 .append("╔═════╗ ".repeat(offersPath.size()));
-        line2
-                .append("▐     ▌ ")
-                .append("║     ║ ".repeat(offersPath.size()));
-        line3.append("▐     ▌ ");
+        line2.append("▐     ▌ ");
+        for (char trackCardName : offersPath) {
+            line2.append("║  ");
+            line2.append(colorTotemInOffersPath(getColorAtPosition(trackCardName)));
+            line2.append("  ║ ");
+        }
+        line3.append("▐ TOC ▌ ");
         turnOrderCardNameBuilder.append("▐     ▌ ");
         for (char trackCardName : offersPath) {
             line3.append("║").append(printTrackCard(trackCardName)).append("║ ");
@@ -692,39 +735,6 @@ public class TUIView implements ViewType {
             lineReader.printAbove(secondRowBuilder.toAttributedString());
             lineReader.printAbove(thirdRowBuilder.toAttributedString());
         }
-
-        /*
-        OffersPath:
-        ╔═════╗
-        ║     ║
-        ║     ║
-        ║     ║
-        ╚═════╝
-        TurnOrderCard
-        ▐▀▀▀▀▀▌
-        ▐     ▌
-        ▐     ▌
-        ▐     ▌
-        ▐▄▄▄▄▄▌
-        Card:
-        ┌─────┐
-        │     │
-        │     │
-        │     │
-        └─────┘
-
-        +=============+
-        |             |
-        |             |
-        |             |
-        |             |
-        |             |
-        |             |
-        |             |
-        |             |
-        +=============+
-
-         */
     }
 
     private void printTurnOrderCard() {
@@ -747,8 +757,14 @@ public class TUIView implements ViewType {
         );
         turnOrderBuilder.append(limitLine);
         for (int i = 0; i < numPlayers; i++) {
+            String nickInTurnOrder;
+            try {
+                nickInTurnOrder = turnOrderCard.get(i);
+            } catch (IndexOutOfBoundsException _) {
+                nickInTurnOrder = "";
+            }
             AttributedString nickname = new AttributedString(
-                    (turnOrderCard.isEmpty() || turnOrderCard.get(i) == null) ? "" : turnOrderCard.get(i),
+                    nickInTurnOrder == null ? "" : nickInTurnOrder,
                     AttributedStyle.DEFAULT.foreground(AttributedStyle.GREEN)
             );
             turnOrderBuilder.append(emptyLine);
@@ -832,5 +848,27 @@ public class TUIView implements ViewType {
                     .toAttributedString();
             default -> new AttributedString("     ", AttributedStyle.DEFAULT.foreground(AttributedStyle.WHITE));
         };
+    }
+
+    private AttributedString colorTotemInOffersPath(String totemColor) {
+        return totemColor != null ?
+                switch (totemColor.toLowerCase()) {
+                    case "purple" -> new AttributedString("█", AttributedStyle.DEFAULT.foreground(147, 68, 97));
+                    case "yellow" -> new AttributedString("█", AttributedStyle.DEFAULT.foreground(AttributedStyle.YELLOW));
+                    case "red" -> new AttributedString("█", AttributedStyle.DEFAULT.foreground(AttributedStyle.RED));
+                    case "blue" -> new AttributedString("█", AttributedStyle.DEFAULT.foreground(AttributedStyle.CYAN));
+                    default -> new AttributedString("█", AttributedStyle.DEFAULT.foreground(AttributedStyle.WHITE));
+                } :
+                new AttributedString(" ", AttributedStyle.DEFAULT.foreground(AttributedStyle.WHITE));
+    }
+
+    private String getColorAtPosition(char position) {
+        return modelReference.getNicknameByPosition(position) == null ?
+                null :
+                modelReference.getPlayerByNickname(modelReference.getNicknameByPosition(position)).getTotemColor();
+    }
+
+    private boolean canDiscardPickUpdate(String s) {
+        return s.equals("Pick phase has started. ");
     }
 }

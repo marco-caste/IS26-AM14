@@ -71,12 +71,6 @@ class PickState extends GameState {
             return;
         }
 
-        System.out.println("Current player: " + currentPlayer.getNickname());
-        System.out.println("Player trying to pick: " + player.getNickname());
-        System.out.println("Current player index: " + context.getCurrentPlayerIndex());
-        System.out.println("Card : " + selectedCard);
-        System.out.println(context.getNumPlayers());
-
         // it's not player's turn
         if (!player.equals(currentPlayer) && context.getCurrentPlayerIndex() != context.getNumPlayers()) {
             throw new WrongTurnException("It's not " + player.getNickname() + "'s turn to pick a card");

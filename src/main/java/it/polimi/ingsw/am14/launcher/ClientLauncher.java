@@ -7,21 +7,19 @@ import javafx.application.Application;
 import java.io.IOException;
 
 /**
- * ClientLauncher class is the entry point for the client application.
- * It determines whether to launch the GUI or TUI based on the provided arguments.
+ * The {@code ClientLauncher} class is responsible for launching the client application
+ * in either Command Line Interface (CLI) or Graphical User Interface (GUI) mode based on
+ * the provided command-line arguments.
  */
 public class ClientLauncher {
-    // TODO: NEL README SPECIFICARE I PARAMETRI DA RIGA DI COMANDO E COME VANNO IMPOSTATI.
-    // comandi:
-    // .\mvnw package -Pclient
-    // java -jar target/AM14-Client.jar par1
+
     /**
-     * The main method serves as the entry point for the client application.
-     * It checks the provided arguments to determine whether to launch the GUI or TUI.
+     * Starts the client application based on the provided command-line arguments.
+     * The first argument specifies the mode ("cli" for TUI or "gui" for GUI).
      *
-     * @param args Command-line arguments. The first argument should be either "cli" or "gui".
+     * @param args command-line arguments where the first argument specifies the mode.
      */
-    public static void main(String[] args) {
+    public static void startClient(String[] args) {
 
         String mode = args[0];
         try {

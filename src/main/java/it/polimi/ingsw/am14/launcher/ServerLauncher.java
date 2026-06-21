@@ -16,16 +16,14 @@ import static it.polimi.ingsw.am14.utils.Constants.PING_INTERVAL;
 import static it.polimi.ingsw.am14.utils.Constants.PING_TIMEOUT;
 
 /**
- * ServerLauncher is the main class that starts the server for the game.
- * It initializes the network layer, lobby controller, and handles saving/loading game state.
+ * The {@code ServerLauncher} class is responsible for starting the server application.
+ * It initializes the necessary components, including the network layer and lobby controller,
+ * and launches separate threads for handling socket connections, RMI connections, pinging clients,
+ * and checking for client timeouts.
  */
 public class ServerLauncher {
-    // TODO: NEL README SPECIFICARE I PARAMETRI DA RIGA DI COMANDO E COME VANNO IMPOSTATI.
-    // COMANDI PER COSTRUIRE I JAR E AVVIARE IL SERVER:
-    // .\mvnw package -Pserver
-    // java -jar target/AM14-Server.jar par1 par2 par3
     /**
-     * The main method that starts the server. Launches 4 Threads:
+     * The method that starts the server. Launches 4 Threads:
      * <li>The socket server Thread, on which socket connections will be handled</li>
      * <li>The RMI server Thread, on which RMI connections will be handled</li>
      * <li>The ping Thread, which will send a ping to all clients every {@code PING_INTERVAL} milliseconds</li>
@@ -33,7 +31,7 @@ public class ServerLauncher {
      *
      * @param args command line arguments, where args[0] is the socket port, args[1] is the RMI port and args[2] is the save file path. The latter must be wrapped in quotes, if it contains spaces.
      */
-    public static void main(String[] args) throws IOException, URISyntaxException {
+    public static void startServer(String[] args) throws IOException, URISyntaxException {
 
         // technical objects building
         NetworkLayer networkLayer = new NetworkLayer();
