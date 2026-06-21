@@ -4,6 +4,15 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import it.polimi.ingsw.am14.model.gameLogic.*;
 
+/**
+ * Represents a functional interface utilizing the Strategy pattern to define various
+ * effects that can be applied by building cards.
+ * <p>
+ * This interface uses Jackson annotations to support polymorphic serialization and
+ * deserialization, allowing the correct implementing class to be instantiated based
+ * on the type provided in the JSON property.
+ * </p>
+ */
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
         include = JsonTypeInfo.As.PROPERTY,
@@ -35,6 +44,12 @@ import it.polimi.ingsw.am14.model.gameLogic.*;
 
 @FunctionalInterface //In order to have only 1 method
 public interface EffectStrategy {
+    /**
+     * Applies the specific building effect to the given player based on the current game state.
+     *
+     * @param player the player who is receiving the benefits or penalties of the effect
+     * @param game   the current game instance to retrieve any necessary global state variables
+     */
     void applyEffect(Player player, Game game);
 }
 

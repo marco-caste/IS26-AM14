@@ -5,7 +5,21 @@ import it.polimi.ingsw.am14.model.cards.buildings.Building;
 import it.polimi.ingsw.am14.model.cards.buildings.effects.EffectStrategy;
 import it.polimi.ingsw.am14.model.cards.buildings.visitors.BuildingVisitor;
 
+/**
+ * Represents a sustenance event building card in the game.
+ * Extends the {@link Building} class and applies its specific effect
+ * related to sustenance events. Allows operations through the visitor pattern.
+ */
 public class SustenanceEventBuilding extends Building {
+    /**
+     * Constructs a new {@code SustenanceEventBuilding} with the specified attributes.
+     *
+     * @param cost           the cost of the building
+     * @param prestigePoints the base prestige points granted by the building
+     * @param age            the age or era the building belongs to
+     * @param id             the unique identifier of the building
+     * @param effectStrategy the strategy defining the specific effect of this building
+     */
     public SustenanceEventBuilding(@JsonProperty("cost") int cost,
                                    @JsonProperty("prestigePoints") int prestigePoints,
                                    @JsonProperty("age") int age,
@@ -13,7 +27,11 @@ public class SustenanceEventBuilding extends Building {
                                    @JsonProperty("effectStrategy") EffectStrategy effectStrategy) {
         super(cost, prestigePoints, age, id, effectStrategy);
     }
-
+    /**
+     * Accepts a {@link BuildingVisitor} to perform operations specific to this building type.
+     *
+     * @param visitor the visitor operating on this building
+     */
     @Override
     public void accept(BuildingVisitor visitor) {
         visitor.visit(this);
