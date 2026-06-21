@@ -13,7 +13,11 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.*;
-
+/**
+ * Manages the lifecycle of multiple client socket connections on the server side.
+ * It is responsible for accepting new inbound sockets, matching primary connections with their ping counterparts,
+ * spawning dedicated listener and buffering threads for each client, and routing incoming requests to the {@link LobbyController}.
+ */
 public class SocketClientHandlersManager {
 
     private final ServerSocket listenSocket;
@@ -26,23 +30,49 @@ public class SocketClientHandlersManager {
 
     private final Set<SocketClientHandler> waitingClients;
 
+    /**
+     * Adds a newly connected client handler to the waiting room in a thread-safe manner.
+     *
+     * @param handler the {@link SocketClientHandler} to add.
+     */
+
     // waitingClientsMethods
     public void addWaitingClient(SocketClientHandler handler) {
         synchronized (waitingClients) {
             waitingClients.add(handler);
         }
     }
+    /**
+     * Removes a client handler from the waiting room in a thread-safe manner.
+     *
+     * @param handler the {@link SocketClientHandler} to remove.
+     */
+
     public void removeWaitingClient(SocketClientHandler handler) {
         synchronized (waitingClients) {
             waitingClients.remove(handler);
         }
     }
+    /**
+     * Checks if a client handler is currently in the waiting room in a thread-safe manner.
+     *
+     * @param handler the {@link SocketClientHandler} to check.
+     * @return {@code true} if the client is waiting, {@code false} otherwise.
+     */
+
     public boolean waitingClientsContains(SocketClientHandler handler) {
         synchronized (waitingClients) {
             return waitingClients.contains(handler);
         }
     }
-
+    /**
+     * Constructs a new {@code SocketClientHandlersManager}.
+     *
+     * @param listenSocket     the {@link ServerSocket} used to accept incoming primary data connections.
+     * @param listenPingSocket the {@link ServerSocket} used to accept incoming ping connections.
+     * @param controller       the primary {@link LobbyController} that dictates the game and server logic.
+     * @param networkLayer     the underlying {@link NetworkLayer} used to map users to their handlers and buffers.
+     */
     public SocketClientHandlersManager(ServerSocket listenSocket, ServerSocket listenPingSocket, LobbyController controller, NetworkLayer networkLayer) {
         this.listenSocket = listenSocket;
         this.listenPingSocket = listenPingSocket;
@@ -51,7 +81,13 @@ public class SocketClientHandlersManager {
         this.controller = controller;
         this.jsonCodec = new JsonCodec();
     }
-
+    /**
+     * Starts the main server loop to accept incoming client connections on the primary port.
+     * For each connection, it instantiates a handler, places it in the waiting area, and spawns two threads:
+     * one for interpreting client requests and another for asynchronously buffering and pushing updates to the client.
+     *
+     * @throws IOException if the server socket encounters a critical error during acceptance.
+     */
     public void runServer() throws IOException {
         Socket clientSocket;
         while ((clientSocket = this.listenSocket.accept()) != null) {
@@ -134,7 +170,13 @@ public class SocketClientHandlersManager {
             }
         }
     }
-
+    /**
+     * Starts the background loop to accept incoming secondary ping connections on the designated ping port.
+     * Extracts the requested nickname from the first message to associate this ping socket with an already connected handler,
+     * then spawns a dedicated listener thread to maintain the online status of the client.
+     *
+     * @throws IOException if the ping server socket encounters an error during acceptance.
+     */
     public void runPingServer() throws IOException {
         Socket clientPingSocket;
         while ((clientPingSocket = this.listenPingSocket.accept()) != null) {
@@ -171,7 +213,14 @@ public class SocketClientHandlersManager {
             }
         }
     }
-
+    /**
+     * Processes incoming client requests forwarded by individual client handlers.
+     * Automatically registers the nickname via the network layer if the client just connected,
+     * dispatches the request to the game controller, and handles updating user-to-game mappings.
+     *
+     * @param request the deserialized {@link ClientRequest} specifying the action to perform.
+     * @param sender  the {@link SocketClientHandler} instance representing the client making the request.
+     */
     public void receiveRequest(ClientRequest request, SocketClientHandler sender){
         try {
             // if sender is still in waiting room, the only possible request is to connect to the server (meaning: to declare a nickname).
@@ -192,7 +241,12 @@ public class SocketClientHandlersManager {
             sender.reportError(new ExceptionEvent(e.getMessage()));
         }
     }
-
+    /**
+     * Notifies the controller that a heartbeat ping was received from a specific user,
+     * maintaining their active status on the server.
+     *
+     * @param nickname the nickname of the user who sent the ping.
+     */
     public void pingServer(String nickname){
         controller.handlePingRequest(nickname);
     }

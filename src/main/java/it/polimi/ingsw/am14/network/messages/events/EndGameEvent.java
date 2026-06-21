@@ -16,6 +16,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Event representing the end of a game.
+ * Inherits from {@link UpdateEvent}.
+ * It contains the final state of the board, the final attributes of the players,
+ * the game's final ranking, and the overall global ranking.
+ */
+
 public class EndGameEvent extends UpdateEvent {
 
     private final ArrayList<ArrayList<Integer>> board;
@@ -24,6 +31,15 @@ public class EndGameEvent extends UpdateEvent {
     private List<String> globalRank;
     @JsonIgnore
     private int gameId;
+
+    /**
+     * Constructs an {@code EndGameEvent} triggered by the server model at the end of the game.
+     *
+     * @param board        the final {@link Board} state of the game.
+     * @param finalRanking a list of {@link Player} objects ordered by their final score.
+     * @param gameId       the unique ID of the game this event belongs to.
+     * @param globalRank   the updated global ranking across the server.
+     */
 
     public EndGameEvent(final Board board, final List<Player> finalRanking, int gameId, final List<String> globalRank) {
         super("");
@@ -64,6 +80,16 @@ public class EndGameEvent extends UpdateEvent {
         this.description = "End of game, the board has been updated, the final ranking has been calculated";
     }
 
+    /**
+     * Constructs an {@code EndGameEvent} from JSON data, used by Jackson upon receiving a message.
+     *
+     * @param description       the description of the event.
+     * @param finalRank         the list of player nicknames ordered by their final placement.
+     * @param board             the state of the board represented by card IDs.
+     * @param playersAttributes a map associating each player's nickname with a list of their attributes.
+     * @param globalRank        the overall global ranking leaderboard.
+     */
+
     @JsonCreator
     public EndGameEvent(
             @JsonProperty("description") String description,
@@ -78,9 +104,22 @@ public class EndGameEvent extends UpdateEvent {
         this.globalRank = globalRank;
     }
 
+    /**
+     * Bufferizes the event into the network layer to be broadcasted to all connected clients.
+     *
+     * @param networkLayer the network layer used to broadcast the event.
+     */
+
     public void bufferize(NetworkLayer networkLayer) {
         networkLayer.broadcastUpdate(this, this.gameId);
     }
+
+    /**
+     * Applies the effect of this event to the provided client model, updating the local state
+     * with the final game results and notifying the view observers.
+     *
+     * @param model the {@link ClientModel} representing the client-side state of the game.
+     */
 
     @Override
     public void effect(ClientModel model) {

@@ -8,7 +8,12 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import java.io.Serializable;
-
+/**
+ * Abstract base class representing a generic network event in the application.
+ * It acts as the superclass for all network events.
+ * It provides the foundation for polymorphic serialization and deserialization using Jackson,
+ * and defines the lifecycle methods for buffering, affecting the client model, and post-processing.
+ */
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
         include = JsonTypeInfo.As.PROPERTY,
@@ -30,14 +35,29 @@ import java.io.Serializable;
 public abstract class Event implements Serializable {
     // a brief description of the event, for logging purposes
     protected String description;
-
+    /**
+     * Applies the effect of this event to the provided client model, updating the local state.
+     *
+     * @param model the {@link ClientModel} representing the client-side state of the game.
+     */
     public void effect(ClientModel model){}
 
+    /**
+     * Constructs an {@code Event} with the specified description.
+     *
+     * @param description a brief text explaining the event details.
+     */
     public Event(String description) {
         this.description = description;
     }
 
+    /**
+     * Bufferizes the event into the network layer to be sent or broadcasted.
+     *
+     * @param network the {@link NetworkLayer} used to handle the outgoing event.
+     */
     public void bufferize(NetworkLayer network) {}
+
 
     public String getDescription() {
         return description;

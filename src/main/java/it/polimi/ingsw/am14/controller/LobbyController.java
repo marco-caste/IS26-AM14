@@ -23,53 +23,40 @@ import java.util.Set;
 import static it.polimi.ingsw.am14.utils.Constants.PING_TIMEOUT;
 
 public class LobbyController {
+    // TODO: USATO SOLO NEI TEST
+    public Map<Integer, GameController> getGameIdToGameController() {
+        return gameIdToGameController;
+    }
 
-    /**
-     *
-     */
     private final Map<Integer, GameController> gameIdToGameController;
-    /**
-     *
-     */
     private final Map<String, Integer> nicknameToGameId;
-    /**
-     *
-     */
     private int gameIdCounter;
-    /**
-     *
-     */
     @JsonIgnore
-    private NetworkLayer networkLayer;
-    /**
-     *
-     */
+    private NetworkLayer networkLayer;        // TODO: CHECK SINCRONIZZAZIONE
     @JsonIgnore
     private final Map<String, Long> lastPingReceivedTime;
-    /**
-     *
-     */
     @JsonIgnore
     private final Object dataLock = new Object();
-    /**
-     *
-     */
+    private String saveFilePath;
     @JsonIgnore
-    private final String saveFilePath = "src/main/Saves/save.json";
+    private final Object saveFileLock = new Object();
 
-    public LobbyController(NetworkLayer networkLayer) {
+    public LobbyController(NetworkLayer networkLayer, String saveFilePath) {
         this.gameIdToGameController = new HashMap<>();
         this.nicknameToGameId = new HashMap<>();
         this.networkLayer = networkLayer;
         this.lastPingReceivedTime = new HashMap<>();
         this.gameIdCounter = 0;
+        this.saveFilePath = saveFilePath;
     }
 
     @JsonCreator
     public LobbyController(
             @JsonProperty("nicknameToGameId") Map<String, Integer> nicknameToGameId,
             @JsonProperty("gameIdToGameController") Map<Integer, GameController> gameIdToGameController,
-            @JsonProperty("gameIdCounter") int gameIdCounter) {
+            @JsonProperty("gameIdCounter") int gameIdCounter,
+            @JsonProperty("saveFilePath") String saveFilePath) {
+        this.saveFilePath = saveFilePath;
         this.gameIdToGameController = gameIdToGameController;
         this.nicknameToGameId = nicknameToGameId;
         this.networkLayer = new NetworkLayer();
@@ -134,11 +121,6 @@ public class LobbyController {
         }
     }
 
-    // Only used for tests
-    public Map<Integer, GameController> getGameIdToGameController() {
-        return gameIdToGameController;
-    }
-
     public void setNetworkLayer(NetworkLayer networkLayer) {
         this.networkLayer = networkLayer;
     }
@@ -147,9 +129,6 @@ public class LobbyController {
         lastPingReceivedTime.remove(nickname);
     }
 
-    /**
-     *
-     */
     public void connectUser(String nickname) throws IllegalNicknameException, IllegalGameIdException, WrongStateException {
         int gameId;
         synchronized (dataLock) {
@@ -169,9 +148,6 @@ public class LobbyController {
         }
     }
 
-    /**
-     *
-     */
     public void createGame(String nickname, int numPlayers, String totemColor) throws IllegalSetupException, WrongStateException, IllegalNicknameException {
         synchronized (dataLock) {
             if (hasPlayerAGameAssigned(nickname)) {
@@ -187,16 +163,13 @@ public class LobbyController {
             gameController.onPlayerConnection(nickname, totemColor);
         }
         new Thread(() -> {
-            synchronized (saveFilePath) {
+            synchronized (saveFileLock) {
                 Codec parser = new JsonCodec();
                 parser.writeSaveData(this, saveFilePath);
             }
         }, "Save-Thread-pick").start();
     }
 
-    /**
-     *
-     */
     public void joinGame(String nickname, int gameId, String totemColor) throws WrongStateException, IllegalGameIdException {
         synchronized (dataLock) {
             if (hasPlayerAGameAssigned(nickname)) {
@@ -211,39 +184,30 @@ public class LobbyController {
         }
     }
 
-    /**
-     *
-     */
     public void placeTotem(String nickname, char position) throws IllegalNicknameException, WrongStateException, WrongTurnException, UnknownPositionException, IllegalPlacementException, UnknownNicknameException, SQLException, IllegalPickException, ForcedPickException {
         getGameController(getGameIdByNickname(nickname).orElseThrow(() -> new IllegalNicknameException("Player with the specified nickname is not in the lobby")))
                 .orElseThrow(() -> new IllegalNicknameException("Player with the specified nickname is not assigned to any game"))
                 .placeTotem(nickname, position);
         new Thread(() -> {
-            synchronized (saveFilePath) {
+            synchronized (saveFileLock) {
                 Codec parser = new JsonCodec();
                 parser.writeSaveData(this, saveFilePath);
             }
         }, "Save-Thread-place").start();
     }
 
-    /**
-     *
-     */
     public void pickCard(String nickname, int cardId, int row) throws IllegalNicknameException, WrongStateException, WrongTurnException, UnknownPositionException, IllegalPickException, ForcedPickException, IllegalPlacementException, UnknownNicknameException, SQLException {
         getGameController(getGameIdByNickname(nickname).orElseThrow(() -> new IllegalNicknameException("Player with the specified nickname is not in the lobby")))
                 .orElseThrow(() -> new IllegalNicknameException("Player with the specified nickname is not assigned to any game"))
                 .pickCard(nickname, cardId, row);
         new Thread(() -> {
-            synchronized (saveFilePath) {
+            synchronized (saveFileLock) {
                 Codec parser = new JsonCodec();
                 parser.writeSaveData(this, saveFilePath);
             }
         }, "Save-Thread-pick").start();
     }
 
-    /**
-     *
-     */
     public void disconnectUser(String nickname) {
         synchronized (dataLock) {
             int gameId = getGameIdByNickname(nickname).orElse(-1);
@@ -269,18 +233,12 @@ public class LobbyController {
         }
     }
 
-    /**
-     *
-     */
     public void handlePingRequest(String nickname) {
         synchronized (dataLock) {
             setLastPingReceivedTime(nickname);
         }
     }
 
-    /**
-     *
-     */
     public void handlePingTimeOut() {
         synchronized (dataLock) {
             long currentTime = System.currentTimeMillis();
@@ -294,9 +252,6 @@ public class LobbyController {
         }
     }
 
-    /**
-     *
-     */
     public void registerObserversAfterReconnection(NetworkLayer networkLayer) {
         for (GameController gc: gameIdToGameController.values()) {
             gc.getGame().addObserver(networkLayer);

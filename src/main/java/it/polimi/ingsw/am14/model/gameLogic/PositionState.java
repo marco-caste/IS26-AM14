@@ -73,9 +73,9 @@ class PositionState extends GameState {
             first = foodTrackCard.getPlayerTotem();
 
             if(first != null){
-                firstNickname = first.getNickname();
-                isThereFirstFood = true;
                 foodTrackCard.setPlayerTotem(null);
+                isThereFirstFood = true;
+                firstNickname = first.getNickname();
             }
 
         }
@@ -105,11 +105,10 @@ class PositionState extends GameState {
 
     }
 
-    // TODO: IL PROSSIMO STATO NON è PIù PICK STATE, MA CONTROLSTATE
     /**
      * {@inheritDoc}
      * <p>
-     *     For this state, the next state is always {@link PickState}.
+     *     For this state, the next state is always {@link ControlState}.
      * </p>
      * @param context not null
      */

@@ -478,4 +478,48 @@ public class TribeTest {
         assertEquals(0, tribe.getBuildersSize());
     }
 
+    @Test
+    public void testGetBuildingsSize() {
+        assertEquals(0, tribe.getBuildingsSize());
+
+        Building building1 = new ImmediateBuilding(2, 2, 2, 3, null);
+        Building building2 = new ImmediateBuilding(3, 4, 2, 4, null);
+
+        tribe.addBuilding(building1);
+        tribe.addBuilding(building2);
+
+        assertEquals(2, tribe.getBuildingsSize());
+    }
+
+    @Test
+    public void testGetAllIds() {
+        Hunter hunter = new Hunter(2, 11, true);
+        Inventor inventor = new Inventor(2, 12, InventionType.LEATHER.toString());
+        Shaman shaman = new Shaman(2, 13, 3);
+        Gatherer gatherer = new Gatherer(2, 14, 2);
+        Artist artist = new Artist(2, 15);
+        Builder builder = new Builder(2, 16, 3, 5);
+        Building building = new ImmediateBuilding(2, 2, 2, 17, null);
+
+        tribe.addHunter(hunter);
+        tribe.addInventor(inventor);
+        tribe.addShaman(shaman);
+        tribe.addGatherer(gatherer);
+        tribe.addArtist(artist);
+        tribe.addBuilder(builder);
+        tribe.addBuilding(building);
+
+        int[] expectedIds = {
+                hunter.getId(),
+                inventor.getId(),
+                shaman.getId(),
+                gatherer.getId(),
+                artist.getId(),
+                builder.getId(),
+                building.getId()
+        };
+
+        assertArrayEquals(expectedIds, tribe.getAllIds());
+    }
+
 }
