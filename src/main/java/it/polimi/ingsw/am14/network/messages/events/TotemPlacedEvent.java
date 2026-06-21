@@ -105,6 +105,7 @@ public class TotemPlacedEvent extends UpdateEvent {
         }
         model.updatePlayerFood(playerNickname, numFood);
         model.checkAndEventuallySetPickState();
+
         model.notifyObservers(new PositionUpdateViewEvent(description));
 
     }

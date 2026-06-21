@@ -6,6 +6,7 @@ import it.polimi.ingsw.am14.controller.LobbyController;
 import it.polimi.ingsw.am14.network.messages.requests.ClientRequest;
 import it.polimi.ingsw.am14.network.messages.events.Event;
 import it.polimi.ingsw.am14.network.messages.events.ExceptionEvent;
+import it.polimi.ingsw.am14.utils.Codec;
 import it.polimi.ingsw.am14.utils.JsonCodec;
 
 import java.io.*;
@@ -23,7 +24,7 @@ public class SocketClientHandlersManager {
     private final ServerSocket listenPingSocket;
     private final LobbyController controller;
     private final NetworkLayer networkLayer;
-    private final JsonCodec jsonCodec = new JsonCodec();
+    private final Codec jsonCodec;
 
     private static int Thread_number = 0;
 
@@ -78,6 +79,7 @@ public class SocketClientHandlersManager {
         this.waitingClients = new HashSet<>();
         this.networkLayer = networkLayer;
         this.controller = controller;
+        this.jsonCodec = new JsonCodec();
     }
     /**
      * Starts the main server loop to accept incoming client connections on the primary port.
@@ -187,7 +189,6 @@ public class SocketClientHandlersManager {
                 String firstLine = pingInput.readLine();
                 ClientRequest request = jsonCodec.parseClientRequest(firstLine);
                 String nickname = request.getNickname();
-                //TODO: Bisogna effettuare un controllo che non sia stato ancora preso?
                 SocketClientHandler handler = (SocketClientHandler) networkLayer.getClientBy(nickname);
                 handler.setPingSocket(pingInput, pingOutput, clientPingSocket, nickname);
 
@@ -195,7 +196,7 @@ public class SocketClientHandlersManager {
                     try {
                         handler.runPingServer();
                     } catch (Exception e) {
-                        System.err.println("[Server] Error closing socket: " + e.getMessage());
+                        System.err.println("[Server] Error running ping: " + e.getMessage());
                     }
                 }, "ServerThreadPing-" + nickname);
                 pingThread.start();
@@ -227,7 +228,7 @@ public class SocketClientHandlersManager {
                 networkLayer.updateNicknameMap(request.getNickname(), sender);
             }
 
-            request.dispatchRequest(this.controller);
+            request.dispatchRequest(controller);
 
             removeWaitingClient(sender);
 

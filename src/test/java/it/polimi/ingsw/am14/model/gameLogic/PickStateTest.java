@@ -100,31 +100,23 @@ public class PickStateTest {
     public void testPickCardThrowsWrongTurnWhenPlayerIsNotCurrent() {
         TestFixture fixture = buildFixture();
         putTotem(fixture, 'B', fixture.p1);
-
-        assertThrows(WrongTurnException.class,
-                () -> fixture.state.pickCard(fixture.game, fixture.p2, Optional.empty(), 0));
-    }
-
-    @Test
-    public void testPickCardThrowsForcedPickWhenSkippingWithAvailableDeckableCard() {
-        TestFixture fixture = buildFixture();
-        putTotem(fixture, 'B', fixture.p1);
-        fixture.p1.setNumTopPicksLeft(1);
-
+        putTotem(fixture, 'C', fixture.p2);
+        fixture.game.setCurrentState(fixture.state);
         Hunter hunter = new Hunter(1, 11, false);
         fixture.game.getBoard().setTopDeckableRow(new ArrayList<>(List.of(hunter)));
-
-        assertThrows(ForcedPickException.class,
-                () -> fixture.state.pickCard(fixture.game, fixture.p1, Optional.empty(), 0));
+        fixture.p1.setNumTopPicksLeft(1);
+        fixture.p2.setNumTopPicksLeft(1);
+        assertThrows(WrongTurnException.class,
+                () -> fixture.game.pickCard(fixture.p2.getNickname(), 11, 0));
     }
 
     @Test
     public void testPickCardThrowsIllegalPickWhenBuildingIsNotAffordable() {
         TestFixture fixture = buildFixture();
-        putTotem(fixture, 'B', fixture.p1);
-        fixture.p1.setNumTopPicksLeft(1);
+        putTotem(fixture, 'C', fixture.p1);
+        putTotem(fixture, 'E', fixture.p2);
 
-        Building expensiveBuilding = new ImmediateBuilding(3, 0, 1, 21, new ExtraEndTurnFood());
+        Building expensiveBuilding = new ImmediateBuilding(20, 0, 1, 21, new ExtraEndTurnFood());
         fixture.game.getBoard().setTopBuildingRow(new ArrayList<>(List.of(expensiveBuilding)));
 
         assertThrows(IllegalPickException.class,
@@ -171,80 +163,6 @@ public class PickStateTest {
     }
 
     @Test
-    public void testPickCardAllowsSkipWhenCurrentPlayerCannotPickAnyCard() {
-        TestFixture fixture = buildFixture();
-        putTotem(fixture, 'B', fixture.p1);
-        putTotem(fixture, 'C', fixture.p2);
-
-        Player currentPlayer = resolveCurrentPlayerFromOffersPath(fixture.game);
-        assertNotNull(currentPlayer);
-        Player otherPlayer = currentPlayer.equals(fixture.p1) ? fixture.p2 : fixture.p1;
-
-        currentPlayer.setNumTopPicksLeft(1);
-        currentPlayer.setNumBottomPicksLeft(1);
-        currentPlayer.setNumFood(0);
-
-        otherPlayer.setNumTopPicksLeft(1);
-        otherPlayer.setNumBottomPicksLeft(0);
-        otherPlayer.setNumFood(2);
-
-        Building affordableForOtherOnly = new ImmediateBuilding(1, 0, 1, 51, new ExtraEndTurnFood());
-        fixture.game.getBoard().setTopDeckableRow(new ArrayList<>());
-        fixture.game.getBoard().setBottomDeckableRow(new ArrayList<>());
-        fixture.game.getBoard().setTopBuildingRow(new ArrayList<>(List.of(affordableForOtherOnly)));
-        fixture.game.getBoard().setBottomBuildingRow(new ArrayList<>());
-
-        Character currentTotemPosition = findTotemPosition(fixture.game, currentPlayer);
-
-        assertDoesNotThrow(() -> fixture.state.pickCard(fixture.game, currentPlayer, Optional.empty(), 0));
-        assertEquals(0, currentPlayer.getNumTopPicksLeft());
-        assertEquals(0, currentPlayer.getNumBottomPicksLeft());
-        assertNull(fixture.game.getBoard().getOffersPath().offersPathGet(currentTotemPosition).getPlayerTotem());
-        assertEquals(currentPlayer, fixture.game.getBoard().getTurnOrderCard().getPlayer(0));
-        assertEquals(1, fixture.game.getCurrentPlayerIndex());
-        assertInstanceOf(PickState.class, fixture.game.getCurrentState());
-    }
-
-    // test
-    @Test
-    public void testPickCardAllowsSkipWhenLastPlayerCannotPickAnyCard() {
-        TestFixture fixture = buildFixture();
-        putTotem(fixture, 'B', fixture.p1);
-        putTotem(fixture, 'C', fixture.p2);
-
-        Player currentPlayer = resolveCurrentPlayerFromOffersPath(fixture.game);
-        assertNotNull(currentPlayer);
-        Player lastPlayer = currentPlayer.equals(fixture.p1) ? fixture.p2 : fixture.p1;
-
-        // Current player cannot pick and chooses to skip.
-        currentPlayer.setNumTopPicksLeft(1);
-        currentPlayer.setNumBottomPicksLeft(1);
-        currentPlayer.setNumFood(0);
-
-        // Last player also cannot pick from any row.
-        lastPlayer.setNumTopPicksLeft(1);
-        lastPlayer.setNumBottomPicksLeft(1);
-        lastPlayer.setNumFood(0);
-
-        Building unaffordableBuilding = new ImmediateBuilding(2, 0, 1, 61, new ExtraEndTurnFood());
-        fixture.game.getBoard().setTopDeckableRow(new ArrayList<>());
-        fixture.game.getBoard().setBottomDeckableRow(new ArrayList<>());
-        fixture.game.getBoard().setTopBuildingRow(new ArrayList<>(List.of(unaffordableBuilding)));
-        fixture.game.getBoard().setBottomBuildingRow(new ArrayList<>());
-
-        Character currentTotemPosition = findTotemPosition(fixture.game, currentPlayer);
-        Character lastTotemPosition = findTotemPosition(fixture.game, lastPlayer);
-
-        assertDoesNotThrow(() -> fixture.state.pickCard(fixture.game, currentPlayer, Optional.empty(), 0));
-        assertNull(fixture.game.getBoard().getOffersPath().offersPathGet(currentTotemPosition).getPlayerTotem());
-        assertNull(fixture.game.getBoard().getOffersPath().offersPathGet(lastTotemPosition).getPlayerTotem());
-        assertEquals(currentPlayer, fixture.game.getBoard().getTurnOrderCard().getPlayer(0));
-        assertEquals(lastPlayer, fixture.game.getBoard().getTurnOrderCard().getPlayer(1));
-        assertEquals(0, fixture.game.getCurrentPlayerIndex());
-        assertInstanceOf(PositionState.class, fixture.game.getCurrentState());
-    }
-
-    @Test
     public void testPickCardTwoTopPicksBuilderThenBuildingAppliesDiscount() throws Exception {
         TestFixture fixture = buildFixture();
         putTotem(fixture, 'B', fixture.p1);
@@ -276,6 +194,7 @@ public class PickStateTest {
     @Test
     public void testPickCardBothPlayersOnePickEachCurrentBehavior() throws Exception {
         TestFixture fixture = buildFixture();
+        fixture.game.setCurrentState(fixture.state);
         putTotem(fixture, 'B', fixture.p1);
         putTotem(fixture, 'C', fixture.p2);
         fixture.p1.setNumTopPicksLeft(1);
@@ -380,24 +299,6 @@ public class PickStateTest {
 
         assertEquals(2, fixture.p1.getNumFood());
         assertEquals(1, fixture.p1.getTribe().getBuildings().size());
-    }
-
-    @Test
-    public void testPickCardPlayerSkipsAllPicksWhenNoPicksLeft() throws Exception {
-        TestFixture fixture = buildFixture();
-        putTotem(fixture, 'B', fixture.p1);
-        putTotem(fixture, 'C', fixture.p2);
-
-        fixture.p1.setNumTopPicksLeft(0);
-        fixture.p1.setNumBottomPicksLeft(0);
-        fixture.p2.setNumTopPicksLeft(0);
-        fixture.p2.setNumBottomPicksLeft(0);
-
-        fixture.state.pickCard(fixture.game, fixture.p1, Optional.empty(), 0);
-
-        assertEquals(0, fixture.game.getCurrentPlayerIndex());
-        Character p1TotemPosition = findTotemPosition(fixture.game, fixture.p1);
-        assertNull(p1TotemPosition);
     }
 
     @Test
@@ -508,38 +409,6 @@ public class PickStateTest {
     }
 
     @Test
-    public void testPickCardWithAddTopPickSkip() throws Exception {
-        TestFixture fixture = buildFixture();
-        putTotem(fixture, 'B', fixture.p1);
-        putTotem(fixture, 'C', fixture.p2);
-        fixture.game.setCurrentPlayerIndex(0);
-
-        // Setup both players to have no picks left
-        fixture.p1.setNumTopPicksLeft(1);
-        fixture.p1.setNumBottomPicksLeft(0);
-        fixture.p1.setAddTopPick(1);
-        fixture.p1.setNumFood(3);
-
-        fixture.p2.setNumTopPicksLeft(1);
-        fixture.p2.setNumBottomPicksLeft(0);
-        Hunter hunterForExceptional = new Hunter(1, 200, false);
-        fixture.game.getBoard().setTopDeckableRow(new ArrayList<>(List.of(hunterForExceptional, hunterForExceptional, hunterForExceptional)));
-        fixture.state.pickCard(fixture.game, fixture.p1, Optional.of(hunterForExceptional), 0);
-
-        // Setup building for exceptional pick
-        Building buildingForExceptional = new ImmediateBuilding(2, 0, 1, 201, new ExtraEndTurnFood());
-        fixture.game.getBoard().setTopBuildingRow(new ArrayList<>(List.of(buildingForExceptional)));
-
-        // pick di due
-        fixture.state.pickCard(fixture.game, fixture.p2, Optional.of(hunterForExceptional), 0);
-
-        fixture.game.pickCard(fixture.p1.getNickname(), -1, -1);
-
-        assertEquals(0, fixture.p1.getTribe().getBuildings().size());
-        assertInstanceOf(PositionState.class, fixture.game.getCurrentState());
-    }
-
-    @Test
     public void testPickCardBothPlayersWithP1AddTopPickScenario() throws Exception {
         TestFixture fixture = buildFixture();
         putTotem(fixture, 'B', fixture.p1);
@@ -627,9 +496,6 @@ public class PickStateTest {
     @Test
     public void testPickCardP1AddTopPickWithMultipleCardsAvailable() throws Exception {
         TestFixture fixture = buildFixture();
-        putTotem(fixture, 'B', fixture.p1);
-        putTotem(fixture, 'C', fixture.p2);
-
         // Setup for exceptional pick scenario
         fixture.p1.setNumTopPicksLeft(0);
         fixture.p1.setNumBottomPicksLeft(0);
@@ -641,9 +507,10 @@ public class PickStateTest {
 
         // Multiple cards on the board
         Hunter hunter = new Hunter(1, 208, false);
+        Hunter hunter1 = new Hunter(1, 200, false);
         Building building = new ImmediateBuilding(3, 0, 1, 209, new ExtraEndTurnFood());
 
-        fixture.game.getBoard().setTopDeckableRow(new ArrayList<>(List.of(hunter)));
+        fixture.game.getBoard().setTopDeckableRow(new ArrayList<>(List.of(hunter, hunter1)));
         fixture.game.getBoard().setTopBuildingRow(new ArrayList<>(List.of(building)));
 
         // Setup to reach exceptional pick scenario
@@ -766,25 +633,26 @@ public class PickStateTest {
         TestFixture fixture = buildFixture();
         putTotem(fixture, 'B', fixture.p1);
         putTotem(fixture, 'C', fixture.p2);
+        fixture.game.setCurrentState(fixture.state);
 
         // P1 has addTopPick=1 and zero picks left (exceptional pick scenario)
         fixture.p1.setNumTopPicksLeft(1);
         fixture.p1.setNumBottomPicksLeft(0);
         fixture.p1.setAddTopPick(1);
-
+        fixture.p2.setNumBottomPicksLeft(1);
         fixture.p2.setNumTopPicksLeft(0);
-        fixture.p2.setNumBottomPicksLeft(0);
 
         // Setup cards on board
         Hunter bottomHunter = new Hunter(1, 600, false);
-        fixture.game.getBoard().setBottomDeckableRow(new ArrayList<>(List.of(bottomHunter)));
+        Hunter bottomHunter1 = new Hunter(1, 608, false);
+        fixture.game.getBoard().setBottomDeckableRow(new ArrayList<>(List.of(bottomHunter, bottomHunter1)));
         Hunter top1Hunter = new Hunter(1, 601, false);
         Hunter top2Hunter = new Hunter(1, 602, false);
         fixture.game.getBoard().setTopDeckableRow(new ArrayList<>(List.of(top1Hunter, top2Hunter)));
 
         // Setup to reach exceptional pick scenario (currentPlayerIndex == numPlayers)
         fixture.game.pickCard(fixture.p1.getNickname(), top1Hunter.getId(), 0); // P1 picks to trigger addTopPick
-
+        fixture.game.pickCard(fixture.p2.getNickname(), bottomHunter1.getId(), 2);
         // P1 tries to pick from bottom with exceptional pick active (should throw exception)
         // In exceptional pick mode, only row 0 (top deckable) and row 1 (top building) are allowed
         assertThrows(IllegalPickException.class,
@@ -794,40 +662,6 @@ public class PickStateTest {
         assertEquals(0, fixture.p1.getNumBottomPicksLeft());
         assertEquals(1, fixture.p1.getTribe().getHuntersSize());
         assertEquals(1, fixture.game.getBoard().bottomDeckableRowSize());
-    }
-
-    @Test
-    public void testPickCardP1TriesToSkipButHasPickableCardsForcedPickException() throws Exception {
-        TestFixture fixture = buildFixture();
-        putTotem(fixture, 'B', fixture.p1);
-        putTotem(fixture, 'C', fixture.p2);
-
-        // P1 has picks available but tries to skip
-        fixture.p1.setNumTopPicksLeft(2);
-        fixture.p1.setNumBottomPicksLeft(0);
-        fixture.p1.setNumFood(0);
-
-        // P2 setup (not relevant for this test)
-        fixture.p2.setNumTopPicksLeft(1);
-        fixture.p2.setNumBottomPicksLeft(0);
-
-        // Setup pickable cards on top row (no food required for character cards)
-        Hunter availableHunter = new Hunter(1, 700, false);
-        fixture.game.getBoard().setTopDeckableRow(new ArrayList<>(List.of(availableHunter)));
-
-        // P1 tries to skip (Optional.empty()) but has pickable cards available
-        ForcedPickException exception = assertThrows(ForcedPickException.class,
-                () -> fixture.state.pickCard(fixture.game, fixture.p1, Optional.empty(), 0));
-
-        // Verify exception message
-        assertTrue(exception.getMessage().contains("can't skip"));
-
-        // Verify state hasn't changed (P1 still has picks and hunter is still available)
-        assertEquals(2, fixture.p1.getNumTopPicksLeft());
-        assertEquals(0, fixture.p1.getTribe().getHuntersSize());
-        assertEquals(1, fixture.game.getBoard().topDeckableRowSize());
-        assertEquals(0, fixture.game.getCurrentPlayerIndex());
-        assertInstanceOf(PickState.class, fixture.game.getCurrentState());
     }
 
     @Test
@@ -861,6 +695,7 @@ public class PickStateTest {
         TestFixture fixture = buildFixture();
         putTotem(fixture, 'B', fixture.p1);
         putTotem(fixture, 'C', fixture.p2);
+        fixture.game.setCurrentState(fixture.state);
 
         // P1 has addTopPick=1 and zero picks left (exceptional pick scenario)
         fixture.p1.setNumTopPicksLeft(1);

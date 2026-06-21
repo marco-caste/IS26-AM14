@@ -26,6 +26,7 @@ import static it.polimi.ingsw.am14.utils.Constants.BOTTOM_BUILDING_ROW;
  */
 public class PlayerReconnectedEvent extends ServerEvent {
 
+    // TODO: AGGIUNGERE AGE
     private final int gameId;
     private final int turnOrderCardIndex;
     private final int numPlayers;
@@ -83,7 +84,17 @@ public class PlayerReconnectedEvent extends ServerEvent {
         );
 
         this.playersOrderInTurnOrderCard = board.getTurnOrderCard().getPlayerOrder().stream()
-                .map(Player::getNickname)
+                .map(
+                        (player) -> {
+                            // in the turnOrderCard we admit null values for players that are in the offersPath
+                            // and thus not in the turnOrderCard. In this case we return an empty string for the nickname.
+                            if (player == null) {
+                                return "";
+                            } else {
+                                return player.getNickname();
+                            }
+                        }
+                )
                 .collect(Collectors.toCollection(ArrayList::new));
 
         nicknameToTotemColor = new HashMap<>();
@@ -183,39 +194,39 @@ public class PlayerReconnectedEvent extends ServerEvent {
 
     @Override
     public void effect(ClientModel model) {
-//        model.setMessage(description);
-        if (model.getHomePlayerNickname() == null) {
-            nicknameToTotemColor.forEach((nickname, totemColor) -> {
-                ClientPlayer player = new ClientPlayer(nickname);
-                if (nickname.equals(nicknameToTotemColor.get(nickname))) {
-                    model.setHomePlayer(player);
-                } else {
-                    model.addPlayer(player);
-                }
-                player.setTotemColor(totemColor);
-            });
-            nicknameToNumFood.forEach((nickname, numFood) ->
-                    model.getPlayerByNickname(nickname).setNumFood(numFood));
-            nicknameToNumPrestigePoints.forEach((nickname, numPrestigePoints) ->
-                    model.getPlayerByNickname(nickname).setNumPrestigePoints(numPrestigePoints));
-            nicknameToNumStars.forEach((nickname, numStars) ->
-                    model.getPlayerByNickname(nickname).setNumStars(numStars));
-            nicknameToTotalBuildingDiscount.forEach((nickname, totalBuildingDiscount) ->
-                    model.getPlayerByNickname(nickname).setTotalBuildingDiscount(totalBuildingDiscount));
-            nicknameToTotalGatheringDiscount.forEach((nickname, totalGatheringDiscount) ->
-                    model.getPlayerByNickname(nickname).setTotalGatheringDiscount(totalGatheringDiscount));
-            nicknameToPlayerPosition.forEach(model::updatePlayerPosition);
-            nicknameToPlayerTribe.forEach((nickname, playerTribe) -> {
-                for (int tribeElement : playerTribe) {
-                    model.getPlayerByNickname(nickname).addToPlayerTribe(tribeElement);
-                }
-            });
-            model.setBoard(board);
-            model.setNumPlayers(numPlayers);
-            model.setGameId(gameId);
-            model.setTurnOrderCardIndex(turnOrderCardIndex);
-            model.setPlayerOrderInTurnOrderCard(playersOrderInTurnOrderCard);
-        }
+        // use isEmpty because model.getHomePlayerNickname does not return null values;
+        // in case homePlayer is null, it returns an empty String.
+
+        nicknameToTotemColor.forEach((nickname, totemColor) -> {
+            ClientPlayer player = new ClientPlayer(nickname);
+            if (!nickname.equals(model.getHomePlayerNickname())) {
+                model.addPlayer(player);
+            } else {
+                model.setHomePlayer(player);
+            }
+            player.setTotemColor(totemColor);
+        });
+        nicknameToNumFood.forEach((nickname, numFood) ->
+                model.getPlayerByNickname(nickname).setNumFood(numFood));
+        nicknameToNumPrestigePoints.forEach((nickname, numPrestigePoints) ->
+                model.getPlayerByNickname(nickname).setNumPrestigePoints(numPrestigePoints));
+        nicknameToNumStars.forEach((nickname, numStars) ->
+                model.getPlayerByNickname(nickname).setNumStars(numStars));
+        nicknameToTotalBuildingDiscount.forEach((nickname, totalBuildingDiscount) ->
+                model.getPlayerByNickname(nickname).setTotalBuildingDiscount(totalBuildingDiscount));
+        nicknameToTotalGatheringDiscount.forEach((nickname, totalGatheringDiscount) ->
+                model.getPlayerByNickname(nickname).setTotalGatheringDiscount(totalGatheringDiscount));
+        nicknameToPlayerPosition.forEach(model::updatePlayerPosition);
+        nicknameToPlayerTribe.forEach((nickname, playerTribe) -> {
+            for (int tribeElement : playerTribe) {
+                model.getPlayerByNickname(nickname).addToPlayerTribe(tribeElement);
+            }
+        });
+        model.setBoard(board);
+        model.setNumPlayers(numPlayers);
+        model.setGameId(gameId);
+        model.setTurnOrderCardIndex(turnOrderCardIndex);
+        model.setPlayerOrderInTurnOrderCard(playersOrderInTurnOrderCard);
         model.notifyObservers(new PlayerReconnectedViewEvent(description));
     }
 }

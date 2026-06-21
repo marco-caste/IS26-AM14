@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
+// TODO: SERVE?
 public class EffectConstructor {
     private final Map<String, Supplier<EffectStrategy>> registry = new HashMap<>();
 

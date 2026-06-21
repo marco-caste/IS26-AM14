@@ -13,40 +13,36 @@ import java.util.Map;
 public abstract class EntryPointFactory {
     /**
      * Establishes a connection to the server using the specified connection parameters.
-     * 
+     *
      * @param connectionMode the network protocol to use ("socket" or "rmi")
      * @param serverIP the IP address of the server
      * @param serverPort the port number of the server
      * @param playerNickname the nickname of the player connecting
-     * @param view the caller view (UI)
-     * @return an Object array {VirtualServer, ClientModel}
+     * @return a VirtualServer instance representing the connected server
      * @throws IllegalArgumentException if an invalid connection mode is provided
      * @throws RuntimeException if connection fails
      */
-    public static Object[] connect(String connectionMode, String serverIP, int serverPort, String playerNickname, ViewType view, ClientController controller) {
+    public static VirtualServer connect(String connectionMode, String serverIP, int serverPort, String playerNickname, ClientController controller) {
         switch (connectionMode.toLowerCase()) {
             case "socket" -> {
                 try {
                     // Create and launch Socket client with explicit parameters
-                    Map<VirtualServerSocket, ClientModel> result = SocketClientLauncher.launch(
+                    VirtualServerSocket server = SocketClientLauncher.launch(
                             serverIP,
                             serverPort,
-                            view,
                             controller
                     );
-                    VirtualServerSocket server = result.keySet().iterator().next();
                     server.connectUser(playerNickname);
-                    return new Object[]{server, result.get(server)};
+                    return server;
                 } catch (Exception e) {
                     throw new RuntimeException("Socket connection failed: " + e.getMessage());
                 }
             }
             case "rmi" -> {
                 try {
-                    Map<RmiClient, ClientModel> result = RmiClientLauncher.launch(view, controller);
-                    RmiClient server = result.keySet().iterator().next();
+                    RmiClient server = RmiClientLauncher.launch(controller);
                     server.connect(playerNickname, serverIP, serverPort);
-                    return new Object[]{server, result.get(server)};
+                    return server;
                 } catch (Exception e) {
                     throw new RuntimeException("RMI connection failed: " + e.getMessage());
                 }

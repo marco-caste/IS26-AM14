@@ -19,196 +19,181 @@ public class ClientController {
     private VirtualServer server;
     private long lastPingReceived;
     List<Thread> threads = new ArrayList<>();
+    private final Object dataLock = new Object();
 
     public void pickCard(int cardId) {
         //Model check
         if (server == null) {
-            handleException("You are not connected to a server");
+            handleException("You are not connected to a server.");
             return;
         }
 
         //State check
-        if (!model.checkPickState()) {
-            handleException("You can't pick a card right now");
+        if(!model.checkPickState()) {
+            handleException("You can't pick a card right now.");
             return;
-        }
-
-        //Skip check
-        if (cardId == -1) {
-            try {
-                server.pickCard(model.getHomePlayerNickname(), cardId, 4);
-                return;
-            } catch (Exception e) {
-                handleNetworkError("A network error occurred while skipping the turn");
-                return;
-            }
         }
 
         //cardId check
         if (cardId > 116) {
-            handleException("Invalid card Id");
+            handleException("Invalid card Id.");
             return;
         }
 
         //Not event check
         if (cardId >= 84 && cardId <= 95) {
-            handleException("You can't pick an event card");
+            handleException("You can't pick an event card.");
             return;
         }
 
         //Turn check
         if (!model.checkPickTurn()) {
-            handleException("It's not your turn to pick a card");
+            handleException("It's not your turn to pick a card.");
             return;
         }
 
         //Card check in specific rows
         int row = model.findRowFromCardId(cardId);
         if (!model.checkRow(row)) {
-            handleException("You can't pick this card");
+            handleException("You can't pick this card.");
             return;
         }
 
         try {
             server.pickCard(model.getHomePlayerNickname(), cardId, row);
         } catch (Exception e) {
-            handleNetworkError("A network error occurred while picking the card");
+            handleNetworkError("A network error occurred while picking the card.");
         }
     }
 
     public void placeTotem(char position) {
         //Model check
         if (server == null) {
-            handleException("You are not connected to a server");
+            handleException("You are not connected to a server.");
             return;
         }
 
         //State check
         if (!model.checkPlaceState()) {
-            handleException("You can't place a totem right now");
+            handleException("You can't place a totem right now.");
             return;
         }
 
         //Turn check
         if (!model.checkPlaceTurn()) {
-            handleException("It's not your turn to place a totem");
+            handleException("It's not your turn to place a totem.");
             return;
         }
 
         //Valid position check
         if (!model.checkTotemPosition(position)) {
-            handleException("Invalid position");
+            handleException("Invalid position.");
             return;
         }
 
         try {
             server.placeTotem(model.getHomePlayerNickname(), position);
         } catch (Exception e) {
-            handleNetworkError("A network error occurred while placing the totem");
+            handleNetworkError("A network error occurred while placing the totem.");
         }
     }
 
     public void connect(String connectionMode, String serverIP, int serverPort, String playerNickname, ViewType view) {
-        // Only one connection
-        if (this.server != null) {
-            handleException("You are already connected");
-            return;
-        }
+
+        model = new ClientModel();
+        model.registerObserver(view);
 
         // Validate server port
         if (serverPort <= 0 || serverPort > 65535) {
-            handleException("Invalid port number. Port must be between 1 and 65535");
+            handleException("Invalid port number. Port must be between 1 and 65535.");
             return;
         }
 
         try {
-            Object[] result = EntryPointFactory.connect(
+            server = EntryPointFactory.connect(
                     connectionMode,
                     serverIP,
                     serverPort,
                     playerNickname.toLowerCase(),
-                    view,
                     this
             );
-            this.server = (VirtualServer) result[0];
-            this.model = (ClientModel) result[1];
         } catch (Exception e) {
-            handleNetworkError("A network error occurred while connecting to the server");
+            handleNetworkError("Failed to connect to the server.");
         }
     }
 
     public void disconnect() {
         if (this.server == null) {
-            handleException("You are not connected to a server");
+            handleException("You are not connected to a server.");
             return;
         }
 
         handleNetworkError("Server is not responding. Try to reconnect later. Shutting down connection...");
         this.server = null;
-        //this.model = null;
+        this.model = null;
     }
 
     public void createGame(int numPlayers, String totemColor) {
         //Model check
         if (server == null) {
-            handleException("You are not connected to a server");
+            handleException("You are not connected to a server.");
             return;
         }
 
         //Check if the user is already connected to a game
         if (model.getGameId() >= 0) {
-            handleException("You are already connected to a game");
+            handleException("You are already connected to a game.");
             return;
         }
 
         //Check numPlayers
         if (numPlayers < 2 || numPlayers > 5) {
-            handleException("Invalid number of players");
+            handleException("Invalid number of players.");
             return;
         }
 
         //Check TotemColor
         if (!List.of(TotemColors).contains(totemColor.toLowerCase())) {
-            handleException("Invalid totem color");
+            handleException("Invalid totem color.");
             return;
         }
 
         try {
             server.createGame(model.getHomePlayerNickname(), numPlayers, totemColor);
         } catch (Exception e) {
-            handleNetworkError("A network error occurred while creating the game");
+            handleNetworkError("A network error occurred while creating the game.");
         }
     }
 
     public void joinGame(int gameId, String totemColor) {
         //Model check
         if (server == null) {
-            handleException("You are not connected to a server");
+            handleException("You are not connected to a server.");
             return;
         }
 
         //Check if the user is already connected to a game
         if (model.getGameId() >= 0) {
-            handleException("You are already connected to a game");
+            handleException("You are already connected to a game.");
             return;
         }
 
         //Check TotemColor
         if (!List.of(TotemColors).contains(totemColor.toLowerCase())) {
-            handleException("Invalid totem color");
+            handleException("Invalid totem color.");
             return;
         }
 
         //Check gameId
         if (gameId < 0) {
-            handleException("Invalid game ID");
+            handleException("Invalid game ID.");
             return;
         }
 
         try {
             server.joinGame(model.getHomePlayerNickname(), gameId, totemColor);
         } catch (Exception e) {
-            handleNetworkError("A network error occurred while joining the game");
+            handleNetworkError("A network error occurred while joining the game.");
         }
     }
 
@@ -247,18 +232,23 @@ public class ClientController {
             updateLastPing();
             checkPing();
         } catch (Exception e) {
-            handleNetworkError("A network error occurred while initializing ping");
+            handleNetworkError("A network error occurred while initializing ping.");
         }
     }
 
+    public boolean isConnected() {
+        return server != null;
+    }
+
     public void update(Event event) {
-        event.effect(model);
-        event.onEventProcessed(this);
+        synchronized (dataLock) {
+            event.effect(model);
+            event.onEventProcessed(this);
+        }
     }
 
     private void handleException(String description) {
-        ExceptionViewEvent event = new ExceptionViewEvent(description);
-        model.notifyObservers(event);
+        model.notifyObservers(new ExceptionViewEvent(description));
     }
 
     private void handleNetworkError(String errorMessage) {

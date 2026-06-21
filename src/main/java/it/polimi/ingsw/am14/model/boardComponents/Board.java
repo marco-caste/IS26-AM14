@@ -9,25 +9,79 @@ import it.polimi.ingsw.am14.model.cards.buildings.Building;
 
 import java.util.*;
 
+/**
+ * <p>
+ *     The Board class represents the game board and contains all the components of the game, such as decks and tiles.
+ * </p>
+ */
 public class Board {
+    /**
+     * <p>
+     *     The TurnOrderCard represents the turn order of the players in a game.
+     * </p>
+     */
     private final TurnOrderCard turnOrderCard;
+    /**
+     * <p>
+     *     The OffersPath represents the set of track cards in a game.
+     * </p>
+     */
     private final OffersPath offersPath;
+    /**
+     * <p>
+     *     The TribeDeck represents the deck of tribe cards in a game.
+     * </p>
+     */
     private final TribeDeck tribeDeck;
+    /**
+     * <p>
+     *     The BuildingDeck represents the deck of building cards in a game.
+     * </p>
+     */
     private final BuildingDeck buildingDeck;
+    /**
+     * <p>
+     *     The topDeckableRow represents the row of deckable cards in a game.
+     * </p>
+     */
     private ArrayList<DeckCard> topDeckableRow;
+    /**
+     * <p>
+     *     The topBuildingRow represents the row of building cards in a game.
+     * </p>
+     */
     private ArrayList<Building> topBuildingRow;
+    /**
+     * <p>
+     *     The bottomDeckableRow represents the row of deckable cards in a game.
+     * </p>
+     */
     private ArrayList<DeckCard> bottomDeckableRow;
+    /**
+     * <p>
+     *     The bottomBuildingRow represents the row of building cards in a game.
+     * </p>
+     */
     private ArrayList<Building> bottomBuildingRow;
+    /**
+     * <p>
+     *     The toResolveSustenanceEventRow represents the row of sustenance event cards in a game.
+     * </p>
+     */
     private ArrayList<EventCard> toResolveSustenanceEventRow;
+    /**
+     * <p>
+     *     The toResolveOtherEventsRow represents the row of other event cards in a game.
+     * </p>
+     */
     private ArrayList<EventCard> toResolveOtherEventsRow;
 
-    // overrides the default constructor
 
     /**
      * <p>
-     *     calls the constructors of the other game objects, as well as for the ArrayLists
+     *     Initializes the board with the correct number of players
      * </p>
-     * @param numPlayers between 2 and 5
+     * @param numPlayers the number of players to be in the game, must be between 2 and 5
      */
     public Board(int numPlayers) {
         this.turnOrderCard                  = new TurnOrderCard(numPlayers);
@@ -42,7 +96,21 @@ public class Board {
         this.toResolveSustenanceEventRow    = new ArrayList<>();
     }
 
-    // called in case of a game crash, gets values read from a JSON files (by another method)
+    /**
+     * <p>
+     *     Initializes the board with the correct number of players
+     * </p>
+     * @param turnOrderCard the TurnOrderCard to be used in the game
+     * @param offersPath the OffersPath to be used in the game
+     * @param tribeDeck the TribeDeck to be used in the game
+     * @param buildingDeck the BuildingDeck to be used in the game
+     * @param topDeckableRow the top row of DeckCards to be used in the game
+     * @param topBuildingRow the top row of Buildings to be used in the game
+     * @param bottomDeckableRow the bottom row of DeckCards to be used in the game
+     * @param bottomBuildingRow the bottom row of Buildings to be used in the game
+     * @param toResolveSustenanceEventRow the row of EventCards to be resolved for sustenance
+     * @param toResolveOtherEventsRow the row of EventCards to be resolved for other events
+     */
     @JsonCreator
     public Board(
             @JsonProperty("turnOrderCard") TurnOrderCard turnOrderCard,
@@ -83,7 +151,7 @@ public class Board {
 
     /**
      *
-     * @return a defensive copy of this.topDeckableRow
+     * @return a defensive copy of the top deck cards row
      */
     public ArrayList<DeckCard> getTopDeckableRow() {
         return new ArrayList<>(this.topDeckableRow);
@@ -91,7 +159,7 @@ public class Board {
 
     /**
      *
-     * @return a defensive copy of this.topBuildingRow
+     * @return a defensive copy of the top building cards row
      */
     public ArrayList<Building> getTopBuildingRow() {
         return new ArrayList<>(this.topBuildingRow);
@@ -99,7 +167,7 @@ public class Board {
 
     /**
      *
-     * @return a defensive copy of this.bottomDeckableRow
+     * @return a defensive copy of the bottom deck cards row
      */
     public ArrayList<DeckCard> getBottomDeckableRow() {
         return new ArrayList<>(this.bottomDeckableRow);
@@ -107,7 +175,7 @@ public class Board {
 
     /**
      *
-     * @return a defensive copy of this.bottomBuildingRow
+     * @return a defensive copy of the bottom building cards row
      */
     public ArrayList<Building> getBottomBuildingRow() {
         return new ArrayList<>(this.bottomBuildingRow);
@@ -115,8 +183,8 @@ public class Board {
 
     /**
      *
-     * @param index >= 0
-     * @return the Event at position index
+     * @param index the index of the event, must be >= 0
+     * @return the Event to be resolved, given its position {@code index}
      */
     public EventCard getFromResolveOtherEventsRow(int index) {
         return this.toResolveOtherEventsRow.get(index);
@@ -124,8 +192,8 @@ public class Board {
 
     /**
      *
-     * @param index >= 0
-     * @return the Event at position index
+     * @param index the index of the sustenance event, must be >= 0
+     * @return the Sustenance Event to be resolved, given its position {@code index}
      */
     public EventCard getFromResolveSustenanceEventRow(int index) {
         return this.toResolveSustenanceEventRow.get(index);
@@ -133,14 +201,14 @@ public class Board {
 
     /**
      *
-     * @return the last Event
+     * @return the last Event to be resolved
      */
     @JsonIgnore
     public EventCard getLastOtherEvent() {
         return this.toResolveOtherEventsRow.getLast();
     }
 
-    // SETTERS - TODO: da capire se necessari per il reload della partita dopo un crash
+    // SETTERS
     public void setBottomBuildingRow(ArrayList<Building> bottomBuildingRow) {
         this.bottomBuildingRow = bottomBuildingRow;
     }
@@ -153,20 +221,14 @@ public class Board {
     public void setTopDeckableRow(ArrayList<DeckCard> topDeckableRow) {
         this.topDeckableRow = topDeckableRow;
     }
-    public void setToResolveOtherEventsRow(ArrayList<EventCard> toResolveOtherEventsRow) {
-        this.toResolveOtherEventsRow = toResolveOtherEventsRow;
-    }
-    public void setToResolveSustenanceEventRow(ArrayList<EventCard> toResolveSustenanceEventRow) {
-        this.toResolveSustenanceEventRow = toResolveSustenanceEventRow;
-    }
 
     // REMOVERS
 
     /**
      * <p>
-     *     removes card from this.topBuildingRow
+     *     removes {@code card} from the top building row
      * </p>
-     * @param card not null
+     * @param card the card to be removed, must not be null
      */
     public void removeFromTopBuildingRow(Card card) {
         this.topBuildingRow.remove((Building) card);
@@ -174,9 +236,9 @@ public class Board {
 
     /**
      * <p>
-     *     removes card from this.topDeckableRow
+     *     removes {@code card} from the top deckable row
      * </p>
-     * @param card not null
+     * @param card the card to be removed, must not be null
      */
     public void removeFromTopDeckableRow(Card card) {
         this.topDeckableRow.remove((DeckCard) card);
@@ -184,9 +246,9 @@ public class Board {
 
     /**
      * <p>
-     *     removes card from this.bottomBuildingRow
+     *     removes {@code card} from the bottom building row
      * </p>
-     * @param card not null
+     * @param card the card to be removed, must not be null
      */
     public void removeFromBottomBuildingRow(Card card) {
         this.bottomBuildingRow.remove((Building) card);
@@ -194,9 +256,9 @@ public class Board {
 
     /**
      * <p>
-     *     removes card from this.bottomDeckableRow
+     *     removes {@code card} from the bottom deckable row
      * </p>
-     * @param card not null
+     * @param card the card to be removed, must not be null
      */
     public void removeFromBottomDeckableRow(Card card) {
         this.bottomDeckableRow.remove((DeckCard) card);
@@ -204,9 +266,9 @@ public class Board {
 
     /**
      * <p>
-     *     overload of removeFromBottomDeckableRow
+     *     overload of removeFromBottomDeckableRow, removes a card from the bottom deckable row given its index
      * </p>
-     * @param cardIndex >= 0
+     * @param cardIndex the index of the card to be removed, must be >= 0
      */
     public void removeFromBottomDeckableRow(int cardIndex) {
         this.bottomDeckableRow.remove(cardIndex);
@@ -214,7 +276,7 @@ public class Board {
 
     /**
      * <p>
-     *     removes the last Event in this.toResolveOtherEventsRow
+     *     removes the last Event in the list of events to be resolved.
      * </p>
      */
     public void removeLastOtherEvent() {
@@ -225,7 +287,7 @@ public class Board {
 
     /**
      * <p>
-     *     adds event to this.toResolveOtherEventsRow
+     *     adds {@code event} to the list of events to be resolved
      * </p>
      * @param event not null
      */
@@ -235,7 +297,7 @@ public class Board {
 
     /**
      * <p>
-     *     adds event to this.toResolveSustenanceEventRow
+     *     adds {@code event} to the list of sustenance events to be resolved
      * </p>
      * @param event not null
      */
@@ -245,7 +307,7 @@ public class Board {
 
     /**
      * <p>
-     *     adds card to this.bottomDeckableRow
+     *     adds {@code card} to the bottom deck cards row
      * </p>
      * @param card not null
      */
@@ -255,7 +317,7 @@ public class Board {
 
     /**
      * <p>
-     *     adds card to this.topDeckableRow
+     *     adds {@code card} to the top deck cards row
      * </p>
      * @param card not null
      */
@@ -265,7 +327,7 @@ public class Board {
 
     /**
      * <p>
-     *     adds building to this.topBuildingRow
+     *     adds {@code building} to the top building cards row
      * </p>
      * @param building not null
      */
@@ -274,35 +336,15 @@ public class Board {
     }
 
     // SIZERS
-
-    /**
-     *
-     * @return this.topDeckableRow.size()
-     */
     public int topDeckableRowSize() {
         return this.topDeckableRow.size();
     }
-
-    /**
-     *
-     * @return this.toResolveOtherEventsRow.size()
-     */
     public int toResolveOtherEventsRowSize() {
         return this.toResolveOtherEventsRow.size();
     }
-
-    /**
-     *
-     * @return this.toResolveSustenanceEventRow.size()
-     */
     public int toResolveSustenanceEventsRowSize() {
         return this.toResolveSustenanceEventRow.size();
     }
-
-    /**
-     *
-     * @return this.bottomDeckableRow.size()
-     */
     public int bottomDeckableRowSize() {
         return this.bottomDeckableRow.size();
     }
@@ -313,8 +355,7 @@ public class Board {
 
     /**
      * <p>
-     *     moves the elements of this.topDeckableRow to this.bottomDeckableRow
-     *     resets this.topDeckableRow
+     *     moves the cards from the top deck cards row to the bottom deck cards row and resets the top deck cards row
      * </p>
      */
     public void switchDeckablesFromTop() {
@@ -325,8 +366,7 @@ public class Board {
 
     /**
      * <p>
-     *     moves the elements of this.topBuildingRow to this.bottomDeckableRow
-     *     resets this.topBuildingRow
+     *     moves the buildings from the top building cards row to the bottom building cards row and resets the top building cards row
      * </p>
      */
     public void switchBuildingsFromTop() {
@@ -336,10 +376,7 @@ public class Board {
     // iterates on the bottom row and for each card calls card.discard()
 
     /**
-     * <p>
-     *     uses polymorphism to discard cards from this.bottomDeckableRow
-     *     and sorts the event temporary rows by age (descending)
-     * </p>
+     * puts events in two separate lists, according to their type, in order for them to be resolved, and discards cards from the bottom deck cards row
      */
     public void idleEventsAndDiscardCharactersFromBottom() {
         int initialSize = this.bottomDeckableRow.size();
@@ -354,7 +391,7 @@ public class Board {
 
     /**
      * <p>
-     *     resets this.bottomBuildingRow
+     *     removes buildings from the bottom building cards row.
      * </p>
      */
     public void discardBuildingFromBottom() {
@@ -376,26 +413,34 @@ public class Board {
 
     /**
      * <p>
-     *     fills the deckableTopRow with numPlayers + 4 cards
+     *     fills the top deck cards row with {@code numPlayers} + 4 cards
      * </p>
-     * @param numPlayers between 2 and 4
+     * @param numPlayers the number of players in the game, between 2 and 5
      */
+
     public void pickDeckableAndAddToTop(int numPlayers) {
-        for (int i = 0; i < numPlayers + 4; i++) {
+        for (int i = 0; i < numPlayers + 4 ; i++) {
             this.topDeckableRow.add(this.tribeDeck.deckPop());
         }
     }
 
     /**
      * <p>
-     *     refills this.topBuildingRow with the buildings from buildingDeck, of the current age
+     *     refills the top building cards row from the building deck, accordingly to the current age
      * </p>
-     * @param currentAge between 1 and 3
+     * @param currentAge the current age of thegame, must be between 1 and 3
      */
     public void pickBuildingAndAddToTop(int currentAge) {
         this.topBuildingRow.addAll(buildingDeck.getBuildings(currentAge));
     }
 
+    /**
+     * <p>
+     *     finds the position of a player in the offers path, given its nickname
+     * </p>
+     * @param nickname the nickname of the player to be found, must not be null
+     * @return an Optional containing the position of the player in the offers path, or an empty Optional if the player is not found
+     */
     public Optional<Character> findPlayerPosition(String nickname) {
         return this.offersPath.findPlayerPosition(nickname);
     }

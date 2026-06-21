@@ -13,7 +13,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-
+/**
+ * <p>
+ *     Represents the state of the game when it has ended. This state is responsible for handling the end of the game, including calculating final scores and notifying observers with the end game event.
+ * </p>
+ */
 class EndGameState extends GameState {
 
     // TODO: of unknown necessity
@@ -21,12 +25,7 @@ class EndGameState extends GameState {
     protected void nextState(Game context) {}
 
     /**
-     * <p>
-     *     calculates the final ranking of each player, according to the rules
-     *     - solves all the events on the board (both top and bottom rows)
-     *     - for each player, calculates the prestige points according to the rules
-     *     - sorts the players in a final list
-     * </p>
+     * Overrides the endRound method to handle the end of the game, calculating final scores and notifying observers with the end game event.
      * @param context not null
      */
     @Override

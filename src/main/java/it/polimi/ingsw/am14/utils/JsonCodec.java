@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 
 public class JsonCodec implements Codec {
     /**
+     * {@inheritDoc}
      * @param filePath not null, path of the file where the save data is stored
      * @return the saved Game object
      */
@@ -33,13 +34,31 @@ public class JsonCodec implements Codec {
         try {
             return objectMapper.readValue(new File(filePath), new TypeReference<LobbyController>(){});
         } catch (IOException e) {
+            System.out.println(e.getMessage());
             throw new RuntimeException("[JsonCodec] Failed to read save data from file: " + filePath);
+
         }
     }
 
     /**
-     * @param controller    not null, the Game object to be saved
-     * @param filePath      not null, path of the file where the save data will be stored
+     * {@inheritDoc}
+     * @param filePath not null, path of the file where the card descriptions data is stored
+     * @return a map of card descriptions read from the specified file path, where the keys are the card IDs and the values are the corresponding descriptions
+     */
+    @Override
+    public Map<Integer, String> readCardDescriptions(String filePath) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            return objectMapper.readValue(new File(filePath), new TypeReference<Map<Integer, String>>(){});
+        } catch (IOException e) {
+            throw new RuntimeException("[JsonCodec] Failed to read card descriptions from file: " + filePath);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     * @param controller the Game object to be saved
+     * @param filePath the path of the file where the save data will be stored
      */
     @Override
     public void writeSaveData(LobbyController controller, String filePath) {
@@ -51,12 +70,13 @@ public class JsonCodec implements Codec {
         try {
             objectMapper.writeValue(new File(filePath), controller);
         } catch (IOException e) {
-            throw new RuntimeException("[JsonCodec] Failed to write save data to file: " + filePath + ": " + e.getMessage());
+            throw new RuntimeException("[JsonCodec] Failed to write save data to file: " + filePath);
         }
     }
 
     /**
-     * @param input not null, the string to be parsed into a ClientRequest
+     * {@inheritDoc}
+     * @param input the string to be parsed into a ClientRequest
      * @return the ClientRequest object represented by the input string
      */
     @Override
@@ -72,7 +92,8 @@ public class JsonCodec implements Codec {
     }
 
     /**
-     * @param request not null, the ClientRequest object to be serialized
+     * {@inheritDoc}
+     * @param request the ClientRequest object to be serialized
      * @return a string representation of the ClientRequest object
      */
     @Override
@@ -88,7 +109,8 @@ public class JsonCodec implements Codec {
     }
 
     /**
-     * @param input not null, the string to be parsed into an Event
+     * {@inheritDoc}
+     * @param input the string to be parsed into an Event
      * @return the Event object represented by the input string
      */
     @Override
@@ -104,7 +126,8 @@ public class JsonCodec implements Codec {
     }
 
     /**
-     * @param event not null, the Event object to be serialized
+     * {@inheritDoc}
+     * @param event the Event object to be serialized
      * @return a string representation of the Event object
      */
     @Override
@@ -120,11 +143,8 @@ public class JsonCodec implements Codec {
     }
 
     /**
-     * <p>
-     * reads the deck cards from the specified file path and builds a list of DeckCards
-     * </p>
-     *
-     * @param filePath   not null, path of the file where the deck cards data is stored
+     * {@inheritDoc}
+     * @param filePath the path of the file where the deck cards data is stored
      * @param numPlayers the initial number of players in the game, used to determine which cards to read from the file
      * @return a list of DeckCard objects read from the specified file path, sorted by number of players
      */
@@ -143,11 +163,8 @@ public class JsonCodec implements Codec {
     }
 
     /**
-     * <p>
-     * reads the building cards from the specified file path and builds a list of Building objects
-     * </p>
-     *
-     * @param filePath not null, path of the file where the building cards data is stored
+     * {@inheritDoc}
+     * @param filePath the path of the file where the building cards data is stored
      * @return a list of Building objects read from the specified file path, sorted by age
      */
     @Override
@@ -167,12 +184,8 @@ public class JsonCodec implements Codec {
     }
 
     /**
-     * <p>
-     * reads the track cards from the specified file path and builds a map of TrackCard objects,
-     * where the keys are the track card names and the values are the corresponding TrackCard objects
-     * </p>
-     *
-     * @param filePath   not null, path of the file where the track cards data is stored
+     * {@inheritDoc}
+     * @param filePath the path of the file where the track cards data is stored
      * @param numPlayers the initial number of players in the game, used to determine which track cards to read from the file
      * @return a map of TrackCard objects read from the specified file path, where the keys are the TrackCard names
      */

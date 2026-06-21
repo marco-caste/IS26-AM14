@@ -30,7 +30,8 @@ class PickState extends GameState {
 
         // In questo progetto `null` equivale a skip: lo normalizziamo a Optional vuoto.
         TotemSlot currentSlot = findFirstPlayerTotemOnOffersPath(context);
-        Player currentPlayer = currentSlot == null ? null : currentSlot.getPlayer();
+        System.out.println("Current slot: " + currentSlot);
+        Player currentPlayer = (currentSlot == null ? null : currentSlot.getPlayer());
         wasAdditionalTopPick = false;
 
         // exceptional pick due to additional pick building. This check is needed and is put first bacause the player with the additional top pick is not present
@@ -39,6 +40,12 @@ class PickState extends GameState {
             handleExceptionalPick(selectedCard, row, context, player);
             return;
         }
+
+        System.out.println("Current player: " + currentPlayer.getNickname());
+        System.out.println("Player trying to pick: " + player.getNickname());
+        System.out.println("Current player index: " + context.getCurrentPlayerIndex());
+        System.out.println("Card : " + selectedCard);
+        System.out.println(context.getNumPlayers());
 
         // it's not player's turn
         if (!player.equals(currentPlayer) && context.getCurrentPlayerIndex() != context.getNumPlayers()) {
@@ -170,8 +177,8 @@ class PickState extends GameState {
 
     @Override
     protected void nextState(Game context) throws SQLException, IllegalPickException, ForcedPickException {
-            context.setCurrentState(new ControlState());
-            context.getCurrentState().controlPick(context,wasAdditionalTopPick, selectedCard, row);
+        context.setCurrentState(new ControlState());
+        context.getCurrentState().controlPick(context,wasAdditionalTopPick, selectedCard, row);
     }
 
     @Override

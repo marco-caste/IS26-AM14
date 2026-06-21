@@ -78,7 +78,7 @@ public class EndRoundEvent extends UpdateEvent {
         }
 
         this.description = "End of round, the board has been updated";
-        this.currentAge = currentAge; // TODO: verifica come si comporta con json
+        this.currentAge = currentAge;
 
     }
 

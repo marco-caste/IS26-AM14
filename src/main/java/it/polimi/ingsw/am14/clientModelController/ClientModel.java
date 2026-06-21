@@ -12,9 +12,6 @@ import static it.polimi.ingsw.am14.utils.Constants.*;
 
 public class ClientModel {
 
-    //TODO: conviene aggiungere un array di tutti i clientPlayers in modo ogni volta nella gui di fare una add dell'homePlayer a otherPlayers per avere un array di tutti i player
-    //TODO: fatti questi aggiornamenti cambiare la gui
-
     private static final Map<Integer, List<Character>> offersPath = Map.of(
             2, List.of('B','C','E','F'),
             3, List.of('B','C','D','E','F'),
@@ -65,6 +62,10 @@ public class ClientModel {
 
 
     //GETTERS
+    public int getTurnOrderCardIndex() {
+        return turnOrderCardIndex;
+    }
+
     public ClientPlayer getPlayerByNickname(String nickname) {
         if (homePlayer != null && homePlayer.getNickname().equals(nickname)) {
             return homePlayer;
@@ -74,7 +75,6 @@ public class ClientModel {
                 return player;
             }
         }
-        // se nickname != homeplayer o otherPlayers è vuota
         return null;
     }
 
@@ -103,7 +103,9 @@ public class ClientModel {
     }
 
     public String getHomePlayerNickname(){
-        return this.homePlayer.getNickname();
+        return (this.homePlayer == null) ?
+                "" : this.homePlayer.getNickname();
+
     }
 
     public ArrayList<ClientPlayer> getOtherPlayers() {
@@ -156,6 +158,9 @@ public class ClientModel {
         return getPlayerPosition(homePlayer.getNickname());
     }
 
+    public ClientState getClientState(){
+        return this.state;
+    }
 
     //SETTERS
     public void setMessage(String message) {
@@ -163,7 +168,8 @@ public class ClientModel {
     }
 
     public void setPlayerOrderInTurnOrderCard(ArrayList<String> playerOrderInTurnOrderCard) {
-        this.playerOrderInTurnOrderCard = playerOrderInTurnOrderCard;
+            this.playerOrderInTurnOrderCard = playerOrderInTurnOrderCard;
+            System.out.println("Player order in turn order card updated: " + playerOrderInTurnOrderCard);
     }
 
     public void setTurnOrderCardIndex(int turnOrderCardIndex) {
@@ -199,6 +205,7 @@ public class ClientModel {
 
     public void checkAndEventuallySetPickState() {
         for (String nickname : playerOrderInTurnOrderCard) {
+            System.out.println(playerOrderInTurnOrderCard);
             if (nickname != null) return;
         }
         this.state = ClientState.PICK;
@@ -240,6 +247,8 @@ public class ClientModel {
                 positionToNickname.put(playerPosition, nickname);
             }
         }
+        else
+            positionToNickname.put(playerPosition, nickname);
     }
 
     public void updatePlayerFood(String nickname, int numFood) {
@@ -300,6 +309,7 @@ public class ClientModel {
     //Methods used by controller
 
     public boolean checkPickTurn() {
+        if (playerOrderInTurnOrderCard.size() == numPlayers) return true;
         Character homePlayerPosition = getHomePlayerPosition();
 
         if (homePlayerPosition == null || homePlayerPosition == 'A') {
@@ -324,10 +334,12 @@ public class ClientModel {
     }
 
     public boolean checkRow(int row) {
-        if (row < 0) {
-            return false;
-        }
         Character position = getHomePlayerPosition();
+
+        //AddTopPick Case
+        if (position == null) {
+            return row == TOP_BUILDING_ROW || row == TOP_DECKABLE_ROW;
+        }
 
         //In these track card you can pick only from top
         if ((position == 'C' || position == 'F') && (row == BOTTOM_DECKABLE_ROW || row == BOTTOM_BUILDING_ROW)) {
@@ -347,6 +359,7 @@ public class ClientModel {
         }
         return false;
     }
+
 
     public boolean checkTotemPosition(char position) {
         List<Character> validPositions = offersPath.get(numPlayers);

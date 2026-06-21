@@ -222,10 +222,20 @@ public class Tribe {
         return builders.size();
     }
 
+    /**
+     *
+     * @return this.buildings.size(), the number of buildings in this Tribe
+     */
     public int getBuildingsSize() {
         return buildings.size();
     }
 
+    /**
+     * <p>
+     *     Returns an array of all the ids of the cards in this Tribe, in the order: hunters, inventors, shamans, gatherers, artists, builders and buildings.
+     * </p>
+     * @return an array of all the ids of the cards in this Tribe
+     */
     public int[] getAllIds() {
         int[] ids = new int[getHuntersSize() + getInventorsSize() +
                 getShamansSize() + getGatherersSize() + getArtistsSize() + getBuildersSize() +  getBuildingsSize()];
