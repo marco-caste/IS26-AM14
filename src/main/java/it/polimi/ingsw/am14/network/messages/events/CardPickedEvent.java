@@ -12,6 +12,13 @@ import java.util.ArrayList;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+/**
+ * Event representing a card being picked by a player during the game.
+ * Inherits from {@link UpdateEvent}.
+ * It contains the necessary information to update the client-side model,
+ * including new player stats, board state, and turn order if the pick phase ends.
+ */
+
 public class CardPickedEvent extends UpdateEvent {
 
     private final String playerNickname;
@@ -27,6 +34,22 @@ public class CardPickedEvent extends UpdateEvent {
     private int gameId; // only used for bufferization, will not be sent to the client
 
     // called by the model
+    /**
+     * Constructs a {@code CardPickedEvent} triggered by the server model.
+     *
+     * @param playerNickname          the nickname of the player who picked the card.
+     * @param card                    the {@link Card} that was picked, or null if starting the pick phase.
+     * @param row                     the row index from which the card was picked.
+     * @param playerFood              the updated food amount of the player.
+     * @param playerPrestigePoints    the updated prestige points of the player.
+     * @param updatedTurnOrderCard    an {@link Optional} containing the updated turn order, if changed.
+     * @param gameId                  the ID of the game this event belongs to.
+     * @param playerBuildingDiscount  the updated building discount of the player.
+     * @param playerGatheringDiscount the updated gathering discount of the player.
+     * @param playerNumStars          the updated number of stars for the player.
+     * @param wasLastPick             true if this was the last pick for the current player.
+     */
+
     public CardPickedEvent(String playerNickname, Card card, int row, int playerFood, int playerPrestigePoints, Optional<ArrayList<Player>> updatedTurnOrderCard, int gameId, int playerBuildingDiscount, int playerGatheringDiscount, int playerNumStars, boolean wasLastPick) {
         super("");
         int ID = card == null ? -1 : card.getId();
@@ -68,6 +91,22 @@ public class CardPickedEvent extends UpdateEvent {
     }
 
     // called by the JSON parser
+    /**
+     * Constructs a {@code CardPickedEvent} from JSON data, used by Jackson upon receiving a message.
+     *
+     * @param playerNickname          the nickname of the player who picked the card.
+     * @param cardID                  the ID of the picked card.
+     * @param row                     the row index from which the card was picked.
+     * @param playerFood              the updated food amount of the player.
+     * @param playerPrestigePoints    the updated prestige points of the player.
+     * @param updatedTurnOrderCard    the updated turn order list of player nicknames.
+     * @param description             the description of the event.
+     * @param playerBuildingDiscount  the updated building discount of the player.
+     * @param playerGatheringDiscount the updated gathering discount of the player.
+     * @param playerNumStars          the updated number of stars for the player.
+     * @param wasLastPick             true if this was the last pick for the current player.
+     */
+
     @JsonCreator
     public CardPickedEvent(
             @JsonProperty("nickname") String playerNickname,
@@ -95,6 +134,12 @@ public class CardPickedEvent extends UpdateEvent {
         this.playerBuildingDiscount = playerBuildingDiscount;
     }
 
+    /**
+     * Bufferizes the event into the network layer to be broadcasted to all connected clients.
+     *
+     * @param networkLayer the network layer used to broadcast the event.
+     */
+
     @Override
     public void bufferize(NetworkLayer networkLayer) {
         networkLayer.broadcastUpdate(this, gameId);
@@ -102,6 +147,12 @@ public class CardPickedEvent extends UpdateEvent {
 
 
     // method effect to update the client model
+    /**
+     * Applies the effect of this event to the provided client model, updating the local state
+     * and notifying the view observers.
+     *
+     * @param model the {@link ClientModel} representing the client-side state of the game.
+     */
 
     @Override
     public void effect(ClientModel model) {

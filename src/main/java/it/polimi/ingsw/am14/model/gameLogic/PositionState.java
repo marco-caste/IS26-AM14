@@ -73,9 +73,9 @@ class PositionState extends GameState {
             first = foodTrackCard.getPlayerTotem();
 
             if(first != null){
-                firstNickname = first.getNickname();
-                isThereFirstFood = true;
                 foodTrackCard.setPlayerTotem(null);
+                isThereFirstFood = true;
+                firstNickname = first.getNickname();
             }
 
         }

@@ -17,6 +17,13 @@ import java.util.stream.Collectors;
 
 import static it.polimi.ingsw.am14.utils.Constants.*;
 
+/**
+ * Event representing a player joining a game.
+ * Inherits from {@link ServerEvent}.
+ * It contains the ID of the game, the player's information, the initial board state,
+ * and information about the other players already in the game.
+ */
+
 public class JoinedGameEvent extends ServerEvent {
     private final String playerNickname;
     private final String totemColor;
@@ -25,6 +32,16 @@ public class JoinedGameEvent extends ServerEvent {
     private final int numPlayers;
     private final ArrayList<ArrayList<Integer>> board;
     private final Map<String, String> otherPlayersInfo; // nickname -> totemColor
+
+    /**
+     * Constructs a {@code JoinedGameEvent} triggered by the server model when a player joins the game.
+     *
+     * @param player       the {@link Player} who has just joined.
+     * @param players      the list of all {@link Player} objects currently in the game.
+     * @param gameId       the unique ID of the game.
+     * @param initialBoard the initial state of the {@link Board}.
+     * @param numPlayers   the total number of players expected in the game.
+     */
 
     public JoinedGameEvent(Player player, List<Player> players, int gameId, final Board initialBoard, int numPlayers) {
         super("Player \"" + player.getNickname() + "\" has joined game id: " + gameId + ".");
@@ -63,6 +80,19 @@ public class JoinedGameEvent extends ServerEvent {
                 .collect(Collectors.toMap(Player::getNickname, p -> p.getTotemColor().toString()));
     }
 
+    /**
+     * Constructs a {@code JoinedGameEvent} from JSON data, used by Jackson upon receiving a message.
+     *
+     * @param description        the description of the event.
+     * @param gameId             the unique ID of the game.
+     * @param turnOrderCardIndex the index of the turn order card based on the number of players.
+     * @param numPlayers         the total number of players in the game.
+     * @param playerNickname     the nickname of the player who joined.
+     * @param totemColor         the chosen totem color of the player.
+     * @param board              the initial configuration of the board.
+     * @param otherPlayersInfo   a map of the other players' nicknames and their corresponding totem colors.
+     */
+
     @JsonCreator
     public JoinedGameEvent(
             @JsonProperty("description") String description,
@@ -83,6 +113,14 @@ public class JoinedGameEvent extends ServerEvent {
         this.otherPlayersInfo = otherPlayersInfo;
     }
 
+
+    /**
+     * Applies the effect of this event to the provided client model.
+     * Initializes the client board if the event receiver is the newly joined player,
+     * otherwise adds the new player to the game state.
+     *
+     * @param model the {@link ClientModel} representing the client-side state of the game.
+     */
 
     @Override
     public void effect(ClientModel model) {
@@ -116,6 +154,13 @@ public class JoinedGameEvent extends ServerEvent {
     Quando un giocatore si unisce alla partita, il server invia un JoinedGameEvent a tutti i giocatori già presenti nella partita.
     Se il giocatore destinatario è il giocatore che si è appena unito, inizializza clientBoard
     altrimenti, aggiunge un nuovo nickName alla lista dei giocatori e inizializza i suoi attributi (numFood, numPrestigePoints) a 0.
+     */
+
+    /**
+     * Bufferizes the event into the network layer to be sent to the newly joined player
+     * and broadcasted to all other connected clients in the game.
+     *
+     * @param network the network layer used to broadcast the event.
      */
 
     @Override

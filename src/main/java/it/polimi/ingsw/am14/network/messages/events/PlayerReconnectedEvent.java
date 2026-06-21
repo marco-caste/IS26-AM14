@@ -18,7 +18,12 @@ import java.util.stream.Collectors;
 
 import static it.polimi.ingsw.am14.utils.Constants.*;
 import static it.polimi.ingsw.am14.utils.Constants.BOTTOM_BUILDING_ROW;
-
+/**
+ * Event representing a player successfully reconnecting to an ongoing game.
+ * Inherits from {@link ServerEvent}.
+ * It contains the full state of the game, including the board configuration,
+ * player attributes, and their positions, in order to synchronize the reconnected client.
+ */
 public class PlayerReconnectedEvent extends ServerEvent {
 
     private final int gameId;
@@ -35,6 +40,16 @@ public class PlayerReconnectedEvent extends ServerEvent {
     private final Map<String, Character> nicknameToPlayerPosition;
     private final ArrayList<String> playersOrderInTurnOrderCard;
     private final Map<String, int []> nicknameToPlayerTribe;
+
+    /**
+     * Constructs a {@code PlayerReconnectedEvent} triggered by the server model when a player reconnects.
+     *
+     * @param playerNickname the nickname of the reconnected player.
+     * @param gameId         the unique ID of the game the player reconnected to.
+     * @param board          the current state of the game {@link Board}.
+     * @param numPlayers     the total number of players in the game.
+     * @param players        the list of {@link Player} instances currently in the game.
+     */
 
     public PlayerReconnectedEvent(String playerNickname, int gameId, Board board, int numPlayers, List<Player> players) {
         super("Player \"" + playerNickname + "\" has re-established their connection to game [" + gameId + "].");
@@ -102,6 +117,26 @@ public class PlayerReconnectedEvent extends ServerEvent {
         });
     }
 
+    /**
+     * Constructs a {@code PlayerReconnectedEvent} from JSON data, used by Jackson upon receiving a message.
+     *
+     * @param description                      the description of the event.
+     * @param gameId                           the unique ID of the game.
+     * @param turnOrderCardIndex               the index of the turn order card based on the number of players.
+     * @param numPlayers                       the total number of players in the game.
+     * @param playerNickname                   the nickname of the reconnected player.
+     * @param board                            the current state of the board.
+     * @param nicknameToTotemColor             mapping of nicknames to their chosen totem colors.
+     * @param nicknameToNumFood                mapping of nicknames to their current food amounts.
+     * @param nicknameToNumPrestigePoints      mapping of nicknames to their current prestige points.
+     * @param nicknameToNumStars               mapping of nicknames to their current stars.
+     * @param nicknameToTotalBuildingDiscount  mapping of nicknames to their building discount.
+     * @param nicknameToTotalGatheringDiscount mapping of nicknames to their gathering discount.
+     * @param nicknameToPlayerPosition         mapping of nicknames to their current positions on the board.
+     * @param playersOrderInTurnOrderCard      the turn order of the players.
+     * @param nicknameToPlayerTribe            mapping of nicknames to their built tribe cards IDs.
+     */
+
     @JsonCreator
     public PlayerReconnectedEvent(
             @JsonProperty("description") String description,
@@ -136,10 +171,25 @@ public class PlayerReconnectedEvent extends ServerEvent {
         this.nicknameToPlayerTribe = nicknameToPlayerTribe;
     }
 
+    /**
+     * Bufferizes the event into the network layer to be sent exclusively
+     * to the player who just reconnected.
+     *
+     * @param network the network layer used to buffer the event for the specific client.
+     */
+
     @Override
     public void bufferize(NetworkLayer network) {
         network.addToEventBuffer(network.getClientBy(playerNickname), this);
     }
+
+    /**
+     * Applies the effect of this event to the provided client model, completely restoring
+     * the game state (players, board, points, resources, tribe cards) for the reconnected client
+     * and notifying the view observers.
+     *
+     * @param model the {@link ClientModel} representing the client-side state of the game.
+     */
 
     @Override
     public void effect(ClientModel model) {
