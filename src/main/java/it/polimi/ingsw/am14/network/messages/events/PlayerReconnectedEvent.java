@@ -193,9 +193,6 @@ public class PlayerReconnectedEvent extends ServerEvent {
 
     @Override
     public void effect(ClientModel model) {
-        // use isEmpty because model.getHomePlayerNickname does not return null values;
-        // in case homePlayer is null, it returns an empty String.
-
         nicknameToTotemColor.forEach((nickname, totemColor) -> {
             ClientPlayer player = new ClientPlayer(nickname);
             if (!nickname.equals(model.getHomePlayerNickname())) {

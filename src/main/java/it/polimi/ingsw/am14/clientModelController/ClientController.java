@@ -197,7 +197,9 @@ public class ClientController {
     }
 
     public void updateLastPing() {
-        lastPingReceived = System.currentTimeMillis();
+        synchronized (dataLock) {
+            lastPingReceived = System.currentTimeMillis();
+        }
     }
 
     public void checkPing(){
@@ -206,12 +208,14 @@ public class ClientController {
                 while (!Thread.currentThread().isInterrupted()) {
                     Thread.sleep(PING_TIMEOUT);
                     long now = System.currentTimeMillis();
-                    if (now - lastPingReceived > PING_TIMEOUT) {
-                        disconnect();
-                        threads.forEach(Thread::interrupt);
-                        threads = new ArrayList<>();
-                        Thread.currentThread().interrupt();
-                        break;
+                    synchronized (dataLock) {
+                        if (now - lastPingReceived > PING_TIMEOUT) {
+                            disconnect();
+                            threads.forEach(Thread::interrupt);
+                            threads = new ArrayList<>();
+                            Thread.currentThread().interrupt();
+                            break;
+                        }
                     }
                 }
             } catch (InterruptedException e) {
@@ -241,6 +245,7 @@ public class ClientController {
 
     public void update(Event event) {
         synchronized (dataLock) {
+            System.out.println("Update: " + event.getDescription());
             event.effect(model);
             event.onEventProcessed(this);
         }

@@ -158,10 +158,6 @@ public class ClientModel {
         return getPlayerPosition(homePlayer.getNickname());
     }
 
-    public ClientState getClientState(){
-        return this.state;
-    }
-
     //SETTERS
     public void setMessage(String message) {
         this.message = message;
@@ -346,10 +342,7 @@ public class ClientModel {
             return false;
         }
         //In these track card you can pick only from the bottom
-        if ((position == 'B' || position == 'D') && (row == TOP_BUILDING_ROW || row == TOP_DECKABLE_ROW)) {
-            return false;
-        }
-        return true;
+        return (position != 'B' && position != 'D') || (row != TOP_BUILDING_ROW && row != TOP_DECKABLE_ROW);
     }
 
     public boolean checkPlaceTurn() {
@@ -366,10 +359,7 @@ public class ClientModel {
         if (!validPositions.contains(position)) {
             return false;
         }
-        if (positionToNickname.containsKey(position)) {
-            return false;
-        }
-        return true;
+        return !positionToNickname.containsKey(position);
     }
 
 
