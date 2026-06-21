@@ -26,9 +26,9 @@ import static it.polimi.ingsw.am14.utils.Constants.*;
  */
 class PickState extends GameState {
 
-    boolean wasAdditionalTopPick ;
-    Card selectedCard;
-    int row;
+    private boolean wasAdditionalTopPick ;
+    private Card selectedCard;
+    private int row;
 
     // TODO: dobbiamo andare a togliere l'optional per card in quanto non più necessario. Se lo tolgo qui ho un errore nel clientController
     /**
@@ -71,11 +71,6 @@ class PickState extends GameState {
             return;
         }
 
-        System.out.println("Current player: " + currentPlayer.getNickname());
-        System.out.println("Player trying to pick: " + player.getNickname());
-        System.out.println("Current player index: " + context.getCurrentPlayerIndex());
-        System.out.println("Card : " + selectedCard);
-        System.out.println(context.getNumPlayers());
 
         // it's not player's turn
         if (!player.equals(currentPlayer) && context.getCurrentPlayerIndex() != context.getNumPlayers()) {
