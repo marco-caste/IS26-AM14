@@ -205,13 +205,13 @@ public class GUIView extends Application implements ViewType {
 
     @Override
     public void renderDisconnection(String message) {
-        primaryStage.setScene(loginScene);
+        primaryStage.setScene(gameChoiceScene);
         loginErororLabel.setText(message);
         // put null so they will be reinitialized with the reconnection and render game started event
-        gameScene = null;
-        gameChoiceScene = null;
-        gameEndingScene = null;
         lobbyScene = null;
+        gameScene = null;
+        gameEndingScene = null;
+
 
     }
 
@@ -238,6 +238,11 @@ public class GUIView extends Application implements ViewType {
     public void handleNetworkError(String errorMessage) {
         primaryStage.setScene(loginScene);
         loginErororLabel.setText(errorMessage);
+        // put null so they will be reinitialized with the reconnection and render game started event
+        gameScene = null;
+        gameChoiceScene = null;
+        gameEndingScene = null;
+        lobbyScene = null;
     }
 
     // ============================================================
