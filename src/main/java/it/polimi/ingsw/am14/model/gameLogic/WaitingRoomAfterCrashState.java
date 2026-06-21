@@ -47,9 +47,7 @@ public class WaitingRoomAfterCrashState extends GameState {
                         }
                     }
                 }
-            } catch (Exception e) {
-                System.out.println("Error while setting player references in turn order card and offers path: " + e.getMessage());
-            }
+            } catch (Exception _) {}
 
             this.nextState(game);
             game.notifyObservers(
@@ -61,8 +59,6 @@ public class WaitingRoomAfterCrashState extends GameState {
             );
         }
     }
-
-
 
     @Override
     protected void nextState(Game context) {

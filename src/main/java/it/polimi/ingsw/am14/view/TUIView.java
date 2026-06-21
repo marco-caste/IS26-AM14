@@ -748,7 +748,7 @@ public class TUIView implements ViewType {
         turnOrderBuilder.append(limitLine);
         for (int i = 0; i < numPlayers; i++) {
             AttributedString nickname = new AttributedString(
-                    turnOrderCard.get(i) == null ? "" : turnOrderCard.get(i),
+                    (turnOrderCard.isEmpty() || turnOrderCard.get(i) == null) ? "" : turnOrderCard.get(i),
                     AttributedStyle.DEFAULT.foreground(AttributedStyle.GREEN)
             );
             turnOrderBuilder.append(emptyLine);

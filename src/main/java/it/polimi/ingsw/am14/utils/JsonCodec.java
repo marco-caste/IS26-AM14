@@ -68,7 +68,7 @@ public class JsonCodec implements Codec {
         objectMapper.setVisibility(PropertyAccessor.IS_GETTER, JsonAutoDetect.Visibility.NONE);
 
         try {
-            objectMapper.writeValue(new File(filePath), controller);
+            objectMapper.writeValue(new File(filePath + "/save.json"), controller);
         } catch (IOException e) {
             throw new RuntimeException("[JsonCodec] Failed to write save data to file: " + filePath);
         }

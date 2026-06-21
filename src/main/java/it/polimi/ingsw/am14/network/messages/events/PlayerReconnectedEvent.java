@@ -26,7 +26,6 @@ import static it.polimi.ingsw.am14.utils.Constants.BOTTOM_BUILDING_ROW;
  */
 public class PlayerReconnectedEvent extends ServerEvent {
 
-    // TODO: AGGIUNGERE AGE
     private final int gameId;
     private final int turnOrderCardIndex;
     private final int numPlayers;
@@ -227,6 +226,11 @@ public class PlayerReconnectedEvent extends ServerEvent {
         model.setGameId(gameId);
         model.setTurnOrderCardIndex(turnOrderCardIndex);
         model.setPlayerOrderInTurnOrderCard(playersOrderInTurnOrderCard);
+        model.getPlayerOrderInTurnOrderCard().forEach(playerNickname -> {
+            if (playerNickname.isEmpty()) {
+                model.removePlayerFromTurnOrderCard(playerNickname);
+            }
+        });
         model.notifyObservers(new PlayerReconnectedViewEvent(description));
     }
 }

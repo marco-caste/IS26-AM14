@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="
+             http://maven.apache.org/POM/4.0.0
+             https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>it.polimi.ingsw</groupId>
@@ -11,106 +14,281 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!-- Use release instead of separate source/target values. -->
+        <maven.compiler.release>25</maven.compiler.release>
     </properties>
 
     <dependencies>
+        <!-- Tests -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
             <version>5.10.1</version>
             <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
             <version>5.10.1</version>
             <scope>test</scope>
         </dependency>
+
+        <!-- Runtime/application dependencies -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <version>2.19.2</version>
         </dependency>
+
         <dependency>
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
             <version>8.4.0</version>
         </dependency>
+
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
             <version>23</version>
         </dependency>
+
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
             <version>23</version>
         </dependency>
+
         <dependency>
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
             <version>24.1.0</version>
         </dependency>
+
         <dependency>
             <groupId>org.jline</groupId>
             <artifactId>jline-terminal-ffm</artifactId>
             <version>3.30.0</version>
         </dependency>
+
         <dependency>
             <groupId>org.jline</groupId>
             <artifactId>jline-terminal</artifactId>
             <version>3.30.0</version>
         </dependency>
+
         <dependency>
             <groupId>org.jline</groupId>
             <artifactId>jline-reader</artifactId>
             <version>3.30.0</version>
         </dependency>
+
         <dependency>
             <groupId>org.jline</groupId>
             <artifactId>jline-builtins</artifactId>
             <version>3.30.0</version>
         </dependency>
     </dependencies>
+
     <build>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>25</source>
-                    <target>25</target>
-                </configuration>
+                <version>3.15.0</version>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.0.0</version>
+                <version>3.5.5</version>
             </plugin>
-            <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.14</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>prepare-agent</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>report</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>report</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
+
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
-                <version>3.1.0</version>
+                <version>3.6.3</version>
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+
+        <!-- ========================================================= -->
+        <!-- CLIENT JAR                                                -->
+        <!-- ========================================================= -->
+
+        <profile>
+            <id>client</id>
+
+            <build>
+                <finalName>AM14-Client</finalName>
+
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-shade-plugin</artifactId>
+                        <version>3.6.2</version>
+
+                        <executions>
+                            <execution>
+                                <id>build-client-jar</id>
+                                <phase>package</phase>
+
+                                <goals>
+                                    <goal>shade</goal>
+                                </goals>
+
+                                <configuration>
+                                    <!-- Replace the ordinary project JAR. -->
+                                    <shadedArtifactAttached>false</shadedArtifactAttached>
+
+                                    <!-- Do not generate a modified POM. -->
+                                    <createDependencyReducedPom>false</createDependencyReducedPom>
+
+                                    <filters>
+                                        <!--
+                                            Filter only this project's files.
+
+                                            Jackson, JLine, JavaFX and the other
+                                            dependencies are not affected by
+                                            these package exclusions.
+                                        -->
+                                        <filter>
+                                            <artifact>
+                                                it.polimi.ingsw:am14
+                                            </artifact>
+
+                                            <includes>
+                                                <include>it/polimi/ingsw/am14/clientModelController/**</include>
+                                                <include>it/polimi/ingsw/am14/launcher/ClientLauncher.class</include>
+                                                <!-- Possibilmente rimuovere -->
+                                                <include>it/polimi/ingsw/am14/model/gameLogic/TotemColor.class</include>
+                                                <include>it/polimi/ingsw/am14/network/**</include>
+                                                <include>it/polimi/ingsw/am14/utils/**</include>
+                                                <include>it/polimi/ingsw/am14/view/**</include>
+                                                <include>background/**</include>
+                                                <include>cardsFront/**</include>
+                                                <include>colour/**</include>
+                                                <include>deck/**</include>
+                                                <include>stats/**</include>
+                                                <include>totem/**</include>
+                                                <include>totemLobby/**</include>
+                                                <include>trackCards/**</include>
+                                                <include>turnOrderCard/**</include>
+                                                <include>CardDescriptions.json</include>
+                                            </includes>
+                                        </filter>
+                                        <!--
+                                            Remove signatures belonging to dependency
+                                            JARs. They become invalid after shading.
+                                        -->
+                                        <filter>
+                                            <artifact>*:*</artifact>
+
+                                            <excludes>
+                                                <exclude>META-INF/*.SF</exclude>
+                                                <exclude>META-INF/*.DSA</exclude>
+                                                <exclude>META-INF/*.RSA</exclude>
+                                            </excludes>
+                                        </filter>
+                                    </filters>
+
+                                    <transformers>
+                                        <!-- Merge service-loader definitions. -->
+                                        <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+
+                                        <!-- Executable JAR entry point. -->
+                                        <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                            <mainClass>
+                                                it.polimi.ingsw.am14.launcher.ClientLauncher
+                                            </mainClass>
+                                        </transformer>
+                                    </transformers>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!-- ========================================================= -->
+        <!-- SERVER JAR                                                -->
+        <!-- ========================================================= -->
+
+        <profile>
+            <id>server</id>
+
+            <build>
+                <finalName>AM14-Server</finalName>
+
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-shade-plugin</artifactId>
+                        <version>3.6.2</version>
+
+                        <executions>
+                            <execution>
+                                <id>build-server-jar</id>
+                                <phase>package</phase>
+
+                                <goals>
+                                    <goal>shade</goal>
+                                </goals>
+
+                                <configuration>
+                                    <shadedArtifactAttached>false</shadedArtifactAttached>
+                                    <createDependencyReducedPom>false</createDependencyReducedPom>
+
+                                    <filters>
+                                        <!-- Filter only your own project. -->
+                                        <filter>
+                                            <artifact>
+                                                it.polimi.ingsw:am14
+                                            </artifact>
+
+                                            <includes>
+                                                <include>it/polimi/ingsw/am14/model/**</include>
+                                                <include>it/polimi/ingsw/am14/network/**</include>
+                                                <include>it/polimi/ingsw/am14/utils/**</include>
+                                                <include>it/polimi/ingsw/am14/exceptions/**</include>
+                                                <include>it/polimi/ingsw/am14/controller/**</include>
+                                                <include>it/polimi/ingsw/am14/launcher/ServerLauncher.class</include>
+                                                <include>Buildings.json</include>
+                                                <include>DeckCards.json</include>
+                                                <include>TrackCards.json</include>
+                                            </includes>
+                                        </filter>
+
+                                        <filter>
+                                            <artifact>*:*</artifact>
+
+                                            <excludes>
+                                                <exclude>META-INF/*.SF</exclude>
+                                                <exclude>META-INF/*.DSA</exclude>
+                                                <exclude>META-INF/*.RSA</exclude>
+                                            </excludes>
+                                        </filter>
+                                    </filters>
+
+                                    <transformers>
+                                        <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+
+                                        <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                            <mainClass>
+                                                it.polimi.ingsw.am14.launcher.ServerLauncher
+                                            </mainClass>
+                                        </transformer>
+                                    </transformers>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
