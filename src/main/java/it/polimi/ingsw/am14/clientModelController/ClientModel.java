@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static it.polimi.ingsw.am14.utils.Constants.*;
+
 public class ClientModel {
 
     private static final Map<Integer, List<Character>> offersPath = Map.of(
