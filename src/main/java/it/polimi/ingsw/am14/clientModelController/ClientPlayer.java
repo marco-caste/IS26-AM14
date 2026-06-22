@@ -83,10 +83,10 @@ public class ClientPlayer {
      */
     @Override
     public String toString() {
-        return  "nickname='" + nickname + "'\n" +
-                "totemColor='" + totemColor.toLowerCase() + "'\n" +
-                "numFood=" + numFood + "\n" +
-                "numPrestigePoints=" + numPrestigePoints;
+        return  "nickname: '" + nickname + "'\n" +
+                "totem color: '" + totemColor.toLowerCase() + "'\n" +
+                "available food: " + numFood + "\n" +
+                "prestige points: " + numPrestigePoints;
     }
 
     public void setNumStars(int numStars) {

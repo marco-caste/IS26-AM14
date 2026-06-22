@@ -161,6 +161,10 @@ public class ClientModel {
         // if not present returns -1;
     }
 
+    public String getNicknameByPosition(char position) {
+        return positionToNickname.get(position);
+    }
+
     public ArrayList<String> getFinalRank() {
         return finalRank;
     }
@@ -242,7 +246,6 @@ public class ClientModel {
      */
     public void checkAndEventuallySetPickState() {
         for (String nickname : playerOrderInTurnOrderCard) {
-            System.out.println(playerOrderInTurnOrderCard);
             if (nickname != null) return;
         }
         this.state = ClientState.PICK;

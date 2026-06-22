@@ -332,7 +332,6 @@ public class ClientController {
      */
     public void update(Event event) {
         synchronized (dataLock) {
-            System.out.println("Update: " + event.getDescription());
             event.effect(model);
             event.onEventProcessed(this);
         }
