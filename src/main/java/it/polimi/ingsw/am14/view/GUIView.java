@@ -34,6 +34,7 @@ public class GUIView extends Application implements ViewType {
     private Stage primaryStage;
 
     private Scene loginScene;
+    private Scene waitingRoomScene;
 
     private Scene gameChoiceScene;
     private Scene lobbyScene;
@@ -68,7 +69,8 @@ public class GUIView extends Application implements ViewType {
     private static final double END_TOTEM_WIDTH = 230;
     private static final double LOBBY_TOTEM_WIDTH = 300;
     private static final double END_TOTEM_BOX_WIDTH = 260;
-
+    private static final double BOARD_CARD_WIDTH_5 = 90;
+    private static final double BOARD_CARD_HEIGHT_5 = 135;
     private double SCENE_WIDTH;
     private double SCENE_HEIGHT;
 
@@ -278,8 +280,7 @@ public class GUIView extends Application implements ViewType {
      */
     @Override
     public void renderReconnection(String message) {
-        updateChoiceScene();
-        updateLobby();
+        showWaitingRoomScene();
     }
     /**
      * Rebuilds and renders the game view if it gets restarted (e.g., after reconnection in a started game).
@@ -666,14 +667,14 @@ public class GUIView extends Application implements ViewType {
         return root;
     }
 
-    private boolean updateChoiceScene() {
+    private void updateChoiceScene() {
 
         if (gameChoiceScene == null) { // Ignore updates that arrive before the scene is created.
-            return false;}
+            return;}
 
         showLobbyScene(); // Move to the lobby after a successful create or join operation.
-        return true;
     }
+
 
     private void showLobbyScene() {
         if (lobbyScene == null) {
@@ -684,6 +685,21 @@ public class GUIView extends Application implements ViewType {
         primaryStage.setScene(lobbyScene);
 
     }
+
+    private void showWaitingRoomScene(){
+        if(waitingRoomScene == null){
+            StackPane reconnectPane = new StackPane();
+            ImageView waitingRoom = new ImageView(getClass().getResource("/background/waitingRoom.png").toExternalForm()); // Background image.
+            waitingRoom.setPreserveRatio(false);
+            waitingRoom.fitWidthProperty().bind(reconnectPane.widthProperty());
+            waitingRoom.fitHeightProperty().bind(reconnectPane.heightProperty());
+            reconnectPane.getChildren().add(waitingRoom);
+            waitingRoomScene = new Scene(reconnectPane, SCENE_WIDTH, SCENE_HEIGHT);
+        }
+        primaryStage.setTitle("Waiting Room");
+        primaryStage.setScene(waitingRoomScene);
+    }
+
 
     // ============================================================
     // Lobby scene
@@ -1268,15 +1284,26 @@ public class GUIView extends Application implements ViewType {
         -fx-padding: 7.5;
         \s""");
 
+
         ImageView card1 = new ImageView(getClass().getResource("/cardsResults/" + (1) + ".png").toExternalForm());
-        card1.setFitWidth(BOARD_CARD_WIDTH);
-        card1.setFitHeight(BOARD_CARD_HEIGHT);
+        if(modelReference.getNumPlayers() == 5) {
+            card1.setFitWidth(BOARD_CARD_WIDTH_5);
+            card1.setFitHeight(BOARD_CARD_HEIGHT_5);
+        } else {
+            card1.setFitWidth(BOARD_CARD_WIDTH);
+            card1.setFitHeight(BOARD_CARD_HEIGHT);
+        }
         card1.setPreserveRatio(true);
         card1.setSmooth(true);
 
         ImageView card2= new ImageView(getClass().getResource("/cardsResults/" + (2) + ".png").toExternalForm());
-        card2.setFitWidth(BOARD_CARD_WIDTH);
-        card2.setFitHeight(BOARD_CARD_HEIGHT);
+        if(modelReference.getNumPlayers() == 5) {
+            card2.setFitWidth(BOARD_CARD_WIDTH_5);
+            card2.setFitHeight(BOARD_CARD_HEIGHT_5);
+        } else {
+            card2.setFitWidth(BOARD_CARD_WIDTH);
+            card2.setFitHeight(BOARD_CARD_HEIGHT);
+        }
         card2.setPreserveRatio(true);
         card2.setSmooth(true);
 
@@ -1418,7 +1445,7 @@ public class GUIView extends Application implements ViewType {
 
         statsScrollPane.setFitToWidth(true);
         statsScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        statsScrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        statsScrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         statsScrollPane.setPrefWidth(260);
 
         playersStatsBox = new VBox(15);
@@ -1581,8 +1608,13 @@ public class GUIView extends Application implements ViewType {
 
     private ImageView createPickableCard(int id, int row) {
         ImageView card = new ImageView(getClass().getResource("/cardsFront/" + id + ".jpg").toExternalForm());
-        card.setFitWidth(BOARD_CARD_WIDTH);
-        card.setFitHeight(BOARD_CARD_HEIGHT);
+        if(modelReference.getNumPlayers() == 5){
+            card.setFitWidth(BOARD_CARD_WIDTH_5);
+            card.setFitHeight(BOARD_CARD_HEIGHT_5);
+        }else{
+            card.setFitWidth(BOARD_CARD_WIDTH);
+            card.setFitHeight(BOARD_CARD_HEIGHT);
+        }
         card.setPreserveRatio(true);
         card.setSmooth(true);
         addHoverEffect(card);
