@@ -1,18 +1,18 @@
 package it.polimi.ingsw.am14.model.gameLogic;
 
+import it.polimi.ingsw.am14.exceptions.ForcedPickException;
+import it.polimi.ingsw.am14.exceptions.IllegalPickException;
+import it.polimi.ingsw.am14.exceptions.WrongTurnException;
 import it.polimi.ingsw.am14.model.cards.Card;
 import it.polimi.ingsw.am14.model.cards.buildings.Building;
 import it.polimi.ingsw.am14.model.cards.buildings.visitors.ImmediateVisitor;
 import it.polimi.ingsw.am14.model.cards.buildings.visitors.SetVisitor;
-import it.polimi.ingsw.am14.exceptions.ForcedPickException;
-import it.polimi.ingsw.am14.exceptions.IllegalPickException;
-import it.polimi.ingsw.am14.exceptions.WrongTurnException;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Optional;
 
 import static it.polimi.ingsw.am14.utils.Constants.*;
+
 /**
  * State implementation that manages the active drafting phase where players interactively
  * claim or purchase cards from the game board layout.
@@ -30,7 +30,6 @@ class PickState extends GameState {
     private Card selectedCard;
     private int row;
 
-    // TODO: dobbiamo andare a togliere l'optional per card in quanto non più necessario. Se lo tolgo qui ho un errore nel clientController
     /**
      * Executes a legal card drafting action requested by a player.
      * <p>
@@ -46,27 +45,27 @@ class PickState extends GameState {
      *
      * @param context       the central {@link Game} context manager directing rules and status flows
      * @param player        the {@link Player} attempting to claim the structural layout item
-     * @param safeCard      an {@link Optional} containing the target card reference (kept for client controller interface safety)
+     * @param card      the {@link Card} instance being claimed from the board (must not be null)
      * @param rowChosen     the board row identifier from which the item is being taken
      * @throws IllegalPickException if the selected item violates row restrictions or remaining actions equal zero
      * @throws ForcedPickException  if the target configuration conflicts with explicit game selection constraints
      * @throws WrongTurnException    if the executing identity's turn token does not align with the current active slot layout
      * @throws SQLException         if state logging or network serialization triggers a transactional problem
      */
-    protected void pickCard(Game context, Player player, Optional<Card>  safeCard, int rowChosen)
+    protected void pickCard(Game context, Player player, Card card, int rowChosen)
             throws IllegalPickException, ForcedPickException, WrongTurnException, SQLException {
 
-        selectedCard = safeCard.get();
+        this.selectedCard = card;
         row = rowChosen;
 
-        // In questo progetto `null` equivale a skip: lo normalizziamo a Optional vuoto.
+        // In this project `null` equates to skip: we normalize it to an empty Optional.
         TotemSlot currentSlot = findFirstPlayerTotemOnOffersPath(context);
         Player currentPlayer = (currentSlot == null ? null : currentSlot.getPlayer());
         wasAdditionalTopPick = false;
 
-        // exceptional pick due to additional pick building. This check is needed and is put first bacause the player with the additional top pick is not present
+        // exceptional pick due to additional pick building. This check is needed and is put first because the player with the additional top pick is not present
         // on the offers path and thus the check related to the player turn will be false.
-        if (isExceptionalAddTopPickTurn(player, context) && (currentPlayer == null)){ // il null ci garantisce che l'additional pick avvenga quando tutti hanno già piccato
+        if (isExceptionalAddTopPickTurn(player) && (currentPlayer == null)){ // the null guarantees that the additional pick happens when everyone has already picked
             handleExceptionalPick(selectedCard, row, context, player);
             return;
         }
@@ -175,7 +174,7 @@ class PickState extends GameState {
         }
     }
 
-    private boolean isExceptionalAddTopPickTurn(Player player, Game context) {
+    private boolean isExceptionalAddTopPickTurn(Player player) {
         return player.getNumTopPicksLeft() + player.getNumBottomPicksLeft() == 0
                 && player.getAddTopPick() == 1;
     }
@@ -216,7 +215,7 @@ class PickState extends GameState {
         context.getCurrentState().controlPick(context,wasAdditionalTopPick, selectedCard, row);
     }
     /**
-     * Exposes the canonical text identifier assigned to this component state.
+     * Exposes the canonical text identifier assigned to this component state in order to be processed by ClientModel.
      *
      * @return a text String representing the state mode ("PICK")
      */

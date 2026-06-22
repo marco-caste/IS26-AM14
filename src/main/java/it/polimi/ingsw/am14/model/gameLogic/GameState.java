@@ -133,11 +133,34 @@ abstract class GameState {
     protected void endRound(Game context) throws SQLException {
     }
 
-    //TODO: javadoc di control pick
-    protected void controlPick(Game context, boolean addTopPick, Card selectedCard, int row) throws IllegalPickException, ForcedPickException, SQLException{
+    /**
+     * Initiates the control cycle after a card pick to evaluate the validity and consequences of the action.
+     * <p>
+     * By default, this method performs no operation. Concrete subclasses (specifically {@code ControlState})
+     * override this method to handle post-pick validations, process additional pick allowances,
+     * update turn counters, and compute whether control remains with the current player or transitions.
+     * </p>
+     *
+     * @param context      the game context in which this action is performed
+     * @param addTopPick   {@code true} if this step covers an extra top pick; {@code false} for regular drafts
+     * @param selectedCard the card involved in the action
+     * @param row          the board row index where the selection was performed
+     * @throws SQLException if a database or state persistence error occurs during state transitions
+     */
+    protected void controlPick(Game context, boolean addTopPick, Card selectedCard, int row) throws SQLException{
     }
 
-    //Used for resetting state in clientModel
+    /**
+     * Retrieves the canonical text identifier associated with this specific game state.
+     * <p>
+     * This identifier is primarily utilized by the client-side architecture (e.g., {@code ClientModel})
+     * to recognize, track, or reset the current state representation. By default, this base implementation
+     * returns {@code null}. Concrete state subclasses are expected to override this method to return their
+     * unique string designation (e.g., "PICK", "PLACE").
+     * </p>
+     *
+     * @return a {@code String} representing the state mode, or {@code null} if not explicitly defined by the subclass
+     */
     protected String getStateName() {
         return null;
     }

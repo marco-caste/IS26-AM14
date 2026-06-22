@@ -42,7 +42,7 @@ import it.polimi.ingsw.am14.model.gameLogic.*;
 public abstract class Building extends Card {
     private final int cost;
     private final int prestigePoints;
-    private EffectStrategy effectStrategy;
+    private final EffectStrategy effectStrategy;
     /**
      * Constructs a new {@code Building} card with the specified attributes.
      * This constructor is annotated for Jackson JSON deserialization.

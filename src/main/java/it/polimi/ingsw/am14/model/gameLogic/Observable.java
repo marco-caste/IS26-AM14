@@ -21,14 +21,6 @@ public interface Observable {
 
     /**
      * <p>
-     *     Removes an observer from this observable entity. The observer will no longer be notified of changes in the entity's state.
-     * </p>
-     * @param observer the observer to be removed
-     */
-    void removeObserver(Observer observer);
-
-    /**
-     * <p>
      *     Notifies all registered observers of an event. This method is called when the state of the observable entity changes, and it informs all observers of the change.
      * </p>
      * @param event the event to be sent to the observers

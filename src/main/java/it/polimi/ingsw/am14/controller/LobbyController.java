@@ -27,7 +27,7 @@ import static it.polimi.ingsw.am14.utils.Constants.PING_TIMEOUT;
  * This class serves as the entry point for global cluster management, directing operations
  * before players enter a distinct game loop context. It maintains multi-tenant indexing dictionaries
  * linking player nicknames to active match rooms and mapping unique match IDs to specific {@link GameController}
- * sub-units.
+ * subunits.
  * </p>
  * <p>
  * Key infrastructure duties include:
@@ -44,12 +44,12 @@ public class LobbyController {
     private final Map<String, Integer> nicknameToGameId;
     private int gameIdCounter;
     @JsonIgnore
-    private NetworkLayer networkLayer;        // TODO: CHECK SINCRONIZZAZIONE
+    private NetworkLayer networkLayer;
     @JsonIgnore
     private final Map<String, Long> lastPingReceivedTime;
     @JsonIgnore
     private final Object dataLock = new Object();
-    private String saveFilePath;
+    private final String saveFilePath;
     @JsonIgnore
     private final Object saveFileLock = new Object();
     /**
@@ -318,7 +318,7 @@ public class LobbyController {
      * Performs an immediate structural purge of a client session due to an explicit disconnect request
      * or a watchdog heartbeat timeout.
      * <p>
-     * <b>Toleranza ai Guasti / Fault Isolation:</b> If the departing client was inside a match, the system
+     * <b>Tolleranza ai Guasti / Fault Isolation:</b> If the departing client was inside a match, the system
      * securely purges the entire associated {@code GameController} from current rosters. Active, healthy co-players
      * are gently rolled back into the global lobby space. This design approach enables unaffected users to
      * safely re-queue or establish new rooms without deadlocking the global server thread pool.
@@ -364,7 +364,7 @@ public class LobbyController {
      * Scheduled heartbeat verification routine executed at regular intervals by internal clock loops.
      * <p>
      * It computes time deltas between the current system epoch and individual entry logs inside
-     * {@code lastPingReceivedTime}. Any node whose lag duration exceeds the defined {@link PING_TIMEOUT} threshold
+     * {@code lastPingReceivedTime}. Any node whose lag duration exceeds the defined {PING_TIMEOUT} threshold
      * is forwarded to {@link #disconnectUser(String)} to free up system resources.
      * </p>
      */

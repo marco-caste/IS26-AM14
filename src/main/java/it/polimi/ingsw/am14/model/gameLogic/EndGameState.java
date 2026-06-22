@@ -75,12 +75,7 @@ class EndGameState extends GameState {
                     if (p1.getNumPrestigePoints() < p2.getNumPrestigePoints())
                         return -1;
                     else {
-                        if(p1.getNumFood() > p2.getNumFood())
-                            return 1;
-                        if (p1.getNumFood() < p2.getNumFood())
-                            return -1;
-                        else
-                            return 0;
+                        return Integer.compare(p1.getNumFood(), p2.getNumFood());
                     }
                 }).toList();
 

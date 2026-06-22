@@ -8,7 +8,6 @@ import it.polimi.ingsw.am14.utils.Codec;
 import it.polimi.ingsw.am14.utils.JsonCodec;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -31,7 +30,7 @@ public class ServerLauncher {
      *
      * @param args command line arguments, where args[0] is the socket port, args[1] is the RMI port and args[2] is the save file path. The latter must be wrapped in quotes, if it contains spaces.
      */
-    public static void startServer(String[] args) throws IOException, URISyntaxException {
+    public static void startServer(String[] args) throws IOException {
 
         // technical objects building
         NetworkLayer networkLayer = new NetworkLayer();
@@ -65,14 +64,10 @@ public class ServerLauncher {
                 networkLayer
         };
 
-        new Thread(() -> {
-            SocketServerLauncher.launch(args, technicalObjects);
-        },
+        new Thread(() -> SocketServerLauncher.launch(args, technicalObjects),
                 "SocketServer-launcher").start();
 
-        new Thread(() -> {
-            RmiServerLauncher.launch(args, technicalObjects);
-        },
+        new Thread(() -> RmiServerLauncher.launch(args, technicalObjects),
                 "RMIServer-launcher").start();
 
         new Thread(() -> {

@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am14.model.gameLogic;
 
+import it.polimi.ingsw.am14.network.messages.events.ExceptionEvent;
 import it.polimi.ingsw.am14.network.messages.events.GameRestartedEvent;
 import it.polimi.ingsw.am14.network.messages.events.PlayerReconnectedEvent;
 /**
@@ -38,6 +39,12 @@ public class WaitingRoomAfterCrashState extends GameState {
      */
     @Override
     protected void onPlayerConnection(Game game, String nickname, String totemColor) {
+        if (game.getPlayers().stream().noneMatch(p -> p.getNickname().equals(nickname))) {
+            game.notifyObservers(
+                    new ExceptionEvent("Player " + nickname + " is not part of this game.")
+            );
+            return;
+        }
         game.notifyObservers(
                 new PlayerReconnectedEvent(
                         nickname,

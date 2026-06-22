@@ -84,7 +84,7 @@ public class TribeDeck {
 
     /**
      * <p>
-     *     performs Stack.pop on the deck, meaning it returns the first DeckCard in this deck and removes it from the deck
+     *     performs Stack. Pop on the deck, meaning it returns the first DeckCard in this deck and removes it from the deck
      * </p>
      * @return the first DeckCard in this deck
      */
@@ -101,7 +101,7 @@ public class TribeDeck {
 
     /**
      * <p>
-     *     performs Stack.peek on the deck, meaning it returns the first DeckCard in this deck without removing it
+     *     performs Stack. Peek on the deck, meaning it returns the first DeckCard in this deck without removing it
      * </p>
      * @return the first DeckCard in this deck
      */

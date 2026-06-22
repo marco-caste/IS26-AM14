@@ -2,14 +2,11 @@ package it.polimi.ingsw.am14.network.socket;
 
 import it.polimi.ingsw.am14.clientModelController.ClientController;
 import it.polimi.ingsw.am14.network.socket.client.VirtualServerSocket;
-import it.polimi.ingsw.am14.view.ViewType;
 import it.polimi.ingsw.am14.network.socket.client.SocketClient;
 import it.polimi.ingsw.am14.network.socket.client.SocketServerHandler;
-import it.polimi.ingsw.am14.clientModelController.ClientModel;
 
 import java.io.*;
 import java.net.Socket;
-import java.util.Map;
 
 public class SocketClientLauncher {
 

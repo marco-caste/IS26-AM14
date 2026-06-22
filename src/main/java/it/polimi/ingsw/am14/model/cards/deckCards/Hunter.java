@@ -54,5 +54,5 @@ public class Hunter extends CharacterCard{
     public void applyEffect(Player player, Game context) {
         player.getTribe().addHunter(this);
         gainFood(player);
-    }  // we add the player to the tribe and then we call the gainFood method to give him food if the hunter picked
+    }  // we add the player to the tribe, and then we call the gainFood method to give him food if the hunter picked
 }

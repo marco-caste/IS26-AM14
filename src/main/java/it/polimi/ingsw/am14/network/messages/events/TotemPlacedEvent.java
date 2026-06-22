@@ -16,13 +16,13 @@ import java.util.ArrayList;
 public class TotemPlacedEvent extends UpdateEvent {
 
     // attributes = update values for the view
-    private String playerNickname;
-    private char trackCardName;
+    private final String playerNickname;
+    private final char trackCardName;
     // only used for bufferization, will not be sent to the client
     private int gameId;
-    private String first;
-    private int numFood;
-    private ArrayList<String> firstTurnOrderCard = new ArrayList<>();
+    private final String first;
+    private final int numFood;
+    private final ArrayList<String> firstTurnOrderCard = new ArrayList<>();
 
 
     /**

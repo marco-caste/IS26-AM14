@@ -28,7 +28,7 @@ public class EndGameEvent extends UpdateEvent {
     private final ArrayList<ArrayList<Integer>> board;
     private final Map<String, ArrayList<Integer>> playersAttributes;
     private ArrayList<String> finalRank = new ArrayList<>();
-    private List<String> globalRank;
+    private final List<String> globalRank;
     @JsonIgnore
     private int gameId;
 
@@ -127,7 +127,6 @@ public class EndGameEvent extends UpdateEvent {
         model.updatePlayerRoundAttributes(this.playersAttributes);
         model.setFinalRank(this.finalRank);
         model.setGlobalRank(this.globalRank);
-        //TODO: model.setGameId(-1);
         model.notifyObservers( new EndGameViewEvent(description));
     }
 }

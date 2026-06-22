@@ -41,7 +41,6 @@ public class Game implements Observable {
      * The game board, which contains the game components and manages the game logic.
      */
     private final Board board;
-    // TODO: GIUSTO?
     /**
      * The index of the current player in the players list.
      */
@@ -113,9 +112,7 @@ public class Game implements Observable {
             @JsonProperty("currentRound") int currentRound,
             @JsonProperty("currentAge") int currentAge,
             @JsonProperty("gameId") int gameId) {
-        // TODO: ?
         this.currentState       = new WaitingRoomAfterCrashState();
-//        this.currentState       = lastCurrentState;
         this.previouslySavedState = lastCurrentState;
         this.players            = lastPlayers;
         this.board              = lastBoard;
@@ -168,39 +165,38 @@ public class Game implements Observable {
     }
 
     private Player findPlayerByNickname(String nickname) throws UnknownNicknameException {
-        for (int i = 0; i < players.size(); i++) {
-            if (players.get(i).getNickname().equals(nickname)) {
-                return players.get(i);
+        for (Player player : players) {
+            if (player.getNickname().equals(nickname)) {
+                return player;
             }
         }
         throw new UnknownNicknameException("Player not found: " + nickname);
     }
 
     private Optional<Card> findCardById(int cardId, int row) throws IllegalPickException {
-        switch (row) {
-            case 0: // TOP_DECKABLE_ROW
-                return Optional.of(board.getTopDeckableRow().stream()
-                        .filter(card -> card.getId() == cardId)
-                        .findFirst()
-                        .orElseThrow(() -> new IllegalPickException("The selected card is not available")));
-            case 1: // TOP_BUILDING_ROW
-                return Optional.of(board.getTopBuildingRow().stream()
-                        .filter(card -> card.getId() == cardId)
-                        .findFirst()
-                        .orElseThrow(() -> new IllegalPickException("The selected card is not available")));
-            case 2: // BOTTOM_DECKABLE_ROW
-                return Optional.of(board.getBottomDeckableRow().stream()
-                        .filter(card -> card.getId() == cardId)
-                        .findFirst()
-                        .orElseThrow(() -> new IllegalPickException("The selected card is not available")));
-            case 3: // BOTTOM_BUILDING_ROW
-                return Optional.of(board.getBottomBuildingRow().stream()
-                        .filter(card -> card.getId() == cardId)
-                        .findFirst()
-                        .orElseThrow(() -> new IllegalPickException("The selected card is not available")));
-            default:
-                throw new IllegalPickException("Invalid row: " + row);
-        }
+        return switch (row) {
+            case 0 -> // TOP_DECKABLE_ROW
+                    Optional.of(board.getTopDeckableRow().stream()
+                            .filter(card -> card.getId() == cardId)
+                            .findFirst()
+                            .orElseThrow(() -> new IllegalPickException("The selected card is not available")));
+            case 1 -> // TOP_BUILDING_ROW
+                    Optional.of(board.getTopBuildingRow().stream()
+                            .filter(card -> card.getId() == cardId)
+                            .findFirst()
+                            .orElseThrow(() -> new IllegalPickException("The selected card is not available")));
+            case 2 -> // BOTTOM_DECKABLE_ROW
+                    Optional.of(board.getBottomDeckableRow().stream()
+                            .filter(card -> card.getId() == cardId)
+                            .findFirst()
+                            .orElseThrow(() -> new IllegalPickException("The selected card is not available")));
+            case 3 -> // BOTTOM_BUILDING_ROW
+                    Optional.of(board.getBottomBuildingRow().stream()
+                            .filter(card -> card.getId() == cardId)
+                            .findFirst()
+                            .orElseThrow(() -> new IllegalPickException("The selected card is not available")));
+            default -> throw new IllegalPickException("Invalid row: " + row);
+        };
     }
 
     /**
@@ -323,14 +319,6 @@ public class Game implements Observable {
     @Override
     public void addObserver(Observer observer) {
         this.observers.add(observer);
-    }
-
-    /**
-     * @param observer the observer to remove, must not be null
-     */
-    @Override
-    public void removeObserver(Observer observer) {
-        this.observers.remove(observer);
     }
 
     /**
