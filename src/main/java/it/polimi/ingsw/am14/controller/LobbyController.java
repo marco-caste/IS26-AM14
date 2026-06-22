@@ -31,13 +31,13 @@ import static it.polimi.ingsw.am14.utils.Constants.PING_TIMEOUT;
  * </p>
  * <p>
  * Key infrastructure duties include:
+ * </p>
  * <ul>
  * <li><b>User Onboarding:</b> Handling entry authentication registration and handling active session reconnection loops.</li>
  * <li><b>Liveness Watchdog:</b> Monitoring background heartbeats to safely disconnect unresponsive socket/RMI clients.</li>
  * <li><b>Asynchronous Persistence:</b> Spawning detached non-blocking background threads to serialize
  * the complete system state into cold storage after critical actions (picks, placements).</li>
  * </ul>
- * </p>
  */
 public class LobbyController {
     private final Map<Integer, GameController> gameIdToGameController;
@@ -188,12 +188,12 @@ public class LobbyController {
      * Processes inbound user entries requesting credential authorization or recovery mapping connections.
      * <p>
      * Logic constraints:
+     * </p>
      * <ul>
      * <li>If the nickname matches a historical active match placement, it initiates structural reconnection hooks.</li>
      * <li>If the nickname represents a first-time login, it registers the client into the global staging pool.</li>
      * </ul>
      * Dispatches a {@link LoginSuccesfulEvent} forward down the wire upon completion to update client states.
-     * </p>
      *
      * @param nickname text signature identifier selected by the client framework node
      * @throws IllegalGameIdException if a historical match indexing record points to an absent engine instance
@@ -364,7 +364,7 @@ public class LobbyController {
      * Scheduled heartbeat verification routine executed at regular intervals by internal clock loops.
      * <p>
      * It computes time deltas between the current system epoch and individual entry logs inside
-     * {@code lastPingReceivedTime}. Any node whose lag duration exceeds the defined {PING_TIMEOUT} threshold
+     * {@code lastPingReceivedTime}. Any node whose lag duration exceeds the defined {@code PING_TIMEOUT} threshold
      * is forwarded to {@link #disconnectUser(String)} to free up system resources.
      * </p>
      */

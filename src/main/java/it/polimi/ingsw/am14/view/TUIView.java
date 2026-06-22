@@ -23,7 +23,7 @@ import static it.polimi.ingsw.am14.utils.Constants.foodTable;
 
 /**
  * The TUIView class implements the ViewType interface and provides a text-based user interface for the game. It manages the terminal input and output, renders game events, and interacts with the client model and controller to facilitate user commands and display game information. The class uses the JLine library to handle terminal interactions and supports various commands for connecting to a server, creating or joining games, picking cards, placing totems, and displaying game information.
- * <h3>Supported Commands:</h3>
+ * <h2>Supported Commands:</h2>
  * <ul>
  *     <li><b>help</b> - Displays a comprehensive list of all available commands and their usage</li>
  *     <li><b>connect [socket|rmi]</b> - Establishes a connection to the server using the specified protocol.
@@ -355,7 +355,9 @@ public class TUIView implements ViewType {
                 "Final Scoreboard for this game:\n",
                 AttributedStyle.DEFAULT.foreground(AttributedStyle.RED)
         ));
-        for (String player : modelReference.getFinalRank()) {
+        // the ranking is printed in reverse order to show the winner at the top of the scoreboard
+        for (int i = modelReference.getFinalRank().size() - 1; i >= 0; i--) {
+            String player = modelReference.getFinalRank().get(i);
             scoreBoard.append(new AttributedString(
                     "\t" + player + ": " + modelReference.getPlayerByNickname(player).getNumPrestigePoints() + " points\n",
                     AttributedStyle.DEFAULT.foreground(AttributedStyle.WHITE)

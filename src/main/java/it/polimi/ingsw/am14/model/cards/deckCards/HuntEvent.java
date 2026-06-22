@@ -53,13 +53,13 @@ public class HuntEvent extends EventCard {
      * Applies the global hunt event effect to all active players.
      * <p>
      * For every player in the game, this method:
+     * </p>
      * <ol>
      * <li>Calculates immediate food and prestige rewards based on their hunter count.</li>
      * <li>Applies the rewards directly to the player's status.</li>
      * <li>Triggers building checks via {@link #checkBuilding(Player, Game)}.</li>
      * </ol>
      * Finally, it completely removes the event from the active board layout using {@link #removeEvent(Game)}.
-     * </p>
      *
      * @param player  the current active {@link Player} triggering the step (though the effect loops through all players)
      * @param context the current {@link Game} context used to retrieve the player list and board
