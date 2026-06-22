@@ -57,8 +57,6 @@ class PositionState extends GameState {
             throw new IllegalPlacementException("TrackCard already occupied by " + destinationTrackCard.getPlayerTotem().getNickname());
         }
 
-
-
         // places p on the desired TrackCard and applies its effects
         destinationTrackCard.setPlayerTotem(player);
         destinationTrackCard.effect();
@@ -66,7 +64,6 @@ class PositionState extends GameState {
         context.getBoard().getTurnOrderCard().removePlayer(currentPlayerIdx);
         // increases the currentPlayerIndex
         context.incrementCurrentPlayerIndexBy(1);
-
 
         if(context.getCurrentPlayerIndex() == 5){
             TrackCard foodTrackCard = context.getBoard().getOffersPath().offersPathGet(Character.toUpperCase('A'));
@@ -118,6 +115,11 @@ class PositionState extends GameState {
         context.getCurrentState().controlPick(context, false, null, 1);
     }
 
+    /**
+     * Exposes the canonical text identifier assigned to this component state in order to be processed by ClientModel.
+     *
+     * @return a text String representing the state mode ("PLACE")
+     */
     @Override
     protected String getStateName() {
         return "PLACE";

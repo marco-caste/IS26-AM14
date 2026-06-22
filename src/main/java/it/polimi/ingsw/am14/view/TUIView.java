@@ -133,44 +133,42 @@ public class TUIView implements ViewType {
                 String[] tokens = input.trim().split("\\s+");
 
                 switch (tokens[0].toLowerCase()) {
-                    case "help" -> {
-                        lineReader.printAbove(
-                                new AttributedString(
-                                    """
-                                        Available commands:
-                                          %-66s - %s
-                                          %-66s - %s
-                                          %-66s - %s
-                                          %-66s - %s
-                                          %-66s - %s
-                                          %-66s - %s
-                                          %-66s - %s
-                                          %-66s - %s
-                                          %-66s - %s
-                                          %-66s - %s
-                                          %-66s - %s
-                                          %-66s - %s
-                                          %-66s - %s
-                                        """.formatted(
-                                            "exit", "Exit the application",
-                                            "help", "Show this list",
-                                            "connect [socket|rmi]", "Specify the networking technology to use",
-                                            "create [numPlayers] [totemColor]", "Create a new game",
-                                            "join [gameId] [totemColor]", "Join an existing game",
-                                            "pick [cardID]", "Pick the specified card",
-                                            "place [position]", "Place the totem on the specified position",
-                                            "show [nickname|cardId|board|TOC|gameHistory] <nickname> | <cardId>",
-                                            "Show information about the current game",
-                                            "\tshow nickname <nickname>", "Show information about the specified player",
-                                            "\tshow cardId <cardId>", "Show information about the specified card",
-                                            "\tshow board", "Show the current state of the board",
-                                            "\tshow TOC", "Show the current turn order card",
-                                            "\tshow gameHistory", "Show the history of the latest game"
-                                        ),
-                                    AttributedStyle.DEFAULT.foreground(AttributedStyle.GREEN)
-                                )
-                        );
-                    }
+                    case "help" -> lineReader.printAbove(
+                            new AttributedString(
+                                """
+                                    Available commands:
+                                      %-66s - %s
+                                      %-66s - %s
+                                      %-66s - %s
+                                      %-66s - %s
+                                      %-66s - %s
+                                      %-66s - %s
+                                      %-66s - %s
+                                      %-66s - %s
+                                      %-66s - %s
+                                      %-66s - %s
+                                      %-66s - %s
+                                      %-66s - %s
+                                      %-66s - %s
+                                    """.formatted(
+                                        "exit", "Exit the application",
+                                        "help", "Show this list",
+                                        "connect [socket|rmi]", "Specify the networking technology to use",
+                                        "create [numPlayers] [totemColor]", "Create a new game",
+                                        "join [gameId] [totemColor]", "Join an existing game",
+                                        "pick [cardID]", "Pick the specified card",
+                                        "place [position]", "Place the totem on the specified position",
+                                        "show [nickname|cardId|board|TOC|gameHistory] <nickname> | <cardId>",
+                                        "Show information about the current game",
+                                        "\tshow nickname <nickname>", "Show information about the specified player",
+                                        "\tshow cardId <cardId>", "Show information about the specified card",
+                                        "\tshow board", "Show the current state of the board",
+                                        "\tshow TOC", "Show the current turn order card",
+                                        "\tshow gameHistory", "Show the history of the latest game"
+                                    ),
+                                AttributedStyle.DEFAULT.foreground(AttributedStyle.GREEN)
+                            )
+                    );
                     case "connect" -> {
                         try {
                             this.connect(tokens);
@@ -217,9 +215,7 @@ public class TUIView implements ViewType {
                             lineReader.printAbove(e.getMessage());
                         }
                     }
-                    default -> {
-                        lineReader.printAbove("Invalid option. Please type 'help' for a list of available commands.");
-                    }
+                    default -> lineReader.printAbove("Invalid option. Please type 'help' for a list of available commands.");
                 }
             }
         } catch (IOException e) {
@@ -490,12 +486,8 @@ public class TUIView implements ViewType {
                 }
                 lineReader.printAbove(cardDescriptions.get(Integer.parseInt(args[2])));
             }
-            case "board" -> {
-                printBoard();
-            }
-            case "toc" -> {
-                printTurnOrderCard();
-            }
+            case "board" -> printBoard();
+            case "toc" -> printTurnOrderCard();
             case "gamehistory" -> {
                 if (gameHistory.isEmpty()) {
                     lineReader.printAbove("No game history available.");

@@ -307,14 +307,6 @@ public class PlayerTest {
         assertEquals(3, player.getNumTopPicksLeft());
     }
 
-    // TODO: numXPicksLeft non può essere sotto 0
-    @Test
-    public void testRemoveSingleTopPickToNegative() {
-        player.setNumTopPicksLeft(0);
-        player.removeSingleTopPick();
-        assertEquals(-1, player.getNumTopPicksLeft());
-    }
-
     @Test
     public void testRemoveSingleBottomPick() {
         player.setNumBottomPicksLeft(5);
@@ -328,14 +320,6 @@ public class PlayerTest {
         player.removeSingleBottomPick();
         player.removeSingleBottomPick();
         assertEquals(3, player.getNumBottomPicksLeft());
-    }
-
-    // TODO: numXPicksLeft non può essere sotto 0
-    @Test
-    public void testRemoveSingleBottomPickToNegative() {
-        player.setNumBottomPicksLeft(0);
-        player.removeSingleBottomPick();
-        assertEquals(-1, player.getNumBottomPicksLeft());
     }
 
     // COMBINATION TESTS

@@ -43,16 +43,4 @@ public class EventBuffer {
     public synchronized boolean isEmpty() {
         return this.buffer.isEmpty();
     }
-    /**
-     * Synchronously retrieves and removes the first event in the buffer.
-     *
-     * @return the first {@link Event} in the queue.
-     * @throws IllegalStateException if the buffer is empty when this method is called.
-     */
-    public synchronized Event flushSingleEvent() {
-        if (this.buffer.isEmpty()) {
-            throw new IllegalStateException("Buffer is empty, no event to flush");
-        }
-        return this.buffer.removeFirst();
-    }
 }

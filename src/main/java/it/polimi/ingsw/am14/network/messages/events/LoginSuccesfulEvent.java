@@ -6,10 +6,8 @@ import it.polimi.ingsw.am14.clientModelController.ClientModel;
 import it.polimi.ingsw.am14.clientModelController.ClientPlayer;
 import it.polimi.ingsw.am14.clientModelController.ClientController;
 import it.polimi.ingsw.am14.network.NetworkLayer;
-import it.polimi.ingsw.am14.network.VirtualServer;
 import it.polimi.ingsw.am14.view.viewEvents.LoginViewEvent;
 
-import java.rmi.RemoteException;
 /**
  * Event representing a successful login by a player.
  * Inherits from {@link ServerEvent}.

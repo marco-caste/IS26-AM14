@@ -5,7 +5,7 @@ import it.polimi.ingsw.am14.clientModelController.ClientModel;
 
 import java.io.IOException;
 
-public interface ViewType extends ModelObserver {
+public interface ViewType {
     /**
      * Starts the view and handles user input.
      * @throws IOException if an I/O error occurs

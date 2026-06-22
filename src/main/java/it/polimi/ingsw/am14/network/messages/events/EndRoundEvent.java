@@ -144,22 +144,12 @@ public class EndRoundEvent extends UpdateEvent {
 
 
     /**
-     * Gets the current board state represented by multi-dimensional lists of card IDs.
+     * Gets the current board state represented by multidimensional lists of card IDs.
      *
      * @return an {@code ArrayList} containing lists of integer card IDs for each row on the board.
      */
 
     public ArrayList<ArrayList<Integer>>  getBoard() {
         return board;
-    }
-
-    /**
-     * Gets the current attributes associated with each player.
-     *
-     * @return a map associating player nicknames with a list containing their food and prestige points.
-     */
-
-    public Map<String,ArrayList<Integer>> getPlayerAttributes()  {
-        return playersAttributes;
     }
 }

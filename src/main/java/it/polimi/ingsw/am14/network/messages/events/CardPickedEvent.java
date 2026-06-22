@@ -54,14 +54,6 @@ public class CardPickedEvent extends UpdateEvent {
         super("");
         int ID = card == null ? -1 : card.getId();
 
-
-        String rowName;
-        switch (row) {
-            case 0, 1 -> rowName = "top row";
-            case 2, 3 -> rowName = "bottom row";
-            default -> throw new IllegalArgumentException("Row must be between 0 and 3");
-        }
-
         this.playerNickname = playerNickname;
         this.cardID = ID;
         this.row = row;
