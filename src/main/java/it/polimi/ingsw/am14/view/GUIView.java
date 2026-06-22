@@ -100,6 +100,11 @@ public class GUIView extends Application implements ViewType {
         COLOUR
     }
 
+    private VBox rightStatsWrapper;
+    private ScrollPane statsScrollPane;
+    private Button toggleStatsButton;
+    private boolean statsVisible = true;
+
     private final Map<String, Map<StatType, Label>> playerStatLabels = new HashMap<>();
 
     // ============================================================
@@ -195,8 +200,10 @@ public class GUIView extends Application implements ViewType {
      */
     @Override
     public void renderGameStart(String message) {
+        round  = 1;
         gameCreation();
         updatePlayerStats();
+
     }
     /**
      * Updates the UI when a totem has been successfully placed.
@@ -977,7 +984,6 @@ public class GUIView extends Application implements ViewType {
         roundCounter = new Label();
         roundCounter.setStyle("-fx-text-fill: #ffffff; -fx-font-size: 15; -fx-font-weight: bold;");
 
-        round = 1;
 
         StackPane.setAlignment(serverMessage, Pos.CENTER);
         StackPane.setAlignment(roundCounter, Pos.CENTER_RIGHT);
@@ -1021,12 +1027,17 @@ public class GUIView extends Application implements ViewType {
         HBox topBuilding = createCardRow(); // Top building row.
         HBox bottomDeckable = createCardRow(); // Bottom deckable row.
         HBox bottomBuilding = createCardRow(); // Bottom building row.
+        HBox bottomResults = createEndCardHBox(); // Bottom results row
+
         offersPathBox = createCardRow(); // Deck, turn order card and track cards.
 
         topCenterBox = new HBox(8);
         topCenterBox.getChildren().addAll(topDeckable, topBuilding);
         bottomCenterBox = new HBox(8);
         bottomCenterBox.getChildren().addAll(bottomDeckable, bottomBuilding);
+        HBox endCardBox = new HBox(250);
+        endCardBox.getChildren().addAll(bottomCenterBox,bottomResults);
+
 
         offersPathBox.getChildren().addAll(deck, turnOrderCard); // Add the deck and the turn order card to the offer path.
         for (char name : trackCards) {
@@ -1034,7 +1045,7 @@ public class GUIView extends Application implements ViewType {
             offersPathBox.getChildren().add(trackCard);
         }
 
-        centerBox.getChildren().addAll(topCenterBox, offersPathBox, bottomCenterBox); // Add the board rows and the offer path to the center area.
+        centerBox.getChildren().addAll(topCenterBox, offersPathBox,endCardBox); // Add the board rows and the offer path to the center area.
         centerWrapper.getChildren().add(centerBox); // Add the board container to the wrapper.
         updateBoard(); // Fill the board rows with the current cards.
 
@@ -1044,6 +1055,7 @@ public class GUIView extends Application implements ViewType {
         return centerWrapper;
 
     }
+
 
     private StackPane createTurnOrderCardStack() {
         StackPane stack = new StackPane();
@@ -1247,6 +1259,31 @@ public class GUIView extends Application implements ViewType {
         return row;
     }
 
+    private HBox createEndCardHBox(){
+        HBox cards = new HBox(10);
+        cards.setAlignment(Pos.CENTER); // this function is needed to center the cards in the row. So the card will spawn from the center to the left.
+        cards.setStyle("""
+        -fx-background-color: rgba(255, 255, 255, 0.18);  \s
+        -fx-background-radius: 14;
+        -fx-padding: 7.5;
+        \s""");
+
+        ImageView card1 = new ImageView(getClass().getResource("/cardsResults/" + (1) + ".png").toExternalForm());
+        card1.setFitWidth(BOARD_CARD_WIDTH);
+        card1.setFitHeight(BOARD_CARD_HEIGHT);
+        card1.setPreserveRatio(true);
+        card1.setSmooth(true);
+
+        ImageView card2= new ImageView(getClass().getResource("/cardsResults/" + (2) + ".png").toExternalForm());
+        card2.setFitWidth(BOARD_CARD_WIDTH);
+        card2.setFitHeight(BOARD_CARD_HEIGHT);
+        card2.setPreserveRatio(true);
+        card2.setSmooth(true);
+
+        cards.getChildren().addAll(card1, card2);
+        return cards;
+
+    }
     // ------------------------------------------------------------
     // Bottom tribe area
     // ------------------------------------------------------------
@@ -1351,17 +1388,38 @@ public class GUIView extends Application implements ViewType {
     // Right statistics area
     // ------------------------------------------------------------
 
-    private ScrollPane createRight() {
-        ScrollPane scroll = new ScrollPane();
-        scroll.setStyle("""
+    private VBox createRight() {
+        rightStatsWrapper = new VBox(8);
+        rightStatsWrapper.setAlignment(Pos.TOP_CENTER);
+
+        rightStatsWrapper.setStyle("""
+        -fx-background-color: rgba(60, 20, 40, 0.55);
+        -fx-padding: 8;
+    """);
+
+        toggleStatsButton = new Button("Hide Stats");
+        toggleStatsButton.setPrefWidth(110);
+        toggleStatsButton.setStyle("""
+        -fx-background-color: rgba(255, 230, 170, 0.90);
+        -fx-text-fill: #4b1d12;
+        -fx-font-size: 13;
+        -fx-font-weight: bold;
+        -fx-background-radius: 10;
+        -fx-padding: 6 10 6 10;
+    """);
+
+        toggleStatsButton.setOnAction(event -> toggleStatsPanel());
+
+        statsScrollPane = new ScrollPane();
+        statsScrollPane.setStyle("""
         -fx-background-color: transparent;
         -fx-background: transparent;
     """);
 
-        scroll.setFitToWidth(true);
-        scroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        scroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-        scroll.setPrefWidth(280);
+        statsScrollPane.setFitToWidth(true);
+        statsScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        statsScrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        statsScrollPane.setPrefWidth(260);
 
         playersStatsBox = new VBox(15);
         playersStatsBox.setStyle("""
@@ -1371,9 +1429,38 @@ public class GUIView extends Application implements ViewType {
 
         buildInitialPlayersStatsPanels();
 
-        scroll.setContent(playersStatsBox);
-        return scroll;
+        statsScrollPane.setContent(playersStatsBox);
+
+        rightStatsWrapper.getChildren().addAll(toggleStatsButton, statsScrollPane);
+
+        rightStatsWrapper.setPrefWidth(280);
+
+        return rightStatsWrapper;
     }
+
+
+
+    private void toggleStatsPanel() {
+        statsVisible = !statsVisible;
+
+        statsScrollPane.setVisible(statsVisible);
+        statsScrollPane.setManaged(statsVisible);
+
+        if (statsVisible) {
+            rightStatsWrapper.setPrefWidth(280);
+            rightStatsWrapper.setMinWidth(280);
+            rightStatsWrapper.setMaxWidth(280);
+
+            toggleStatsButton.setText("Hide Stats");
+        } else {
+            rightStatsWrapper.setPrefWidth(70);
+            rightStatsWrapper.setMinWidth(70);
+            rightStatsWrapper.setMaxWidth(70);
+
+            toggleStatsButton.setText("Stats");
+        }
+    }
+
 
     private void buildInitialPlayersStatsPanels() {
         playersStatsBox.getChildren().clear();
