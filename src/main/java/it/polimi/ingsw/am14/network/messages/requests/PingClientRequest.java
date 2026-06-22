@@ -33,11 +33,10 @@ public class PingClientRequest extends ClientRequest {
      * Informs the controller that the client is still active and waiting for a response.
      *
      * @param controller the {@link LobbyController} responsible for handling the ping logic.
-     * @throws Exception if an error occurs while handling the ping request.
      */
 
     @Override
-    public void dispatchRequest(LobbyController controller) throws Exception {
+    public void dispatchRequest(LobbyController controller) {
         controller.handlePingRequest(getNickname());
     }
 }

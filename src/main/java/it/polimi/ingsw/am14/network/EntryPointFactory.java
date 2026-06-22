@@ -1,14 +1,10 @@
 package it.polimi.ingsw.am14.network;
 
 import it.polimi.ingsw.am14.clientModelController.ClientController;
-import it.polimi.ingsw.am14.clientModelController.ClientModel;
 import it.polimi.ingsw.am14.network.rmi.RmiClientLauncher;
 import it.polimi.ingsw.am14.network.rmi.client.RmiClient;
 import it.polimi.ingsw.am14.network.socket.SocketClientLauncher;
 import it.polimi.ingsw.am14.network.socket.client.VirtualServerSocket;
-import it.polimi.ingsw.am14.view.ViewType;
-
-import java.util.Map;
 
 public abstract class EntryPointFactory {
     /**

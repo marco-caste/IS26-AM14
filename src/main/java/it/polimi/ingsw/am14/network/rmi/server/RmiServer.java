@@ -116,9 +116,7 @@ public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
             try {
                 lobbyController.createGame(nickname, numPlayers, totemColor);
                 lobbyController.getGameIdByNickname(nickname).ifPresentOrElse(
-                        (id) -> {
-                            networkLayer.updateClients(id, networkLayer.getClientBy(nickname));
-                        },
+                        (id) -> networkLayer.updateClients(id, networkLayer.getClientBy(nickname)),
                         () -> { }
                 );
             } catch (Exception e) {
@@ -148,9 +146,7 @@ public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
             try {
                 lobbyController.joinGame(nickname, gameId, totemColor);
                 lobbyController.getGameIdByNickname(nickname).ifPresentOrElse(
-                        (id) -> {
-                            networkLayer.updateClients(id, networkLayer.getClientBy(nickname));
-                        },
+                        (id) -> networkLayer.updateClients(id, networkLayer.getClientBy(nickname)),
                         () -> { }
                 );
             } catch (Exception e) {
@@ -227,9 +223,7 @@ public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
      */
     @Override
     public Thread pingServer(String nickname) {
-        new Thread(() -> {
-            lobbyController.handlePingRequest(nickname);
-        }, "RMIPingClient-" + nickname).start();
+        new Thread(() -> lobbyController.handlePingRequest(nickname), "RMIPingClient-" + nickname).start();
         return null;
     }
 }

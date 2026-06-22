@@ -5,6 +5,7 @@ import it.polimi.ingsw.am14.network.messages.events.CardPickedEvent;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -51,7 +52,7 @@ class ControlState extends GameState {
         selectedCard=card;
         row = rowChosen;
 
-        // we don't need to check anything in this case --> obbligatorio in quanto i controllo non sono pensati per funzionare nel caso dell addTopPick
+        // we don't need to check anything in this case --> mandatory since the checks are not designed to work for addTopPick
         if(wasAdditionalPick){
             goToEndRound = true;
 
@@ -69,8 +70,8 @@ class ControlState extends GameState {
         }
 
         // it's never null because controlPick is called if and only if there is atLeast a player on the offersPath
-        pickingPlayer = findFirstPlayerTotemOnOffersPath(context).getPlayer();
-        char playerTotemPosition = findFirstPlayerTotemOnOffersPath(context).getPosition();
+        pickingPlayer = Objects.requireNonNull(findFirstPlayerTotemOnOffersPath(context)).getPlayer();
+        char playerTotemPosition = Objects.requireNonNull(findFirstPlayerTotemOnOffersPath(context)).getPosition();
 
 
         //Check Phase Start
@@ -84,15 +85,15 @@ class ControlState extends GameState {
                 findAndActivateNextPlayerInTurnOrder(context, availableTopCharacters, availableBottomCharacters, playerTotemPosition);
             }
 
-        } else {  // dobbiamo analizzare cosa avviene dopo il pick del player corrente che ha appena finito i pick
-            finalizeCurrentPlayerTurn(context, pickingPlayer, playerTotemPosition); // riportiamo il player corrente nella turnOrderCard
+        } else {  // we must analyze what happens after the pick of the current player who just finished their picks
+            finalizeCurrentPlayerTurn(context, pickingPlayer, playerTotemPosition); // return the current player to the turnOrderCard
 
 
-            if (context.getCurrentPlayerIndex() == context.getNumPlayers()) { // se il player era l'ultimo
+            if (context.getCurrentPlayerIndex() == context.getNumPlayers()) { // if the player was the last one
 
-                handleAllPlayersFinishedTheirPicksPhase(context, availableTopCharacters); // verifico se devo fare la transizione di stato
+                handleAllPlayersFinishedTheirPicksPhase(context, availableTopCharacters); // check if a state transition is needed
 
-            } else  {  // se il player non è l'ultimo --> verifico se il prossimo player può anora pickare
+            } else  {  // if the player is not the last one --> check if the next player can still pick
                 findAndActivateNextPlayerInTurnOrder(context, availableTopCharacters, availableBottomCharacters, playerTotemPosition);
             }
         }
@@ -138,7 +139,7 @@ class ControlState extends GameState {
     }
 
 
-    private boolean determineIfCurrentPlayerCanContinuePickingFromBothRows(Player player, Game context, int availableTopCharacters, int availableBottomCharacters, Character playerTotem) throws SQLException {
+    private boolean determineIfCurrentPlayerCanContinuePickingFromBothRows(Player player, Game context, int availableTopCharacters, int availableBottomCharacters, Character playerTotem) {
         boolean canPickFromTopRow = canPlayerAffordAnyBuildingInTopRow(player, context, availableTopCharacters);
         boolean canPickFromBottomRow = canPlayerAffordAnyBuildingInBottomRow(player, context, availableBottomCharacters);
 
@@ -147,7 +148,7 @@ class ControlState extends GameState {
             return true;
         }
 
-        //se non può pickare --> concludo il suo turo
+        // if they cannot pick --> conclude their turn
         finalizeCurrentPlayerTurn(context, player, playerTotem);
 
         return (handleAllPlayersFinishedTheirPicksPhase(context, availableTopCharacters));
@@ -155,12 +156,12 @@ class ControlState extends GameState {
 
 
 
-    private void findAndActivateNextPlayerInTurnOrder(Game context, int availableTopCharacters, int availableBottomCharacters, Character playerTotemPosition) throws SQLException {
+    private void findAndActivateNextPlayerInTurnOrder(Game context, int availableTopCharacters, int availableBottomCharacters, Character playerTotemPosition) {
         Character currentTotemPosition = playerTotemPosition;
         while (context.getCurrentPlayerIndex() < context.getNumPlayers()) {
             TotemSlot nextSlot = findNextPlayerTotemAfterPosition(context, currentTotemPosition);
 
-            boolean currentPlayerCanStillPick = determineIfCurrentPlayerCanContinuePickingFromBothRows(nextSlot.getPlayer(), context, availableTopCharacters, availableBottomCharacters, nextSlot.getPosition());
+            boolean currentPlayerCanStillPick = determineIfCurrentPlayerCanContinuePickingFromBothRows(Objects.requireNonNull(nextSlot).getPlayer(), context, availableTopCharacters, availableBottomCharacters, nextSlot.getPosition());
             if (currentPlayerCanStillPick) {
                 return;
             }
@@ -190,10 +191,10 @@ class ControlState extends GameState {
 
 
 
-    private boolean handleAllPlayersFinishedTheirPicksPhase(Game context, int availableTopCharacters) throws SQLException {
-        // Quando tutti i player hanno finito i loro pick normali, cerchiamo se c'è un player con pick aggiuntivo
-        // Se lo troviamo e può ancora pickare dalla riga superiore, gli diamo la possibilità di farlo
-        // Altrimenti, passiamo alla fase successiva (fine del turno di pick)
+    private boolean handleAllPlayersFinishedTheirPicksPhase(Game context, int availableTopCharacters) {
+        // When all players have finished their standard picks, we check if there is a player with an additional pick
+        // If we find one and they can still pick from the top row, we give them the opportunity to do so
+        // Otherwise, we move to the next phase (end of the pick turn)
         if (context.getCurrentPlayerIndex() == context.getNumPlayers()) {
             Optional<Player> playerWithAdditionalTopPick = context.getPlayers().stream()
                     .filter(player -> player.getAddTopPick() == 1)
@@ -220,9 +221,9 @@ class ControlState extends GameState {
                 !wasLastPick ? Optional.empty() :
                         Optional.of(context.getBoard().getTurnOrderCard().getPlayerOrder());
 
-        // va messo perchè determineIfCurrentPlayerCanContinuePickingFromBothRows viene chiamato anche per i player che non stanno pickando durante la fase di controllo
-        // quindi per questi player che non stanno pickando verrà chiamato comunque l'update. In quel caso però passiamo la carta = null in quanto non dobbiamo registrare un pick
-        // ma eventualemente solo un update della turnorderCard e trackCard nel caso nemmeno il player successivo possa skippare.
+        // This must be included because determineIfCurrentPlayerCanContinuePickingFromBothRows is also called for players who are not picking during the control phase
+        // therefore, the update will still be called for these non-picking players. In that case, however, we pass card = null since we do not need to register a pick
+        // but potentially only an update of the turnOrderCard and trackCard in case not even the next player can skip.
 
         if(pickingPlayer!= null){
             if(!(pickingPlayer.equals(player))) {
@@ -264,7 +265,7 @@ class ControlState extends GameState {
     protected void nextState(Game context) throws SQLException {
         if (goToEndRound) {
             context.setCurrentPlayerIndex(0);
-            if (context.getCurrentRound() == 10) {
+            if (context.getCurrentRound() == 1) {
                 context.setCurrentState(new EndGameState());
                 context.getCurrentState().endRound(context);
             } else {
@@ -277,6 +278,4 @@ class ControlState extends GameState {
             context.setCurrentState(new PickState());
         }
     }
-
 }
-

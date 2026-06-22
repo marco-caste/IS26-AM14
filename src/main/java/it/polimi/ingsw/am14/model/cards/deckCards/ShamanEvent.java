@@ -8,6 +8,7 @@ import it.polimi.ingsw.am14.model.cards.buildings.visitors.ShamanMalusEventVisit
 import it.polimi.ingsw.am14.model.gameLogic.*;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 /**
@@ -42,12 +43,10 @@ public class ShamanEvent extends EventCard {
     private List<Player> getMAxStarPlayer(Game context){
 
        Player maxPlayer =  context.getPlayers().stream()
-                .max((a, b) -> Integer.compare(a.getNumStars(), b.getNumStars())).orElse(context.getPlayers().getFirst());
+                .max(Comparator.comparingInt(Player::getNumStars)).orElse(context.getPlayers().getFirst());
 
        return context.getPlayers().stream()
-               .filter(x-> {
-                   return x.getNumStars() == maxPlayer.getNumStars();
-               })
+               .filter(x-> x.getNumStars() == maxPlayer.getNumStars())
                .collect(Collectors.toList());
 
     }
@@ -55,12 +54,10 @@ public class ShamanEvent extends EventCard {
     private List<Player> getMinStarPlayer(Game context){
 
         Player minPlayer =  context.getPlayers().stream()
-                .min((a, b) -> Integer.compare(a.getNumStars(), b.getNumStars())).orElse(context.getPlayers().getFirst());
+                .min(Comparator.comparingInt(Player::getNumStars)).orElse(context.getPlayers().getFirst());
 
         return context.getPlayers().stream()
-                .filter(x-> {
-                    return x.getNumStars() == minPlayer.getNumStars();
-                })
+                .filter(x-> x.getNumStars() == minPlayer.getNumStars())
                 .collect(Collectors.toList());
     }
 

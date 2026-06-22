@@ -43,9 +43,7 @@ public class RmiClient extends UnicastRemoteObject implements VirtualClientRmi, 
 
     @Override
     public void update(Event update) {
-        new Thread(() -> {
-            controller.update(update);
-        }).start();
+        new Thread(() -> controller.update(update)).start();
     }
 
     /**
@@ -56,9 +54,7 @@ public class RmiClient extends UnicastRemoteObject implements VirtualClientRmi, 
 
     @Override
     public void reportError(ExceptionEvent error) {
-        new Thread(() -> {
-            controller.update(error);
-        }).start();
+        new Thread(() -> controller.update(error)).start();
     }
 
     /**
