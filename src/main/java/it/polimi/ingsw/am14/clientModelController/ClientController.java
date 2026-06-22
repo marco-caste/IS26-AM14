@@ -32,6 +32,7 @@ public class ClientController {
      * Attempts to pick a card from the board grid layout on behalf of the home player.
      * <p>
      * Before sending the action across the network proxy, the routine enforces a sequence of local defensive guards:
+     * </p>
      * <ul>
      *   <li>Ensures an active server session link exists.</li>
      *   <li>Checks whether the game is currently inside a valid picking phase.</li>
@@ -41,7 +42,6 @@ public class ClientController {
      *   <li>Calculates row addresses to confirm structural eligibility and available resources.</li>
      * </ul>
      * Any failed rule alerts the view subsystem via {@link ExceptionViewEvent} without hitting the network thread.
-     * </p>
      *
      * @param cardId the unique identification index of the card being drafted
      */

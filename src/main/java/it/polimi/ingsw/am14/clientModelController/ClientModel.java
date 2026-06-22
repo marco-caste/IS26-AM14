@@ -408,12 +408,12 @@ public class ClientModel {
      * Local logical checker determining if current board status allows the home player to pick a card.
      * <p>
      * Evaluation logic:
+     * </p>
      * <ul>
      * <li>Returns true instantly if the turn order card list size completely matches active player counts.</li>
      * <li>Bails out (returns false) if the player hasn't deployed their totem or occupies starter fallback slots like 'A'.</li>
      * <li>Scans opponent grid addresses to ensure no opponent totem occupies an earlier, higher-priority slot layout position.</li>
      * </ul>
-     * </p>
      *
      * @return {@code true} if the active player turn matches home specifications; {@code false} otherwise
      */
@@ -451,12 +451,12 @@ public class ClientModel {
      * constraints of the home player's current track token position.
      * <p>
      * Layout business logic parameters:
+     * </p>
      * <ul>
      * <li><b>AddTopPick Bonus Flow:</b> If the position pointer equals null, drafting is restricted exclusively to upper rows (Top Buildings/Deckable rows).</li>
      * <li><b>Top-Only Slots:</b> Positions 'C' or 'F' lock choices, rejecting bottom row selections.</li>
      * <li><b>Bottom-Only Slots:</b> Positions 'B' or 'D' reject upper tier selections, allowing drafts only from bottom rows.</li>
      * </ul>
-     * </p>
      *
      * @param row target row index constant under validation
      * @return {@code true} if the combination aligns with track slot rules; {@code false} otherwise

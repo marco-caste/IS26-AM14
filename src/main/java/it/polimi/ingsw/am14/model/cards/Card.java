@@ -50,12 +50,12 @@ public abstract class Card {
      * Evaluates whether the card is currently eligible to be picked or purchased by the given player.
      * <p>
      * The business logic varies significantly depending on the concrete type of the card:
+     * </p>
      * <ul>
      *   <li><b>Character Cards:</b> Typically return {@code true} as they are freely draftable.</li>
      *   <li><b>Event Cards:</b> Typically return {@code false} as they are resolved globally rather than kept.</li>
      *   <li><b>Building Cards:</b> Return {@code true} only if the player currently meets the specific resource or food requirements to afford them; {@code false} otherwise.</li>
      * </ul>
-     * </p>
      *
      * @param player the {@link Player} trying to pick or purchase this card
      * @return {@code true} if the card satisfies the picking conditions for the player; {@code false} otherwise

@@ -37,6 +37,7 @@ public class SustenanceEvent extends EventCard {
      * Applies the global sustenance event effect to all active players in the game.
      * <p>
      * For each player, the feeding sequence executes as follows:
+     * </p>
      * <ol>
      * <li>The initial food stock is recorded to prevent passive gains from defensive buildings.</li>
      * <li>Buildings are checked via {@link #checkBuilding(Player, Game)} to apply event-specific production or discounts.</li>
@@ -47,7 +48,6 @@ public class SustenanceEvent extends EventCard {
      * <li>If the player successfully feeds their tribe, a validation check ensures their final food count does not exceed
      *     their starting stock, clamping it back to {@code oldFood} if necessary.</li>
      * </ol>
-     * </p>
      *
      * @param playerNotUsed the current active player token (unused as the loop evaluates all players globally)
      * @param context       the current {@link Game} context containing the player roster

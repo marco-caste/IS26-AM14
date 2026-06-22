@@ -29,6 +29,7 @@ class ControlState extends GameState {
      * Executes the primary control cycle after a player attempts or completes a card pick.
      * <p>
      * The routine evaluates the pick under two main flows:
+     * </p>
      * <ul>
      *   <li><b>Additional Pick Flow:</b> Instantly finalized and routed to update models if the choice
      *       stems from a temporary additional placement condition.</li>
@@ -36,7 +37,6 @@ class ControlState extends GameState {
      *       buildings or pickable characters via custom constraints, shifts turn counters, and computes
      *       whether control remains with the current player or moves down the turn queue.</li>
      * </ul>
-     * </p>
      *
      * @param context           the central {@link Game} orchestrator managing rules and states
      * @param wasAdditionalPick {@code true} if this step covers an extra top pick; {@code false} for regular drafts

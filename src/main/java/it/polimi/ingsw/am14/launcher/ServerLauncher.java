@@ -24,10 +24,13 @@ import static it.polimi.ingsw.am14.utils.Constants.PING_TIMEOUT;
 public class ServerLauncher {
     /**
      * The method that starts the server. Launches 4 Threads:
-     * <li>The socket server Thread, on which socket connections will be handled</li>
-     * <li>The RMI server Thread, on which RMI connections will be handled</li>
-     * <li>The ping Thread, which will send a ping to all clients every {@code PING_INTERVAL} milliseconds</li>
-     * <li>The timeout Thread, which will check if any client has not responded to a ping within {@code PING_TIMEOUT} milliseconds</li>
+     * <ul>
+     *     <li>The socket server Thread, on which socket connections will be handled</li>
+     *     <li>The RMI server Thread, on which RMI connections will be handled</li>
+     *     <li>The ping Thread, which will send a ping to all clients every {@code PING_INTERVAL} milliseconds</li>
+     *     <li>The timeout Thread, which will check if any client has not responded to a ping within {@code PING_TIMEOUT} milliseconds</li>
+     * </ul>
+     *
      *
      * @param args command line arguments, where args[0] is the socket port, args[1] is the RMI port and args[2] is the save file path. The latter must be wrapped in quotes, if it contains spaces.
      */

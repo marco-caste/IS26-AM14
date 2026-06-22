@@ -35,6 +35,7 @@ class PickState extends GameState {
      * Executes a legal card drafting action requested by a player.
      * <p>
      * The processing pipeline operates as follows:
+     * </p>
      * <ol>
      * <li>Extracts the card payload from the network-safe container wrapping the input data.</li>
      * <li>Resolves whether an exceptional turn override is active (players claiming bonus top row allocations).</li>
@@ -42,7 +43,6 @@ class PickState extends GameState {
      * <li>Validates quantitative limits to ensure the user possesses remaining action tokens for the requested row.</li>
      * <li>Branches logic based on row constants to handle character collection vs structural building purchases, updating models accordingly.</li>
      * </ol>
-     * </p>
      *
      * @param context       the central {@link Game} context manager directing rules and status flows
      * @param player        the {@link Player} attempting to claim the structural layout item

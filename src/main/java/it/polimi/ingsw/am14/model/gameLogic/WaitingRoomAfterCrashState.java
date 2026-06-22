@@ -20,6 +20,7 @@ public class WaitingRoomAfterCrashState extends GameState {
      * Handles the physical reconnection event of a player returning to the recovered game environment.
      * <p>
      * The processing lifecycle carries out the following steps:
+     * </p>
      * <ol>
      * <li>Broadcasts a {@link PlayerReconnectedEvent} notification to push current board layouts and historical models
      * down to the newly connected view client.</li>
@@ -30,7 +31,6 @@ public class WaitingRoomAfterCrashState extends GameState {
      * <li>Advances the state machine using {@link #nextState(Game)} and fires a global {@link GameRestartedEvent}
      * to inform all participants that structural setup has stabilized and active turns are resuming.</li>
      * </ol>
-     * </p>
      *
      * @param game        the central {@link Game} context manager directing recovery routines
      * @param nickname    the unique textual signature profile of the returning user
