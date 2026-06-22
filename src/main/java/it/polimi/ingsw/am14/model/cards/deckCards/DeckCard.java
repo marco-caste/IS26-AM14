@@ -69,11 +69,11 @@ public abstract class DeckCard extends Card {
      * <p>
      * This method dictates layout positioning when initializing the board rows.
      * Depending on the concrete subtype:
+     * </p>
      * <ul>
      *   <li><b>Event cards:</b> place themselves into the board's Top Row.</li>
      *   <li><b>Character cards:</b> place themselves into the board's Bottom Row.</li>
      * </ul>
-     * </p>
      *
      * @param board the {@link Board} being populated during initialization
      * @return the number of cards successfully positioned onto the board row

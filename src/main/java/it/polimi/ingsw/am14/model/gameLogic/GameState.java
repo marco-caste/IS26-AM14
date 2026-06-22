@@ -28,15 +28,13 @@ import java.util.Optional;
  * to enforce that only allowed operations succeed in a given state.
  * </p>
  *
- * <p>
- * Responsibilities:
- * <ul>
+ * <p>Responsibilities:</p>
+ *  <ul>
  *   <li>Define the state interface for game operations.</li>
  *   <li>Provide default (disabled) implementations that raise {@code WrongStateException}.</li>
  *   <li>Require subclasses to implement {@link #nextState(Game)} to advance the state machine.</li>
  *   <li>Serve as the single place to add or modify state-specific logic and transitions.</li>
- * </ul>
- * </p>
+ *  </ul>
  *
  * <p><b>Note:</b> concrete states may throw or propagate domain-specific exceptions
  * (e.g. {@code IllegalPickException}, {@code ForcedPickException}, {@code WrongTurnException},

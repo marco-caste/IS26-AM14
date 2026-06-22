@@ -93,16 +93,6 @@ class PositionState extends GameState {
         if (context.getCurrentPlayerIndex() > context.getNumPlayers() - 1) {
             this.nextState(context);
         }
-
-
-
-
-
-
-
-
-        // observer pattern: sends event to event buffer
-
     }
 
     /**
@@ -113,7 +103,6 @@ class PositionState extends GameState {
      * @param context not null
      */
     @Override
-
     protected void nextState(Game context) throws SQLException, IllegalPickException, ForcedPickException {
         // updatest current state
         context.setCurrentState(new ControlState());

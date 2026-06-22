@@ -43,6 +43,7 @@ public class PaintEvent extends EventCard {
      * Applies the global paint event effect to all players in the game.
      * <p>
      * For every player, this method computes a threshold value: {@code lossRange = age - 1}.
+     * </p>
      * <ul>
      *   <li>If the player's artist count is <b>less than or equal to</b> the {@code lossRange},
      *       they lose prestige points equal to twice their artist count.</li>
@@ -51,7 +52,6 @@ public class PaintEvent extends EventCard {
      * </ul>
      * After updating the prestige points, it evaluates the player's buildings via {@link #checkBuilding(Player, Game)}
      * and finally cleans up the board state by invoking {@link #removeEvent(Game)}.
-     * </p>
      *
      * @param player  the current active {@link Player} triggering the step (the effect applies to all players)
      * @param context the current {@link Game} context used to access the player list and the board

@@ -92,11 +92,11 @@ public class TurnOrderCard {
     // shuffles the playerOrder and sets the initial food
 
     /**
-     * <p>
-     *     carries out phase 10 of the setup operations, as in the rule book:
-     *     <li>shuffle the player order</li>
-     *     <li>set the initial food for each player according to the number of players</li>
-     * </p>
+     * <p> carries out phase 10 of the setup operations, as in the rule book: </p>
+     * <ol>
+     * <li>shuffle the player order</li>
+     * <li>set the initial food for each player according to the number of players</li>
+     * </ol>
      */
     public void setupPhaseTen() {
         Collections.shuffle(this.playerOrder);

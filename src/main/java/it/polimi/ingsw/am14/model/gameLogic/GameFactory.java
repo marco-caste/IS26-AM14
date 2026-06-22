@@ -15,15 +15,13 @@ import it.polimi.ingsw.am14.exceptions.IllegalSetupException;
  *     including populating the board with cards and preparing the game state for play.
  * </p>
  *
- * <p>
- *     Responsibilities:
+ * <p> Responsibilities: </p>
  *     <ul>
  *         <li>Validate the number of players.</li>
  *         <li>Create a new {@code Game} instance.</li>
  *         <li>Perform setup phases 3, 4, 5, and 6a of the game.</li>
  *         <li>Return a fully initialized {@code Game} object ready for play.</li>
  *     </ul>
- * </p>
  *
  * @see Game
  */
