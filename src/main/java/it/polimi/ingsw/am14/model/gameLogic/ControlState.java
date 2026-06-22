@@ -265,7 +265,7 @@ class ControlState extends GameState {
     protected void nextState(Game context) throws SQLException {
         if (goToEndRound) {
             context.setCurrentPlayerIndex(0);
-            if (context.getCurrentRound() == 10) {
+            if (context.getCurrentRound() == 1) {
                 context.setCurrentState(new EndGameState());
                 context.getCurrentState().endRound(context);
             } else {

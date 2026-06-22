@@ -1836,9 +1836,9 @@ public class GUIView extends Application implements ViewType {
         ArrayList<String> ranking = modelReference.getFinalRank();
         int pos = 0;
 
-        for(int i = Math.min(3, ranking.size())-1; i >= 0; i--) {// Use the minimum because a two-player game has only two podium positions.
+        for(int i = 0; i < Math.min(3, ranking.size()); i++) {// Use the minimum because a two-player game has only two podium positions.
 
-            ClientPlayer player = modelReference.getPlayerByNickname(ranking.get(i));
+            ClientPlayer player = modelReference.getPlayerByNickname(ranking.get(ranking.size()-1-i));
 
             ImageView totem = createAngryTotem(
                     player.getTotemColor().toLowerCase(), "endgame");

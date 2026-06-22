@@ -10,6 +10,7 @@ import it.polimi.ingsw.am14.model.cards.buildings.visitors.SetVisitor;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Optional;
 
 import static it.polimi.ingsw.am14.utils.Constants.*;
 
@@ -52,10 +53,10 @@ class PickState extends GameState {
      * @throws WrongTurnException    if the executing identity's turn token does not align with the current active slot layout
      * @throws SQLException         if state logging or network serialization triggers a transactional problem
      */
-    protected void pickCard(Game context, Player player, Card card, int rowChosen)
+    protected void pickCard(Game context, Player player, Optional<Card> card, int rowChosen)
             throws IllegalPickException, ForcedPickException, WrongTurnException, SQLException {
 
-        this.selectedCard = card;
+        this.selectedCard = card.get();
         row = rowChosen;
 
         // In this project `null` equates to skip: we normalize it to an empty Optional.
