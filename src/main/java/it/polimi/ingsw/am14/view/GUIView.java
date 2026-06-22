@@ -34,6 +34,7 @@ public class GUIView extends Application implements ViewType {
     private Stage primaryStage;
 
     private Scene loginScene;
+    private Scene waitingRoomScene;
 
     private Scene gameChoiceScene;
     private Scene lobbyScene;
@@ -279,8 +280,7 @@ public class GUIView extends Application implements ViewType {
      */
     @Override
     public void renderReconnection(String message) {
-        updateChoiceScene();
-        updateLobby();
+        showWaitingRoomScene();
     }
     /**
      * Rebuilds and renders the game view if it gets restarted (e.g., after reconnection in a started game).
@@ -667,14 +667,14 @@ public class GUIView extends Application implements ViewType {
         return root;
     }
 
-    private boolean updateChoiceScene() {
+    private void updateChoiceScene() {
 
         if (gameChoiceScene == null) { // Ignore updates that arrive before the scene is created.
-            return false;}
+            return;}
 
         showLobbyScene(); // Move to the lobby after a successful create or join operation.
-        return true;
     }
+
 
     private void showLobbyScene() {
         if (lobbyScene == null) {
@@ -685,6 +685,21 @@ public class GUIView extends Application implements ViewType {
         primaryStage.setScene(lobbyScene);
 
     }
+
+    private void showWaitingRoomScene(){
+        if(waitingRoomScene == null){
+            StackPane reconnectPane = new StackPane();
+            ImageView waitingRoom = new ImageView(getClass().getResource("/background/waitingRoom.png").toExternalForm()); // Background image.
+            waitingRoom.setPreserveRatio(false);
+            waitingRoom.fitWidthProperty().bind(reconnectPane.widthProperty());
+            waitingRoom.fitHeightProperty().bind(reconnectPane.heightProperty());
+            reconnectPane.getChildren().add(waitingRoom);
+            waitingRoomScene = new Scene(reconnectPane, SCENE_WIDTH, SCENE_HEIGHT);
+        }
+        primaryStage.setTitle("Waiting Room");
+        primaryStage.setScene(waitingRoomScene);
+    }
+
 
     // ============================================================
     // Lobby scene
