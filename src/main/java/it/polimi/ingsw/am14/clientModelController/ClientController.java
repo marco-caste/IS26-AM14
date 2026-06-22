@@ -46,13 +46,13 @@ public class ClientController {
      * @param cardId the unique identification index of the card being drafted
      */
     public void pickCard(int cardId) {
-        //Model check
+       //Model check
         if (server == null) {
             handleException("You are not connected to a server.");
             return;
         }
 
-        //State check
+
         if(!model.checkPickState()) {
             handleException("You can't pick a card right now.");
             return;

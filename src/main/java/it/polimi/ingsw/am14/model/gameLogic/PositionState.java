@@ -120,11 +120,12 @@ class PositionState extends GameState {
         // empties TurnOrderCard
         context.getBoard().getTurnOrderCard().clearPlayerOrder();
 
-        if(isThereFirstFood)
+        if(isThereFirstFood){
             context.getBoard().getTurnOrderCard().addPlayer(first);
-        // sets currentPlayerIndex = 0
-        context.setCurrentPlayerIndex(0);
-
+            context.setCurrentPlayerIndex(1);
+        }else {
+            context.setCurrentPlayerIndex(0);
+        }
         context.getCurrentState().controlPick(context, false, null, 1);
     }
 

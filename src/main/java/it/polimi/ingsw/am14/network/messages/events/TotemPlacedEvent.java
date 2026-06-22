@@ -98,14 +98,16 @@ public class TotemPlacedEvent extends UpdateEvent {
         model.updatePlayerPosition(playerNickname, trackCardName);
         model.removePlayerFromTurnOrderCard(playerNickname);
 
-        if( first != null){
+        if (first != null) {
             firstTurnOrderCard.add(first);
             model.updatePlayerPosition(first, null);
             model.setPlayerOrderInTurnOrderCard(firstTurnOrderCard);
+            model.setState("PICK");
+        }else
+        {
+            model.checkAndEventuallySetPickState();
         }
         model.updatePlayerFood(playerNickname, numFood);
-        model.checkAndEventuallySetPickState();
-
         model.notifyObservers(new PositionUpdateViewEvent(description));
 
     }

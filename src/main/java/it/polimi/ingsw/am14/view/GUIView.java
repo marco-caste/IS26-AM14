@@ -1675,9 +1675,9 @@ public class GUIView extends Application implements ViewType {
 
         ArrayList<String> ranking = modelReference.getFinalRank();
 
-        for (int i = ranking.size() - 1; i >= 0; i--) {
+        for (int i = 0; i < ranking.size() ; i++) {
             String name = ranking.get(i);
-            Label lbl = new Label((ranking.size() - i) + "°  " + name + " " + modelReference.getPlayerByNickname(name).getNumPrestigePoints() + " pts");
+            Label lbl = new Label((i + 1) + "°  " + name + " " + modelReference.getPlayerByNickname(name).getNumPrestigePoints() + " pts");
             lbl.setStyle("""
             -fx-text-fill: white;
             -fx-font-size: 16;
@@ -1717,7 +1717,7 @@ public class GUIView extends Application implements ViewType {
         ArrayList<String> ranking = modelReference.getFinalRank();
         int pos = 0;
 
-        for (int i = Math.min(3, ranking.size()) - 1; i >= 0; i--) {// Use the minimum because a two-player game has only two podium positions.
+        for(int i = 0; i < 3; i++) {// Use the minimum because a two-player game has only two podium positions.
 
             ClientPlayer player = modelReference.getPlayerByNickname(ranking.get(i));
 

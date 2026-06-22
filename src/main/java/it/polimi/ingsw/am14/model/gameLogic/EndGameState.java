@@ -71,14 +71,14 @@ class EndGameState extends GameState {
         List<Player> ranking = context.getPlayers().stream().
                 sorted((p1, p2) -> {
                     if (p1.getNumPrestigePoints() > p2.getNumPrestigePoints())
-                        return 1;   // TODO: -1
+                        return -1;
                     if (p1.getNumPrestigePoints() < p2.getNumPrestigePoints())
-                        return -1;  // TODO: 1
+                        return 1;
                     else {
-                        if (p1.getNumFood() > p2.getNumFood())
-                            return 1; // TODO: -1
+                        if(p1.getNumFood() > p2.getNumFood())
+                            return -1;
                         if (p1.getNumFood() < p2.getNumFood())
-                            return -1; // TODO: 1
+                            return 1;
                         else
                             return 0;
                     }
