@@ -1,0 +1,168 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > Codec</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">it.polimi.ingsw.am14.utils</a>
+</div>
+
+<h1>Coverage Summary for Class: Codec (it.polimi.ingsw.am14.utils)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+</tr>
+<tr>
+  <td class="name">Codec</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package it.polimi.ingsw.am14.utils;
+&nbsp;
+&nbsp;import it.polimi.ingsw.am14.controller.LobbyController;
+&nbsp;import it.polimi.ingsw.am14.network.messages.requests.ClientRequest;
+&nbsp;import it.polimi.ingsw.am14.network.messages.events.Event;
+&nbsp;import it.polimi.ingsw.am14.model.boardComponents.TrackCard;
+&nbsp;import it.polimi.ingsw.am14.model.cards.buildings.Building;
+&nbsp;import it.polimi.ingsw.am14.model.cards.deckCards.DeckCard;
+&nbsp;
+&nbsp;import java.util.List;
+&nbsp;import java.util.Map;
+&nbsp;
+&nbsp;public interface Codec {
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Reads the saved game data from the specified file and reconstructs the corresponding {@code LobbyController}.
+&nbsp;     *
+&nbsp;     * @param filePath the path of the save file to read
+&nbsp;     * @return the {@code LobbyController} restored from the save data
+&nbsp;     */
+&nbsp;    LobbyController readSaveData(String filePath);
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Reads the card descriptions from the specified file.
+&nbsp;     *
+&nbsp;     * @param filePath the path of the file containing the card descriptions
+&nbsp;     * @return a map where each card ID is associated with its description
+&nbsp;     */
+&nbsp;    Map&lt;Integer, String&gt; readCardDescriptions(String filePath);
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Writes the current game state to the specified file.
+&nbsp;     *
+&nbsp;     * @param controller the {@code LobbyController} to serialize
+&nbsp;     * @param filePath the path of the file where the save data will be written
+&nbsp;     */
+&nbsp;    void writeSaveData(LobbyController controller, String filePath);
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Parses a client request from its string representation.
+&nbsp;     *
+&nbsp;     * @param input the string to parse
+&nbsp;     * @return the corresponding {@code ClientRequest}
+&nbsp;     */
+&nbsp;    ClientRequest parseClientRequest(String input);
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Serializes a client request into its string representation.
+&nbsp;     *
+&nbsp;     * @param request the {@code ClientRequest} to serialize
+&nbsp;     * @return the serialized request as a string
+&nbsp;     */
+&nbsp;    String writeClientRequest(ClientRequest request);
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Parses an event from its string representation.
+&nbsp;     *
+&nbsp;     * @param input the string to parse
+&nbsp;     * @return the corresponding {@code Event}
+&nbsp;     */
+&nbsp;    Event parseEvent(String input);
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Serializes an event into its string representation.
+&nbsp;     *
+&nbsp;     * @param event the {@code Event} to serialize
+&nbsp;     * @return the serialized event as a string
+&nbsp;     */
+&nbsp;    String writeEvent(Event event);
+&nbsp;
+&nbsp;    /**
+&nbsp;     * &lt;p&gt;
+&nbsp;     *     reads the deck cards from the specified file path and builds a list of DeckCards
+&nbsp;     * &lt;/p&gt;
+&nbsp;     * @param filePath not null, path of the file where the deck cards data is stored
+&nbsp;     * @param numPlayers the initial number of players in the game, used to determine which cards to read from the file
+&nbsp;     * @return a list of DeckCard objects read from the specified file path, sorted by number of players
+&nbsp;     */
+&nbsp;    List&lt;DeckCard&gt; readDeckCards(String filePath, int numPlayers);
+&nbsp;
+&nbsp;    /**
+&nbsp;     * &lt;p&gt;
+&nbsp;     *     reads the building cards from the specified file path and builds a list of Building objects
+&nbsp;     * &lt;/p&gt;
+&nbsp;     * @param filePath not null, path of the file where the building cards data is stored
+&nbsp;     * @return a list of Building objects read from the specified file path, sorted by age
+&nbsp;     */
+&nbsp;    List&lt;Building&gt; readBuildings(String filePath);
+&nbsp;
+&nbsp;    /**
+&nbsp;     * &lt;p&gt;
+&nbsp;     *     reads the track cards from the specified file path and builds a map of TrackCard objects,
+&nbsp;     *     where the keys are the track card names and the values are the corresponding TrackCard objects
+&nbsp;     * &lt;/p&gt;
+&nbsp;     * @param filePath not null, path of the file where the track cards data is stored
+&nbsp;     * @param numPlayers the initial number of players in the game, used to determine which track cards to read from the file
+&nbsp;     * @return a map of TrackCard objects read from the specified file path, where the keys are the TrackCard names, sorted alphabetically
+&nbsp;     */
+&nbsp;    Map&lt;Character, TrackCard&gt; readTrackCards(String filePath, int numPlayers);
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-22 23:30</div>
+</div>
+</body>
+</html>

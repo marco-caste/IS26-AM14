@@ -1,0 +1,172 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > Card</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">it.polimi.ingsw.am14.model.cards</a>
+</div>
+
+<h1>Coverage Summary for Class: Card (it.polimi.ingsw.am14.model.cards)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">Card</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (3/3)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (5/5)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package it.polimi.ingsw.am14.model.cards;
+&nbsp;
+&nbsp;import it.polimi.ingsw.am14.model.gameLogic.Game;
+&nbsp;import it.polimi.ingsw.am14.model.gameLogic.Player;
+&nbsp;/**
+&nbsp; * The abstract base class representing a generic card within the game.
+&nbsp; * &lt;p&gt;
+&nbsp; * This class defines the core attributes shared by all cards, such as their historical
+&nbsp; * era/age and a unique identifier. It enforces the contract for applying card effects
+&nbsp; * and validating whether a card can be picked or purchased by a specific player.
+&nbsp; * &lt;/p&gt;
+&nbsp; */
+&nbsp;public abstract class Card {
+&nbsp;    private final int age;
+&nbsp;    private final int id;
+&nbsp;    /**
+&nbsp;     * Constructs a core {@code Card} instance with its defining age and identity.
+&nbsp;     *
+&nbsp;     * @param age the historical age or era this card belongs to
+&nbsp;     * @param id  the unique identifier assigned to this specific card
+&nbsp;     */
+<b class="fc">&nbsp;    public Card(int age, int id) {</b>
+<b class="fc">&nbsp;        this.age = age;</b>
+<b class="fc">&nbsp;        this.id = id;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public int getAge(){
+<b class="fc">&nbsp;        return age;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public int getId(){
+<b class="fc">&nbsp;        return id;</b>
+&nbsp;    }
+&nbsp;    /**
+&nbsp;     * Applies the card&#39;s unique game effect to the player or the broader game context.
+&nbsp;     * &lt;p&gt;
+&nbsp;     * This method must be implemented by all concrete subclasses extending {@code Card}.
+&nbsp;     * It is designed to be triggered immediately when a player successfully drafts,
+&nbsp;     * triggers, or purchases the card during their turn.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     *
+&nbsp;     * @param player  the {@link Player} currently interacting with or claiming the card
+&nbsp;     * @param context the current {@link Game} state and orchestration context
+&nbsp;     */
+&nbsp;    public abstract void applyEffect(Player player, Game context) ;
+&nbsp;    // this method will be implemented in the classes that extend Card,
+&nbsp;    // and will apply the effect of the card to the player passed as a parameter
+&nbsp;    // we will call this method when the player picks the card
+&nbsp;    /**
+&nbsp;     * Evaluates whether the card is currently eligible to be picked or purchased by the given player.
+&nbsp;     * &lt;p&gt;
+&nbsp;     * The business logic varies significantly depending on the concrete type of the card:
+&nbsp;     * &lt;/p&gt;
+&nbsp;     * &lt;ul&gt;
+&nbsp;     *   &lt;li&gt;&lt;b&gt;Character Cards:&lt;/b&gt; Typically return {@code true} as they are freely draftable.&lt;/li&gt;
+&nbsp;     *   &lt;li&gt;&lt;b&gt;Event Cards:&lt;/b&gt; Typically return {@code false} as they are resolved globally rather than kept.&lt;/li&gt;
+&nbsp;     *   &lt;li&gt;&lt;b&gt;Building Cards:&lt;/b&gt; Return {@code true} only if the player currently meets the specific resource or food requirements to afford them; {@code false} otherwise.&lt;/li&gt;
+&nbsp;     * &lt;/ul&gt;
+&nbsp;     *
+&nbsp;     * @param player the {@link Player} trying to pick or purchase this card
+&nbsp;     * @return {@code true} if the card satisfies the picking conditions for the player; {@code false} otherwise
+&nbsp;     */
+&nbsp;    public abstract boolean isPickable(Player player);
+&nbsp;    // if the card is:
+&nbsp;    // Character : returns true
+&nbsp;    // Event : returns false
+&nbsp;    // Building : returns true if the player has enough food to buy it, false otherwise
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-22 23:30</div>
+</div>
+</body>
+</html>

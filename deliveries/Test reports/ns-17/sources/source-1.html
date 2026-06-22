@@ -1,0 +1,2079 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > GUIView</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">it.polimi.ingsw.am14.view</a>
+</div>
+
+<h1>Coverage Summary for Class: GUIView (it.polimi.ingsw.am14.view)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">GUIView</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/88)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/134)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/789)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">GUIView$PointRatio</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">GUIView$StatType</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/7)
+  </span>
+</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/91)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/134)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/797)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package it.polimi.ingsw.am14.view;
+&nbsp;
+&nbsp;import it.polimi.ingsw.am14.clientModelController.ClientController;
+&nbsp;import it.polimi.ingsw.am14.clientModelController.ClientModel;
+&nbsp;import it.polimi.ingsw.am14.clientModelController.ClientPlayer;
+&nbsp;import it.polimi.ingsw.am14.view.viewEvents.ViewEvent;
+&nbsp;import javafx.animation.TranslateTransition;
+&nbsp;import javafx.application.Application;
+&nbsp;import javafx.application.Platform;
+&nbsp;import javafx.geometry.Insets;
+&nbsp;import javafx.geometry.Pos;
+&nbsp;import javafx.geometry.Rectangle2D;
+&nbsp;import javafx.scene.Cursor;
+&nbsp;import javafx.scene.Node;
+&nbsp;import javafx.scene.Scene;
+&nbsp;import javafx.scene.control.*;
+&nbsp;import javafx.scene.image.Image;
+&nbsp;import javafx.scene.image.ImageView;
+&nbsp;import javafx.scene.layout.*;
+&nbsp;import javafx.stage.Screen;
+&nbsp;import javafx.stage.Stage;
+&nbsp;import javafx.util.Duration;
+&nbsp;
+&nbsp;import java.io.IOException;
+&nbsp;import java.util.*;
+&nbsp;/**
+&nbsp; * JavaFX application representing the Graphical User Interface (GUI) of the client.
+&nbsp; * It implements {@link ViewType} to handle updates incoming from the model and render them accordingly.
+&nbsp; */
+<b class="nc">&nbsp;public class GUIView extends Application implements ViewType {</b>
+&nbsp;
+&nbsp;    private ClientModel modelReference;
+&nbsp;    private ClientController controllerReference;
+&nbsp;    private Stage primaryStage;
+&nbsp;
+&nbsp;    private Scene loginScene;
+&nbsp;    private Scene waitingRoomScene;
+&nbsp;
+&nbsp;    private Scene gameChoiceScene;
+&nbsp;    private Scene lobbyScene;
+&nbsp;    private Scene gameScene;
+&nbsp;
+&nbsp;    private VBox loginBox;
+&nbsp;    private Label gameChoiceErrorLabel;
+&nbsp;    private Label loginErororLabel;
+&nbsp;    private Label lobbyNumPlayerLabel;
+&nbsp;
+&nbsp;    // Top game scene
+&nbsp;    private Label serverMessage;
+&nbsp;    private Label roundCounter;
+&nbsp;    private Integer round;
+&nbsp;    private StackPane topPane;
+&nbsp;
+&nbsp;    // Center game scene
+&nbsp;    private HBox topCenterBox;
+&nbsp;    private HBox bottomCenterBox;
+&nbsp;    private HBox offersPathBox;
+&nbsp;
+&nbsp;    // End-game ranking
+&nbsp;    private VBox endGameRankingBox;
+&nbsp;    private ToggleButton rankingToggle;
+&nbsp;    private VBox localRankingBox;
+&nbsp;    private VBox globalRankingBox;
+&nbsp;
+&nbsp;    private static final double BOARD_CARD_WIDTH = 110;
+&nbsp;    private static final double BOARD_CARD_HEIGHT = 165;
+&nbsp;    private static final double SMALL_TOTEM_WIDTH = 46;
+&nbsp;    private static final double SMALL_TOTEM_HEIGHT = 56;
+&nbsp;    private static final double END_TOTEM_WIDTH = 230;
+&nbsp;    private static final double LOBBY_TOTEM_WIDTH = 300;
+&nbsp;    private static final double END_TOTEM_BOX_WIDTH = 260;
+&nbsp;    private static final double BOARD_CARD_WIDTH_5 = 90;
+&nbsp;    private static final double BOARD_CARD_HEIGHT_5 = 135;
+&nbsp;    private double SCENE_WIDTH;
+&nbsp;    private double SCENE_HEIGHT;
+&nbsp;
+&nbsp;    // Turn order card and totem management
+<b class="nc">&nbsp;    private boolean totemClicked = false; // Enables track card selection only after the player selects their totem.</b>
+<b class="nc">&nbsp;    private final Map&lt;Character, Pane&gt; trackCardTotemLayers = new HashMap&lt;&gt;(); // Track card layers used to update placed totems.</b>
+&nbsp;    private Pane turnOrderCardTotemLayer;
+&nbsp;
+&nbsp;    // Tribe area
+&nbsp;    private HBox tribeCardsBox;
+&nbsp;    private Label selectedTribeLabel;
+&nbsp;    private ToggleGroup tribeToggleGroup;
+&nbsp;    private String selectedTribeNickname;
+&nbsp;
+&nbsp;    private VBox playersStatsBox;
+&nbsp;    private Pane lobbyTotemLayer;
+&nbsp;
+&nbsp;    private Scene gameEndingScene;
+&nbsp;    private Pane endGameTotemLayer;
+&nbsp;
+<b class="nc">&nbsp;    private boolean isButtonAlreadySelected = false;</b>
+&nbsp;
+<b class="nc">&nbsp;    private enum StatType {</b>
+<b class="nc">&nbsp;        FOOD,</b>
+<b class="nc">&nbsp;        AXE,</b>
+<b class="nc">&nbsp;        PRESTIGE,</b>
+<b class="nc">&nbsp;        STARS,</b>
+<b class="nc">&nbsp;        BOWL,</b>
+<b class="nc">&nbsp;        COLOUR</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private VBox rightStatsWrapper;
+&nbsp;    private ScrollPane statsScrollPane;
+&nbsp;    private Button toggleStatsButton;
+<b class="nc">&nbsp;    private boolean statsVisible = true;</b>
+&nbsp;
+<b class="nc">&nbsp;    private final Map&lt;String, Map&lt;StatType, Label&gt;&gt; playerStatLabels = new HashMap&lt;&gt;();</b>
+&nbsp;
+&nbsp;    // ============================================================
+&nbsp;    // Application lifecycle
+&nbsp;    // ============================================================
+&nbsp;    /**
+&nbsp;     * Initializes and starts the primary stage for the JavaFX application.
+&nbsp;     * Sets up the initial login scene.
+&nbsp;     *
+&nbsp;     * @param primaryStage the primary stage for this application
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public void start(Stage primaryStage) {
+<b class="nc">&nbsp;        this.controllerReference = new ClientController();</b>
+<b class="nc">&nbsp;        this.primaryStage = primaryStage;</b>
+&nbsp;
+<b class="nc">&nbsp;        Rectangle2D screen = Screen.getPrimary().getVisualBounds();</b>
+&nbsp;
+<b class="nc">&nbsp;        SCENE_WIDTH = screen.getWidth() * 0.80;</b>
+<b class="nc">&nbsp;        SCENE_HEIGHT = screen.getHeight() * 0.80;</b>
+&nbsp;
+<b class="nc">&nbsp;        loginScene = new Scene(createLoginScene(), SCENE_WIDTH, SCENE_HEIGHT);</b>
+&nbsp;
+<b class="nc">&nbsp;        primaryStage.setTitle(&quot;Login&quot;);</b>
+<b class="nc">&nbsp;        primaryStage.setScene(loginScene);</b>
+<b class="nc">&nbsp;        primaryStage.setResizable(true); // Resizable window.</b>
+&nbsp;
+<b class="nc">&nbsp;        primaryStage.setOnCloseRequest(event -&gt; {</b>
+<b class="nc">&nbsp;            Platform.exit();</b>
+<b class="nc">&nbsp;            System.exit(0);</b>
+&nbsp;        });
+&nbsp;
+<b class="nc">&nbsp;        primaryStage.show();</b>
+&nbsp;
+&nbsp;    }
+&nbsp;    /**
+&nbsp;     * Runs the view. For JavaFX, it doesn&#39;t need to call start() manually
+&nbsp;     * since it&#39;s automatically handled after launch().
+&nbsp;     *
+&nbsp;     * @throws IOException if an I/O error occurs
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public void run() throws IOException {
+&nbsp;        // Do not call start() here.
+&nbsp;        // JavaFX automatically calls start(Stage primaryStage) after launch().
+<b class="nc">&nbsp;    }</b>
+&nbsp;    /**
+&nbsp;     * Updates the GUI state based on an incoming event from the model.
+&nbsp;     * Must be run on the JavaFX Application Thread.
+&nbsp;     *
+&nbsp;     * @param model     the client model containing the current game state
+&nbsp;     * @param viewEvent the event to be rendered
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public void update(ClientModel model, ViewEvent viewEvent) {
+&nbsp;
+<b class="nc">&nbsp;            this.modelReference = model;</b>
+&nbsp;
+<b class="nc">&nbsp;        isButtonAlreadySelected = false;</b>
+&nbsp;
+<b class="nc">&nbsp;        Platform.runLater(() -&gt; {</b>
+<b class="nc">&nbsp;            viewEvent.render(this);</b>
+&nbsp;
+&nbsp;        });
+&nbsp;    }
+&nbsp;
+&nbsp;    // ============================================================
+&nbsp;    // View rendering callbacks
+&nbsp;    // ============================================================
+&nbsp;    /**
+&nbsp;     * Renders the login scene with an optional message.
+&nbsp;     *
+&nbsp;     * @param message the message to display, such as an error or status update
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public void renderLogin(String message) {
+<b class="nc">&nbsp;        updateLogin(&quot;&quot;);</b>
+&nbsp;    }
+&nbsp;    /**
+&nbsp;     * Renders updating logic when a player joins the game lobby.
+&nbsp;     *
+&nbsp;     * @param message an optional message from the server
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public void renderPlayerJoin(String message) {
+<b class="nc">&nbsp;        updateChoiceScene();</b>
+<b class="nc">&nbsp;        updateLobby();</b>
+&nbsp;    }
+&nbsp;    /**
+&nbsp;     * Renders the transition from the lobby to the actual game interface.
+&nbsp;     *
+&nbsp;     * @param message an optional message from the server
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public void renderGameStart(String message) {
+<b class="nc">&nbsp;        round  = 1;</b>
+<b class="nc">&nbsp;        gameCreation();</b>
+<b class="nc">&nbsp;        updatePlayerStats();</b>
+&nbsp;
+&nbsp;    }
+&nbsp;    /**
+&nbsp;     * Updates the UI when a totem has been successfully placed.
+&nbsp;     *
+&nbsp;     * @param message an optional message from the server
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public void renderTotemPlaced(String message) {
+<b class="nc">&nbsp;        updateoffersPathBox();</b>
+<b class="nc">&nbsp;        updateTop(message);</b>
+<b class="nc">&nbsp;        updatePlayerStats();</b>
+&nbsp;    }
+&nbsp;    /**
+&nbsp;     * Updates the UI when a card has been successfully picked.
+&nbsp;     *
+&nbsp;     * @param message an optional message from the server
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public void renderCardPicked(String message) {
+<b class="nc">&nbsp;        updateBoard();</b>
+<b class="nc">&nbsp;        updateSelectedTribe();</b>
+<b class="nc">&nbsp;        updateTop(message);</b>
+<b class="nc">&nbsp;        updatePlayerStats();</b>
+<b class="nc">&nbsp;        updateoffersPathBox();</b>
+&nbsp;    }
+&nbsp;    /**
+&nbsp;     * Renders the end-of-round state and progresses the round counter.
+&nbsp;     *
+&nbsp;     * @param message an optional message from the server
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public void renderEndRound(String message) {
+<b class="nc">&nbsp;        round++;</b>
+<b class="nc">&nbsp;        updateBoard();</b>
+<b class="nc">&nbsp;        updateSelectedTribe();</b>
+<b class="nc">&nbsp;        updateTop(message);</b>
+<b class="nc">&nbsp;        updatePlayerStats();</b>
+<b class="nc">&nbsp;        updateoffersPathBox();</b>
+&nbsp;
+&nbsp;    }
+&nbsp;    /**
+&nbsp;     * Renders the end-game screen with final rankings and podium.
+&nbsp;     *
+&nbsp;     * @param message an optional message from the server
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public void renderEndGame(String message) {
+<b class="nc">&nbsp;        showEndGameScene();</b>
+<b class="nc">&nbsp;        updateEndGameRankingBox();</b>
+<b class="nc">&nbsp;        updateGlobalRankingBox();</b>
+&nbsp;    }
+&nbsp;    /**
+&nbsp;     * Handles UI rendering when an unexpected disconnection occurs.
+&nbsp;     *
+&nbsp;     * @param message the disconnection cause or status message
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public void renderDisconnection(String message) {
+<b class="nc">&nbsp;        primaryStage.setScene(gameChoiceScene);</b>
+<b class="nc">&nbsp;        loginErororLabel.setText(message);</b>
+&nbsp;        // put null so they will be reinitialized with the reconnection and render game started event
+<b class="nc">&nbsp;        lobbyScene = null;</b>
+<b class="nc">&nbsp;        gameScene = null;</b>
+<b class="nc">&nbsp;        gameEndingScene = null;</b>
+&nbsp;
+&nbsp;
+&nbsp;    }
+&nbsp;    /**
+&nbsp;     * Handles UI rendering when a successful reconnection occurs.
+&nbsp;     *
+&nbsp;     * @param message the reconnection status message
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public void renderReconnection(String message) {
+<b class="nc">&nbsp;        showWaitingRoomScene();</b>
+&nbsp;    }
+&nbsp;    /**
+&nbsp;     * Rebuilds and renders the game view if it gets restarted (e.g., after reconnection in a started game).
+&nbsp;     *
+&nbsp;     * @param message the status message
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public void renderGameRestarted(String message) {
+<b class="nc">&nbsp;        gameCreation();</b>
+<b class="nc">&nbsp;        updatePlayerStats();</b>
+<b class="nc">&nbsp;        updateoffersPathBox();</b>
+&nbsp;    }
+&nbsp;    /**
+&nbsp;     * Informs the user about exceptions or errors returned from the server logic.
+&nbsp;     *
+&nbsp;     * @param message the exception payload or text
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public void renderException(String message) {
+<b class="nc">&nbsp;        if (gameScene != null) updateTop(message);</b>
+<b class="nc">&nbsp;        if (loginScene != null) loginErororLabel.setText(message);</b>
+<b class="nc">&nbsp;        if (gameChoiceScene != null) gameChoiceErrorLabel.setText(message);</b>
+&nbsp;    }
+&nbsp;    /**
+&nbsp;     * Shows a network error prominently to the user and returns them to the login.
+&nbsp;     *
+&nbsp;     * @param errorMessage the connection error message
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public void handleNetworkError(String errorMessage) {
+<b class="nc">&nbsp;        primaryStage.setScene(loginScene);</b>
+<b class="nc">&nbsp;        loginErororLabel.setText(errorMessage);</b>
+&nbsp;        // put null so they will be reinitialized with the reconnection and render game started event
+<b class="nc">&nbsp;        gameScene = null;</b>
+<b class="nc">&nbsp;        gameChoiceScene = null;</b>
+<b class="nc">&nbsp;        gameEndingScene = null;</b>
+<b class="nc">&nbsp;        lobbyScene = null;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    // ============================================================
+&nbsp;    // Login scene
+&nbsp;    // ============================================================
+&nbsp;
+&nbsp;    private BorderPane createLoginScene() {
+<b class="nc">&nbsp;        BorderPane root = new BorderPane();</b>
+<b class="nc">&nbsp;        Image backgroundImage = new Image(getClass().getResource(&quot;/background/login.png&quot;).toExternalForm());</b>
+&nbsp;
+<b class="nc">&nbsp;        BackgroundImage bgImage = new BackgroundImage(</b>
+&nbsp;                backgroundImage,
+&nbsp;                BackgroundRepeat.NO_REPEAT,
+&nbsp;                BackgroundRepeat.NO_REPEAT,
+&nbsp;                BackgroundPosition.CENTER,
+&nbsp;                new BackgroundSize(100, 100, true, true, false, true)
+&nbsp;        );
+&nbsp;
+<b class="nc">&nbsp;        root.setBackground(new Background(bgImage));</b>
+&nbsp;
+&nbsp;        // Labels
+<b class="nc">&nbsp;        Label title = new Label(&quot;Mesos&quot;);</b>
+<b class="nc">&nbsp;        title.setStyle(&quot;&quot;&quot;</b>
+&nbsp;        -fx-text-fill: white;
+&nbsp;        -fx-font-size: 46;
+&nbsp;        -fx-font-weight: bold;
+&nbsp;&quot;&quot;&quot;);
+&nbsp;
+<b class="nc">&nbsp;        Label subtitle = new Label(&quot;Chose your Nickname&quot;);</b>
+<b class="nc">&nbsp;        subtitle.</b>
+<b class="nc">&nbsp;                setStyle(&quot;&quot;&quot;</b>
+&nbsp;             -fx-text-fill: white;
+&nbsp;                -fx-font-size: 20;
+&nbsp;    &quot;&quot;&quot;);
+&nbsp;
+<b class="nc">&nbsp;        Label connectionLabel = new Label(&quot;Connection type&quot;);</b>
+<b class="nc">&nbsp;        connectionLabel.setStyle(</b>
+&nbsp;                &quot;&quot;&quot;
+&nbsp;        -fx-text-fill: white;
+&nbsp;        -fx-font-size: 16;
+&nbsp;    &quot;&quot;&quot;);
+&nbsp;
+<b class="nc">&nbsp;        loginErororLabel = new Label();</b>
+<b class="nc">&nbsp;        loginErororLabel.setStyle(&quot;&quot;&quot;</b>
+&nbsp;        -fx-text-fill: #ffb3b3;
+&nbsp;        -fx-font-size: 14;
+&nbsp;        -fx-font-weight: bold;
+&nbsp;        -fx-effect: dropshadow(gaussian, black, 5, 0.7, 1, 1);
+&nbsp;    &quot;&quot;&quot;);
+&nbsp;
+&nbsp;        // Text fields
+<b class="nc">&nbsp;        TextField nicknameField = new TextField();</b>
+<b class="nc">&nbsp;        nicknameField.setPromptText(&quot;Nickname&quot;);</b>
+<b class="nc">&nbsp;        nicknameField.setMaxWidth(300);</b>
+<b class="nc">&nbsp;        nicknameField.setPrefWidth(300);</b>
+<b class="nc">&nbsp;        nicknameField.setMaxWidth(300);</b>
+&nbsp;
+<b class="nc">&nbsp;        TextField ipField = new TextField();</b>
+<b class="nc">&nbsp;        ipField.setPromptText(&quot;server IP&quot;);</b>
+<b class="nc">&nbsp;        ipField.setMaxWidth(300);</b>
+<b class="nc">&nbsp;        ipField.setPrefWidth(210);</b>
+<b class="nc">&nbsp;        ipField.setMaxWidth(210);</b>
+&nbsp;
+<b class="nc">&nbsp;        TextField portField = new TextField();</b>
+<b class="nc">&nbsp;        portField.setPromptText(&quot;server Port&quot;);</b>
+<b class="nc">&nbsp;        portField.setMaxWidth(300);</b>
+<b class="nc">&nbsp;        portField.setPrefWidth(80);</b>
+<b class="nc">&nbsp;        portField.setMaxWidth(80);</b>
+&nbsp;
+&nbsp;        // Buttons
+<b class="nc">&nbsp;        Button connectButton = new Button(&quot;Login&quot;);</b>
+<b class="nc">&nbsp;        connectButton.setStyle(</b>
+&nbsp;                &quot;&quot;&quot;
+&nbsp;        -fx-font-size: 16;
+&nbsp;        -fx-font-weight: bold;
+&nbsp;        -fx-padding: 8 22 8 22;
+&nbsp;    &quot;&quot;&quot;);
+&nbsp;
+<b class="nc">&nbsp;        ComboBox&lt;String&gt; connectionTypeBox = new ComboBox&lt;&gt;();</b>
+<b class="nc">&nbsp;        connectionTypeBox.getItems().addAll(&quot;Socket&quot;, &quot;RMI&quot;);</b>
+<b class="nc">&nbsp;        connectionTypeBox.setValue(&quot;Socket&quot;);</b>
+<b class="nc">&nbsp;        connectionTypeBox.setMaxWidth(300);</b>
+&nbsp;
+<b class="nc">&nbsp;        connectButton.setOnAction(event -&gt; {</b>
+<b class="nc">&nbsp;            if (!isButtonAlreadySelected) {</b>
+<b class="nc">&nbsp;                String insertedNickname = nicknameField.getText().trim().toLowerCase();</b>
+<b class="nc">&nbsp;                String insertedIp = ipField.getText().trim();</b>
+<b class="nc">&nbsp;                String insertedPort = portField.getText().trim();</b>
+&nbsp;
+<b class="nc">&nbsp;                if (insertedNickname.isEmpty() || insertedIp.isEmpty() || insertedPort.isEmpty()) {</b>
+<b class="nc">&nbsp;                    loginErororLabel.setText(&quot;Insert all the fields to connect.&quot;);</b>
+<b class="nc">&nbsp;                    isButtonAlreadySelected = false;</b>
+&nbsp;                    return;
+&nbsp;                }
+&nbsp;
+<b class="nc">&nbsp;                String netProtocol = connectionTypeBox.getValue().toLowerCase();</b>
+<b class="nc">&nbsp;                connect(insertedNickname, netProtocol, insertedIp, insertedPort); // Send the connection request to the controller.</b>
+&nbsp;
+&nbsp;            }
+&nbsp;
+&nbsp;        });
+&nbsp;
+<b class="nc">&nbsp;        nicknameField.setOnAction(event -&gt; connectButton.fire());</b>
+&nbsp;
+<b class="nc">&nbsp;        loginBox = new VBox(12);</b>
+<b class="nc">&nbsp;        loginBox.setAlignment(Pos.CENTER);</b>
+<b class="nc">&nbsp;        loginBox.setMaxWidth(420);</b>
+<b class="nc">&nbsp;        loginBox.setStyle(&quot;&quot;&quot;</b>
+&nbsp;    -fx-background-color: transparent;
+&nbsp;    -fx-background-radius: 16;
+&nbsp;    -fx-padding: 35;
+&nbsp;&quot;&quot;&quot;);
+&nbsp;
+<b class="nc">&nbsp;        HBox serverBox = new HBox(10);</b>
+<b class="nc">&nbsp;        serverBox.setAlignment(Pos.CENTER);</b>
+<b class="nc">&nbsp;        serverBox.getChildren().addAll(ipField, portField);</b>
+<b class="nc">&nbsp;        connectionTypeBox.setPrefWidth(300);</b>
+<b class="nc">&nbsp;        connectionTypeBox.setMaxWidth(300);</b>
+&nbsp;
+<b class="nc">&nbsp;        VBox.setMargin(connectButton, new Insets(10, 0, 0, 0));</b>
+<b class="nc">&nbsp;        loginBox.getChildren().addAll(</b>
+&nbsp;                title,
+&nbsp;                subtitle,
+&nbsp;                nicknameField,
+&nbsp;                serverBox,
+&nbsp;                connectionLabel,
+&nbsp;                connectionTypeBox,
+&nbsp;                connectButton,
+&nbsp;                loginErororLabel
+&nbsp;
+&nbsp;        );
+&nbsp;
+<b class="nc">&nbsp;        root.setCenter(loginBox);</b>
+<b class="nc">&nbsp;        return root;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private void showGameChoiceScene() {
+<b class="nc">&nbsp;        if (gameChoiceScene == null) {</b>
+<b class="nc">&nbsp;            gameChoiceScene = new Scene(createGameChoiceScene(), SCENE_WIDTH, SCENE_HEIGHT);</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        primaryStage.setTitle(&quot;Game Menu&quot;);</b>
+<b class="nc">&nbsp;        primaryStage.setScene(gameChoiceScene);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private void updateLogin(String message) {
+<b class="nc">&nbsp;        if (loginBox == null) return;</b>
+&nbsp;
+<b class="nc">&nbsp;        loginErororLabel.setText(message);</b>
+<b class="nc">&nbsp;        showGameChoiceScene();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    // ============================================================
+&nbsp;    // Game choice scene
+&nbsp;    // ============================================================
+&nbsp;
+&nbsp;    private BorderPane createGameChoiceScene() {
+<b class="nc">&nbsp;        BorderPane root = new BorderPane();</b>
+&nbsp;
+<b class="nc">&nbsp;        Image backgroundImage = new Image(</b>
+<b class="nc">&nbsp;                getClass().getResource(&quot;/background/login.png&quot;).toExternalForm()</b>
+&nbsp;        );
+&nbsp;
+<b class="nc">&nbsp;        BackgroundImage bgImage = new BackgroundImage(</b>
+&nbsp;                backgroundImage,
+&nbsp;                BackgroundRepeat.NO_REPEAT,
+&nbsp;                BackgroundRepeat.NO_REPEAT,
+&nbsp;                BackgroundPosition.CENTER,
+&nbsp;                new BackgroundSize(100, 100, true, true, false, true)
+&nbsp;        );
+&nbsp;
+<b class="nc">&nbsp;        root.setBackground(new Background(bgImage));</b>
+&nbsp;
+<b class="nc">&nbsp;        Label title = new Label(&quot;HELLO WELCOME TO MESOS&quot;);</b>
+<b class="nc">&nbsp;        title.setStyle(&quot;&quot;&quot;</b>
+&nbsp;        -fx-text-fill: white;
+&nbsp;        -fx-font-size: 38;
+&nbsp;        -fx-font-weight: bold;
+&nbsp;        -fx-effect: dropshadow(gaussian, black, 8, 0.8, 2, 2);
+&nbsp;    &quot;&quot;&quot;);
+&nbsp;
+<b class="nc">&nbsp;        BorderPane.setAlignment(title, Pos.CENTER);</b>
+<b class="nc">&nbsp;        BorderPane.setMargin(title, new Insets(35, 0, 0, 0));</b>
+<b class="nc">&nbsp;        root.setTop(title);</b>
+&nbsp;
+<b class="nc">&nbsp;        VBox createBox = new VBox(14);</b>
+<b class="nc">&nbsp;        createBox.setAlignment(Pos.CENTER);</b>
+<b class="nc">&nbsp;        createBox.setPrefWidth(280);</b>
+<b class="nc">&nbsp;        createBox.setStyle(&quot;&quot;&quot;</b>
+&nbsp;        -fx-background-color: transparent;
+&nbsp;        -fx-background-radius: 16;
+&nbsp;        -fx-padding: 25;
+&nbsp;    &quot;&quot;&quot;);
+&nbsp;
+<b class="nc">&nbsp;        VBox joinBox = new VBox(14);</b>
+<b class="nc">&nbsp;        joinBox.setAlignment(Pos.CENTER);</b>
+<b class="nc">&nbsp;        joinBox.setPrefWidth(280);</b>
+<b class="nc">&nbsp;        joinBox.setStyle(&quot;&quot;&quot;</b>
+&nbsp;        -fx-background-color: transparent;
+&nbsp;        -fx-background-radius: 16;
+&nbsp;        -fx-padding: 25;
+&nbsp;    &quot;&quot;&quot;);
+&nbsp;
+<b class="nc">&nbsp;        VBox centerBox = new VBox(12);</b>
+<b class="nc">&nbsp;        centerBox.setAlignment(Pos.CENTER);</b>
+<b class="nc">&nbsp;        centerBox.setPrefWidth(300);</b>
+<b class="nc">&nbsp;        centerBox.setStyle(&quot;&quot;&quot;</b>
+&nbsp;        -fx-background-color: transparent;
+&nbsp;        -fx-background-radius: 16;
+&nbsp;        -fx-padding: 10;
+&nbsp;    &quot;&quot;&quot;);
+&nbsp;
+<b class="nc">&nbsp;        Button createGameButton = new Button(&quot;Create Game&quot;);</b>
+<b class="nc">&nbsp;        Button joinGameButton = new Button(&quot;Join Game&quot;);</b>
+&nbsp;
+<b class="nc">&nbsp;        createGameButton.setPrefWidth(240);</b>
+<b class="nc">&nbsp;        joinGameButton.setPrefWidth(240);</b>
+&nbsp;
+<b class="nc">&nbsp;        createGameButton.setStyle(&quot;&quot;&quot;</b>
+&nbsp;        -fx-font-size: 17;
+&nbsp;        -fx-font-weight: bold;
+&nbsp;        -fx-padding: 10 20 10 20;
+&nbsp;    &quot;&quot;&quot;);
+&nbsp;
+<b class="nc">&nbsp;        joinGameButton.setStyle(&quot;&quot;&quot;</b>
+&nbsp;        -fx-font-size: 17;
+&nbsp;        -fx-font-weight: bold;
+&nbsp;        -fx-padding: 10 20 10 20;
+&nbsp;    &quot;&quot;&quot;);
+&nbsp;
+<b class="nc">&nbsp;        ComboBox&lt;Integer&gt; playersNumberBox = new ComboBox&lt;&gt;();</b>
+<b class="nc">&nbsp;        playersNumberBox.getItems().addAll(2, 3, 4, 5);</b>
+<b class="nc">&nbsp;        playersNumberBox.setValue(2);</b>
+<b class="nc">&nbsp;        playersNumberBox.setMaxWidth(240);</b>
+&nbsp;
+<b class="nc">&nbsp;        ComboBox&lt;String&gt; totemColorBox = new ComboBox&lt;&gt;();</b>
+<b class="nc">&nbsp;        totemColorBox.getItems().addAll(</b>
+&nbsp;                &quot;RED&quot;,
+&nbsp;                &quot;BLUE&quot;,
+&nbsp;                &quot;PURPLE&quot;,
+&nbsp;                &quot;WHITE&quot;,
+&nbsp;                &quot;YELLOW&quot;
+&nbsp;        );
+<b class="nc">&nbsp;        totemColorBox.setValue(&quot;RED&quot;);</b>
+<b class="nc">&nbsp;        totemColorBox.setMaxWidth(240);</b>
+&nbsp;
+<b class="nc">&nbsp;        TextField idField = new TextField();</b>
+<b class="nc">&nbsp;        idField.setPromptText(&quot;Game ID&quot;);</b>
+<b class="nc">&nbsp;        idField.setMaxWidth(240);</b>
+&nbsp;
+<b class="nc">&nbsp;        gameChoiceErrorLabel = new Label();</b>
+<b class="nc">&nbsp;        gameChoiceErrorLabel.setWrapText(true);</b>
+<b class="nc">&nbsp;        gameChoiceErrorLabel.setMaxWidth(260);</b>
+<b class="nc">&nbsp;        gameChoiceErrorLabel.setAlignment(Pos.CENTER);</b>
+<b class="nc">&nbsp;        gameChoiceErrorLabel.setStyle(&quot;&quot;&quot;</b>
+&nbsp;        -fx-text-fill: #ffb3b3;
+&nbsp;        -fx-font-size: 14;
+&nbsp;        -fx-font-weight: bold;
+&nbsp;        -fx-effect: dropshadow(gaussian, black, 5, 0.7, 1, 1);
+&nbsp;    &quot;&quot;&quot;);
+&nbsp;
+<b class="nc">&nbsp;        Label colorLabel = new Label(&quot;Choose your totem color&quot;);</b>
+<b class="nc">&nbsp;        colorLabel.setStyle(&quot;&quot;&quot;</b>
+&nbsp;        -fx-text-fill: white;
+&nbsp;        -fx-font-size: 16;
+&nbsp;        -fx-font-weight: bold;
+&nbsp;    &quot;&quot;&quot;);
+&nbsp;
+<b class="nc">&nbsp;        Label playersLabel = new Label(&quot;Number of players&quot;);</b>
+<b class="nc">&nbsp;        playersLabel.setStyle(&quot;&quot;&quot;</b>
+&nbsp;        -fx-text-fill: white;
+&nbsp;        -fx-font-size: 16;
+&nbsp;        -fx-font-weight: bold;
+&nbsp;    &quot;&quot;&quot;);
+&nbsp;
+<b class="nc">&nbsp;        Label gameIdLabel = new Label(&quot;Game ID&quot;);</b>
+<b class="nc">&nbsp;        gameIdLabel.setStyle(&quot;&quot;&quot;</b>
+&nbsp;        -fx-text-fill: white;
+&nbsp;        -fx-font-size: 16;
+&nbsp;        -fx-font-weight: bold;
+&nbsp;    &quot;&quot;&quot;);
+&nbsp;
+<b class="nc">&nbsp;        createBox.getChildren().addAll(</b>
+&nbsp;                playersLabel,
+&nbsp;                playersNumberBox,
+&nbsp;                createGameButton
+&nbsp;        );
+&nbsp;
+<b class="nc">&nbsp;        centerBox.getChildren().addAll(</b>
+&nbsp;                gameChoiceErrorLabel,
+&nbsp;                colorLabel,
+&nbsp;                totemColorBox
+&nbsp;        );
+&nbsp;
+<b class="nc">&nbsp;        joinBox.getChildren().addAll(</b>
+&nbsp;                gameIdLabel,
+&nbsp;                idField,
+&nbsp;                joinGameButton
+&nbsp;        );
+&nbsp;
+<b class="nc">&nbsp;        HBox mainContent = new HBox(90);</b>
+<b class="nc">&nbsp;        mainContent.setAlignment(Pos.CENTER);</b>
+<b class="nc">&nbsp;        mainContent.getChildren().addAll(createBox, centerBox, joinBox);</b>
+&nbsp;
+<b class="nc">&nbsp;        createBox.setTranslateY(-200);</b>
+<b class="nc">&nbsp;        joinBox.setTranslateY(-200);</b>
+<b class="nc">&nbsp;        centerBox.setTranslateY(-20);</b>
+&nbsp;
+<b class="nc">&nbsp;        BorderPane.setAlignment(mainContent, Pos.CENTER);</b>
+<b class="nc">&nbsp;        root.setCenter(mainContent);</b>
+&nbsp;
+<b class="nc">&nbsp;        createGameButton.setOnAction(event -&gt; {</b>
+<b class="nc">&nbsp;            if (!isButtonAlreadySelected) {</b>
+&nbsp;
+<b class="nc">&nbsp;                isButtonAlreadySelected = true;</b>
+<b class="nc">&nbsp;                String insertedNickname = modelReference.getHomePlayerNickname();</b>
+<b class="nc">&nbsp;                String totemColorChoice = totemColorBox.getValue().toLowerCase();</b>
+<b class="nc">&nbsp;                int numPlayersChoice = playersNumberBox.getValue();</b>
+&nbsp;
+<b class="nc">&nbsp;                createGame(insertedNickname, numPlayersChoice, totemColorChoice);</b>
+&nbsp;            }
+&nbsp;        });
+&nbsp;
+<b class="nc">&nbsp;        joinGameButton.setOnAction(event -&gt; {</b>
+&nbsp;
+<b class="nc">&nbsp;            if (!isButtonAlreadySelected) {</b>
+&nbsp;
+<b class="nc">&nbsp;                isButtonAlreadySelected = true;</b>
+<b class="nc">&nbsp;                String gameIdText = idField.getText().trim();</b>
+&nbsp;                int gameId;
+&nbsp;
+&nbsp;                try {
+<b class="nc">&nbsp;                    gameId = Integer.parseInt(gameIdText);</b>
+&nbsp;                } catch (NumberFormatException e) {
+<b class="nc">&nbsp;                    gameChoiceErrorLabel.setText(&quot;Please enter a valid numeric game ID.&quot;);</b>
+<b class="nc">&nbsp;                    isButtonAlreadySelected = false;</b>
+&nbsp;                    return;
+&nbsp;                }
+&nbsp;
+<b class="nc">&nbsp;                String insertedNickname = modelReference.getHomePlayerNickname();</b>
+<b class="nc">&nbsp;                String totemColorChoice = totemColorBox.getValue().toLowerCase();</b>
+&nbsp;
+<b class="nc">&nbsp;                joinGame(insertedNickname, gameId, totemColorChoice);</b>
+&nbsp;            }
+&nbsp;        });
+&nbsp;
+<b class="nc">&nbsp;        return root;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private void updateChoiceScene() {
+&nbsp;
+<b class="nc">&nbsp;        if (gameChoiceScene == null) { // Ignore updates that arrive before the scene is created.</b>
+&nbsp;            return;}
+&nbsp;
+<b class="nc">&nbsp;        showLobbyScene(); // Move to the lobby after a successful create or join operation.</b>
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;    private void showLobbyScene() {
+<b class="nc">&nbsp;        if (lobbyScene == null) {</b>
+<b class="nc">&nbsp;            lobbyScene = new Scene(createLobbyScene(), SCENE_WIDTH, SCENE_HEIGHT);</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        primaryStage.setTitle(&quot;Lobby&quot;);</b>
+<b class="nc">&nbsp;        primaryStage.setScene(lobbyScene);</b>
+&nbsp;
+&nbsp;    }
+&nbsp;
+&nbsp;    private void showWaitingRoomScene(){
+<b class="nc">&nbsp;        if(waitingRoomScene == null){</b>
+<b class="nc">&nbsp;            StackPane reconnectPane = new StackPane();</b>
+<b class="nc">&nbsp;            ImageView waitingRoom = new ImageView(getClass().getResource(&quot;/background/waitingRoom.png&quot;).toExternalForm()); // Background image.</b>
+<b class="nc">&nbsp;            waitingRoom.setPreserveRatio(false);</b>
+<b class="nc">&nbsp;            waitingRoom.fitWidthProperty().bind(reconnectPane.widthProperty());</b>
+<b class="nc">&nbsp;            waitingRoom.fitHeightProperty().bind(reconnectPane.heightProperty());</b>
+<b class="nc">&nbsp;            reconnectPane.getChildren().add(waitingRoom);</b>
+<b class="nc">&nbsp;            waitingRoomScene = new Scene(reconnectPane, SCENE_WIDTH, SCENE_HEIGHT);</b>
+&nbsp;        }
+<b class="nc">&nbsp;        primaryStage.setTitle(&quot;Waiting Room&quot;);</b>
+<b class="nc">&nbsp;        primaryStage.setScene(waitingRoomScene);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;    // ============================================================
+&nbsp;    // Lobby scene
+&nbsp;    // ============================================================
+&nbsp;
+&nbsp;    private StackPane createLobbyScene() {
+<b class="nc">&nbsp;        StackPane lobbyRoot = new StackPane();</b>
+&nbsp;
+<b class="nc">&nbsp;        ImageView background = new ImageView(getClass().getResource(&quot;/background/lobby.png&quot;).toExternalForm()); // Background image.</b>
+&nbsp;
+<b class="nc">&nbsp;        background.setPreserveRatio(false);</b>
+<b class="nc">&nbsp;        background.fitWidthProperty().bind(lobbyRoot.widthProperty());</b>
+<b class="nc">&nbsp;        background.fitHeightProperty().bind(lobbyRoot.heightProperty());</b>
+&nbsp;
+<b class="nc">&nbsp;        lobbyTotemLayer = new Pane();</b>
+<b class="nc">&nbsp;        lobbyTotemLayer.setPickOnBounds(false);</b>
+&nbsp;
+<b class="nc">&nbsp;        updateLobby(); // Draw the totems of the players currently in the lobby.</b>
+&nbsp;
+<b class="nc">&nbsp;        VBox topOverlay = createLobbyLabels();</b>
+&nbsp;
+<b class="nc">&nbsp;        StackPane.setAlignment(topOverlay, Pos.TOP_CENTER);</b>
+<b class="nc">&nbsp;        StackPane.setMargin(topOverlay, new Insets(20, 0, 0, 0));</b>
+&nbsp;
+<b class="nc">&nbsp;        lobbyRoot.getChildren().addAll(background, lobbyTotemLayer, topOverlay);</b>
+&nbsp;
+<b class="nc">&nbsp;        return lobbyRoot;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private VBox createLobbyLabels() {
+<b class="nc">&nbsp;        VBox box = new VBox(6);</b>
+<b class="nc">&nbsp;        box.setAlignment(Pos.CENTER);</b>
+&nbsp;
+<b class="nc">&nbsp;        box.setMaxWidth(Region.USE_PREF_SIZE);</b>
+<b class="nc">&nbsp;        box.setMaxHeight(Region.USE_PREF_SIZE);</b>
+&nbsp;
+<b class="nc">&nbsp;        box.setStyle(&quot;&quot;&quot;</b>
+&nbsp;        -fx-padding: 10 0 0 0;
+&nbsp;    &quot;&quot;&quot;);
+&nbsp;
+<b class="nc">&nbsp;        Label title = new Label(&quot;MESOS LOBBY&quot;);</b>
+<b class="nc">&nbsp;        title.setStyle(&quot;&quot;&quot;</b>
+&nbsp;        -fx-text-fill: white;
+&nbsp;        -fx-font-size: 38;
+&nbsp;        -fx-font-weight: bold;
+&nbsp;        -fx-effect: dropshadow(gaussian, black, 8, 0.8, 2, 2);
+&nbsp;    &quot;&quot;&quot;);
+&nbsp;
+<b class="nc">&nbsp;        Label lobbyGameIdLabel = new Label(&quot;GAME ID: &quot; + modelReference.getGameId());</b>
+<b class="nc">&nbsp;        lobbyGameIdLabel.setStyle(&quot;&quot;&quot;</b>
+&nbsp;        -fx-text-fill: #ffd36b;
+&nbsp;        -fx-font-size: 17;
+&nbsp;        -fx-font-weight: bold;
+&nbsp;        -fx-effect: dropshadow(gaussian, black, 6, 0.8, 1, 1);
+&nbsp;    &quot;&quot;&quot;);
+&nbsp;
+<b class="nc">&nbsp;        lobbyNumPlayerLabel = new Label(&quot;Waiting for players : 1 /&quot; + modelReference.getNumPlayers()) ;</b>
+<b class="nc">&nbsp;        lobbyNumPlayerLabel.setStyle(&quot;&quot;&quot;</b>
+&nbsp;        -fx-text-fill: white;
+&nbsp;        -fx-font-size: 15;
+&nbsp;        -fx-effect: dropshadow(gaussian, black, 6, 0.8, 1, 1);
+&nbsp;    &quot;&quot;&quot;);
+&nbsp;
+<b class="nc">&nbsp;        box.getChildren().addAll(title, lobbyGameIdLabel, lobbyNumPlayerLabel);</b>
+&nbsp;
+<b class="nc">&nbsp;        return box;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private void updateLobby() {
+<b class="nc">&nbsp;        if (lobbyScene == null) return;</b>
+&nbsp;
+<b class="nc">&nbsp;        int playerNumber = 0;</b>
+<b class="nc">&nbsp;        lobbyTotemLayer.getChildren().clear();</b>
+&nbsp;
+<b class="nc">&nbsp;        ArrayList&lt;ClientPlayer&gt; players = new ArrayList&lt;&gt;();</b>
+&nbsp;
+<b class="nc">&nbsp;        if (modelReference.getHomePlayer() != null) {</b>
+<b class="nc">&nbsp;            players.add(modelReference.getHomePlayer());</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        if (modelReference.getOtherPlayers() != null) {</b>
+<b class="nc">&nbsp;            players.addAll(modelReference.getOtherPlayers());</b>
+&nbsp;        }
+&nbsp;
+&nbsp;
+&nbsp;
+<b class="nc">&nbsp;        for (ClientPlayer player : players) {</b>
+<b class="nc">&nbsp;            if (player == null) continue;</b>
+<b class="nc">&nbsp;            playerNumber++;</b>
+&nbsp;
+&nbsp;
+<b class="nc">&nbsp;            String color = player.getTotemColor();</b>
+&nbsp;
+<b class="nc">&nbsp;            color = color.toLowerCase();</b>
+&nbsp;
+<b class="nc">&nbsp;            VBox totemBox = createLobbyTotemBox(player);</b>
+<b class="nc">&nbsp;            placeTotemByColor(totemBox, color);</b>
+<b class="nc">&nbsp;            lobbyTotemLayer.getChildren().add(totemBox);</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        lobbyNumPlayerLabel.setText(&quot;Waiting for players : &quot;+ playerNumber + &quot;/&quot; + modelReference.getNumPlayers());</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private void placeTotemByColor(VBox node, String color) {
+<b class="nc">&nbsp;        if (color == null) return;</b>
+&nbsp;
+&nbsp;        double xRatio;
+&nbsp;        double yRatio;
+&nbsp;
+<b class="nc">&nbsp;        switch (color.toLowerCase()) {</b>
+&nbsp;            case &quot;red&quot; -&gt; {
+<b class="nc">&nbsp;                xRatio = 0.065;</b>
+<b class="nc">&nbsp;                yRatio = 0.405;</b>
+&nbsp;            }
+&nbsp;            case &quot;yellow&quot; -&gt; {
+<b class="nc">&nbsp;                xRatio = 0.235;</b>
+<b class="nc">&nbsp;                yRatio = 0.395;</b>
+&nbsp;            }
+&nbsp;            case &quot;blue&quot; -&gt; {
+<b class="nc">&nbsp;                xRatio = 0.425;</b>
+<b class="nc">&nbsp;                yRatio = 0.415;</b>
+&nbsp;            }
+&nbsp;            case &quot;purple&quot; -&gt; {
+<b class="nc">&nbsp;                xRatio = 0.600;</b>
+<b class="nc">&nbsp;                yRatio = 0.405;</b>
+&nbsp;            }
+&nbsp;            case &quot;white&quot; -&gt; {
+<b class="nc">&nbsp;                xRatio = 0.745;</b>
+<b class="nc">&nbsp;                yRatio = 0.395;</b>
+&nbsp;            }
+&nbsp;            default -&gt; {
+<b class="nc">&nbsp;                xRatio = 0.45;</b>
+<b class="nc">&nbsp;                yRatio = 0.40;</b>
+&nbsp;            }
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        node.layoutXProperty().bind(lobbyTotemLayer.widthProperty().multiply(xRatio));</b>
+<b class="nc">&nbsp;        node.layoutYProperty().bind(lobbyTotemLayer.heightProperty().multiply(yRatio));</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private VBox createLobbyTotemBox(ClientPlayer player) {
+<b class="nc">&nbsp;        VBox box = new VBox(4);</b>
+<b class="nc">&nbsp;        box.setAlignment(Pos.CENTER);</b>
+&nbsp;
+<b class="nc">&nbsp;        String color = player.getTotemColor();</b>
+&nbsp;
+<b class="nc">&nbsp;        Label name = new Label(player.getNickname());</b>
+<b class="nc">&nbsp;        name.setStyle(&quot;&quot;&quot;</b>
+&nbsp;        -fx-text-fill: white;
+&nbsp;        -fx-font-size: 17;
+&nbsp;        -fx-font-weight: bold;
+&nbsp;        -fx-effect: dropshadow(gaussian, black, 7, 0.9, 1, 1);
+&nbsp;    &quot;&quot;&quot;);
+&nbsp;
+<b class="nc">&nbsp;        ImageView totem = createAngryTotem(color.toLowerCase(), &quot;lobby&quot;);</b>
+&nbsp;
+<b class="nc">&nbsp;        box.getChildren().addAll(name, totem);</b>
+&nbsp;
+<b class="nc">&nbsp;        return box;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    // ============================================================
+&nbsp;    // Communications actions
+&nbsp;    // ============================================================
+&nbsp;
+&nbsp;    private void connect(String chosenNickname, String netProtocol, String IP, String port) {
+&nbsp;        try {
+&nbsp;            int portNumber;
+&nbsp;            try {
+<b class="nc">&nbsp;                portNumber = Integer.parseInt(port);</b>
+&nbsp;            } catch (NumberFormatException e) {
+<b class="nc">&nbsp;                loginErororLabel.setText(&quot;Please enter a valid numeric port.&quot;);</b>
+<b class="nc">&nbsp;                isButtonAlreadySelected = false;</b>
+&nbsp;                return;
+&nbsp;            }
+&nbsp;
+<b class="nc">&nbsp;            this.controllerReference.connect(netProtocol, IP, portNumber, chosenNickname, this);</b>
+&nbsp;
+&nbsp;        } catch (Exception e) {
+<b class="nc">&nbsp;            loginErororLabel.setText(&quot;A network error occurred while sending your request. Please try again.&quot;);</b>
+<b class="nc">&nbsp;            isButtonAlreadySelected = false;</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    private void createGame(String chosenNickname, int numPlayers, String totemColor) throws IllegalArgumentException {
+&nbsp;
+&nbsp;        try {
+<b class="nc">&nbsp;            controllerReference.createGame(numPlayers, totemColor);</b>
+&nbsp;        } catch (Exception e) {
+<b class="nc">&nbsp;            gameChoiceErrorLabel.setText(&quot;A network error occurred while sending your request. Please try again.&quot;);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    private void joinGame(String nickname, int gameId, String totemColor) throws IllegalArgumentException {
+&nbsp;
+&nbsp;        try {
+<b class="nc">&nbsp;            controllerReference.joinGame(gameId, totemColor);</b>
+&nbsp;        } catch (Exception e) {
+<b class="nc">&nbsp;            gameChoiceErrorLabel.setText(&quot;A network error occurred while sending your request. Please try again.&quot;);</b>
+&nbsp;        }
+&nbsp;
+&nbsp;    }
+&nbsp;
+&nbsp;    private void gameCreation() {
+&nbsp;
+<b class="nc">&nbsp;        if (gameScene == null) {</b>
+<b class="nc">&nbsp;            createGameScene();</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        showGameScene();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    // ============================================================
+&nbsp;    // GAME SCENE
+&nbsp;    // ============================================================
+&nbsp;    private void addHoverEffect(ImageView card) {
+<b class="nc">&nbsp;        card.setOnMouseEntered(e -&gt; {</b>
+<b class="nc">&nbsp;            TranslateTransition tt = new TranslateTransition(Duration.millis(120), card);</b>
+<b class="nc">&nbsp;            tt.setToY(-12);</b>
+<b class="nc">&nbsp;            tt.play();</b>
+&nbsp;        });
+&nbsp;
+<b class="nc">&nbsp;        card.setOnMouseExited(e -&gt; {</b>
+<b class="nc">&nbsp;            TranslateTransition tt = new TranslateTransition(Duration.millis(120), card);</b>
+<b class="nc">&nbsp;            tt.setToY(0);</b>
+<b class="nc">&nbsp;            tt.play();</b>
+&nbsp;        });
+&nbsp;    }
+&nbsp;    private void addHoverEffect(Node node) {
+<b class="nc">&nbsp;        node.setOnMouseEntered(e -&gt; node.setTranslateY(-12));</b>
+<b class="nc">&nbsp;        node.setOnMouseExited(e -&gt; node.setTranslateY(0));</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private void createGameScene() {
+<b class="nc">&nbsp;        BorderPane root = new BorderPane();</b>
+&nbsp;
+<b class="nc">&nbsp;        Image backgroundImage = new Image(getClass().getResource(&quot;/background/game.jpeg&quot;).toExternalForm());</b>
+&nbsp;
+<b class="nc">&nbsp;        BackgroundImage bgImage = new BackgroundImage(</b>
+&nbsp;                backgroundImage,
+&nbsp;                BackgroundRepeat.NO_REPEAT,
+&nbsp;                BackgroundRepeat.NO_REPEAT,
+&nbsp;                BackgroundPosition.CENTER,
+&nbsp;                new BackgroundSize(100, 100, true, true, false, true)
+&nbsp;        );
+&nbsp;
+<b class="nc">&nbsp;        root.setBackground(new Background(bgImage));</b>
+&nbsp;
+<b class="nc">&nbsp;        root.setTop(createTop());</b>
+<b class="nc">&nbsp;        root.setCenter(createCenter());</b>
+<b class="nc">&nbsp;        root.setRight(createRight());</b>
+<b class="nc">&nbsp;        root.setBottom(createBottom());</b>
+&nbsp;
+<b class="nc">&nbsp;        ScrollPane gameScroll = new ScrollPane(root);</b>
+&nbsp;
+<b class="nc">&nbsp;        gameScroll.setFitToWidth(true);</b>
+<b class="nc">&nbsp;        gameScroll.setFitToHeight(false);</b>
+&nbsp;
+<b class="nc">&nbsp;        gameScroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);</b>
+<b class="nc">&nbsp;        gameScroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);</b>
+&nbsp;
+<b class="nc">&nbsp;        gameScroll.setStyle(&quot;&quot;&quot;</b>
+&nbsp;        -fx-background-color: transparent;
+&nbsp;        -fx-background: transparent;
+&nbsp;        -fx-control-inner-background: transparent;
+&nbsp;    &quot;&quot;&quot;);
+&nbsp;
+<b class="nc">&nbsp;        gameScroll.viewportBoundsProperty().addListener((obs, oldBounds, newBounds) -&gt; {</b>
+<b class="nc">&nbsp;            root.setMinWidth(newBounds.getWidth());</b>
+&nbsp;
+<b class="nc">&nbsp;            double minHeight = Math.max(SCENE_HEIGHT, newBounds.getHeight());</b>
+<b class="nc">&nbsp;            root.setMinHeight(minHeight);</b>
+&nbsp;        });
+&nbsp;
+<b class="nc">&nbsp;        gameScene = new Scene(gameScroll, SCENE_WIDTH, SCENE_HEIGHT);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private void showGameScene() {
+<b class="nc">&nbsp;        if (primaryStage == null || gameScene == null) return;</b>
+&nbsp;
+<b class="nc">&nbsp;        if (primaryStage.getScene() != gameScene) {</b>
+<b class="nc">&nbsp;            primaryStage.setTitle(&quot;Game - &quot; + modelReference.getNumPlayers() + &quot; Players&quot;);</b>
+<b class="nc">&nbsp;            primaryStage.setScene(gameScene);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    // ------------------------------------------------------------
+&nbsp;    // Top area
+&nbsp;    // ------------------------------------------------------------
+&nbsp;
+&nbsp;    private StackPane createTop() {
+<b class="nc">&nbsp;        topPane = new StackPane();</b>
+<b class="nc">&nbsp;        topPane.setStyle(&quot;-fx-background-color: rgb(255, 0, 0); -fx-padding: 15;&quot;);</b>
+&nbsp;
+<b class="nc">&nbsp;        serverMessage = new Label();</b>
+<b class="nc">&nbsp;        serverMessage.setStyle(&quot;-fx-text-fill: #ffffff; -fx-font-size: 20; -fx-font-weight: bold;&quot;);</b>
+&nbsp;
+<b class="nc">&nbsp;        roundCounter = new Label();</b>
+<b class="nc">&nbsp;        roundCounter.setStyle(&quot;-fx-text-fill: #ffffff; -fx-font-size: 15; -fx-font-weight: bold;&quot;);</b>
+&nbsp;
+&nbsp;
+<b class="nc">&nbsp;        StackPane.setAlignment(serverMessage, Pos.CENTER);</b>
+<b class="nc">&nbsp;        StackPane.setAlignment(roundCounter, Pos.CENTER_RIGHT);</b>
+&nbsp;
+<b class="nc">&nbsp;        topPane.getChildren().addAll(serverMessage, roundCounter);</b>
+&nbsp;
+<b class="nc">&nbsp;        updateTop(&quot;Game has Started&quot;);</b>
+&nbsp;
+<b class="nc">&nbsp;        return topPane;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private void updateTop (String message) {
+<b class="nc">&nbsp;        if (topPane == null) return;</b>
+<b class="nc">&nbsp;        serverMessage.setText(message);</b>
+<b class="nc">&nbsp;        String roundString = &quot;Current Round: &quot; + round.toString();</b>
+<b class="nc">&nbsp;        roundCounter.setText(roundString);</b>
+&nbsp;
+&nbsp;    }
+&nbsp;
+&nbsp;    // ------------------------------------------------------------
+&nbsp;    // Center board area
+&nbsp;    // ------------------------------------------------------------
+&nbsp;
+&nbsp;    private StackPane createCenter() {
+<b class="nc">&nbsp;        StackPane centerWrapper = new StackPane();</b>
+<b class="nc">&nbsp;        centerWrapper.setStyle(&quot;-fx-background-color: transparent;&quot;);</b>
+<b class="nc">&nbsp;        ImageView deck =  new ImageView(getClass().getResource(&quot;/deck/1.png&quot;).toExternalForm());// parto con uno e poi aggiorno con il primo endRound</b>
+<b class="nc">&nbsp;        deck.setFitWidth(BOARD_CARD_WIDTH);</b>
+<b class="nc">&nbsp;        deck.setFitHeight(BOARD_CARD_HEIGHT);</b>
+&nbsp;
+<b class="nc">&nbsp;        StackPane turnOrderCard = createTurnOrderCardStack();</b>
+&nbsp;
+<b class="nc">&nbsp;        ArrayList&lt;Character&gt; trackCards = modelReference.getOffersPath();</b>
+&nbsp;
+&nbsp;        // Center game scene
+<b class="nc">&nbsp;        VBox centerBox = new VBox(25);</b>
+<b class="nc">&nbsp;        centerBox.setAlignment(Pos.CENTER);</b>
+<b class="nc">&nbsp;        centerBox.setStyle(&quot;-fx-padding: 30;&quot;);</b>
+&nbsp;
+<b class="nc">&nbsp;        HBox topDeckable = createCardRow(); // Top deckable row.</b>
+<b class="nc">&nbsp;        HBox topBuilding = createCardRow(); // Top building row.</b>
+<b class="nc">&nbsp;        HBox bottomDeckable = createCardRow(); // Bottom deckable row.</b>
+<b class="nc">&nbsp;        HBox bottomBuilding = createCardRow(); // Bottom building row.</b>
+<b class="nc">&nbsp;        HBox bottomResults = createEndCardHBox(); // Bottom results row</b>
+&nbsp;
+<b class="nc">&nbsp;        offersPathBox = createCardRow(); // Deck, turn order card and track cards.</b>
+&nbsp;
+<b class="nc">&nbsp;        topCenterBox = new HBox(8);</b>
+<b class="nc">&nbsp;        topCenterBox.getChildren().addAll(topDeckable, topBuilding);</b>
+<b class="nc">&nbsp;        bottomCenterBox = new HBox(8);</b>
+<b class="nc">&nbsp;        bottomCenterBox.getChildren().addAll(bottomDeckable, bottomBuilding);</b>
+<b class="nc">&nbsp;        HBox endCardBox = new HBox(250);</b>
+<b class="nc">&nbsp;        endCardBox.getChildren().addAll(bottomCenterBox,bottomResults);</b>
+&nbsp;
+&nbsp;
+<b class="nc">&nbsp;        offersPathBox.getChildren().addAll(deck, turnOrderCard); // Add the deck and the turn order card to the offer path.</b>
+<b class="nc">&nbsp;        for (char name : trackCards) {</b>
+<b class="nc">&nbsp;            StackPane trackCard = createTrackCard(name);</b>
+<b class="nc">&nbsp;            offersPathBox.getChildren().add(trackCard);</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        centerBox.getChildren().addAll(topCenterBox, offersPathBox,endCardBox); // Add the board rows and the offer path to the center area.</b>
+<b class="nc">&nbsp;        centerWrapper.getChildren().add(centerBox); // Add the board container to the wrapper.</b>
+<b class="nc">&nbsp;        updateBoard(); // Fill the board rows with the current cards.</b>
+&nbsp;
+<b class="nc">&nbsp;        BorderPane.setAlignment(centerWrapper, Pos.CENTER);</b>
+<b class="nc">&nbsp;        VBox.setVgrow(centerBox, Priority.ALWAYS);</b>
+&nbsp;
+<b class="nc">&nbsp;        return centerWrapper;</b>
+&nbsp;
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;    private StackPane createTurnOrderCardStack() {
+<b class="nc">&nbsp;        StackPane stack = new StackPane();</b>
+&nbsp;
+<b class="nc">&nbsp;        stack.setPrefSize(BOARD_CARD_WIDTH, BOARD_CARD_HEIGHT);</b>
+<b class="nc">&nbsp;        stack.setMaxSize(BOARD_CARD_WIDTH, BOARD_CARD_HEIGHT);</b>
+&nbsp;
+<b class="nc">&nbsp;        ImageView turnOrderCard = new ImageView(</b>
+<b class="nc">&nbsp;                getClass().getResource(&quot;/turnOrderCards/&quot; + modelReference.getNumPlayers() + &quot;.png&quot;).toExternalForm()</b>
+&nbsp;        );
+<b class="nc">&nbsp;        turnOrderCard.setFitWidth(BOARD_CARD_WIDTH);</b>
+<b class="nc">&nbsp;        turnOrderCard.setFitHeight(BOARD_CARD_HEIGHT);</b>
+<b class="nc">&nbsp;        turnOrderCard.setPreserveRatio(false);</b>
+<b class="nc">&nbsp;        turnOrderCard.setSmooth(true);</b>
+&nbsp;
+<b class="nc">&nbsp;        turnOrderCardTotemLayer = new Pane();</b>
+<b class="nc">&nbsp;        turnOrderCardTotemLayer.setPrefSize(BOARD_CARD_WIDTH, BOARD_CARD_HEIGHT);</b>
+<b class="nc">&nbsp;        turnOrderCardTotemLayer.setMaxSize(BOARD_CARD_WIDTH, BOARD_CARD_HEIGHT);</b>
+<b class="nc">&nbsp;        turnOrderCardTotemLayer.setPickOnBounds(false); // The layer does not capture clicks outside its content.</b>
+&nbsp;
+<b class="nc">&nbsp;        addTotemsOnTurnOrderCard(turnOrderCardTotemLayer);</b>
+&nbsp;
+<b class="nc">&nbsp;        stack.getChildren().addAll(turnOrderCard, turnOrderCardTotemLayer);</b>
+&nbsp;
+<b class="nc">&nbsp;        return stack;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private void addTotemsOnTurnOrderCard(Pane totemLayer) {
+&nbsp;
+<b class="nc">&nbsp;        for (String nickname : modelReference.getPlayerOrderInTurnOrderCard()) {</b>
+<b class="nc">&nbsp;            if (nickname == null) continue; // Empty slot.</b>
+<b class="nc">&nbsp;            ClientPlayer player = modelReference.getPlayerByNickname(nickname);</b>
+<b class="nc">&nbsp;            String color = player.getTotemColor().toLowerCase();</b>
+&nbsp;
+<b class="nc">&nbsp;            int pos = modelReference.getPlayerPositionInTurnOrderCard(player.getNickname()); // Read the slot where the player totem must be placed.</b>
+&nbsp;
+&nbsp;            // Create and position the totem image.
+<b class="nc">&nbsp;            ImageView totem = createSmallTotem(color);</b>
+<b class="nc">&nbsp;            positionTotemOnTurnOrderCard(totem, pos); // Place the totem in the correct turn order slot.</b>
+&nbsp;
+&nbsp;            // Only the home player&#39;s totem can be selected.
+<b class="nc">&nbsp;            if (player.getNickname().equals(modelReference.getHomePlayerNickname())) {</b>
+<b class="nc">&nbsp;                totem.setCursor(Cursor.HAND);</b>
+&nbsp;
+<b class="nc">&nbsp;                totem.setOnMouseClicked(event -&gt; {</b>
+<b class="nc">&nbsp;                    totemClicked = true;</b>
+<b class="nc">&nbsp;                    updateTop(&quot;Totem selected. Choose a track card.&quot;);</b>
+&nbsp;                });
+&nbsp;            }
+&nbsp;
+<b class="nc">&nbsp;            totemLayer.getChildren().add(totem);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    private void positionTotemOnTurnOrderCard(ImageView totem, int index) {
+&nbsp;
+<b class="nc">&nbsp;        PointRatio pos = getTurnOrderSlotPosition(index);</b>
+<b class="nc">&nbsp;        double x = BOARD_CARD_WIDTH * pos.x() - SMALL_TOTEM_WIDTH / 2; // Center the totem on the target ratio.</b>
+<b class="nc">&nbsp;        double y = BOARD_CARD_HEIGHT * pos.y() - SMALL_TOTEM_HEIGHT / 2;</b>
+&nbsp;
+<b class="nc">&nbsp;        totem.setLayoutX(x); // Horizontal position inside the card.</b>
+<b class="nc">&nbsp;        totem.setLayoutY(y); // Vertical position inside the card.</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private ImageView createSmallTotem(String color) {
+<b class="nc">&nbsp;        ImageView totem = new ImageView(getClass().getResource(&quot;/totem/&quot; + color + &quot;.png&quot;).toExternalForm());</b>
+&nbsp;
+<b class="nc">&nbsp;        totem.setFitWidth(SMALL_TOTEM_WIDTH);</b>
+<b class="nc">&nbsp;        totem.setFitHeight(SMALL_TOTEM_HEIGHT);</b>
+<b class="nc">&nbsp;        totem.setPreserveRatio(true);</b>
+<b class="nc">&nbsp;        totem.setSmooth(true);</b>
+&nbsp;
+<b class="nc">&nbsp;        return totem;</b>
+&nbsp;    }
+&nbsp;
+<b class="nc">&nbsp;    private record PointRatio(double x, double y) { }</b>
+&nbsp;
+&nbsp;    // Returns the position ratio used to center a totem in the correct turn order slot.
+&nbsp;    private PointRatio getTurnOrderSlotPosition(int index) {
+<b class="nc">&nbsp;        if (modelReference.getNumPlayers() &lt; 4) {</b>
+<b class="nc">&nbsp;            return switch (index) {</b>
+<b class="nc">&nbsp;                case 0 -&gt; new PointRatio(0.50, 0.25);</b>
+<b class="nc">&nbsp;                case 1 -&gt; new PointRatio(0.50, 0.43);</b>
+<b class="nc">&nbsp;                case 2 -&gt; new PointRatio(0.50, 0.61);</b>
+<b class="nc">&nbsp;                case 3 -&gt; new PointRatio(0.50, 0.74);</b>
+<b class="nc">&nbsp;                case 4 -&gt; new PointRatio(0.50, 0.87);</b>
+<b class="nc">&nbsp;                default -&gt; throw new IllegalStateException(&quot;Unexpected value: &quot; + index);</b>
+&nbsp;            };
+&nbsp;        } else {
+<b class="nc">&nbsp;            return switch (index) {</b>
+<b class="nc">&nbsp;                case 0 -&gt; new PointRatio(0.50, 0.12);</b>
+<b class="nc">&nbsp;                case 1 -&gt; new PointRatio(0.50, 0.32);</b>
+<b class="nc">&nbsp;                case 2 -&gt; new PointRatio(0.50, 0.49);</b>
+<b class="nc">&nbsp;                case 3 -&gt; new PointRatio(0.50, 0.69);</b>
+<b class="nc">&nbsp;                case 4 -&gt; new PointRatio(0.50, 0.82);</b>
+<b class="nc">&nbsp;                default -&gt; throw new IllegalStateException(&quot;Unexpected value: &quot; + index);</b>
+&nbsp;            };
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    private void addTotemOnTrackCard(Pane totemLayer, String color) {
+<b class="nc">&nbsp;        ImageView totem = createSmallTotem(color);</b>
+&nbsp;
+<b class="nc">&nbsp;        PointRatio pos = new PointRatio(0.50, 0.20);</b>
+&nbsp;
+<b class="nc">&nbsp;        double x = BOARD_CARD_WIDTH * pos.x() - SMALL_TOTEM_WIDTH / 2;</b>
+<b class="nc">&nbsp;        double y = BOARD_CARD_HEIGHT * pos.y() - SMALL_TOTEM_HEIGHT / 2;</b>
+&nbsp;
+<b class="nc">&nbsp;        totem.setLayoutX(x);</b>
+<b class="nc">&nbsp;        totem.setLayoutY(y);</b>
+&nbsp;
+<b class="nc">&nbsp;        totem.setMouseTransparent(true);</b>
+&nbsp;
+<b class="nc">&nbsp;        totemLayer.getChildren().clear();</b>
+<b class="nc">&nbsp;        totemLayer.getChildren().add(totem);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private void updateCenterCards(int row, HBox box) {
+<b class="nc">&nbsp;        ArrayList&lt;ArrayList&lt;Integer&gt;&gt; currentBoard = modelReference.getBoard();</b>
+<b class="nc">&nbsp;        List&lt;Integer&gt; orderedTopRow = currentBoard.get(row).stream().sorted(Comparator.naturalOrder()).toList(); // Sort cards by id so that the row is displayed consistently.</b>
+&nbsp;
+<b class="nc">&nbsp;        box.getChildren().clear(); // Clear the current cards in the row.</b>
+<b class="nc">&nbsp;        for (Integer cardId : orderedTopRow) {</b>
+<b class="nc">&nbsp;            ImageView card = createPickableCard(cardId, row);</b>
+<b class="nc">&nbsp;            box.getChildren().add(card);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    private void updateoffersPathBox() {
+&nbsp;
+&nbsp;        // Update turn order card totems.
+<b class="nc">&nbsp;        turnOrderCardTotemLayer.getChildren().clear(); // Clear and redraw totems based on the updated turn order.</b>
+<b class="nc">&nbsp;        addTotemsOnTurnOrderCard(turnOrderCardTotemLayer);</b>
+&nbsp;
+&nbsp;        // Update track card totems.
+<b class="nc">&nbsp;        ArrayList&lt;ClientPlayer&gt; players = new ArrayList&lt;&gt;(modelReference.getOtherPlayers());</b>
+<b class="nc">&nbsp;        players.add(modelReference.getHomePlayer());</b>
+<b class="nc">&nbsp;        clearAllTrackCardTotems(); // Clear all layers before drawing the updated totems.</b>
+&nbsp;
+<b class="nc">&nbsp;        Map&lt;Character, String&gt; positionToNickname = modelReference.getPositionToNickname();</b>
+<b class="nc">&nbsp;        for (Character position : positionToNickname.keySet()) {</b>
+<b class="nc">&nbsp;            String nickname = positionToNickname.get(position);</b>
+<b class="nc">&nbsp;            ClientPlayer player = modelReference.getPlayerByNickname(nickname);</b>
+<b class="nc">&nbsp;            if (player != null) {</b>
+<b class="nc">&nbsp;                Pane totemLayer = trackCardTotemLayers.get(position);</b>
+<b class="nc">&nbsp;                addTotemOnTrackCard(totemLayer, player.getTotemColor().toLowerCase());</b>
+&nbsp;            }
+&nbsp;        }
+&nbsp;
+&nbsp;    }
+&nbsp;
+&nbsp;    private void clearAllTrackCardTotems() {
+<b class="nc">&nbsp;        for (Pane layer : trackCardTotemLayers.values()) {</b>
+<b class="nc">&nbsp;            layer.getChildren().clear();</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    private void updateBoard() {
+&nbsp;
+<b class="nc">&nbsp;        for (int i = 0; i &lt; 2; i++) {</b>
+<b class="nc">&nbsp;            HBox box = (HBox) topCenterBox.getChildren().get(i);</b>
+<b class="nc">&nbsp;            updateCenterCards(i, box);</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        for (int i = 0; i &lt; 2; i++) {</b>
+<b class="nc">&nbsp;            HBox box = (HBox) bottomCenterBox.getChildren().get(i);</b>
+<b class="nc">&nbsp;            updateCenterCards(i + 2, box);</b>
+&nbsp;        }
+&nbsp;
+&nbsp;
+&nbsp;
+<b class="nc">&nbsp;        if (modelReference.getAge() &gt; 0) { // update fatto solo se ho l&#39;age mi arriva con l&#39;evento di endRound</b>
+<b class="nc">&nbsp;            ImageView deck = new ImageView(</b>
+<b class="nc">&nbsp;                    getClass().getResource(&quot;/deck/&quot; + modelReference.getAge() + &quot;.png&quot;).toExternalForm()</b>
+&nbsp;            );
+&nbsp;
+<b class="nc">&nbsp;            deck.setFitWidth(BOARD_CARD_WIDTH);</b>
+<b class="nc">&nbsp;            deck.setFitHeight(BOARD_CARD_HEIGHT);</b>
+<b class="nc">&nbsp;            deck.setPreserveRatio(false);</b>
+<b class="nc">&nbsp;            deck.setSmooth(true);</b>
+&nbsp;
+<b class="nc">&nbsp;            offersPathBox.getChildren().removeFirst();</b>
+<b class="nc">&nbsp;            offersPathBox.getChildren().addFirst(deck);</b>
+&nbsp;
+&nbsp;        }
+&nbsp;
+&nbsp;    }
+&nbsp;
+&nbsp;    private HBox createCardRow() {
+<b class="nc">&nbsp;        HBox row = new HBox(10); // we use 10 pixel of space between the cards</b>
+<b class="nc">&nbsp;        row.setAlignment(Pos.CENTER); // this function is needed to center the cards in the row. So the card will spawn from the center to the left.</b>
+<b class="nc">&nbsp;        row.setStyle(&quot;&quot;&quot;</b>
+&nbsp;        -fx-background-color: rgba(255, 255, 255, 0.18);  \s
+&nbsp;        -fx-background-radius: 14;
+&nbsp;        -fx-padding: 7.5;
+&nbsp;        \s&quot;&quot;&quot;);
+&nbsp;        // this is the color the hbox
+&nbsp;        // the radius is for the rounded corners and the padding is for the space between the border and the content of the hbox
+&nbsp;        // the padding is the space between the border and the content of the hbox, so if you want to have more space between the border and the cards you can increase the padding value.
+&nbsp;
+<b class="nc">&nbsp;        return row;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private HBox createEndCardHBox(){
+<b class="nc">&nbsp;        HBox cards = new HBox(10);</b>
+<b class="nc">&nbsp;        cards.setAlignment(Pos.CENTER); // this function is needed to center the cards in the row. So the card will spawn from the center to the left.</b>
+<b class="nc">&nbsp;        cards.setStyle(&quot;&quot;&quot;</b>
+&nbsp;        -fx-background-color: rgba(255, 255, 255, 0.18);  \s
+&nbsp;        -fx-background-radius: 14;
+&nbsp;        -fx-padding: 7.5;
+&nbsp;        \s&quot;&quot;&quot;);
+&nbsp;
+&nbsp;
+<b class="nc">&nbsp;        ImageView card1 = new ImageView(getClass().getResource(&quot;/cardsResults/&quot; + (1) + &quot;.png&quot;).toExternalForm());</b>
+<b class="nc">&nbsp;        if(modelReference.getNumPlayers() == 5) {</b>
+<b class="nc">&nbsp;            card1.setFitWidth(BOARD_CARD_WIDTH_5);</b>
+<b class="nc">&nbsp;            card1.setFitHeight(BOARD_CARD_HEIGHT_5);</b>
+&nbsp;        } else {
+<b class="nc">&nbsp;            card1.setFitWidth(BOARD_CARD_WIDTH);</b>
+<b class="nc">&nbsp;            card1.setFitHeight(BOARD_CARD_HEIGHT);</b>
+&nbsp;        }
+<b class="nc">&nbsp;        card1.setPreserveRatio(true);</b>
+<b class="nc">&nbsp;        card1.setSmooth(true);</b>
+&nbsp;
+<b class="nc">&nbsp;        ImageView card2= new ImageView(getClass().getResource(&quot;/cardsResults/&quot; + (2) + &quot;.png&quot;).toExternalForm());</b>
+<b class="nc">&nbsp;        if(modelReference.getNumPlayers() == 5) {</b>
+<b class="nc">&nbsp;            card2.setFitWidth(BOARD_CARD_WIDTH_5);</b>
+<b class="nc">&nbsp;            card2.setFitHeight(BOARD_CARD_HEIGHT_5);</b>
+&nbsp;        } else {
+<b class="nc">&nbsp;            card2.setFitWidth(BOARD_CARD_WIDTH);</b>
+<b class="nc">&nbsp;            card2.setFitHeight(BOARD_CARD_HEIGHT);</b>
+&nbsp;        }
+<b class="nc">&nbsp;        card2.setPreserveRatio(true);</b>
+<b class="nc">&nbsp;        card2.setSmooth(true);</b>
+&nbsp;
+<b class="nc">&nbsp;        cards.getChildren().addAll(card1, card2);</b>
+<b class="nc">&nbsp;        return cards;</b>
+&nbsp;
+&nbsp;    }
+&nbsp;    // ------------------------------------------------------------
+&nbsp;    // Bottom tribe area
+&nbsp;    // ------------------------------------------------------------
+&nbsp;
+&nbsp;    private ScrollPane createBottom() {
+<b class="nc">&nbsp;        ScrollPane bottom = new ScrollPane();</b>
+<b class="nc">&nbsp;        bottom.setFitToWidth(true);</b>
+<b class="nc">&nbsp;        bottom.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);</b>
+<b class="nc">&nbsp;        bottom.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);</b>
+<b class="nc">&nbsp;        bottom.setPrefWidth(280);</b>
+<b class="nc">&nbsp;        bottom.setStyle(&quot;&quot;&quot;</b>
+&nbsp;        -fx-background-color: transparent;
+&nbsp;        -fx-background: transparent;
+&nbsp;    &quot;&quot;&quot;);
+&nbsp;
+<b class="nc">&nbsp;        VBox bottomBox = new VBox(8);</b>
+<b class="nc">&nbsp;        bottomBox.setStyle(&quot;&quot;&quot;</b>
+&nbsp;        -fx-background-color: rgba(60, 20, 40, 0.60);
+&nbsp;        -fx-padding: 10;
+&nbsp;        -fx-border-color: rgba(255, 255, 255, 0.25);
+&nbsp;        -fx-border-width: 1 0 0 0;
+&nbsp;    &quot;&quot;&quot;);
+&nbsp;
+<b class="nc">&nbsp;        HBox playersTabs = new HBox(8);</b>
+<b class="nc">&nbsp;        playersTabs.setAlignment(Pos.CENTER_LEFT);</b>
+&nbsp;
+<b class="nc">&nbsp;        tribeToggleGroup = new ToggleGroup();</b>
+&nbsp;
+<b class="nc">&nbsp;        selectedTribeNickname = modelReference.getHomePlayer().getNickname();</b>
+&nbsp;
+<b class="nc">&nbsp;        ToggleButton homeButton = createTribePlayerButton(</b>
+<b class="nc">&nbsp;                modelReference.getHomePlayer().getNickname()</b>
+&nbsp;        );
+<b class="nc">&nbsp;        homeButton.setSelected(true);</b>
+<b class="nc">&nbsp;        playersTabs.getChildren().add(homeButton);</b>
+&nbsp;
+<b class="nc">&nbsp;        for (ClientPlayer player : modelReference.getOtherPlayers()) {</b>
+<b class="nc">&nbsp;            playersTabs.getChildren().add(</b>
+<b class="nc">&nbsp;                    createTribePlayerButton(player.getNickname())</b>
+&nbsp;            );
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        tribeCardsBox = new HBox(8);</b>
+<b class="nc">&nbsp;        tribeCardsBox.setAlignment(Pos.CENTER_LEFT);</b>
+&nbsp;
+<b class="nc">&nbsp;        bottomBox.getChildren().addAll(playersTabs, tribeCardsBox);</b>
+<b class="nc">&nbsp;        bottom.setContent(bottomBox);</b>
+&nbsp;
+<b class="nc">&nbsp;        updateSelectedTribe();</b>
+&nbsp;
+<b class="nc">&nbsp;        return bottom;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private ToggleButton createTribePlayerButton(String nickname) {
+<b class="nc">&nbsp;        ToggleButton button = new ToggleButton(nickname);</b>
+<b class="nc">&nbsp;        button.setToggleGroup(tribeToggleGroup);</b>
+&nbsp;
+<b class="nc">&nbsp;        button.setStyle(&quot;&quot;&quot;</b>
+&nbsp;        -fx-background-color: rgba(255, 255, 255, 0.15);
+&nbsp;        -fx-text-fill: white;
+&nbsp;        -fx-font-weight: bold;
+&nbsp;        -fx-background-radius: 10;
+&nbsp;        -fx-padding: 6 14 6 14;
+&nbsp;        -fx-border-color: rgba(255, 255, 255, 0.35);
+&nbsp;        -fx-border-radius: 10;
+&nbsp;    &quot;&quot;&quot;);
+&nbsp;
+<b class="nc">&nbsp;        button.setOnAction(event -&gt; {</b>
+<b class="nc">&nbsp;            selectedTribeNickname = nickname;</b>
+<b class="nc">&nbsp;            updateSelectedTribe();</b>
+&nbsp;        });
+&nbsp;
+<b class="nc">&nbsp;        return button;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private void updateSelectedTribe() {
+<b class="nc">&nbsp;        if (tribeCardsBox == null || selectedTribeNickname == null) {</b>
+&nbsp;            return;
+&nbsp;        }
+<b class="nc">&nbsp;        tribeCardsBox.getChildren().clear();</b>
+&nbsp;
+<b class="nc">&nbsp;        if (selectedTribeLabel != null) {</b>
+<b class="nc">&nbsp;            selectedTribeLabel.setText(&quot;Tribe di: &quot; + selectedTribeNickname);</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        ClientPlayer selectedPlayer = modelReference.getPlayerByNickname(selectedTribeNickname);</b>
+&nbsp;
+<b class="nc">&nbsp;        if (selectedPlayer == null || selectedPlayer.getPlayerTribe() == null) {</b>
+&nbsp;            return;
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        selectedPlayer.getPlayerTribe()</b>
+<b class="nc">&nbsp;                .stream()</b>
+<b class="nc">&nbsp;                .sorted(Integer::compareTo)</b>
+<b class="nc">&nbsp;                .forEach(cardId -&gt; {</b>
+<b class="nc">&nbsp;                    ImageView card = createTribeCard(cardId);</b>
+<b class="nc">&nbsp;                    tribeCardsBox.getChildren().add(card);</b>
+&nbsp;                });
+&nbsp;    }
+&nbsp;
+&nbsp;    // ------------------------------------------------------------
+&nbsp;    // Right statistics area
+&nbsp;    // ------------------------------------------------------------
+&nbsp;
+&nbsp;    private VBox createRight() {
+<b class="nc">&nbsp;        rightStatsWrapper = new VBox(8);</b>
+<b class="nc">&nbsp;        rightStatsWrapper.setAlignment(Pos.TOP_CENTER);</b>
+&nbsp;
+<b class="nc">&nbsp;        rightStatsWrapper.setStyle(&quot;&quot;&quot;</b>
+&nbsp;        -fx-background-color: rgba(60, 20, 40, 0.55);
+&nbsp;        -fx-padding: 8;
+&nbsp;    &quot;&quot;&quot;);
+&nbsp;
+<b class="nc">&nbsp;        toggleStatsButton = new Button(&quot;Hide Stats&quot;);</b>
+<b class="nc">&nbsp;        toggleStatsButton.setPrefWidth(110);</b>
+<b class="nc">&nbsp;        toggleStatsButton.setStyle(&quot;&quot;&quot;</b>
+&nbsp;        -fx-background-color: rgba(255, 230, 170, 0.90);
+&nbsp;        -fx-text-fill: #4b1d12;
+&nbsp;        -fx-font-size: 13;
+&nbsp;        -fx-font-weight: bold;
+&nbsp;        -fx-background-radius: 10;
+&nbsp;        -fx-padding: 6 10 6 10;
+&nbsp;    &quot;&quot;&quot;);
+&nbsp;
+<b class="nc">&nbsp;        toggleStatsButton.setOnAction(event -&gt; toggleStatsPanel());</b>
+&nbsp;
+<b class="nc">&nbsp;        statsScrollPane = new ScrollPane();</b>
+<b class="nc">&nbsp;        statsScrollPane.setStyle(&quot;&quot;&quot;</b>
+&nbsp;        -fx-background-color: transparent;
+&nbsp;        -fx-background: transparent;
+&nbsp;    &quot;&quot;&quot;);
+&nbsp;
+<b class="nc">&nbsp;        statsScrollPane.setFitToWidth(true);</b>
+<b class="nc">&nbsp;        statsScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);</b>
+<b class="nc">&nbsp;        statsScrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);</b>
+<b class="nc">&nbsp;        statsScrollPane.setPrefWidth(260);</b>
+&nbsp;
+<b class="nc">&nbsp;        playersStatsBox = new VBox(15);</b>
+<b class="nc">&nbsp;        playersStatsBox.setStyle(&quot;&quot;&quot;</b>
+&nbsp;        -fx-background-color: rgba(80, 40, 80, 0.8);
+&nbsp;        -fx-padding: 15;
+&nbsp;    &quot;&quot;&quot;);
+&nbsp;
+<b class="nc">&nbsp;        buildInitialPlayersStatsPanels();</b>
+&nbsp;
+<b class="nc">&nbsp;        statsScrollPane.setContent(playersStatsBox);</b>
+&nbsp;
+<b class="nc">&nbsp;        rightStatsWrapper.getChildren().addAll(toggleStatsButton, statsScrollPane);</b>
+&nbsp;
+<b class="nc">&nbsp;        rightStatsWrapper.setPrefWidth(280);</b>
+&nbsp;
+<b class="nc">&nbsp;        return rightStatsWrapper;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;    private void toggleStatsPanel() {
+<b class="nc">&nbsp;        statsVisible = !statsVisible;</b>
+&nbsp;
+<b class="nc">&nbsp;        statsScrollPane.setVisible(statsVisible);</b>
+<b class="nc">&nbsp;        statsScrollPane.setManaged(statsVisible);</b>
+&nbsp;
+<b class="nc">&nbsp;        if (statsVisible) {</b>
+<b class="nc">&nbsp;            rightStatsWrapper.setPrefWidth(280);</b>
+<b class="nc">&nbsp;            rightStatsWrapper.setMinWidth(280);</b>
+<b class="nc">&nbsp;            rightStatsWrapper.setMaxWidth(280);</b>
+&nbsp;
+<b class="nc">&nbsp;            toggleStatsButton.setText(&quot;Hide Stats&quot;);</b>
+&nbsp;        } else {
+<b class="nc">&nbsp;            rightStatsWrapper.setPrefWidth(70);</b>
+<b class="nc">&nbsp;            rightStatsWrapper.setMinWidth(70);</b>
+<b class="nc">&nbsp;            rightStatsWrapper.setMaxWidth(70);</b>
+&nbsp;
+<b class="nc">&nbsp;            toggleStatsButton.setText(&quot;Stats&quot;);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;    private void buildInitialPlayersStatsPanels() {
+<b class="nc">&nbsp;        playersStatsBox.getChildren().clear();</b>
+<b class="nc">&nbsp;        playerStatLabels.clear();</b>
+<b class="nc">&nbsp;        ArrayList&lt;String&gt; players = new ArrayList&lt;&gt;(modelReference.getOtherPlayers().stream().map(ClientPlayer::getNickname).toList());</b>
+<b class="nc">&nbsp;        players.add(modelReference.getHomePlayer().getNickname());</b>
+&nbsp;
+<b class="nc">&nbsp;        for (int i = players.size() - 1; i &gt;= 0; i--) {</b>
+<b class="nc">&nbsp;            String playerName = players.get(i);</b>
+<b class="nc">&nbsp;            playersStatsBox.getChildren().add(</b>
+<b class="nc">&nbsp;                    createPlayerStats(playerName)</b>
+&nbsp;            );
+&nbsp;
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    private VBox createPlayerStats(String playerName) {
+<b class="nc">&nbsp;        VBox panel = new VBox(8);</b>
+<b class="nc">&nbsp;        panel.setPrefWidth(240);</b>
+&nbsp;
+<b class="nc">&nbsp;        panel.setStyle(&quot;&quot;&quot;</b>
+&nbsp;        -fx-background-color: rgba(90, 35, 60, 0.95);
+&nbsp;        -fx-border-color: #67c7d8;
+&nbsp;        -fx-border-width: 2;
+&nbsp;        -fx-background-radius: 8;
+&nbsp;        -fx-border-radius: 8;
+&nbsp;        -fx-padding: 8;
+&nbsp;    &quot;&quot;&quot;);
+&nbsp;
+<b class="nc">&nbsp;        Label nameLabel = new Label(playerName);</b>
+<b class="nc">&nbsp;        nameLabel.setStyle(&quot;&quot;&quot;</b>
+&nbsp;        -fx-text-fill: white;
+&nbsp;        -fx-font-size: 14;
+&nbsp;        -fx-font-weight: bold;
+&nbsp;    &quot;&quot;&quot;);
+&nbsp;
+<b class="nc">&nbsp;        GridPane statsGrid = createStatsGrid(playerName);</b>
+&nbsp;
+<b class="nc">&nbsp;        panel.getChildren().addAll(nameLabel, statsGrid);</b>
+&nbsp;
+<b class="nc">&nbsp;        return panel;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private GridPane createStatsGrid(String playerName) {
+<b class="nc">&nbsp;        GridPane grid = new GridPane();</b>
+<b class="nc">&nbsp;        String colour = modelReference.getPlayerByNickname(playerName).getTotemColor().toLowerCase();</b>
+&nbsp;
+<b class="nc">&nbsp;        grid.setHgap(10);</b>
+<b class="nc">&nbsp;        grid.setVgap(12);</b>
+<b class="nc">&nbsp;        grid.setAlignment(Pos.CENTER_LEFT);</b>
+&nbsp;
+<b class="nc">&nbsp;        Map&lt;StatType, Label&gt; labels = new HashMap&lt;&gt;();  // Labels used to update this player statistics.</b>
+&nbsp;
+<b class="nc">&nbsp;        addStat(grid, labels, StatType.FOOD, getClass().getResource(&quot;/stats/food.png&quot;).toExternalForm(), 0, 0);</b>
+<b class="nc">&nbsp;        addStat(grid, labels, StatType.AXE, getClass().getResource(&quot;/stats/buildingDiscount.png&quot;).toExternalForm(), 0, 2);</b>
+<b class="nc">&nbsp;        addStat(grid, labels, StatType.PRESTIGE, getClass().getResource(&quot;/stats/prestige.png&quot;).toExternalForm(), 0, 4);</b>
+&nbsp;
+<b class="nc">&nbsp;        addStat(grid, labels, StatType.STARS, getClass().getResource(&quot;/stats/stars.png&quot;).toExternalForm(), 1, 0);</b>
+<b class="nc">&nbsp;        addStat(grid, labels, StatType.BOWL, getClass().getResource(&quot;/stats/gatheringDiscount.png&quot;).toExternalForm(), 1, 2);</b>
+<b class="nc">&nbsp;        addStat(grid, labels, StatType.COLOUR, getClass().getResource(&quot;/colour/&quot; + colour + &quot;.png&quot;).toExternalForm(), 1, 4);</b>
+&nbsp;
+<b class="nc">&nbsp;        playerStatLabels.put(playerName, labels);  // Store labels so that they can be updated later.</b>
+&nbsp;
+<b class="nc">&nbsp;        return grid;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private void addStat(
+&nbsp;            GridPane grid,
+&nbsp;            Map&lt;StatType, Label&gt; labels,
+&nbsp;            StatType type,
+&nbsp;            String imagePath,
+&nbsp;            int row,
+&nbsp;            int col
+&nbsp;    ) {
+&nbsp;
+<b class="nc">&nbsp;        ImageView icon = new ImageView(imagePath); // Create the icon for the statistic.</b>
+<b class="nc">&nbsp;        icon.setFitWidth(34);</b>
+<b class="nc">&nbsp;        icon.setFitHeight(34);</b>
+<b class="nc">&nbsp;        icon.setPreserveRatio(true);</b>
+<b class="nc">&nbsp;        icon.setSmooth(true);</b>
+<b class="nc">&nbsp;        if (type != StatType.COLOUR) {</b>
+<b class="nc">&nbsp;            Label valueLabel = new Label(&quot;0&quot;);  // Initial value for the statistic.</b>
+<b class="nc">&nbsp;            valueLabel.setMinWidth(26);</b>
+<b class="nc">&nbsp;            valueLabel.setAlignment(Pos.CENTER_LEFT);</b>
+&nbsp;
+<b class="nc">&nbsp;            valueLabel.setStyle(&quot;&quot;&quot;</b>
+&nbsp;        -fx-text-fill: white;
+&nbsp;        -fx-font-size: 15;
+&nbsp;        -fx-font-family: &#39;Georgia&#39;;
+&nbsp;        -fx-font-weight: bold;
+&nbsp;    &quot;&quot;&quot;);
+<b class="nc">&nbsp;            grid.add(valueLabel, col + 1, row);</b>
+<b class="nc">&nbsp;            labels.put(type, valueLabel);</b>
+&nbsp;
+&nbsp;        }
+<b class="nc">&nbsp;        grid.add(icon, col, row);  // Add the statistic icon to the grid.</b>
+&nbsp;
+&nbsp;    }
+&nbsp;
+&nbsp;    private void updatePlayerStats() {
+&nbsp;
+<b class="nc">&nbsp;        ArrayList&lt;ClientPlayer&gt; clientPlayers = new ArrayList&lt;&gt;(modelReference.getOtherPlayers());</b>
+<b class="nc">&nbsp;        clientPlayers.add(modelReference.getHomePlayer());</b>
+&nbsp;
+<b class="nc">&nbsp;        for (ClientPlayer p : clientPlayers) {</b>
+&nbsp;
+<b class="nc">&nbsp;            Map&lt;StatType, Label&gt; labels = playerStatLabels.get(p.getNickname());</b>
+&nbsp;
+<b class="nc">&nbsp;            labels.get(StatType.FOOD).setText(String.valueOf(p.getNumFood()));</b>
+<b class="nc">&nbsp;            labels.get(StatType.PRESTIGE).setText(String.valueOf(p.getNumPrestigePoints()));</b>
+<b class="nc">&nbsp;            labels.get(StatType.STARS).setText(String.valueOf(p.getNumStars()));</b>
+<b class="nc">&nbsp;            labels.get(StatType.AXE).setText(String.valueOf(p.getTotalBuildingDiscount()));</b>
+<b class="nc">&nbsp;            labels.get(StatType.BOWL).setText(String.valueOf(p.getTotalGatheringDiscount()));</b>
+&nbsp;
+&nbsp;        }
+&nbsp;
+&nbsp;    }
+&nbsp;
+&nbsp;    private ImageView createPickableCard(int id, int row) {
+<b class="nc">&nbsp;        ImageView card = new ImageView(getClass().getResource(&quot;/cardsFront/&quot; + id + &quot;.jpg&quot;).toExternalForm());</b>
+<b class="nc">&nbsp;        if(modelReference.getNumPlayers() == 5){</b>
+<b class="nc">&nbsp;            card.setFitWidth(BOARD_CARD_WIDTH_5);</b>
+<b class="nc">&nbsp;            card.setFitHeight(BOARD_CARD_HEIGHT_5);</b>
+&nbsp;        }else{
+<b class="nc">&nbsp;            card.setFitWidth(BOARD_CARD_WIDTH);</b>
+<b class="nc">&nbsp;            card.setFitHeight(BOARD_CARD_HEIGHT);</b>
+&nbsp;        }
+<b class="nc">&nbsp;        card.setPreserveRatio(true);</b>
+<b class="nc">&nbsp;        card.setSmooth(true);</b>
+<b class="nc">&nbsp;        addHoverEffect(card);</b>
+&nbsp;
+<b class="nc">&nbsp;        card.setCursor(Cursor.HAND);</b>
+&nbsp;
+<b class="nc">&nbsp;        card.setOnMouseClicked(event -&gt; {</b>
+<b class="nc">&nbsp;            if (!isButtonAlreadySelected) {</b>
+<b class="nc">&nbsp;                isButtonAlreadySelected = true;</b>
+<b class="nc">&nbsp;                pickCard(modelReference.getHomePlayerNickname(), id, row);</b>
+&nbsp;            }
+&nbsp;        });
+<b class="nc">&nbsp;        return card;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private void pickCard(String nickname, int cardId, int row) {
+&nbsp;        try {
+<b class="nc">&nbsp;            controllerReference.pickCard(cardId);</b>
+&nbsp;        } catch (Exception e) {
+<b class="nc">&nbsp;            throw new RuntimeException(&quot;[Client] A network error occurred while sending your request\nDetails: &quot; + e.getMessage());</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    private ImageView createTribeCard(int id) {
+<b class="nc">&nbsp;        ImageView card = new ImageView(getClass().getResource(&quot;/cardsFront/&quot; + id + &quot;.jpg&quot;).toExternalForm());</b>
+<b class="nc">&nbsp;        card.setFitWidth(BOARD_CARD_WIDTH);</b>
+<b class="nc">&nbsp;        card.setFitHeight(BOARD_CARD_HEIGHT);</b>
+<b class="nc">&nbsp;        card.setPreserveRatio(true);</b>
+<b class="nc">&nbsp;        card.setSmooth(true);</b>
+<b class="nc">&nbsp;        return card;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private StackPane createTrackCard(char name) {
+<b class="nc">&nbsp;        StackPane trackCard = new StackPane();</b>
+&nbsp;
+<b class="nc">&nbsp;        trackCard.setPrefSize(BOARD_CARD_WIDTH, BOARD_CARD_HEIGHT);</b>
+<b class="nc">&nbsp;        trackCard.setMinSize(BOARD_CARD_WIDTH, BOARD_CARD_HEIGHT);</b>
+<b class="nc">&nbsp;        trackCard.setMaxSize(BOARD_CARD_WIDTH, BOARD_CARD_HEIGHT);</b>
+&nbsp;
+<b class="nc">&nbsp;        ImageView cardImage = new ImageView(</b>
+<b class="nc">&nbsp;                getClass().getResource(&quot;/trackCards/&quot; + name + &quot;.png&quot;).toExternalForm()</b>
+&nbsp;        );
+&nbsp;
+<b class="nc">&nbsp;        cardImage.setFitWidth(BOARD_CARD_WIDTH);</b>
+<b class="nc">&nbsp;        cardImage.setFitHeight(BOARD_CARD_HEIGHT);</b>
+<b class="nc">&nbsp;        cardImage.setPreserveRatio(false);</b>
+<b class="nc">&nbsp;        cardImage.setSmooth(true);</b>
+&nbsp;
+<b class="nc">&nbsp;        Pane trackCardtotemLayer = new Pane();</b>
+<b class="nc">&nbsp;        trackCardtotemLayer.setPrefSize(BOARD_CARD_WIDTH, BOARD_CARD_HEIGHT);</b>
+<b class="nc">&nbsp;        trackCardtotemLayer.setMinSize(BOARD_CARD_WIDTH, BOARD_CARD_HEIGHT);</b>
+<b class="nc">&nbsp;        trackCardtotemLayer.setMaxSize(BOARD_CARD_WIDTH, BOARD_CARD_HEIGHT);</b>
+<b class="nc">&nbsp;        trackCardTotemLayers.put(name, trackCardtotemLayer); // Store the layer so track card totems can be updated later.</b>
+&nbsp;
+<b class="nc">&nbsp;        trackCardtotemLayer.setMouseTransparent(true);</b>
+&nbsp;
+<b class="nc">&nbsp;        trackCard.getChildren().addAll(cardImage, trackCardtotemLayer);</b>
+&nbsp;
+<b class="nc">&nbsp;        trackCard.setCursor(javafx.scene.Cursor.HAND);</b>
+<b class="nc">&nbsp;        addHoverEffect(trackCard);</b>
+&nbsp;
+<b class="nc">&nbsp;        trackCard.setOnMouseClicked(event -&gt; {</b>
+<b class="nc">&nbsp;            if (!totemClicked) {</b>
+<b class="nc">&nbsp;                updateTop(&quot;Select your totem first.&quot;);</b>
+&nbsp;                return;
+&nbsp;            }
+&nbsp;
+&nbsp;            try {
+<b class="nc">&nbsp;                controllerReference.placeTotem(name);</b>
+&nbsp;            } catch (Exception e) {
+<b class="nc">&nbsp;                throw new RuntimeException(&quot;[Client] A network error occurred while sending your request\nDetails: &quot; + e.getMessage());</b>
+&nbsp;            }
+&nbsp;
+<b class="nc">&nbsp;            totemClicked = false; // Reset the selection after sending the placement request.</b>
+&nbsp;        });
+<b class="nc">&nbsp;        return trackCard;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private ImageView createAngryTotem(String totemColor, String totemType) {
+<b class="nc">&nbsp;        ImageView totem = new ImageView(</b>
+<b class="nc">&nbsp;                getClass().getResource(&quot;/totemLobby/&quot; + totemColor + &quot;.png&quot;).toExternalForm()</b>
+&nbsp;        );
+&nbsp;
+<b class="nc">&nbsp;        if (totemType.equals(&quot;endGame&quot;))</b>
+<b class="nc">&nbsp;            totem.setFitWidth(END_TOTEM_WIDTH);</b>
+&nbsp;        else
+<b class="nc">&nbsp;            totem.setFitWidth(LOBBY_TOTEM_WIDTH);</b>
+&nbsp;
+<b class="nc">&nbsp;        totem.setPreserveRatio(true);</b>
+<b class="nc">&nbsp;        totem.setSmooth(true);</b>
+&nbsp;
+<b class="nc">&nbsp;        return totem;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    // ============================================================
+&nbsp;    // End-game scene
+&nbsp;    // ============================================================
+&nbsp;
+&nbsp;    private void createEndGameScene() {
+<b class="nc">&nbsp;        StackPane root = new StackPane();</b>
+&nbsp;
+<b class="nc">&nbsp;        ImageView background = new ImageView(getClass().getResource(&quot;/background/endGame.png&quot;).toExternalForm());</b>
+&nbsp;
+<b class="nc">&nbsp;        background.setPreserveRatio(false);</b>
+<b class="nc">&nbsp;        background.fitWidthProperty().bind(root.widthProperty());</b>
+<b class="nc">&nbsp;        background.fitHeightProperty().bind(root.heightProperty());</b>
+&nbsp;
+<b class="nc">&nbsp;        endGameTotemLayer = new Pane();</b>
+<b class="nc">&nbsp;        endGameTotemLayer.setPickOnBounds(false);</b>
+&nbsp;
+<b class="nc">&nbsp;        endGameRankingBox = new VBox(10);</b>
+<b class="nc">&nbsp;        endGameRankingBox.setStyle(&quot;&quot;&quot;</b>
+&nbsp;        -fx-background-color: rgba(20, 20, 20, 0.7);
+&nbsp;        -fx-padding: 15;
+&nbsp;        -fx-background-radius: 10;
+&nbsp;    &quot;&quot;&quot;);
+&nbsp;
+<b class="nc">&nbsp;        endGameRankingBox.setVisible(false);</b>
+<b class="nc">&nbsp;        localRankingBox = new VBox(8);</b>
+<b class="nc">&nbsp;        globalRankingBox = new VBox(8);</b>
+&nbsp;
+<b class="nc">&nbsp;        localRankingBox.setVisible(true);</b>
+<b class="nc">&nbsp;        globalRankingBox.setVisible(false);</b>
+<b class="nc">&nbsp;        globalRankingBox.managedProperty().bind(globalRankingBox.visibleProperty());</b>
+<b class="nc">&nbsp;        localRankingBox.managedProperty().bind(localRankingBox.visibleProperty());</b>
+&nbsp;
+<b class="nc">&nbsp;        ToggleGroup rankingModeGroup = new ToggleGroup();</b>
+&nbsp;
+<b class="nc">&nbsp;        ToggleButton localBtn = new ToggleButton(&quot;Local Ranking&quot;);</b>
+<b class="nc">&nbsp;        ToggleButton globalBtn = new ToggleButton(&quot;Global Ranking&quot;);</b>
+<b class="nc">&nbsp;        localBtn.setToggleGroup(rankingModeGroup);</b>
+<b class="nc">&nbsp;        globalBtn.setToggleGroup(rankingModeGroup);</b>
+<b class="nc">&nbsp;        localBtn.setSelected(true);</b>
+&nbsp;
+<b class="nc">&nbsp;        localBtn.setOnAction(e -&gt; {</b>
+<b class="nc">&nbsp;            localRankingBox.setVisible(true);</b>
+<b class="nc">&nbsp;            globalRankingBox.setVisible(false);</b>
+&nbsp;        });
+&nbsp;
+<b class="nc">&nbsp;        globalBtn.setOnAction(e -&gt; {</b>
+<b class="nc">&nbsp;            localRankingBox.setVisible(false);</b>
+<b class="nc">&nbsp;            globalRankingBox.setVisible(true);</b>
+&nbsp;        });
+&nbsp;
+<b class="nc">&nbsp;        HBox toggleRow = new HBox(8, localBtn, globalBtn);</b>
+<b class="nc">&nbsp;        toggleRow.setAlignment(Pos.CENTER);</b>
+&nbsp;
+<b class="nc">&nbsp;        endGameRankingBox.getChildren().addAll(toggleRow, localRankingBox, globalRankingBox);</b>
+&nbsp;
+<b class="nc">&nbsp;        StackPane.setAlignment(endGameRankingBox, Pos.TOP_CENTER);</b>
+<b class="nc">&nbsp;        StackPane.setMargin(endGameRankingBox, new Insets(0, 0, 350, 900));</b>
+&nbsp;
+<b class="nc">&nbsp;        rankingToggle = new ToggleButton(&quot;Show Total Ranking&quot;);</b>
+<b class="nc">&nbsp;        rankingToggle.setStyle(&quot;&quot;&quot;</b>
+&nbsp;        -fx-background-color: rgba(255, 255, 255, 0.2);
+&nbsp;        -fx-text-fill: white;
+&nbsp;        -fx-font-weight: bold;
+&nbsp;        -fx-background-radius: 8;
+&nbsp;        -fx-padding: 6 12;
+&nbsp;    &quot;&quot;&quot;);
+&nbsp;
+<b class="nc">&nbsp;        rankingToggle.setOnAction(e -&gt; {</b>
+<b class="nc">&nbsp;            boolean show = rankingToggle.isSelected();</b>
+<b class="nc">&nbsp;            endGameRankingBox.setVisible(show);</b>
+<b class="nc">&nbsp;            rankingToggle.setText(show ? &quot;Hide Ranking&quot; : &quot;Show Ranking&quot;);</b>
+&nbsp;        });
+&nbsp;
+<b class="nc">&nbsp;        StackPane.setAlignment(rankingToggle, Pos.BOTTOM_RIGHT);</b>
+<b class="nc">&nbsp;        StackPane.setMargin(rankingToggle, new Insets(20, 0, 0, 20));</b>
+&nbsp;
+<b class="nc">&nbsp;        root.getChildren().addAll(background, endGameTotemLayer, rankingToggle, endGameRankingBox);</b>
+<b class="nc">&nbsp;        gameEndingScene = new Scene(root, SCENE_WIDTH, SCENE_HEIGHT);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private void updateEndGameRankingBox() {
+<b class="nc">&nbsp;        localRankingBox.getChildren().clear();</b>
+&nbsp;
+<b class="nc">&nbsp;        ArrayList&lt;String&gt; ranking = modelReference.getFinalRank();</b>
+&nbsp;
+<b class="nc">&nbsp;        for (int i = ranking.size()-1 ; i &gt;=0 ; i--) {</b>
+<b class="nc">&nbsp;            String name = ranking.get(i);</b>
+<b class="nc">&nbsp;            Label lbl = new Label((ranking.size()-i) + &quot;°  &quot; + name + &quot; &quot; + modelReference.getPlayerByNickname(name).getNumPrestigePoints() + &quot; pts&quot;);</b>
+<b class="nc">&nbsp;            lbl.setStyle(&quot;&quot;&quot;</b>
+&nbsp;            -fx-text-fill: white;
+&nbsp;            -fx-font-size: 16;
+&nbsp;            -fx-font-weight: bold;
+&nbsp;        &quot;&quot;&quot;);
+<b class="nc">&nbsp;            localRankingBox.getChildren().add(lbl);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    private void updateGlobalRankingBox() {
+<b class="nc">&nbsp;        globalRankingBox.getChildren().clear();</b>
+<b class="nc">&nbsp;        List&lt;String&gt; global = modelReference.getGlobalRank();</b>
+&nbsp;
+<b class="nc">&nbsp;        for (int i = 0; i &lt;= global.size() - 1; i++) {</b>
+<b class="nc">&nbsp;            String name = global.get(i);</b>
+<b class="nc">&nbsp;            Label lbl = new Label(name);</b>
+<b class="nc">&nbsp;            lbl.setStyle(&quot;-fx-text-fill: white; -fx-font-size: 16; -fx-font-weight: bold;&quot;);</b>
+<b class="nc">&nbsp;            globalRankingBox.getChildren().add(lbl);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    private void showEndGameScene() {
+<b class="nc">&nbsp;        if (gameEndingScene == null) {</b>
+<b class="nc">&nbsp;            createEndGameScene();</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        primaryStage.setTitle(&quot;Fine partita&quot;);</b>
+<b class="nc">&nbsp;        primaryStage.setScene(gameEndingScene);</b>
+&nbsp;
+<b class="nc">&nbsp;        updateEndGamePodium();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private void updateEndGamePodium() {
+&nbsp;
+<b class="nc">&nbsp;        endGameTotemLayer.getChildren().clear();</b>
+&nbsp;
+<b class="nc">&nbsp;        ArrayList&lt;String&gt; ranking = modelReference.getFinalRank();</b>
+<b class="nc">&nbsp;        int pos = 0;</b>
+&nbsp;
+<b class="nc">&nbsp;        for(int i = 0; i &lt; Math.min(3, ranking.size()); i++) {// Use the minimum because a two-player game has only two podium positions.</b>
+&nbsp;
+<b class="nc">&nbsp;            ClientPlayer player = modelReference.getPlayerByNickname(ranking.get(ranking.size()-1-i));</b>
+&nbsp;
+<b class="nc">&nbsp;            ImageView totem = createAngryTotem(</b>
+<b class="nc">&nbsp;                    player.getTotemColor().toLowerCase(), &quot;endgame&quot;);</b>
+<b class="nc">&nbsp;            Label nickname = new Label(player.getNickname());</b>
+<b class="nc">&nbsp;            nickname.setStyle(&quot;&quot;&quot;</b>
+&nbsp;        -fx-text-fill: white;
+&nbsp;        -fx-font-size: 17;
+&nbsp;        -fx-font-weight: bold;
+&nbsp;        -fx-effect: dropshadow(gaussian, black, 7, 0.9, 1, 1);
+&nbsp;    &quot;&quot;&quot;);
+&nbsp;
+<b class="nc">&nbsp;            VBox totemBox = new VBox(4);</b>
+<b class="nc">&nbsp;            totemBox.setAlignment(Pos.CENTER);</b>
+<b class="nc">&nbsp;            totemBox.setPrefWidth(END_TOTEM_BOX_WIDTH);</b>
+<b class="nc">&nbsp;            totemBox.setMaxWidth(END_TOTEM_BOX_WIDTH);</b>
+<b class="nc">&nbsp;            totemBox.getChildren().addAll(nickname, totem);</b>
+&nbsp;
+<b class="nc">&nbsp;            placeTotemOnPodium(totemBox, pos);</b>
+<b class="nc">&nbsp;            pos++;</b>
+&nbsp;
+<b class="nc">&nbsp;            endGameTotemLayer.getChildren().add(totemBox);</b>
+&nbsp;
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    private void placeTotemOnPodium(VBox totemBox, int rankingPosition) {
+&nbsp;        double xRatio;
+&nbsp;        double yRatio;
+&nbsp;
+<b class="nc">&nbsp;        switch (rankingPosition) {</b>
+&nbsp;            case 0 -&gt; { // primo posto, centro
+<b class="nc">&nbsp;                xRatio = 0.500;</b>
+<b class="nc">&nbsp;                yRatio = 0.270;</b>
+&nbsp;            }
+&nbsp;            case 1 -&gt; { // secondo posto, sinistra
+<b class="nc">&nbsp;                xRatio = 0.275;</b>
+<b class="nc">&nbsp;                yRatio = 0.360;</b>
+&nbsp;            }
+&nbsp;            case 2 -&gt; { // terzo posto, destra
+<b class="nc">&nbsp;                xRatio = 0.720;</b>
+<b class="nc">&nbsp;                yRatio = 0.375;</b>
+&nbsp;            }
+&nbsp;            default -&gt; {
+<b class="nc">&nbsp;                xRatio = 0.5;</b>
+<b class="nc">&nbsp;                yRatio = 0.5;</b>
+&nbsp;            }
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        totemBox.layoutXProperty().bind(</b>
+<b class="nc">&nbsp;                endGameTotemLayer.widthProperty()</b>
+<b class="nc">&nbsp;                        .multiply(xRatio)</b>
+<b class="nc">&nbsp;                        .subtract(END_TOTEM_BOX_WIDTH / 2)</b>
+&nbsp;        );
+&nbsp;
+<b class="nc">&nbsp;        totemBox.layoutYProperty().bind(</b>
+<b class="nc">&nbsp;                endGameTotemLayer.heightProperty()</b>
+<b class="nc">&nbsp;                        .multiply(yRatio)</b>
+&nbsp;        );
+&nbsp;    }
+&nbsp;
+&nbsp;    //----------------------------------------------------
+&nbsp;    //
+&nbsp;    //----------------------------------------------------
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-22 23:30</div>
+</div>
+</body>
+</html>

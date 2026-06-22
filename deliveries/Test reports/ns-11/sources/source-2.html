@@ -1,0 +1,140 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > VirtualServerRmi</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">it.polimi.ingsw.am14.network.rmi.client</a>
+</div>
+
+<h1>Coverage Summary for Class: VirtualServerRmi (it.polimi.ingsw.am14.network.rmi.client)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+</tr>
+<tr>
+  <td class="name">VirtualServerRmi</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package it.polimi.ingsw.am14.network.rmi.client;
+&nbsp;
+&nbsp;import it.polimi.ingsw.am14.network.VirtualServer;
+&nbsp;import it.polimi.ingsw.am14.network.rmi.server.VirtualClientRmi;
+&nbsp;
+&nbsp;import java.rmi.Remote;
+&nbsp;import java.rmi.RemoteException;
+&nbsp;
+&nbsp;/**
+&nbsp; * Remote interface representing the server exposed to RMI clients.
+&nbsp; * It extends {@link VirtualServer} to include core game actions and {@link Remote} to allow remote invocations.
+&nbsp; */
+&nbsp;
+&nbsp;public interface VirtualServerRmi extends VirtualServer, Remote {
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Connects an RMI client to the server.
+&nbsp;     *
+&nbsp;     * @param client   the remote reference to the connecting client.
+&nbsp;     * @param nickname the chosen nickname of the player connecting.
+&nbsp;     * @throws RemoteException if a communication-related error occurs.
+&nbsp;     */
+&nbsp;    void connect(VirtualClientRmi client, String nickname) throws RemoteException;
+&nbsp;    /**
+&nbsp;     * Requests the creation of a new game.
+&nbsp;     *
+&nbsp;     * @param nickname   the nickname of the player starting the game.
+&nbsp;     * @param numPlayers the number of players participating in the game.
+&nbsp;     * @param totemColor the color of the totem chosen by the creator.
+&nbsp;     * @throws RemoteException if a communication-related error occurs.
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    void createGame(String nickname, int numPlayers, String totemColor) throws RemoteException;
+&nbsp;    /**
+&nbsp;     * Requests to join an existing game.
+&nbsp;     *
+&nbsp;     * @param nickname   the nickname of the joining player.
+&nbsp;     * @param gameId     the unique identifier of the game to join.
+&nbsp;     * @param totemColor the color of the totem chosen by the player.
+&nbsp;     * @throws RemoteException if a communication-related error occurs.
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    void joinGame(String nickname, int gameId, String totemColor) throws RemoteException;
+&nbsp;    /**
+&nbsp;     * Requests to place a totem on the starting card.
+&nbsp;     *
+&nbsp;     * @param nickname the nickname of the player.
+&nbsp;     * @param position the character representing the chosen face of the starting card.
+&nbsp;     * @throws RemoteException if a communication-related error occurs.
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    void placeTotem(String nickname, char position) throws RemoteException;
+&nbsp;    /**
+&nbsp;     * Requests to pick a card from the board.
+&nbsp;     *
+&nbsp;     * @param nickname the nickname of the player.
+&nbsp;     * @param cardId   the unique identifier of the card to pick.
+&nbsp;     * @param row      the index of the row where the card is positioned.
+&nbsp;     * @throws RemoteException if a communication-related error occurs.
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    void pickCard(String nickname, int cardId, int row) throws RemoteException;
+&nbsp;    /**
+&nbsp;     * Sends a ping to the server to verify the connection and keep it alive.
+&nbsp;     *
+&nbsp;     * @param nickname the nickname of the client sending the ping.
+&nbsp;     * @return the {@link Thread} handling the server-side ping routine task, if applicable.
+&nbsp;     * @throws RemoteException if a communication-related error occurs.
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    Thread pingServer(String nickname) throws RemoteException;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-22 23:30</div>
+</div>
+</body>
+</html>

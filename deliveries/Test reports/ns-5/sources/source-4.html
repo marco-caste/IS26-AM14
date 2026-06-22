@@ -1,0 +1,238 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > TrackCard</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">it.polimi.ingsw.am14.model.boardComponents</a>
+</div>
+
+<h1>Coverage Summary for Class: TrackCard (it.polimi.ingsw.am14.model.boardComponents)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">TrackCard</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    85,7%
+  </span>
+  <span class="absValue">
+    (6/7)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (2/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    92,9%
+  </span>
+  <span class="absValue">
+    (13/14)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package it.polimi.ingsw.am14.model.boardComponents;
+&nbsp;
+&nbsp;import com.fasterxml.jackson.annotation.JsonCreator;
+&nbsp;import com.fasterxml.jackson.annotation.JsonIgnore;
+&nbsp;import com.fasterxml.jackson.annotation.JsonProperty;
+&nbsp;import it.polimi.ingsw.am14.model.gameLogic.Player;
+&nbsp;
+&nbsp;/**
+&nbsp; * &lt;p&gt;
+&nbsp; *     TrackCard is a class that represents a card on the track of the game.
+&nbsp; *     It has a name, a number of picks for the top and bottom rows, and a number of food.
+&nbsp; *     It also has a playerTotem that represents the player who has placed their totem on this card.
+&nbsp; * &lt;/p&gt;
+&nbsp; */
+&nbsp;public class TrackCard {
+&nbsp;    /**
+&nbsp;     * &lt;p&gt;
+&nbsp;     *     playerTotem is the player who has placed their totem on this card.
+&nbsp;     *     It can be null if no player has placed their totem on this card.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     */
+&nbsp;    private Player playerTotem;
+&nbsp;    /**
+&nbsp;     * &lt;p&gt;
+&nbsp;     *     name is the name of the card, between &#39;a&#39; and &#39;g&#39;.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     */
+&nbsp;    private final char name;
+&nbsp;    /**
+&nbsp;     * &lt;p&gt;
+&nbsp;     *     numPicksTop is the number of picks for the top row, between 0 and 2.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     */
+&nbsp;    private final int numPicksTop;
+&nbsp;    /**
+&nbsp;     * &lt;p&gt;
+&nbsp;     *     numPicksBottom is the number of picks for the bottom row, between 0 and 1.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     */
+&nbsp;    private final int numPicksBottom;
+&nbsp;    /**
+&nbsp;     * &lt;p&gt;
+&nbsp;     *     numFood is the number of food, either 0 or 3.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     */
+&nbsp;    private final int numFood;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * &lt;p&gt;
+&nbsp;     *     Accepts specific combinations of the input parameters and sets the corresponding fields;
+&nbsp;     *     `playerTotem` can be null.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     * &lt;ul&gt;
+&nbsp;     *     &lt;li&gt;(&#39;a&#39;, 0, 0, 3)&lt;/li&gt;
+&nbsp;     *     &lt;li&gt;(&#39;b&#39;, 0, 1, 0)&lt;/li&gt;
+&nbsp;     *     &lt;li&gt;(&#39;c&#39;, 1, 0, 0)&lt;/li&gt;
+&nbsp;     *     &lt;li&gt;(&#39;d&#39;, 0, 2, 0)&lt;/li&gt;
+&nbsp;     *     &lt;li&gt;(&#39;e&#39;, 1, 1, 0)&lt;/li&gt;
+&nbsp;     *     &lt;li&gt;(&#39;f&#39;, 2, 0, 0)&lt;/li&gt;
+&nbsp;     *     &lt;li&gt;(&#39;g&#39;, 2, 1, 0)&lt;/li&gt;
+&nbsp;     * &lt;/ul&gt;
+&nbsp;     *
+&nbsp;     * @param name the name of the trackCard, must be between &#39;a&#39; and &#39;g&#39;
+&nbsp;     * @param numPicksTop the number of picks for the top row, between 0 and 2
+&nbsp;     * @param numPicksBottom the number of picks for the bottom row, between 0 and 1
+&nbsp;     * @param numFood the number of food on the card, either 0 or 3
+&nbsp;     * @param playerTotem the player who placed a totem on this card; may be null
+&nbsp;     */
+&nbsp;    @JsonCreator
+&nbsp;    public TrackCard(
+&nbsp;            @JsonProperty(&quot;name&quot;) char name,
+&nbsp;            @JsonProperty(&quot;numPickTop&quot;) int numPicksTop,
+&nbsp;            @JsonProperty(&quot;numPickBottom&quot;) int numPicksBottom,
+&nbsp;            @JsonProperty(&quot;numFood&quot;) int numFood,
+&nbsp;            @JsonProperty(&quot;playerTotem&quot;) Player playerTotem
+<b class="fc">&nbsp;            ) {</b>
+<b class="fc">&nbsp;        this.playerTotem = playerTotem;</b>
+<b class="fc">&nbsp;        this.name = name;</b>
+<b class="fc">&nbsp;        this.numPicksTop = numPicksTop;</b>
+<b class="fc">&nbsp;        this.numPicksBottom = numPicksBottom;</b>
+<b class="fc">&nbsp;        this.numFood = numFood;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public void setPlayerTotem(Player playerTotem) {
+<b class="fc">&nbsp;        this.playerTotem = playerTotem;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public Player getPlayerTotem() {
+<b class="fc">&nbsp;        return playerTotem;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @JsonIgnore
+&nbsp;    public char getName() {
+<b class="fc">&nbsp;        return name;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @JsonIgnore
+&nbsp;    public String getPlayerNickname() {
+<b class="fc">&nbsp;        return playerTotem == null ? null : playerTotem.getNickname();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * &lt;p&gt;
+&nbsp;     *     applies the effect of the card to the player who placed their totem on it.
+&nbsp;     *     It sets the number of picks for the top and bottom rows, and adds the number of food to the player&#39;s total.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     */
+&nbsp;    public void effect(){
+<b class="fc">&nbsp;        playerTotem.setNumTopPicksLeft(numPicksTop);</b>
+<b class="fc">&nbsp;        playerTotem.setNumBottomPicksLeft(numPicksBottom);</b>
+<b class="fc">&nbsp;        playerTotem.addToNumFood(numFood);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public String toString() {
+<b class="nc">&nbsp;        return &quot;TrackCard &quot; +</b>
+&nbsp;                &quot;, name=&quot; + name +
+&nbsp;                &quot;, numPicksTop=&quot; + numPicksTop +
+&nbsp;                &quot;, numPicksBottom=&quot; + numPicksBottom +
+&nbsp;                &quot;, numFood=&quot; + numFood;
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-22 23:30</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,1018 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > TUIView</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">it.polimi.ingsw.am14.view</a>
+</div>
+
+<h1>Coverage Summary for Class: TUIView (it.polimi.ingsw.am14.view)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">TUIView</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/31)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/134)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/365)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">TUIView$CardColors</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/32)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/134)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/366)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package it.polimi.ingsw.am14.view;
+&nbsp;
+&nbsp;import it.polimi.ingsw.am14.clientModelController.ClientController;
+&nbsp;import it.polimi.ingsw.am14.utils.Codec;
+&nbsp;import it.polimi.ingsw.am14.utils.JsonCodec;
+&nbsp;import it.polimi.ingsw.am14.view.viewEvents.ViewEvent;
+&nbsp;import it.polimi.ingsw.am14.clientModelController.ClientModel;
+&nbsp;import org.jline.reader.*;
+&nbsp;import org.jline.terminal.Terminal;
+&nbsp;import org.jline.terminal.TerminalBuilder;
+&nbsp;import org.jline.utils.AttributedString;
+&nbsp;import org.jline.utils.AttributedStringBuilder;
+&nbsp;import org.jline.utils.AttributedStyle;
+&nbsp;import org.jline.utils.InfoCmp;
+&nbsp;
+&nbsp;import java.io.IOException;
+&nbsp;import java.io.PrintWriter;
+&nbsp;import java.util.ArrayList;
+&nbsp;import java.util.List;
+&nbsp;import java.util.Map;
+&nbsp;
+&nbsp;import static it.polimi.ingsw.am14.utils.Constants.foodTable;
+&nbsp;
+&nbsp;/**
+&nbsp; * The TUIView class implements the ViewType interface and provides a text-based user interface for the game. It manages the terminal input and output, renders game events, and interacts with the client model and controller to facilitate user commands and display game information. The class uses the JLine library to handle terminal interactions and supports various commands for connecting to a server, creating or joining games, picking cards, placing totems, and displaying game information.
+&nbsp; * &lt;h2&gt;Supported Commands:&lt;/h2&gt;
+&nbsp; * &lt;ul&gt;
+&nbsp; *     &lt;li&gt;&lt;b&gt;help&lt;/b&gt; - Displays a comprehensive list of all available commands and their usage&lt;/li&gt;
+&nbsp; *     &lt;li&gt;&lt;b&gt;connect [socket|rmi]&lt;/b&gt; - Establishes a connection to the server using the specified protocol.
+&nbsp; *         Prompts for server IP, port, and player nickname. Validates that the client is not already connected&lt;/li&gt;
+&nbsp; *     &lt;li&gt;&lt;b&gt;exit&lt;/b&gt; - Terminates the application and closes the terminal&lt;/li&gt;
+&nbsp; *     &lt;li&gt;&lt;b&gt;create [numPlayers] [totemColor]&lt;/b&gt; - Creates a new game session with the specified number of players
+&nbsp; *         and assigns the caller&#39;s totem color&lt;/li&gt;
+&nbsp; *     &lt;li&gt;&lt;b&gt;join [gameId] [totemColor]&lt;/b&gt; - Joins an existing game identified by gameId and assigns the caller&#39;s
+&nbsp; *         totem color&lt;/li&gt;
+&nbsp; *     &lt;li&gt;&lt;b&gt;pick [cardID]&lt;/b&gt; - Selects and plays a card identified by its numeric ID during the game phase&lt;/li&gt;
+&nbsp; *     &lt;li&gt;&lt;b&gt;place [position]&lt;/b&gt; - Places the player&#39;s totem at the specified board position (case-insensitive)&lt;/li&gt;
+&nbsp; *     &lt;li&gt;&lt;b&gt;show [option] [args]&lt;/b&gt; - Displays game information based on the specified option:
+&nbsp; *         &lt;ul&gt;
+&nbsp; *             &lt;li&gt;show nickname [nickname] - Displays information about a specific player&lt;/li&gt;
+&nbsp; *             &lt;li&gt;show cardId [cardId] - Displays the description of a card by its ID&lt;/li&gt;
+&nbsp; *             &lt;li&gt;show board - Displays the current state of the game board with all cards and tracks&lt;/li&gt;
+&nbsp; *             &lt;li&gt;show turnOrderCard - Displays the turn order card with player order and food values&lt;/li&gt;
+&nbsp; *             &lt;li&gt;show gameHistory - Displays the complete history of events from the current game&lt;/li&gt;
+&nbsp; *         &lt;/ul&gt;
+&nbsp; *     &lt;/li&gt;
+&nbsp; * &lt;/ul&gt;
+&nbsp; *
+&nbsp; * &lt;p&gt;
+&nbsp; * Each command is case-insensitive. Invalid commands trigger an error message prompting the user to type &#39;help&#39;
+&nbsp; * for command information. Command-specific exceptions (IllegalArgumentException, RuntimeException) are caught
+&nbsp; * and displayed to the user without terminating the application loop.
+&nbsp; * &lt;/p&gt;
+&nbsp; */
+<b class="nc">&nbsp;public class TUIView implements ViewType {</b>
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Reference to the client model
+&nbsp;     */
+<b class="nc">&nbsp;    private ClientModel modelReference = null;</b>
+&nbsp;    /**
+&nbsp;     * Reference to the client controller
+&nbsp;     */
+&nbsp;    private ClientController controller;
+&nbsp;    /**
+&nbsp;     * The nickname chosen by the player, used for command prompts and display purposes
+&nbsp;     */
+<b class="nc">&nbsp;    private String chosenNickname = &quot;&quot;;</b>
+&nbsp;    /**
+&nbsp;     * The terminal instance for handling input and output in the text-based user interface
+&nbsp;     */
+&nbsp;    private Terminal terminal;
+&nbsp;    /**
+&nbsp;     * The line reader for reading user input from the terminal
+&nbsp;     */
+&nbsp;    private LineReader lineReader;
+&nbsp;    /**
+&nbsp;     * The print writer for outputting text to the terminal
+&nbsp;     */
+&nbsp;    private PrintWriter writer;
+&nbsp;    /**
+&nbsp;     * A map containing card descriptions, where the key is the card ID and the value is the card description string
+&nbsp;     */
+&nbsp;    private static Map&lt;Integer, String&gt; cardDescriptions;
+&nbsp;    /**
+&nbsp;     * A list to maintain the history of game events, allowing the user to review past actions and messages during the current game session
+&nbsp;     */
+&nbsp;    private List&lt;String&gt; gameHistory;
+&nbsp;    /**
+&nbsp;     * An object used as a lock for synchronizing rendering operations to ensure thread safety when multiple threads may be updating the terminal output concurrently
+&nbsp;     */
+<b class="nc">&nbsp;    private final Object renderLock = new Object();</b>
+&nbsp;
+&nbsp;    /**
+&nbsp;     * {@inheritDoc}
+&nbsp;     * &lt;p&gt;
+&nbsp;     * This method initializes the terminal and line reader, prints the game title, and enters an interactive loop
+&nbsp;     * to read and process user commands. The method manages the text-based user interface and delegates command
+&nbsp;     * execution to specialized handler methods.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     *
+&nbsp;     * @throws IOException If an IOException occurs during terminal initialization or if a critical I/O error
+&nbsp;     *                     occurs during input reading
+&nbsp;     * @throws RuntimeException If an EndOfFileException or UserInterruptException is caught (e.g., Ctrl+D or Ctrl+C),
+&nbsp;     *                          indicating the user wants to exit the application
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public void run() throws IOException {
+<b class="nc">&nbsp;        this.controller = new ClientController();</b>
+<b class="nc">&nbsp;        Codec codec = new JsonCodec();</b>
+<b class="nc">&nbsp;        cardDescriptions = codec.readCardDescriptions(&quot;src/main/resources/CardDescriptions.json&quot;);</b>
+<b class="nc">&nbsp;        gameHistory = new ArrayList&lt;&gt;();</b>
+&nbsp;
+&nbsp;        try {
+&nbsp;
+<b class="nc">&nbsp;            terminal = TerminalBuilder.builder()</b>
+<b class="nc">&nbsp;                    .system(true)</b>
+<b class="nc">&nbsp;                    .ffm(true)</b>
+<b class="nc">&nbsp;                    .build();</b>
+&nbsp;
+<b class="nc">&nbsp;            lineReader = LineReaderBuilder.builder()</b>
+<b class="nc">&nbsp;                    .terminal(terminal)</b>
+<b class="nc">&nbsp;                    .build();</b>
+&nbsp;
+<b class="nc">&nbsp;            writer = terminal.writer();</b>
+&nbsp;
+<b class="nc">&nbsp;            printGameTitle();</b>
+&nbsp;
+&nbsp;            String input;
+<b class="nc">&nbsp;            while ((input = lineReader.readLine(</b>
+<b class="nc">&nbsp;                    (chosenNickname == null ? &quot;&quot; : chosenNickname) +</b>
+&nbsp;                    &quot;&gt; &quot;)) != null) {
+<b class="nc">&nbsp;                String[] tokens = input.trim().split(&quot;\\s+&quot;);</b>
+&nbsp;
+<b class="nc">&nbsp;                switch (tokens[0].toLowerCase()) {</b>
+<b class="nc">&nbsp;                    case &quot;help&quot; -&gt; lineReader.printAbove(</b>
+&nbsp;                            new AttributedString(
+&nbsp;                                &quot;&quot;&quot;
+&nbsp;                                    Available commands:
+&nbsp;                                      %-66s - %s
+&nbsp;                                      %-66s - %s
+&nbsp;                                      %-66s - %s
+&nbsp;                                      %-66s - %s
+&nbsp;                                      %-66s - %s
+&nbsp;                                      %-66s - %s
+&nbsp;                                      %-66s - %s
+&nbsp;                                      %-66s - %s
+&nbsp;                                      %-66s - %s
+&nbsp;                                      %-66s - %s
+&nbsp;                                      %-66s - %s
+&nbsp;                                      %-66s - %s
+&nbsp;                                      %-66s - %s
+<b class="nc">&nbsp;                                    &quot;&quot;&quot;.formatted(</b>
+&nbsp;                                        &quot;exit&quot;, &quot;Exit the application&quot;,
+&nbsp;                                        &quot;help&quot;, &quot;Show this list&quot;,
+&nbsp;                                        &quot;connect [socket|rmi]&quot;, &quot;Specify the networking technology to use&quot;,
+&nbsp;                                        &quot;create [numPlayers] [totemColor]&quot;, &quot;Create a new game&quot;,
+&nbsp;                                        &quot;join [gameId] [totemColor]&quot;, &quot;Join an existing game&quot;,
+&nbsp;                                        &quot;pick [cardID]&quot;, &quot;Pick the specified card&quot;,
+&nbsp;                                        &quot;place [position]&quot;, &quot;Place the totem on the specified position&quot;,
+&nbsp;                                        &quot;show [nickname|cardId|board|TOC|gameHistory] &lt;nickname&gt; | &lt;cardId&gt;&quot;,
+&nbsp;                                        &quot;Show information about the current game&quot;,
+&nbsp;                                        &quot;\tshow nickname &lt;nickname&gt;&quot;, &quot;Show information about the specified player&quot;,
+&nbsp;                                        &quot;\tshow cardId &lt;cardId&gt;&quot;, &quot;Show information about the specified card&quot;,
+&nbsp;                                        &quot;\tshow board&quot;, &quot;Show the current state of the board&quot;,
+&nbsp;                                        &quot;\tshow TOC&quot;, &quot;Show the current turn order card&quot;,
+&nbsp;                                        &quot;\tshow gameHistory&quot;, &quot;Show the history of the latest game&quot;
+&nbsp;                                    ),
+<b class="nc">&nbsp;                                AttributedStyle.DEFAULT.foreground(AttributedStyle.GREEN)</b>
+&nbsp;                            )
+&nbsp;                    );
+&nbsp;                    case &quot;connect&quot; -&gt; {
+&nbsp;                        try {
+<b class="nc">&nbsp;                            this.connect(tokens);</b>
+&nbsp;                        } catch (IllegalArgumentException e) {
+<b class="nc">&nbsp;                            lineReader.printAbove(e.getMessage());</b>
+&nbsp;                        }
+&nbsp;                    }
+&nbsp;                    case &quot;exit&quot; -&gt; {
+<b class="nc">&nbsp;                        terminal.flush();</b>
+<b class="nc">&nbsp;                        terminal.close();</b>
+&nbsp;                    }
+&nbsp;                    case &quot;create&quot; -&gt; {
+&nbsp;                        try {
+<b class="nc">&nbsp;                            this.createGame(tokens);</b>
+&nbsp;                        } catch (RuntimeException e) {
+<b class="nc">&nbsp;                            lineReader.printAbove(e.getMessage());</b>
+&nbsp;                        }
+&nbsp;                    }
+&nbsp;                    case &quot;join&quot; -&gt; {
+&nbsp;                        try {
+<b class="nc">&nbsp;                            this.joinGame(tokens);</b>
+&nbsp;                        } catch (RuntimeException e) {
+<b class="nc">&nbsp;                            lineReader.printAbove(e.getMessage());</b>
+&nbsp;                        }
+&nbsp;                    }
+&nbsp;                    case &quot;pick&quot; -&gt; {
+&nbsp;                        try {
+<b class="nc">&nbsp;                            this.pickCard(tokens);</b>
+&nbsp;                        } catch (IllegalArgumentException e) {
+<b class="nc">&nbsp;                            lineReader.printAbove(e.getMessage());</b>
+&nbsp;                        }
+&nbsp;                    }
+&nbsp;                    case &quot;place&quot; -&gt; {
+&nbsp;                        try {
+<b class="nc">&nbsp;                            this.placeTotem(tokens);</b>
+&nbsp;                        } catch (IllegalArgumentException e) {
+<b class="nc">&nbsp;                            lineReader.printAbove(e.getMessage());</b>
+&nbsp;                        }
+&nbsp;                    }
+&nbsp;                    case &quot;show&quot; -&gt; {
+&nbsp;                        try {
+<b class="nc">&nbsp;                            this.show(tokens);</b>
+&nbsp;                        } catch (IllegalArgumentException | IllegalStateException e) {
+<b class="nc">&nbsp;                            lineReader.printAbove(e.getMessage());</b>
+&nbsp;                        }
+&nbsp;                    }
+<b class="nc">&nbsp;                    default -&gt; lineReader.printAbove(&quot;Invalid option. Please type &#39;help&#39; for a list of available commands.&quot;);</b>
+&nbsp;                }
+&nbsp;            }
+&nbsp;        } catch (IOException e) {
+<b class="nc">&nbsp;            throw new IOException(&quot;Error initializing terminal: &quot; + e.getMessage());</b>
+&nbsp;        } catch (EndOfFileException | UserInterruptException e) {
+<b class="nc">&nbsp;            throw new RuntimeException(&quot;Exiting...&quot;);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * {@inheritDoc}
+&nbsp;     *
+&nbsp;     * If no model has yet been assigned, it assigns the provided model to the view and sets the chosen nickname to the home player&#39;s nickname. Finally, it calls the render method of the event, passing this view as an argument.
+&nbsp;     * @param model the client model to update the view with
+&nbsp;     * @param event the event that triggered the update
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public void update(ClientModel model, ViewEvent event) {
+&nbsp;
+&nbsp;        // if no model has yet been assigned -&gt; assign
+<b class="nc">&nbsp;        if (model != null &amp;&amp; this.modelReference == null) {</b>
+<b class="nc">&nbsp;            this.modelReference = model;</b>
+<b class="nc">&nbsp;            this.chosenNickname = model.getHomePlayerNickname();</b>
+<b class="nc">&nbsp;            if (chosenNickname.equalsIgnoreCase(&quot;marcob&quot;)) {</b>
+<b class="nc">&nbsp;                lineReader.printAbove(&quot;Porterai minecref?&quot;);</b>
+&nbsp;            }
+&nbsp;        }
+<b class="nc">&nbsp;        event.render(this);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * {@inheritDoc}
+&nbsp;     * &lt;p&gt;
+&nbsp;     *     This method synchronizes on the renderLock object to ensure thread safety while rendering the login message. It uses the lineReader to print the message above the current input line, prefixed with &quot;[Server]: &quot;.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     * @param message the message to render
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public void renderLogin(String message) {
+<b class="nc">&nbsp;        synchronized (renderLock) {</b>
+<b class="nc">&nbsp;            lineReader.printAbove(&quot;[Server]: &quot; + message);</b>
+<b class="nc">&nbsp;        }</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * {@inheritDoc}
+&nbsp;     * &lt;p&gt;
+&nbsp;     *     This method synchronizes on the renderLock object to ensure thread safety while rendering the player join message. It uses the lineReader to print the message above the current input line, prefixed with &quot;[Server]: &quot;.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     * @param message the message to render
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public void renderPlayerJoin(String message) {
+<b class="nc">&nbsp;        synchronized (renderLock) {</b>
+<b class="nc">&nbsp;            lineReader.printAbove(&quot;[Server]: &quot; + message);</b>
+<b class="nc">&nbsp;        }</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * {@inheritDoc}
+&nbsp;     * &lt;p&gt;
+&nbsp;     *     This method adds the provided message to the game history, calls the printBoard method to update the board display, and synchronizes on the renderLock object to ensure thread safety while rendering the game start message. It uses the lineReader to print the message above the current input line, prefixed with &quot;[Server]: &quot;.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     * @param message the message to render
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public void renderGameStart(String message) {
+<b class="nc">&nbsp;        gameHistory.add(message);</b>
+<b class="nc">&nbsp;        printBoard();</b>
+<b class="nc">&nbsp;        synchronized (renderLock) {</b>
+<b class="nc">&nbsp;            lineReader.printAbove(&quot;[Server]: &quot; + message);</b>
+<b class="nc">&nbsp;        }</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * {@inheritDoc}
+&nbsp;     * &lt;p&gt;
+&nbsp;     *     This method adds the provided message to the game history and synchronizes on the renderLock object to ensure thread safety while rendering the totem placement message. It uses the lineReader to print the message above the current input line, prefixed with &quot;[Server]: &quot;.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     * @param message the message to render
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public void renderTotemPlaced(String message) {
+<b class="nc">&nbsp;        gameHistory.add(message);</b>
+<b class="nc">&nbsp;        printBoard();</b>
+<b class="nc">&nbsp;        synchronized (renderLock) {</b>
+<b class="nc">&nbsp;            lineReader.printAbove(&quot;[Server]: &quot; + message);</b>
+<b class="nc">&nbsp;        }</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * {@inheritDoc}
+&nbsp;     * &lt;p&gt;
+&nbsp;     *     This method adds the provided message to the game history, calls the printBoard method to update the board display, and synchronizes on the renderLock object to ensure thread safety while rendering the card pick message. It uses the lineReader to print the message above the current input line, prefixed with &quot;[Server]: &quot;.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     * @param message the message to render
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public void renderCardPicked(String message) {
+<b class="nc">&nbsp;        if (!canDiscardPickUpdate(message)) {</b>
+<b class="nc">&nbsp;            gameHistory.add(message);</b>
+<b class="nc">&nbsp;            printBoard();</b>
+<b class="nc">&nbsp;            synchronized (renderLock) {</b>
+<b class="nc">&nbsp;                lineReader.printAbove(&quot;[Server]: &quot; + message);</b>
+<b class="nc">&nbsp;            }</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * {@inheritDoc}
+&nbsp;     * &lt;p&gt;
+&nbsp;     *     This method adds the provided message to the game history, calls the printBoard method to update the board display, and synchronizes on the renderLock object to ensure thread safety while rendering the end round message. It uses the lineReader to print the message above the current input line, prefixed with &quot;[Server]: &quot;.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     * @param message the message to render
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public void renderEndRound(String message) {
+<b class="nc">&nbsp;        gameHistory.add(message);</b>
+<b class="nc">&nbsp;        printBoard();</b>
+<b class="nc">&nbsp;        synchronized (renderLock) {</b>
+<b class="nc">&nbsp;            lineReader.printAbove(&quot;[Server]: &quot; + message);</b>
+<b class="nc">&nbsp;        }</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * {@inheritDoc}
+&nbsp;     * &lt;p&gt;
+&nbsp;     *     This method adds the provided message to the game history, constructs a scoreboard string based on the final player rankings and their prestige points, and synchronizes on the renderLock object to ensure thread safety while rendering the end game message. It uses the lineReader to print the message above the current input line, prefixed with &quot;[Server]: &quot;, followed by the constructed scoreboard.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     * @param message the message to render
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public void renderEndGame(String message) {
+<b class="nc">&nbsp;        gameHistory.add(message);</b>
+<b class="nc">&nbsp;        AttributedStringBuilder scoreBoard = new AttributedStringBuilder();</b>
+<b class="nc">&nbsp;        scoreBoard.append(new AttributedString(</b>
+&nbsp;                &quot;Final Scoreboard for this game:\n&quot;,
+<b class="nc">&nbsp;                AttributedStyle.DEFAULT.foreground(AttributedStyle.RED)</b>
+&nbsp;        ));
+&nbsp;        // the ranking is printed in reverse order to show the winner at the top of the scoreboard
+<b class="nc">&nbsp;        for (int i = modelReference.getFinalRank().size() - 1; i &gt;= 0; i--) {</b>
+<b class="nc">&nbsp;            String player = modelReference.getFinalRank().get(i);</b>
+<b class="nc">&nbsp;            scoreBoard.append(new AttributedString(</b>
+<b class="nc">&nbsp;                    &quot;\t&quot; + player + &quot;: &quot; + modelReference.getPlayerByNickname(player).getNumPrestigePoints() + &quot; points\n&quot;,</b>
+<b class="nc">&nbsp;                    AttributedStyle.DEFAULT.foreground(AttributedStyle.WHITE)</b>
+&nbsp;            ));
+&nbsp;        }
+<b class="nc">&nbsp;        scoreBoard.append(new AttributedString(</b>
+&nbsp;                &quot;The standing global ranking is:\n&quot;,
+<b class="nc">&nbsp;                AttributedStyle.DEFAULT.foreground(AttributedStyle.RED)</b>
+&nbsp;        ));
+<b class="nc">&nbsp;        for (String entry : modelReference.getGlobalRank()) {</b>
+<b class="nc">&nbsp;            scoreBoard.append(new AttributedString(</b>
+&nbsp;                    &quot;\t&quot; + entry + &quot;\n&quot;,
+<b class="nc">&nbsp;                    AttributedStyle.DEFAULT.foreground(AttributedStyle.WHITE)</b>
+&nbsp;            ));
+&nbsp;        }
+<b class="nc">&nbsp;        synchronized (renderLock) {</b>
+<b class="nc">&nbsp;            lineReader.printAbove(&quot;[Server]: &quot; + message);</b>
+<b class="nc">&nbsp;            lineReader.printAbove(scoreBoard.toAttributedString());</b>
+<b class="nc">&nbsp;        }</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * {@inheritDoc}
+&nbsp;     * &lt;p&gt;
+&nbsp;     *     This method sets the model reference to null, clears the game history, and synchronizes on the renderLock object to ensure thread safety while rendering the disconnection message. It uses the lineReader to clear the screen and print the disconnection message above the current input line, prefixed with &quot;[Server]: &quot;, followed by instructions for the user to join or create a new game.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     * @param message the message to render
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public void renderDisconnection(String message) {
+<b class="nc">&nbsp;        this.modelReference = null;</b>
+<b class="nc">&nbsp;        gameHistory.clear();</b>
+<b class="nc">&nbsp;        synchronized (renderLock) {</b>
+<b class="nc">&nbsp;            terminal.puts(InfoCmp.Capability.clear_screen);</b>
+<b class="nc">&nbsp;            terminal.flush();</b>
+<b class="nc">&nbsp;            lineReader.printAbove(&quot;[Server]: &quot; + message);</b>
+<b class="nc">&nbsp;            lineReader.printAbove(&quot;Type join to enter a game or create to start a new one.&quot;);</b>
+<b class="nc">&nbsp;        }</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * {@inheritDoc}
+&nbsp;     * &lt;p&gt;
+&nbsp;     *     This method adds the provided message to the game history, sets the chosen nickname to the home player&#39;s nickname from the model reference, and synchronizes on the renderLock object to ensure thread safety while rendering the reconnection message. It uses the lineReader to print the message above the current input line, prefixed with &quot;[Server]: &quot;.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     * @param message the message to render
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public void renderReconnection(String message) {
+<b class="nc">&nbsp;        gameHistory.add(message);</b>
+<b class="nc">&nbsp;        this.chosenNickname = modelReference.getHomePlayerNickname();</b>
+<b class="nc">&nbsp;        synchronized (renderLock) {</b>
+<b class="nc">&nbsp;            lineReader.printAbove(&quot;[Server]: &quot; + message);</b>
+<b class="nc">&nbsp;        }</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * {@inheritDoc}
+&nbsp;     * &lt;p&gt;
+&nbsp;     *     This method adds the provided message to the game history, calls the printBoard method to update the board display, and synchronizes on the renderLock object to ensure thread safety while rendering the game restarted message. It uses the lineReader to print the message above the current input line, prefixed with &quot;[Server]: &quot;.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     * @param message the message to render
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public void renderGameRestarted(String message) {
+<b class="nc">&nbsp;        gameHistory.add(message);</b>
+<b class="nc">&nbsp;        printBoard();</b>
+<b class="nc">&nbsp;        synchronized (renderLock) {</b>
+<b class="nc">&nbsp;            lineReader.printAbove(&quot;[Server]: &quot; + message);</b>
+<b class="nc">&nbsp;        }</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * {@inheritDoc}
+&nbsp;     * &lt;p&gt;
+&nbsp;     *     This method synchronizes on the renderLock object to ensure thread safety while rendering the exception message. It uses the lineReader to print the message above the current input line, prefixed with &quot;[Server]: &quot;.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     * @param message the exception message to render
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public void renderException(String message) {
+<b class="nc">&nbsp;        synchronized (renderLock) {</b>
+<b class="nc">&nbsp;            lineReader.printAbove(&quot;[Server]: &quot; + message);</b>
+<b class="nc">&nbsp;        }</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * {@inheritDoc}
+&nbsp;     * &lt;p&gt;
+&nbsp;     *     This method synchronizes on the renderLock object to ensure thread safety while rendering the network error message. It uses the lineReader to print the message above the current input line, prefixed with &quot;[Network Error]: &quot;, followed by instructions for the user to return to the main menu. It then resets the chosen nickname and model reference, and calls the printGameTitle method to display the game title.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     * @param errorMessage the network error message to render
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public void handleNetworkError(String errorMessage) {
+<b class="nc">&nbsp;        synchronized (renderLock) {</b>
+<b class="nc">&nbsp;            lineReader.printAbove(&quot;[Network Error]: &quot; + errorMessage + &quot; Returning to main menu...&quot;);</b>
+<b class="nc">&nbsp;        }</b>
+<b class="nc">&nbsp;        this.chosenNickname = &quot;&quot;;</b>
+<b class="nc">&nbsp;        this.modelReference = null;</b>
+<b class="nc">&nbsp;        printGameTitle();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private void show(String[] args) throws IllegalArgumentException, IllegalStateException{
+<b class="nc">&nbsp;        if (args.length &lt; 2) {</b>
+<b class="nc">&nbsp;            throw new IllegalArgumentException(&quot;Invalid command format. Usage: show [nickname|cardId|TOC|board|gameHistory] &lt;nickname&gt; | &lt;cardId&gt;&quot;);</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        if (modelReference == null) {</b>
+<b class="nc">&nbsp;            throw new IllegalStateException(&quot;Please wait for the game to start.&quot;);</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        switch (args[1].toLowerCase()) {</b>
+&nbsp;            case &quot;nickname&quot; -&gt; {
+<b class="nc">&nbsp;                if (args.length &lt; 3) {</b>
+<b class="nc">&nbsp;                    throw new IllegalArgumentException(&quot;Invalid command format. Usage: show nickname [nickname]&quot;);</b>
+&nbsp;                }
+<b class="nc">&nbsp;                lineReader.printAbove(new AttributedString(</b>
+<b class="nc">&nbsp;                        modelReference.getPlayerByNickname(args[2]).toString(),</b>
+<b class="nc">&nbsp;                        AttributedStyle.DEFAULT.foreground(AttributedStyle.CYAN)</b>
+&nbsp;                ));
+&nbsp;            }
+&nbsp;            case &quot;cardid&quot; -&gt; {
+<b class="nc">&nbsp;                if (args.length &lt; 3) {</b>
+<b class="nc">&nbsp;                    throw new IllegalArgumentException(&quot;Invalid command format. Usage: show cardId [cardId]&quot;);</b>
+&nbsp;                }
+<b class="nc">&nbsp;                lineReader.printAbove(cardDescriptions.get(Integer.parseInt(args[2])));</b>
+&nbsp;            }
+<b class="nc">&nbsp;            case &quot;board&quot; -&gt; printBoard();</b>
+<b class="nc">&nbsp;            case &quot;toc&quot; -&gt; printTurnOrderCard();</b>
+&nbsp;            case &quot;gamehistory&quot; -&gt; {
+<b class="nc">&nbsp;                if (gameHistory.isEmpty()) {</b>
+<b class="nc">&nbsp;                    lineReader.printAbove(&quot;No game history available.&quot;);</b>
+&nbsp;                } else {
+<b class="nc">&nbsp;                    AttributedStringBuilder historyBuilder = new AttributedStringBuilder();</b>
+<b class="nc">&nbsp;                    for (String event : gameHistory) {</b>
+<b class="nc">&nbsp;                        historyBuilder.append(event, AttributedStyle.DEFAULT.foreground(AttributedStyle.YELLOW)).append(&quot;\n&quot;);</b>
+&nbsp;                    }
+<b class="nc">&nbsp;                    lineReader.printAbove(historyBuilder.toAttributedString());</b>
+&nbsp;                }
+&nbsp;            }
+<b class="nc">&nbsp;            default -&gt; throw new IllegalArgumentException(&quot;Invalid show option. Available options: nickname, cardId, TOC, offersPath.&quot;);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    private void pickCard(String[] args) throws IllegalArgumentException {
+<b class="nc">&nbsp;        if (args.length &lt; 2) {</b>
+<b class="nc">&nbsp;            throw new IllegalArgumentException(&quot;Invalid command format. Usage: pick [cardID]&quot;);</b>
+&nbsp;        }
+&nbsp;        try {
+<b class="nc">&nbsp;            controller.pickCard(Integer.parseInt(args[1]));</b>
+&nbsp;        } catch (Exception e) {
+<b class="nc">&nbsp;            throw new RuntimeException(&quot;[Client] A network error occurred while sending your request\nDetails: &quot; + e.getMessage());</b>
+&nbsp;        }
+<b class="nc">&nbsp;        lineReader.printAbove(&quot;Card pick request sent successfully!&quot;);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private void placeTotem(String[] args) throws IllegalArgumentException {
+<b class="nc">&nbsp;        if (args.length &lt; 2) {</b>
+<b class="nc">&nbsp;            throw new IllegalArgumentException(&quot;Invalid command format. Usage: place [position]&quot;);</b>
+&nbsp;        }
+&nbsp;        try {
+<b class="nc">&nbsp;            controller.placeTotem(Character.toUpperCase(args[1].charAt(0)));</b>
+&nbsp;        } catch (Exception e) {
+<b class="nc">&nbsp;            throw new RuntimeException(&quot;[Client] A network error occurred while sending your request\nDetails: &quot; + e.getMessage());</b>
+&nbsp;        }
+<b class="nc">&nbsp;        lineReader.printAbove(&quot;Totem placement request sent successfully!&quot;);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private void connect(String[] args) throws IllegalArgumentException {
+&nbsp;
+<b class="nc">&nbsp;        if (args.length &lt; 2) {</b>
+<b class="nc">&nbsp;            throw new IllegalArgumentException(&quot;Invalid command format. Usage: connect [socket|rmi]&quot;);</b>
+&nbsp;        }
+&nbsp;        
+&nbsp;        // Extract the connection mode from command
+<b class="nc">&nbsp;        if (!args[1].equalsIgnoreCase(&quot;socket&quot;) &amp;&amp; !args[1].equalsIgnoreCase(&quot;rmi&quot;)) {</b>
+<b class="nc">&nbsp;            throw new IllegalArgumentException(&quot;Invalid connection mode. Available options: socket, rmi.&quot;);</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        if (this.controller.isConnected()) {</b>
+<b class="nc">&nbsp;            throw new IllegalArgumentException(&quot;You are already connected to a server.&quot;);</b>
+&nbsp;        }
+<b class="nc">&nbsp;        String connectionMode = args[1];</b>
+&nbsp;        
+&nbsp;        // Request connection parameters from user
+<b class="nc">&nbsp;        writer.println(&quot;Please specify the server IP, port and your nickname:&quot;);</b>
+<b class="nc">&nbsp;        terminal.flush();</b>
+&nbsp;        
+<b class="nc">&nbsp;        String serverIP = lineReader.readLine(&quot;IP: &quot;);</b>
+<b class="nc">&nbsp;        String portInput = lineReader.readLine(&quot;Port: &quot;);</b>
+<b class="nc">&nbsp;        String playerNickname = lineReader.readLine(&quot;Nickname: &quot;).trim();</b>
+&nbsp;        
+&nbsp;        // Parse port to integer with validation
+&nbsp;        int serverPort;
+&nbsp;        try {
+<b class="nc">&nbsp;            serverPort = Integer.parseInt(portInput);</b>
+&nbsp;        } catch (NumberFormatException e) {
+<b class="nc">&nbsp;            throw new IllegalArgumentException(&quot;Port must be a valid integer number, got: &quot; + portInput);</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        controller.connect(connectionMode, serverIP, serverPort, playerNickname, this);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;    private void createGame(String[] args) throws IllegalArgumentException {
+<b class="nc">&nbsp;        if (args.length &lt; 3) {</b>
+<b class="nc">&nbsp;            throw new IllegalArgumentException(&quot;Invalid command format. Usage: create [numPlayers] [totemColor]&quot;);</b>
+&nbsp;        }
+&nbsp;        try {
+<b class="nc">&nbsp;            controller.createGame(Integer.parseInt(args[1]), args[2].toLowerCase());</b>
+&nbsp;        } catch (Exception e) {
+<b class="nc">&nbsp;            throw new RuntimeException(&quot;[Client] A network error occurred while sending your request\nDetails: &quot; + e.getMessage());</b>
+&nbsp;        }
+<b class="nc">&nbsp;        lineReader.printAbove(&quot;Game creation request sent successfully!&quot;);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private void joinGame(String[] args) throws IllegalArgumentException {
+<b class="nc">&nbsp;        if (args.length &lt; 3) {</b>
+<b class="nc">&nbsp;            throw new IllegalArgumentException(&quot;Invalid command format. Usage: join [gameId] [totemColor]&quot;);</b>
+&nbsp;        }
+&nbsp;        try {
+<b class="nc">&nbsp;            controller.joinGame(Integer.parseInt(args[1]), args[2].toLowerCase());</b>
+&nbsp;        } catch (Exception e) {
+<b class="nc">&nbsp;            throw new RuntimeException(&quot;[Client] A network error occurred while sending your request\nDetails: &quot; + e.getMessage());</b>
+&nbsp;        }
+<b class="nc">&nbsp;        lineReader.printAbove(&quot;Game join request sent successfully!&quot;);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private void printGameTitle() {
+<b class="nc">&nbsp;        String asciiArtTitle =</b>
+&nbsp;                &quot;      ___       __   __         ___    ___  __  \n&quot; +
+&nbsp;                &quot;|  | |__  |    /  ` /  \\  |\\/| |__      |  /  \\ \n&quot; +
+&nbsp;                &quot;|/\\| |___ |___ \\__, \\__/  |  | |___     |  \\__/ \n&quot; +
+&nbsp;                &quot;                                                \n&quot; +
+&nbsp;                &quot;███╗   ███╗███████╗███████╗ ██████╗ ███████╗\n&quot; +
+&nbsp;                &quot;████╗ ████║██╔════╝██╔════╝██╔═══██╗██╔════╝\n&quot; +
+&nbsp;                &quot;██╔████╔██║█████╗  ███████╗██║   ██║███████╗\n&quot; +
+&nbsp;                &quot;██║╚██╔╝██║██╔══╝  ╚════██║██║   ██║╚════██║\n&quot; +
+&nbsp;                &quot;██║ ╚═╝ ██║███████╗███████║╚██████╔╝███████║\n&quot; +
+&nbsp;                &quot;╚═╝     ╚═╝╚══════╝╚══════╝ ╚═════╝ ╚══════╝\n&quot; +
+&nbsp;                &quot;                                            &quot;;
+&nbsp;
+<b class="nc">&nbsp;        AttributedStringBuilder attributedTitleBuilder = new AttributedStringBuilder();</b>
+<b class="nc">&nbsp;        int width = terminal.getWidth();</b>
+<b class="nc">&nbsp;        String[] lines = asciiArtTitle.split(&quot;\n&quot;);</b>
+<b class="nc">&nbsp;        for (String line : lines) {</b>
+<b class="nc">&nbsp;            AttributedString attributedLine = new AttributedString(</b>
+<b class="nc">&nbsp;                    line + &quot;\n&quot;, AttributedStyle.DEFAULT.foreground(AttributedStyle.RED));</b>
+&nbsp;            // lo spazio rimanente viene diviso a metà per centrare il testo.
+<b class="nc">&nbsp;            int padding = (width - attributedLine.length()) / 2;</b>
+<b class="nc">&nbsp;            attributedTitleBuilder.append(&quot; &quot;.repeat(Math.max(0, padding)));</b>
+<b class="nc">&nbsp;            attributedTitleBuilder.append(attributedLine);</b>
+&nbsp;        }
+<b class="nc">&nbsp;        synchronized (renderLock) {</b>
+<b class="nc">&nbsp;            lineReader.printAbove(attributedTitleBuilder.toAttributedString());</b>
+<b class="nc">&nbsp;            lineReader.printAbove(new AttributedString(</b>
+<b class="nc">&nbsp;                    &quot;Type &#39;help&#39; for commands info.&quot;, AttributedStyle.DEFAULT.foreground(AttributedStyle.GREEN)</b>
+&nbsp;            ));
+<b class="nc">&nbsp;        }</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private void printBoard() {
+<b class="nc">&nbsp;        ArrayList&lt;ArrayList&lt;Integer&gt;&gt; currentBoard = modelReference.getBoard();</b>
+<b class="nc">&nbsp;        ArrayList&lt;Character&gt; offersPath = modelReference.getOffersPath();</b>
+&nbsp;
+<b class="nc">&nbsp;        int[] firstRowIndexes = currentBoard.stream()</b>
+<b class="nc">&nbsp;                .limit(2)</b>
+<b class="nc">&nbsp;                .flatMap(ArrayList::stream)</b>
+<b class="nc">&nbsp;                .mapToInt(Integer::intValue)</b>
+<b class="nc">&nbsp;                .toArray();</b>
+<b class="nc">&nbsp;        int[] thirdRowIndexes = currentBoard.stream()</b>
+<b class="nc">&nbsp;                .skip(2)</b>
+<b class="nc">&nbsp;                .limit(2)</b>
+<b class="nc">&nbsp;                .flatMap(ArrayList::stream)</b>
+<b class="nc">&nbsp;                .mapToInt(Integer::intValue)</b>
+<b class="nc">&nbsp;                .toArray();</b>
+<b class="nc">&nbsp;        int width = terminal.getWidth();</b>
+&nbsp;
+&nbsp;
+<b class="nc">&nbsp;        AttributedStringBuilder firstRowBuilder = new AttributedStringBuilder();</b>
+<b class="nc">&nbsp;        AttributedStringBuilder secondRowBuilder = new AttributedStringBuilder();</b>
+<b class="nc">&nbsp;        AttributedStringBuilder thirdRowBuilder = new AttributedStringBuilder();</b>
+&nbsp;
+&nbsp;        AttributedStringBuilder
+<b class="nc">&nbsp;                line1 = new AttributedStringBuilder(),</b>
+<b class="nc">&nbsp;                line2 = new AttributedStringBuilder(),</b>
+<b class="nc">&nbsp;                line3 = new AttributedStringBuilder(),</b>
+<b class="nc">&nbsp;                line4 = new AttributedStringBuilder();</b>
+&nbsp;
+&nbsp;        // building the first row:
+<b class="nc">&nbsp;        for (int firstRowIndex : firstRowIndexes) {</b>
+<b class="nc">&nbsp;            line1.append(colorCard(firstRowIndex, &quot;┌─────┐ &quot;));</b>
+<b class="nc">&nbsp;            line2.append(colorCard(firstRowIndex, &quot;│     │ &quot;));</b>
+<b class="nc">&nbsp;            line3.append(colorCard(firstRowIndex,</b>
+<b class="nc">&nbsp;                    &quot;│&quot; + (firstRowIndex &lt; 10 ?</b>
+<b class="nc">&nbsp;                            String.format(&quot;  %d  &quot;, firstRowIndex) :</b>
+<b class="nc">&nbsp;                            String.format(&quot; %-3d &quot;, firstRowIndex)) +</b>
+&nbsp;                    &quot;│ &quot;
+&nbsp;                    ));
+<b class="nc">&nbsp;            line4.append(colorCard(firstRowIndex, &quot;└─────┘ &quot;));</b>
+&nbsp;        }
+<b class="nc">&nbsp;        int padding = (width - line1.length()) / 2;</b>
+<b class="nc">&nbsp;        firstRowBuilder</b>
+<b class="nc">&nbsp;                .append(&quot; &quot;.repeat(Math.max(0, padding))).append(line1).append(&quot; &quot;.repeat(Math.max(0, padding))).append(&quot;\n&quot;)</b>
+<b class="nc">&nbsp;                .append(&quot; &quot;.repeat(Math.max(0, padding))).append(line2).append(&quot; &quot;.repeat(Math.max(0, padding))).append(&quot;\n&quot;)</b>
+<b class="nc">&nbsp;                .append(&quot; &quot;.repeat(Math.max(0, padding))).append(line3).append(&quot; &quot;.repeat(Math.max(0, padding))).append(&quot;\n&quot;)</b>
+<b class="nc">&nbsp;                .append(&quot; &quot;.repeat(Math.max(0, padding))).append(line2).append(&quot; &quot;.repeat(Math.max(0, padding))).append(&quot;\n&quot;)</b>
+<b class="nc">&nbsp;                .append(&quot; &quot;.repeat(Math.max(0, padding))).append(line4).append(&quot; &quot;.repeat(Math.max(0, padding))).append(&quot;\n&quot;);</b>
+&nbsp;
+<b class="nc">&nbsp;        line1 = new AttributedStringBuilder();</b>
+<b class="nc">&nbsp;        line2 = new AttributedStringBuilder();</b>
+<b class="nc">&nbsp;        line3 = new AttributedStringBuilder();</b>
+<b class="nc">&nbsp;        line4 = new AttributedStringBuilder();</b>
+<b class="nc">&nbsp;        AttributedStringBuilder turnOrderCardNameBuilder = new AttributedStringBuilder();</b>
+&nbsp;        // building the second row:
+<b class="nc">&nbsp;        line1</b>
+<b class="nc">&nbsp;                .append(&quot;▐▀▀▀▀▀▌ &quot;)</b>
+<b class="nc">&nbsp;                .append(&quot;╔═════╗ &quot;.repeat(offersPath.size()));</b>
+<b class="nc">&nbsp;        line2.append(&quot;▐     ▌ &quot;);</b>
+<b class="nc">&nbsp;        for (char trackCardName : offersPath) {</b>
+<b class="nc">&nbsp;            line2.append(&quot;║  &quot;);</b>
+<b class="nc">&nbsp;            line2.append(colorTotemInOffersPath(getColorAtPosition(trackCardName)));</b>
+<b class="nc">&nbsp;            line2.append(&quot;  ║ &quot;);</b>
+&nbsp;        }
+<b class="nc">&nbsp;        line3.append(&quot;▐ TOC ▌ &quot;);</b>
+<b class="nc">&nbsp;        turnOrderCardNameBuilder.append(&quot;▐     ▌ &quot;);</b>
+<b class="nc">&nbsp;        for (char trackCardName : offersPath) {</b>
+<b class="nc">&nbsp;            line3.append(&quot;║&quot;).append(printTrackCard(trackCardName)).append(&quot;║ &quot;);</b>
+<b class="nc">&nbsp;            turnOrderCardNameBuilder.append(&quot;║  &quot;).append(trackCardName).append(&quot;  ║ &quot;);</b>
+&nbsp;        }
+<b class="nc">&nbsp;        line4</b>
+<b class="nc">&nbsp;                .append(&quot;▐▄▄▄▄▄▌ &quot;)</b>
+<b class="nc">&nbsp;                .append(&quot;╚═════╝ &quot;.repeat(offersPath.size()));</b>
+<b class="nc">&nbsp;        padding = (width - line1.length()) / 2;</b>
+<b class="nc">&nbsp;        secondRowBuilder</b>
+<b class="nc">&nbsp;                .append(&quot; &quot;.repeat(Math.max(0, padding))).append(line1).append(&quot; &quot;.repeat(Math.max(0, padding))).append(&quot;\n&quot;)</b>
+<b class="nc">&nbsp;                .append(&quot; &quot;.repeat(Math.max(0, padding))).append(line2).append(&quot; &quot;.repeat(Math.max(0, padding))).append(&quot;\n&quot;)</b>
+<b class="nc">&nbsp;                .append(&quot; &quot;.repeat(Math.max(0, padding))).append(line3).append(&quot; &quot;.repeat(Math.max(0, padding))).append(&quot;\n&quot;)</b>
+<b class="nc">&nbsp;                .append(&quot; &quot;.repeat(Math.max(0, padding))).append(turnOrderCardNameBuilder).append(&quot; &quot;.repeat(Math.max(0, padding))).append(&quot;\n&quot;)</b>
+<b class="nc">&nbsp;                .append(&quot; &quot;.repeat(Math.max(0, padding))).append(line4).append(&quot; &quot;.repeat(Math.max(0, padding))).append(&quot;\n&quot;);</b>
+&nbsp;
+<b class="nc">&nbsp;        line1 = new AttributedStringBuilder();</b>
+<b class="nc">&nbsp;        line2 = new AttributedStringBuilder();</b>
+<b class="nc">&nbsp;        line3 = new AttributedStringBuilder();</b>
+<b class="nc">&nbsp;        line4 = new AttributedStringBuilder();</b>
+&nbsp;        // building the third row:
+<b class="nc">&nbsp;        for (int thirdRowIndex : thirdRowIndexes) {</b>
+<b class="nc">&nbsp;            line1.append(colorCard(thirdRowIndex, &quot;┌─────┐ &quot;));</b>
+<b class="nc">&nbsp;            line2.append(colorCard(thirdRowIndex, &quot;│     │ &quot;));</b>
+<b class="nc">&nbsp;            line3.append(colorCard(thirdRowIndex,</b>
+<b class="nc">&nbsp;                    &quot;│&quot; + (thirdRowIndex &lt; 10 ?</b>
+<b class="nc">&nbsp;                            String.format(&quot;  %d  &quot;, thirdRowIndex) :</b>
+<b class="nc">&nbsp;                            String.format(&quot; %-3d &quot;, thirdRowIndex)) +</b>
+&nbsp;                            &quot;│ &quot;
+&nbsp;            ));
+<b class="nc">&nbsp;            line4.append(colorCard(thirdRowIndex, &quot;└─────┘ &quot;));</b>
+&nbsp;        }
+<b class="nc">&nbsp;        padding = (width - line1.length()) / 2;</b>
+<b class="nc">&nbsp;        thirdRowBuilder</b>
+<b class="nc">&nbsp;                .append(&quot; &quot;.repeat(Math.max(0, padding))).append(line1).append(&quot; &quot;.repeat(Math.max(0, padding))).append(&quot;\n&quot;)</b>
+<b class="nc">&nbsp;                .append(&quot; &quot;.repeat(Math.max(0, padding))).append(line2).append(&quot; &quot;.repeat(Math.max(0, padding))).append(&quot;\n&quot;)</b>
+<b class="nc">&nbsp;                .append(&quot; &quot;.repeat(Math.max(0, padding))).append(line3).append(&quot; &quot;.repeat(Math.max(0, padding))).append(&quot;\n&quot;)</b>
+<b class="nc">&nbsp;                .append(&quot; &quot;.repeat(Math.max(0, padding))).append(line2).append(&quot; &quot;.repeat(Math.max(0, padding))).append(&quot;\n&quot;)</b>
+<b class="nc">&nbsp;                .append(&quot; &quot;.repeat(Math.max(0, padding))).append(line4).append(&quot; &quot;.repeat(Math.max(0, padding))).append(&quot;\n&quot;);</b>
+&nbsp;
+<b class="nc">&nbsp;        synchronized (renderLock) {</b>
+<b class="nc">&nbsp;            lineReader.printAbove(firstRowBuilder.toAttributedString());</b>
+<b class="nc">&nbsp;            lineReader.printAbove(secondRowBuilder.toAttributedString());</b>
+<b class="nc">&nbsp;            lineReader.printAbove(thirdRowBuilder.toAttributedString());</b>
+<b class="nc">&nbsp;        }</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private void printTurnOrderCard() {
+<b class="nc">&nbsp;        ArrayList&lt;String&gt; turnOrderCard = modelReference.getPlayerOrderInTurnOrderCard();</b>
+<b class="nc">&nbsp;        int longestNicknameLength = modelReference.getAllPlayers().stream()</b>
+<b class="nc">&nbsp;                .mapToInt(p -&gt; p.getNickname().length())</b>
+<b class="nc">&nbsp;                .max()</b>
+<b class="nc">&nbsp;                .orElse(0);</b>
+<b class="nc">&nbsp;        int numPlayers = modelReference.getNumPlayers();</b>
+&nbsp;
+&nbsp;
+<b class="nc">&nbsp;        AttributedStringBuilder turnOrderBuilder = new AttributedStringBuilder();</b>
+<b class="nc">&nbsp;        AttributedString limitLine = new AttributedString(</b>
+<b class="nc">&nbsp;                &quot;+===&quot; + &quot;=&quot;.repeat(longestNicknameLength) + &quot;===+\n&quot;,</b>
+<b class="nc">&nbsp;                AttributedStyle.DEFAULT.foreground(AttributedStyle.GREEN)</b>
+&nbsp;        );
+<b class="nc">&nbsp;        AttributedString emptyLine = new AttributedString(</b>
+<b class="nc">&nbsp;                &quot;|&quot; + &quot; &quot;.repeat(longestNicknameLength + 6) + &quot;|\t&quot;,</b>
+<b class="nc">&nbsp;                AttributedStyle.DEFAULT.foreground(AttributedStyle.GREEN)</b>
+&nbsp;        );
+<b class="nc">&nbsp;        turnOrderBuilder.append(limitLine);</b>
+<b class="nc">&nbsp;        for (int i = 0; i &lt; numPlayers; i++) {</b>
+&nbsp;            String nickInTurnOrder;
+&nbsp;            try {
+<b class="nc">&nbsp;                nickInTurnOrder = turnOrderCard.get(i);</b>
+&nbsp;            } catch (IndexOutOfBoundsException _) {
+<b class="nc">&nbsp;                nickInTurnOrder = &quot;&quot;;</b>
+&nbsp;            }
+<b class="nc">&nbsp;            AttributedString nickname = new AttributedString(</b>
+<b class="nc">&nbsp;                    nickInTurnOrder == null ? &quot;&quot; : nickInTurnOrder,</b>
+<b class="nc">&nbsp;                    AttributedStyle.DEFAULT.foreground(AttributedStyle.GREEN)</b>
+&nbsp;            );
+<b class="nc">&nbsp;            turnOrderBuilder.append(emptyLine);</b>
+<b class="nc">&nbsp;            turnOrderBuilder.append(&quot;\n&quot;);</b>
+<b class="nc">&nbsp;            if (!nickname.isEmpty()) {</b>
+<b class="nc">&nbsp;                turnOrderBuilder.append(&quot;|   &quot;,</b>
+<b class="nc">&nbsp;                        AttributedStyle.DEFAULT.foreground(AttributedStyle.GREEN)</b>
+&nbsp;                );
+<b class="nc">&nbsp;                turnOrderBuilder.append(colorNickname(nickname.toString()));</b>
+<b class="nc">&nbsp;                turnOrderBuilder.append(&quot; &quot;.repeat(longestNicknameLength - nickname.length()) + &quot;   |\t&quot;,</b>
+<b class="nc">&nbsp;                        AttributedStyle.DEFAULT.foreground(AttributedStyle.GREEN)</b>
+&nbsp;                );
+&nbsp;            }
+&nbsp;            else
+<b class="nc">&nbsp;                turnOrderBuilder.append(emptyLine);</b>
+<b class="nc">&nbsp;            turnOrderBuilder.append(</b>
+&nbsp;                    new AttributedString(
+&nbsp;                            &quot;← This player &quot; +
+<b class="nc">&nbsp;                                    (foodTable.get(numPlayers).get(i) &gt; 0 ?</b>
+<b class="nc">&nbsp;                                            &quot;gets &quot; + foodTable.get(numPlayers).get(i) + &quot; food&quot; :</b>
+<b class="nc">&nbsp;                                            &quot;loses &quot; + Math.abs(foodTable.get(numPlayers).get(i)) + &quot; food&quot;)</b>
+&nbsp;                                    + &quot; at the end of this round.\n&quot;,
+<b class="nc">&nbsp;                            AttributedStyle.DEFAULT.foreground(AttributedStyle.WHITE)</b>
+&nbsp;                    )
+&nbsp;            );
+&nbsp;        }
+<b class="nc">&nbsp;        turnOrderBuilder.append(emptyLine);</b>
+<b class="nc">&nbsp;        turnOrderBuilder.append(&quot;\n&quot;);</b>
+<b class="nc">&nbsp;        turnOrderBuilder.append(limitLine);</b>
+&nbsp;
+<b class="nc">&nbsp;        lineReader.printAbove(turnOrderBuilder.toAttributedString());</b>
+&nbsp;    }
+&nbsp;
+<b class="nc">&nbsp;    private record CardColors(int lower, int upper, AttributedStyle style) {}</b>
+&nbsp;
+<b class="nc">&nbsp;    private static final List&lt;CardColors&gt; COLORS = List.of(</b>
+<b class="nc">&nbsp;            new CardColors(0, 14,  AttributedStyle.DEFAULT.foreground(AttributedStyle.RED)),</b>
+<b class="nc">&nbsp;            new CardColors(15, 26,  AttributedStyle.DEFAULT.foreground(60, 42, 94)),</b>
+<b class="nc">&nbsp;            new CardColors(27, 37,  AttributedStyle.DEFAULT.foreground(255, 140, 0)),</b>
+<b class="nc">&nbsp;            new CardColors(38, 50,  AttributedStyle.DEFAULT.foreground(AttributedStyle.YELLOW)),</b>
+<b class="nc">&nbsp;            new CardColors(51, 70,  AttributedStyle.DEFAULT.foreground(AttributedStyle.CYAN)),</b>
+<b class="nc">&nbsp;            new CardColors(71, 83,  AttributedStyle.DEFAULT.foreground(147, 68, 97)),</b>
+<b class="nc">&nbsp;            new CardColors(84, 95,  AttributedStyle.DEFAULT.foreground(130, 79, 17)),</b>
+<b class="nc">&nbsp;            new CardColors(96, 116, AttributedStyle.DEFAULT.foreground(0, 100, 0))</b>
+&nbsp;    );
+&nbsp;
+&nbsp;    private AttributedString colorCard(int index, String card) {
+<b class="nc">&nbsp;        AttributedStyle style = COLORS.stream()</b>
+<b class="nc">&nbsp;                .filter(t -&gt; index &lt;= t.upper() &amp;&amp; index &gt;= t.lower())</b>
+<b class="nc">&nbsp;                .findFirst()</b>
+<b class="nc">&nbsp;                .map(CardColors::style)</b>
+<b class="nc">&nbsp;                .orElse(AttributedStyle.DEFAULT.foreground(AttributedStyle.WHITE));</b>
+&nbsp;
+<b class="nc">&nbsp;        return new AttributedString(card, style);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private AttributedString colorNickname(String chosenNickname) {
+<b class="nc">&nbsp;        return switch (modelReference.getPlayerByNickname(chosenNickname).getTotemColor()) {</b>
+<b class="nc">&nbsp;            case &quot;purple&quot; -&gt; new AttributedString(chosenNickname, AttributedStyle.DEFAULT.foreground(147, 68, 97));</b>
+<b class="nc">&nbsp;            case &quot;yellow&quot; -&gt; new AttributedString(chosenNickname, AttributedStyle.DEFAULT.foreground(AttributedStyle.YELLOW));</b>
+<b class="nc">&nbsp;            case &quot;red&quot; -&gt; new AttributedString(chosenNickname, AttributedStyle.DEFAULT.foreground(AttributedStyle.RED));</b>
+<b class="nc">&nbsp;            case &quot;blue&quot; -&gt; new AttributedString(chosenNickname, AttributedStyle.DEFAULT.foreground(AttributedStyle.CYAN));</b>
+<b class="nc">&nbsp;            default -&gt; new AttributedString(chosenNickname, AttributedStyle.DEFAULT.foreground(AttributedStyle.WHITE));</b>
+&nbsp;        };
+&nbsp;    }
+&nbsp;
+&nbsp;    private AttributedString printTrackCard(Character trackCardName) {
+<b class="nc">&nbsp;        return switch(trackCardName) {</b>
+<b class="nc">&nbsp;            case &#39;A&#39;, &#39;a&#39; -&gt; new AttributedString(&quot; 1f  &quot;, AttributedStyle.DEFAULT.foreground(237, 153, 107));</b>
+<b class="nc">&nbsp;            case &#39;B&#39;, &#39;b&#39; -&gt; new AttributedString(&quot; 1↓  &quot;, AttributedStyle.DEFAULT.foreground(AttributedStyle.RED));</b>
+<b class="nc">&nbsp;            case &#39;C&#39;, &#39;c&#39; -&gt; new AttributedString(&quot; 1↑  &quot;, AttributedStyle.DEFAULT.foreground(AttributedStyle.GREEN));</b>
+<b class="nc">&nbsp;            case &#39;D&#39;, &#39;d&#39; -&gt; new AttributedString(&quot; 2↓  &quot;, AttributedStyle.DEFAULT.foreground(AttributedStyle.RED));</b>
+<b class="nc">&nbsp;            case &#39;E&#39;, &#39;e&#39; -&gt; new AttributedStringBuilder().append(new AttributedString(&quot;1↓&quot;, AttributedStyle.DEFAULT.foreground(AttributedStyle.RED)))</b>
+<b class="nc">&nbsp;                    .append(&quot;/&quot;)</b>
+<b class="nc">&nbsp;                    .append(new AttributedString(&quot;1↑&quot;, AttributedStyle.DEFAULT.foreground(AttributedStyle.GREEN)))</b>
+<b class="nc">&nbsp;                    .toAttributedString();</b>
+<b class="nc">&nbsp;            case &#39;F&#39;, &#39;f&#39; -&gt; new AttributedString(&quot; 2↑  &quot;, AttributedStyle.DEFAULT.foreground(AttributedStyle.GREEN));</b>
+<b class="nc">&nbsp;            case &#39;G&#39;, &#39;g&#39; -&gt; new AttributedStringBuilder().append(new AttributedString(&quot;2↑&quot;, AttributedStyle.DEFAULT.foreground(AttributedStyle.GREEN)))</b>
+<b class="nc">&nbsp;                    .append(&quot;/&quot;)</b>
+<b class="nc">&nbsp;                    .append(new AttributedString(&quot;1↓&quot;, AttributedStyle.DEFAULT.foreground(AttributedStyle.RED)))</b>
+<b class="nc">&nbsp;                    .toAttributedString();</b>
+<b class="nc">&nbsp;            default -&gt; new AttributedString(&quot;     &quot;, AttributedStyle.DEFAULT.foreground(AttributedStyle.WHITE));</b>
+&nbsp;        };
+&nbsp;    }
+&nbsp;
+&nbsp;    private AttributedString colorTotemInOffersPath(String totemColor) {
+<b class="nc">&nbsp;        return totemColor != null ?</b>
+<b class="nc">&nbsp;                switch (totemColor.toLowerCase()) {</b>
+<b class="nc">&nbsp;                    case &quot;purple&quot; -&gt; new AttributedString(&quot;█&quot;, AttributedStyle.DEFAULT.foreground(147, 68, 97));</b>
+<b class="nc">&nbsp;                    case &quot;yellow&quot; -&gt; new AttributedString(&quot;█&quot;, AttributedStyle.DEFAULT.foreground(AttributedStyle.YELLOW));</b>
+<b class="nc">&nbsp;                    case &quot;red&quot; -&gt; new AttributedString(&quot;█&quot;, AttributedStyle.DEFAULT.foreground(AttributedStyle.RED));</b>
+<b class="nc">&nbsp;                    case &quot;blue&quot; -&gt; new AttributedString(&quot;█&quot;, AttributedStyle.DEFAULT.foreground(AttributedStyle.CYAN));</b>
+<b class="nc">&nbsp;                    default -&gt; new AttributedString(&quot;█&quot;, AttributedStyle.DEFAULT.foreground(AttributedStyle.WHITE));</b>
+&nbsp;                } :
+<b class="nc">&nbsp;                new AttributedString(&quot; &quot;, AttributedStyle.DEFAULT.foreground(AttributedStyle.WHITE));</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private String getColorAtPosition(char position) {
+<b class="nc">&nbsp;        return modelReference.getNicknameByPosition(position) == null ?</b>
+<b class="nc">&nbsp;                null :</b>
+<b class="nc">&nbsp;                modelReference.getPlayerByNickname(modelReference.getNicknameByPosition(position)).getTotemColor();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private boolean canDiscardPickUpdate(String s) {
+<b class="nc">&nbsp;        return s.equals(&quot;Pick phase has started. &quot;);</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-22 23:30</div>
+</div>
+</body>
+</html>

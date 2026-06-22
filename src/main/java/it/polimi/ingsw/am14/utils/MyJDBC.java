@@ -75,12 +75,10 @@ public class MyJDBC {
             String tuple = place + ") " +
                     rs.getString("nickname") +
                     "   " +
-                    rs.getInt("total_score") + " punti ";
+                    rs.getInt("total_score") + " points ";
             rank.add(tuple);
             place++;
         }
         return rank;
     }
 }
-
-

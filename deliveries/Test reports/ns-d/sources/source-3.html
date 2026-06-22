@@ -1,0 +1,349 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > NetworkLayer</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">it.polimi.ingsw.am14.network</a>
+</div>
+
+<h1>Coverage Summary for Class: NetworkLayer (it.polimi.ingsw.am14.network)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">NetworkLayer</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/17)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/22)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/69)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package it.polimi.ingsw.am14.network;
+&nbsp;
+&nbsp;import it.polimi.ingsw.am14.network.messages.events.Event;
+&nbsp;import it.polimi.ingsw.am14.exceptions.IllegalNicknameException;
+&nbsp;
+&nbsp;import java.util.ArrayList;
+&nbsp;import java.util.HashMap;
+&nbsp;import java.util.Map;
+&nbsp;import java.util.Set;
+&nbsp;/**
+&nbsp; * The central network management layer responsible for mapping and coordinating connected clients.
+&nbsp; * It provides thread-safe access to associations between users (nicknames), active games (game IDs),
+&nbsp; * their active connections ({@link VirtualClient}), dedicated server threads, and message queues ({@link EventBuffer}).
+&nbsp; */
+&nbsp;public class NetworkLayer implements Observer {
+&nbsp;
+&nbsp;    private final Map&lt;Integer, Set&lt;VirtualClient&gt;&gt; gameIdToClients;
+&nbsp;    private final Map&lt;String, VirtualClient&gt; nicknameToClient;
+&nbsp;    private final Map&lt;VirtualClient, EventBuffer&gt; clientToBuffer;
+&nbsp;    private final Map&lt;VirtualClient, ArrayList&lt;Thread&gt;&gt; clientToThreads;
+&nbsp;    /**
+&nbsp;     * Constructs a new {@code NetworkLayer}, initializing all the underlying management maps.
+&nbsp;     */
+<b class="nc">&nbsp;    public NetworkLayer() {</b>
+<b class="nc">&nbsp;        this.gameIdToClients = new HashMap&lt;&gt;();</b>
+<b class="nc">&nbsp;        this.nicknameToClient = new HashMap&lt;&gt;();</b>
+<b class="nc">&nbsp;        this.clientToBuffer = new HashMap&lt;&gt;();</b>
+<b class="nc">&nbsp;        this.clientToThreads = new HashMap&lt;&gt;();</b>
+&nbsp;    }
+&nbsp;    /**
+&nbsp;     * Broadcasts an event to all clients currently taking part in the specified game.
+&nbsp;     *
+&nbsp;     * @param update the {@link Event} to broadcast.
+&nbsp;     * @param gameId the identifier of the game whose clients should receive the event.
+&nbsp;     */
+&nbsp;    public void broadcastUpdate(Event update, int gameId) {
+<b class="nc">&nbsp;        synchronized (this.gameIdToClients) {</b>
+<b class="nc">&nbsp;            Set&lt;VirtualClient&gt; clients = this.gameIdToClients.get(gameId);</b>
+<b class="nc">&nbsp;            if (clients != null) {</b>
+<b class="nc">&nbsp;                for (VirtualClient client : clients) {</b>
+<b class="nc">&nbsp;                    addToEventBuffer(client, update);</b>
+&nbsp;                }
+&nbsp;            }
+<b class="nc">&nbsp;        }</b>
+&nbsp;    }
+&nbsp;    /**
+&nbsp;     * Associates a client with a specific game ID in the network layer.
+&nbsp;     *
+&nbsp;     * @param gameId the identifier of the game.
+&nbsp;     * @param client the {@link VirtualClient} joining the game.
+&nbsp;     */
+&nbsp;    public void updateClients(int gameId, VirtualClient client) {
+<b class="nc">&nbsp;        synchronized (this.gameIdToClients) {</b>
+<b class="nc">&nbsp;            if (!this.gameIdToClients.containsKey(gameId)) {</b>
+<b class="nc">&nbsp;                this.gameIdToClients.put(gameId, new java.util.HashSet&lt;&gt;());</b>
+&nbsp;            }
+<b class="nc">&nbsp;            this.gameIdToClients.get(gameId).add(client);</b>
+<b class="nc">&nbsp;        }</b>
+&nbsp;    }
+&nbsp;    /**
+&nbsp;     * Binds a unique nickname to a newly connected client.
+&nbsp;     *
+&nbsp;     * @param nickname the requested username.
+&nbsp;     * @param client   the {@link VirtualClient} requesting the nickname.
+&nbsp;     * @throws IllegalNicknameException if the nickname is already registered by another active client.
+&nbsp;     */
+&nbsp;    public void updateNicknameMap(String nickname, VirtualClient client) throws IllegalNicknameException {
+<b class="nc">&nbsp;        synchronized (this.nicknameToClient) {</b>
+<b class="nc">&nbsp;            if (this.nicknameToClient.containsKey(nickname)) {</b>
+<b class="nc">&nbsp;                throw new IllegalNicknameException(&quot;Nickname already in use&quot;);</b>
+&nbsp;            }
+<b class="nc">&nbsp;            this.nicknameToClient.put(nickname, client);</b>
+<b class="nc">&nbsp;        }</b>
+&nbsp;    }
+&nbsp;    /**
+&nbsp;     * Registers a background thread associated with a specific client.
+&nbsp;     *
+&nbsp;     * @param client the {@link VirtualClient} being managed.
+&nbsp;     * @param thread the {@link Thread} handling the client&#39;s operations.
+&nbsp;     */
+&nbsp;    public void updateClientThreads(VirtualClient client, Thread thread) {
+<b class="nc">&nbsp;        synchronized (this.clientToThreads) {</b>
+<b class="nc">&nbsp;            if (!this.clientToThreads.containsKey(client)) {</b>
+<b class="nc">&nbsp;                this.clientToThreads.put(client, new ArrayList&lt;&gt;());</b>
+&nbsp;            }
+<b class="nc">&nbsp;            this.clientToThreads.get(client).add(thread);</b>
+<b class="nc">&nbsp;        }</b>
+&nbsp;    }
+&nbsp;    /**
+&nbsp;     * Creates and registers a new, empty {@link EventBuffer} for the specified client.
+&nbsp;     *
+&nbsp;     * @param client the {@link VirtualClient} to set up the buffer for.
+&nbsp;     */
+&nbsp;    public void updateBufferMap (VirtualClient client) {
+<b class="nc">&nbsp;        synchronized (this.clientToBuffer) {</b>
+<b class="nc">&nbsp;            this.clientToBuffer.put(client, new EventBuffer());</b>
+<b class="nc">&nbsp;        }</b>
+&nbsp;    }
+&nbsp;    /**
+&nbsp;     * Adds an event to the specific buffer of a designated client.
+&nbsp;     *
+&nbsp;     * @param client the target {@link VirtualClient}.
+&nbsp;     * @param event  the {@link Event} to enqueue.
+&nbsp;     */
+&nbsp;    public void addToEventBuffer(VirtualClient client, Event event) {
+<b class="nc">&nbsp;        synchronized (this.clientToBuffer) {</b>
+<b class="nc">&nbsp;            EventBuffer buffer = this.clientToBuffer.get(client);</b>
+<b class="nc">&nbsp;            if (buffer != null) {</b>
+<b class="nc">&nbsp;                buffer.addEvent(event);</b>
+&nbsp;            }
+<b class="nc">&nbsp;        }</b>
+&nbsp;    }
+&nbsp;    /**
+&nbsp;     * Retrieves the event buffer assigned to an active client.
+&nbsp;     *
+&nbsp;     * @param client the {@link VirtualClient} whose buffer is being queried.
+&nbsp;     * @return the client&#39;s {@link EventBuffer}, or {@code null} if one does not exist.
+&nbsp;     */
+&nbsp;    public EventBuffer getBuffer(VirtualClient client) {
+<b class="nc">&nbsp;        synchronized (this.clientToBuffer) {</b>
+<b class="nc">&nbsp;            return this.clientToBuffer.get(client);</b>
+<b class="nc">&nbsp;        }</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * &lt;p&gt;
+&nbsp;     *     receives an event directly from the model and manages the actual update of the clients
+&nbsp;     *     distinguishing between a direct update and a broadcast update, according to the type of event received
+&nbsp;     * &lt;/p&gt;
+&nbsp;     * @param event not null - the event to update the client with
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public void update(Event event) {
+&nbsp;        // will add the event to the buffers of the clients and then return.
+<b class="nc">&nbsp;        event.bufferize(this);</b>
+&nbsp;    }
+&nbsp;    /**
+&nbsp;     * Retrieves the client interface bound to the given nickname.
+&nbsp;     *
+&nbsp;     * @param nickname the username to look up.
+&nbsp;     * @return the associated {@link VirtualClient}, or {@code null} if not found.
+&nbsp;     */
+&nbsp;    public VirtualClient getClientBy(String nickname) {
+<b class="nc">&nbsp;        synchronized (this.nicknameToClient) {</b>
+<b class="nc">&nbsp;            return this.nicknameToClient.get(nickname);</b>
+<b class="nc">&nbsp;        }</b>
+&nbsp;    }
+&nbsp;    /**
+&nbsp;     * Removes the mapping of a nickname from the network registry, usually upon disconnection.
+&nbsp;     *
+&nbsp;     * @param nickname the username to unbind.
+&nbsp;     */
+&nbsp;    public void removeClientBy(String nickname) {
+<b class="nc">&nbsp;        synchronized (this.nicknameToClient) {</b>
+<b class="nc">&nbsp;            this.nicknameToClient.remove(nickname);</b>
+<b class="nc">&nbsp;        }</b>
+&nbsp;    }
+&nbsp;    /**
+&nbsp;     * Completely removes a game and its client affiliations from the registry.
+&nbsp;     *
+&nbsp;     * @param gameId the identifier of the game to dispel.
+&nbsp;     */
+&nbsp;    public void removeGame(int gameId) {
+<b class="nc">&nbsp;        synchronized (this.gameIdToClients) {</b>
+<b class="nc">&nbsp;            this.gameIdToClients.remove(gameId);</b>
+<b class="nc">&nbsp;        }</b>
+&nbsp;    }
+&nbsp;    /**
+&nbsp;     * Deletes the designated event buffer assigned to a specific client.
+&nbsp;     *
+&nbsp;     * @param client the {@link VirtualClient} whose buffer is to be destroyed.
+&nbsp;     */
+&nbsp;    public void removeBuffer(VirtualClient client) {
+<b class="nc">&nbsp;        synchronized (this.clientToBuffer) {</b>
+<b class="nc">&nbsp;            this.clientToBuffer.remove(client);</b>
+<b class="nc">&nbsp;        }</b>
+&nbsp;    }
+&nbsp;    /**
+&nbsp;     * Unregisters a single client from a specific game&#39;s player registry.
+&nbsp;     *
+&nbsp;     * @param client the {@link VirtualClient} to remove.
+&nbsp;     * @param gameId the target game ID.
+&nbsp;     */
+&nbsp;    public void removeClientFromGameId(VirtualClient client, int gameId) {
+<b class="nc">&nbsp;        synchronized (this.gameIdToClients) {</b>
+<b class="nc">&nbsp;            if (this.gameIdToClients.containsKey(gameId)) {</b>
+<b class="nc">&nbsp;                this.gameIdToClients.get(gameId).remove(client);</b>
+&nbsp;            }
+<b class="nc">&nbsp;        }</b>
+&nbsp;    }
+&nbsp;    /**
+&nbsp;     * Notifies and wakes up any threads currently blocking and waiting on the given client&#39;s event buffer.
+&nbsp;     * Used primarily during teardown procedures.
+&nbsp;     *
+&nbsp;     * @param client the target {@link VirtualClient}.
+&nbsp;     */
+&nbsp;    public void notifyBufferForClient(VirtualClient client) {
+<b class="nc">&nbsp;        EventBuffer buffer = getBuffer(client);</b>
+<b class="nc">&nbsp;        if (buffer != null) {</b>
+<b class="nc">&nbsp;            synchronized (buffer) {</b>
+<b class="nc">&nbsp;                buffer.notifyAll();</b>
+<b class="nc">&nbsp;            }</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;    /**
+&nbsp;     * Interrupts and evicts all server threads tracked and tied to the specified client.
+&nbsp;     *
+&nbsp;     * @param client the {@link VirtualClient} being terminated.
+&nbsp;     */
+&nbsp;    public void removeThreadsByClient(VirtualClient client) {
+<b class="nc">&nbsp;        synchronized (this.clientToThreads) {</b>
+<b class="nc">&nbsp;            if (this.clientToThreads.containsKey(client)) {</b>
+<b class="nc">&nbsp;                for (Thread thread : this.clientToThreads.get(client)) {</b>
+<b class="nc">&nbsp;                    thread.interrupt();</b>
+&nbsp;                }
+<b class="nc">&nbsp;                this.clientToThreads.remove(client);</b>
+&nbsp;            }
+<b class="nc">&nbsp;        }</b>
+&nbsp;    }
+&nbsp;    /**
+&nbsp;     * Broadcasts a network-level keep-alive ping to every single client connected to the server.
+&nbsp;     */
+&nbsp;    public void pingAllClients() {
+<b class="nc">&nbsp;        synchronized (this.nicknameToClient) {</b>
+<b class="nc">&nbsp;            for (VirtualClient client : this.nicknameToClient.values()) {</b>
+&nbsp;                try {
+<b class="nc">&nbsp;                    client.pingClient();</b>
+&nbsp;                } catch (Exception _) {
+&nbsp;                }
+&nbsp;            }
+<b class="nc">&nbsp;        }</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-22 23:30</div>
+</div>
+</body>
+</html>

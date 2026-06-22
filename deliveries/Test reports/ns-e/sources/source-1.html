@@ -1,0 +1,279 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > CardPickedEvent</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">it.polimi.ingsw.am14.network.messages.events</a>
+</div>
+
+<h1>Coverage Summary for Class: CardPickedEvent (it.polimi.ingsw.am14.network.messages.events)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">CardPickedEvent</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    50%
+  </span>
+  <span class="absValue">
+    (3/6)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    50%
+  </span>
+  <span class="absValue">
+    (4/8)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    50%
+  </span>
+  <span class="absValue">
+    (21/42)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package it.polimi.ingsw.am14.network.messages.events;
+&nbsp;
+&nbsp;import com.fasterxml.jackson.annotation.JsonCreator;
+&nbsp;import com.fasterxml.jackson.annotation.JsonProperty;
+&nbsp;import it.polimi.ingsw.am14.network.NetworkLayer;
+&nbsp;import it.polimi.ingsw.am14.model.cards.Card;
+&nbsp;import it.polimi.ingsw.am14.model.gameLogic.Player;
+&nbsp;import it.polimi.ingsw.am14.view.viewEvents.PickUpdateViewEvent;
+&nbsp;import it.polimi.ingsw.am14.clientModelController.ClientModel;
+&nbsp;
+&nbsp;import java.util.ArrayList;
+&nbsp;import java.util.Optional;
+&nbsp;import java.util.stream.Collectors;
+&nbsp;
+&nbsp;/**
+&nbsp; * Event representing a card being picked by a player during the game.
+&nbsp; * Inherits from {@link UpdateEvent}.
+&nbsp; * It contains the necessary information to update the client-side model,
+&nbsp; * including new player stats, board state, and turn order if the pick phase ends.
+&nbsp; */
+&nbsp;
+&nbsp;public class CardPickedEvent extends UpdateEvent {
+&nbsp;
+&nbsp;    private final String playerNickname;
+&nbsp;    private final int cardID;
+&nbsp;    private final int row;
+&nbsp;    private final int playerFood;
+&nbsp;    private final int playerPrestigePoints;
+&nbsp;    private final int playerNumStars;
+&nbsp;    private final boolean wasLastPick;
+&nbsp;    private final int playerBuildingDiscount;
+&nbsp;    private final int playerGatheringDiscount;
+&nbsp;    private ArrayList&lt;String&gt; updatedTurnOrderCard;
+&nbsp;    private int gameId; // only used for bufferization, will not be sent to the client
+&nbsp;
+&nbsp;    // called by the model
+&nbsp;    /**
+&nbsp;     * Constructs a {@code CardPickedEvent} triggered by the server model.
+&nbsp;     *
+&nbsp;     * @param playerNickname          the nickname of the player who picked the card.
+&nbsp;     * @param card                    the {@link Card} that was picked, or null if starting the pick phase.
+&nbsp;     * @param row                     the row index from which the card was picked.
+&nbsp;     * @param playerFood              the updated food amount of the player.
+&nbsp;     * @param playerPrestigePoints    the updated prestige points of the player.
+&nbsp;     * @param updatedTurnOrderCard    an {@link Optional} containing the updated turn order, if changed.
+&nbsp;     * @param gameId                  the ID of the game this event belongs to.
+&nbsp;     * @param playerBuildingDiscount  the updated building discount of the player.
+&nbsp;     * @param playerGatheringDiscount the updated gathering discount of the player.
+&nbsp;     * @param playerNumStars          the updated number of stars for the player.
+&nbsp;     * @param wasLastPick             true if this was the last pick for the current player.
+&nbsp;     */
+&nbsp;
+&nbsp;    public CardPickedEvent(String playerNickname, Card card, int row, int playerFood, int playerPrestigePoints, Optional&lt;ArrayList&lt;Player&gt;&gt; updatedTurnOrderCard, int gameId, int playerBuildingDiscount, int playerGatheringDiscount, int playerNumStars, boolean wasLastPick) {
+<b class="fc">&nbsp;        super(&quot;&quot;);</b>
+<b class="fc">&nbsp;        int ID = card == null ? -1 : card.getId();</b>
+&nbsp;
+<b class="fc">&nbsp;        this.playerNickname = playerNickname;</b>
+<b class="fc">&nbsp;        this.cardID = ID;</b>
+<b class="fc">&nbsp;        this.row = row;</b>
+<b class="fc">&nbsp;        this.playerFood = playerFood;</b>
+<b class="fc">&nbsp;        this.playerPrestigePoints = playerPrestigePoints;</b>
+<b class="fc">&nbsp;        this.playerBuildingDiscount = playerBuildingDiscount;</b>
+<b class="fc">&nbsp;        this.playerNumStars = playerNumStars;</b>
+<b class="fc">&nbsp;        this.wasLastPick = wasLastPick;</b>
+<b class="fc">&nbsp;        this.playerGatheringDiscount = playerGatheringDiscount;</b>
+<b class="fc">&nbsp;        this.gameId = gameId;</b>
+&nbsp;
+<b class="fc">&nbsp;        if (ID &lt; 0)</b>
+<b class="fc">&nbsp;            this.description += &quot;Pick phase has started. &quot;;</b>
+&nbsp;        else
+<b class="fc">&nbsp;            this.description += &quot;Player &quot; + playerNickname + &quot; picked card &quot; + ID + &quot;. &quot;;</b>
+&nbsp;
+&nbsp;
+<b class="fc">&nbsp;        updatedTurnOrderCard.ifPresentOrElse(</b>
+&nbsp;                (turnOrder) -&gt; {
+<b class="fc">&nbsp;                    this.updatedTurnOrderCard = turnOrder.stream().</b>
+<b class="fc">&nbsp;                            map(Player::getNickname).</b>
+<b class="fc">&nbsp;                            collect(Collectors.toCollection(ArrayList::new));</b>
+<b class="fc">&nbsp;                    this.description += &quot;Was &quot; + playerNickname + &quot;&#39;s last pick, turnOrderCard has been updated.&quot;;</b>
+&nbsp;                },
+<b class="fc">&nbsp;                () -&gt; this.updatedTurnOrderCard = null</b>
+&nbsp;        );
+&nbsp;    }
+&nbsp;
+&nbsp;    // called by the JSON parser
+&nbsp;    /**
+&nbsp;     * Constructs a {@code CardPickedEvent} from JSON data, used by Jackson upon receiving a message.
+&nbsp;     *
+&nbsp;     * @param playerNickname          the nickname of the player who picked the card.
+&nbsp;     * @param cardID                  the ID of the picked card.
+&nbsp;     * @param row                     the row index from which the card was picked.
+&nbsp;     * @param playerFood              the updated food amount of the player.
+&nbsp;     * @param playerPrestigePoints    the updated prestige points of the player.
+&nbsp;     * @param updatedTurnOrderCard    the updated turn order list of player nicknames.
+&nbsp;     * @param description             the description of the event.
+&nbsp;     * @param playerBuildingDiscount  the updated building discount of the player.
+&nbsp;     * @param playerGatheringDiscount the updated gathering discount of the player.
+&nbsp;     * @param playerNumStars          the updated number of stars for the player.
+&nbsp;     * @param wasLastPick             true if this was the last pick for the current player.
+&nbsp;     */
+&nbsp;
+&nbsp;    @JsonCreator
+&nbsp;    public CardPickedEvent(
+&nbsp;            @JsonProperty(&quot;nickname&quot;) String playerNickname,
+&nbsp;            @JsonProperty(&quot;cardID&quot;) int cardID,
+&nbsp;            @JsonProperty(&quot;row&quot;) int row,
+&nbsp;            @JsonProperty(&quot;playerFood&quot;) int playerFood,
+&nbsp;            @JsonProperty(&quot;playerPrestigePoints&quot;) int playerPrestigePoints,
+&nbsp;            @JsonProperty(&quot;updatedTurnOrderCard&quot;) ArrayList&lt;String&gt; updatedTurnOrderCard,
+&nbsp;            @JsonProperty(&quot;description&quot;) String description,
+&nbsp;            @JsonProperty(&quot;playerBuildingDiscount&quot;) int playerBuildingDiscount,
+&nbsp;            @JsonProperty(&quot;playerGatheringDiscount&quot;) int  playerGatheringDiscount,
+&nbsp;            @JsonProperty(&quot;playerNumStars&quot;) int playerNumStars,
+&nbsp;            @JsonProperty(&quot;wasLastPick&quot;) boolean wasLastPick)
+&nbsp;    {
+<b class="nc">&nbsp;        super(description);</b>
+<b class="nc">&nbsp;        this.playerNickname = playerNickname;</b>
+<b class="nc">&nbsp;        this.cardID = cardID;</b>
+<b class="nc">&nbsp;        this.row = row;</b>
+<b class="nc">&nbsp;        this.playerFood = playerFood;</b>
+<b class="nc">&nbsp;        this.playerPrestigePoints = playerPrestigePoints;</b>
+<b class="nc">&nbsp;        this.updatedTurnOrderCard = updatedTurnOrderCard;</b>
+<b class="nc">&nbsp;        this.playerGatheringDiscount = playerGatheringDiscount;</b>
+<b class="nc">&nbsp;        this.playerNumStars = playerNumStars;</b>
+<b class="nc">&nbsp;        this.wasLastPick = wasLastPick;</b>
+<b class="nc">&nbsp;        this.playerBuildingDiscount = playerBuildingDiscount;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Bufferizes the event into the network layer to be broadcasted to all connected clients.
+&nbsp;     *
+&nbsp;     * @param networkLayer the network layer used to broadcast the event.
+&nbsp;     */
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public void bufferize(NetworkLayer networkLayer) {
+<b class="nc">&nbsp;        networkLayer.broadcastUpdate(this, gameId);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;    // method effect to update the client model
+&nbsp;    /**
+&nbsp;     * Applies the effect of this event to the provided client model, updating the local state
+&nbsp;     * and notifying the view observers.
+&nbsp;     *
+&nbsp;     * @param model the {@link ClientModel} representing the client-side state of the game.
+&nbsp;     */
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public void effect(ClientModel model) {
+<b class="nc">&nbsp;        model.setMessage(description);</b>
+<b class="nc">&nbsp;        if (cardID != -1) {</b>
+<b class="nc">&nbsp;            model.updatePlayerTribe(playerNickname, cardID);</b>
+<b class="nc">&nbsp;            model.removePickedCardFromBoard(row, cardID);</b>
+<b class="nc">&nbsp;            model.updatePickPlayerStats(playerNickname, playerFood, playerPrestigePoints,playerNumStars, playerBuildingDiscount, playerGatheringDiscount);</b>
+&nbsp;        }
+<b class="nc">&nbsp;        if (wasLastPick) {</b>
+<b class="nc">&nbsp;            model.updatePlayerPosition(playerNickname, null );</b>
+<b class="nc">&nbsp;            model.setPlayerOrderInTurnOrderCard(updatedTurnOrderCard);</b>
+&nbsp;        }
+<b class="nc">&nbsp;        model.notifyObservers(new PickUpdateViewEvent(description));</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-22 23:30</div>
+</div>
+</body>
+</html>

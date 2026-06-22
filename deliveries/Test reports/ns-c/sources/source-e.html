@@ -1,0 +1,189 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > WaitingRoomState</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">it.polimi.ingsw.am14.model.gameLogic</a>
+</div>
+
+<h1>Coverage Summary for Class: WaitingRoomState (it.polimi.ingsw.am14.model.gameLogic)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">WaitingRoomState</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (3/3)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (4/4)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (19/19)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package it.polimi.ingsw.am14.model.gameLogic;
+&nbsp;
+&nbsp;import it.polimi.ingsw.am14.network.messages.events.GameStartedEvent;
+&nbsp;import it.polimi.ingsw.am14.network.messages.events.JoinedGameEvent;
+&nbsp;
+&nbsp;/**
+&nbsp; * &lt;p&gt;
+&nbsp; *     Represents the state of the game when players are waiting to join. In this state, players can connect to the game and choose their totem colors.
+&nbsp; *     Once all players have joined, the game transitions to the next state.
+&nbsp; * &lt;/p&gt;
+&nbsp; */
+<b class="fc">&nbsp;class WaitingRoomState extends GameState {</b>
+&nbsp;
+&nbsp;    /**
+&nbsp;     * {@inheritDoc}
+&nbsp;     * &lt;p&gt;
+&nbsp;     *     It checks if the chosen totem color is already taken by another player.
+&nbsp;     *     If the color is available, it creates a new Player instance and adds it to the game. It also notifies observers about the new player joining.
+&nbsp;     *     If all players have joined, it transitions the game to the next state and notifies observers that the game has started.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     * @param game the current game instance
+&nbsp;     * @param nickname the nickname of the player trying to connect
+&nbsp;     * @param totemColor the chosen totem color of the player trying to connect
+&nbsp;     * @throws IllegalArgumentException if the chosen totem color is already taken by another player
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    protected void onPlayerConnection(Game game, String nickname, String totemColor) throws IllegalArgumentException{
+&nbsp;
+<b class="fc">&nbsp;        TotemColor color = TotemColor.valueOf(totemColor.toUpperCase());</b>
+<b class="fc">&nbsp;        if(game.getPlayers().stream().map(Player::getTotemColor).anyMatch(color::equals)){</b>
+<b class="fc">&nbsp;            throw new IllegalArgumentException(&quot;Totem color already taken&quot;);</b>
+&nbsp;        }
+<b class="fc">&nbsp;        Player p = new Player(nickname,color);</b>
+<b class="fc">&nbsp;        game.addPlayer(p);</b>
+<b class="fc">&nbsp;        game.getBoard().getTurnOrderCard().addPlayer(p);</b>
+&nbsp;
+&nbsp;        // observer pattern: sends event to event buffer
+<b class="fc">&nbsp;        game.notifyObservers(</b>
+&nbsp;                new JoinedGameEvent(
+&nbsp;                        p,
+<b class="fc">&nbsp;                        game.getPlayers(),</b>
+<b class="fc">&nbsp;                        game.getGameId(),</b>
+<b class="fc">&nbsp;                        game.getBoard(),</b>
+<b class="fc">&nbsp;                        game.getNumPlayers()</b>
+&nbsp;                )
+&nbsp;        );
+&nbsp;
+<b class="fc">&nbsp;        if (game.playersSize() == game.getNumPlayers()) {</b>
+<b class="fc">&nbsp;            this.nextState(game);</b>
+&nbsp;            // observer pattern: sends event to event buffer
+<b class="fc">&nbsp;            game.notifyObservers(</b>
+&nbsp;                    new GameStartedEvent(
+<b class="fc">&nbsp;                            game.getBoard().getTurnOrderCard().getPlayerOrder(),</b>
+<b class="fc">&nbsp;                            game.getGameId(),</b>
+&nbsp;                            nickname
+&nbsp;                    )
+&nbsp;            );
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * {@inheritDoc}
+&nbsp;     * &lt;p&gt;
+&nbsp;     *     For this state, the next state is always {@link PositionState}. It also performs the game setup process&#39; phase 10.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     * @param context the current game instance
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    protected void nextState(Game context) {
+<b class="fc">&nbsp;        context.setCurrentState(new PositionState());</b>
+<b class="fc">&nbsp;        context.getBoard().getTurnOrderCard().setupPhaseTen();</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-22 23:30</div>
+</div>
+</body>
+</html>

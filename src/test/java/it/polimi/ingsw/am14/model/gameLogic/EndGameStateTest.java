@@ -162,7 +162,5 @@ class EndGameStateTest {
         assertDoesNotThrow(() -> endGameStateStub.endRound(gameStub));
     }
 
-    // TODO: optional test for complete sorting of players at the end of endRound()
-
  */
 }

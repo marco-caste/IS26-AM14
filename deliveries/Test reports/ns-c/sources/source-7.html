@@ -1,0 +1,347 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > PickState</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">it.polimi.ingsw.am14.model.gameLogic</a>
+</div>
+
+<h1>Coverage Summary for Class: PickState (it.polimi.ingsw.am14.model.gameLogic)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">PickState</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (11/11)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    89,5%
+  </span>
+  <span class="absValue">
+    (34/38)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    95,7%
+  </span>
+  <span class="absValue">
+    (66/69)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package it.polimi.ingsw.am14.model.gameLogic;
+&nbsp;
+&nbsp;import it.polimi.ingsw.am14.exceptions.ForcedPickException;
+&nbsp;import it.polimi.ingsw.am14.exceptions.IllegalPickException;
+&nbsp;import it.polimi.ingsw.am14.exceptions.WrongTurnException;
+&nbsp;import it.polimi.ingsw.am14.model.cards.Card;
+&nbsp;import it.polimi.ingsw.am14.model.cards.buildings.Building;
+&nbsp;import it.polimi.ingsw.am14.model.cards.buildings.visitors.ImmediateVisitor;
+&nbsp;import it.polimi.ingsw.am14.model.cards.buildings.visitors.SetVisitor;
+&nbsp;
+&nbsp;import java.sql.SQLException;
+&nbsp;import java.util.ArrayList;
+&nbsp;import java.util.Optional;
+&nbsp;
+&nbsp;import static it.polimi.ingsw.am14.utils.Constants.*;
+&nbsp;
+&nbsp;/**
+&nbsp; * State implementation that manages the active drafting phase where players interactively
+&nbsp; * claim or purchase cards from the game board layout.
+&nbsp; * &lt;p&gt;
+&nbsp; * This class validates whether the requesting player is legally permitted to execute a pick based
+&nbsp; * on current turn orders or specific end-of-round extra pick allowances (e.g., additional top row picks).
+&nbsp; * It handles the subtraction of available pick actions, updates board slots, delegates resource
+&nbsp; * consumption for buildings, triggers card effects, and checks for tribe workforce set completions via
+&nbsp; * targeted Visitor classes.
+&nbsp; * &lt;/p&gt;
+&nbsp; */
+<b class="fc">&nbsp;class PickState extends GameState {</b>
+&nbsp;
+&nbsp;    private boolean wasAdditionalTopPick ;
+&nbsp;    private Card selectedCard;
+&nbsp;    private int row;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Executes a legal card drafting action requested by a player.
+&nbsp;     * &lt;p&gt;
+&nbsp;     * The processing pipeline operates as follows:
+&nbsp;     * &lt;/p&gt;
+&nbsp;     * &lt;ol&gt;
+&nbsp;     * &lt;li&gt;Extracts the card payload from the network-safe container wrapping the input data.&lt;/li&gt;
+&nbsp;     * &lt;li&gt;Resolves whether an exceptional turn override is active (players claiming bonus top row allocations).&lt;/li&gt;
+&nbsp;     * &lt;li&gt;Enforces chronological turn integrity against the top-most unfilled totem slot on the tracking pathway.&lt;/li&gt;
+&nbsp;     * &lt;li&gt;Validates quantitative limits to ensure the user possesses remaining action tokens for the requested row.&lt;/li&gt;
+&nbsp;     * &lt;li&gt;Branches logic based on row constants to handle character collection vs structural building purchases, updating models accordingly.&lt;/li&gt;
+&nbsp;     * &lt;/ol&gt;
+&nbsp;     *
+&nbsp;     * @param context       the central {@link Game} context manager directing rules and status flows
+&nbsp;     * @param player        the {@link Player} attempting to claim the structural layout item
+&nbsp;     * @param card      the {@link Card} instance being claimed from the board (must not be null)
+&nbsp;     * @param rowChosen     the board row identifier from which the item is being taken
+&nbsp;     * @throws IllegalPickException if the selected item violates row restrictions or remaining actions equal zero
+&nbsp;     * @throws ForcedPickException  if the target configuration conflicts with explicit game selection constraints
+&nbsp;     * @throws WrongTurnException    if the executing identity&#39;s turn token does not align with the current active slot layout
+&nbsp;     * @throws SQLException         if state logging or network serialization triggers a transactional problem
+&nbsp;     */
+&nbsp;    protected void pickCard(Game context, Player player, Optional&lt;Card&gt; card, int rowChosen)
+&nbsp;            throws IllegalPickException, ForcedPickException, WrongTurnException, SQLException {
+&nbsp;
+<b class="fc">&nbsp;        this.selectedCard = card.get();</b>
+<b class="fc">&nbsp;        row = rowChosen;</b>
+&nbsp;
+&nbsp;        // In this project `null` equates to skip: we normalize it to an empty Optional.
+<b class="fc">&nbsp;        TotemSlot currentSlot = findFirstPlayerTotemOnOffersPath(context);</b>
+<b class="fc">&nbsp;        Player currentPlayer = (currentSlot == null ? null : currentSlot.getPlayer());</b>
+<b class="fc">&nbsp;        wasAdditionalTopPick = false;</b>
+&nbsp;
+<b class="fc">&nbsp;        if (!selectedCard.isPickable(player))</b>
+<b class="fc">&nbsp;            throw new IllegalPickException(&quot;You can&#39;t pick this card&quot;);</b>
+&nbsp;
+&nbsp;        // exceptional pick due to additional pick building. This check is needed and is put first because the player with the additional top pick is not present
+&nbsp;        // on the offers path and thus the check related to the player turn will be false.
+<b class="pc">&nbsp;        if (isExceptionalAddTopPickTurn(player) &amp;&amp; (currentPlayer == null)){ // the null guarantees that the additional pick happens when everyone has already picked</b>
+<b class="fc">&nbsp;            handleExceptionalPick(selectedCard, row, context, player);</b>
+&nbsp;            return;
+&nbsp;        }
+&nbsp;
+&nbsp;        // it&#39;s not player&#39;s turn
+<b class="pc">&nbsp;        if (!player.equals(currentPlayer) &amp;&amp; context.getCurrentPlayerIndex() != context.getNumPlayers()) {</b>
+<b class="fc">&nbsp;            throw new WrongTurnException(&quot;It&#39;s not &quot; + player.getNickname() + &quot;&#39;s turn to pick a card&quot;);</b>
+&nbsp;        }
+&nbsp;
+&nbsp;
+<b class="fc">&nbsp;        validateRowPicksAvailability(player, row);</b>
+&nbsp;
+<b class="pc">&nbsp;        switch (row) {</b>
+&nbsp;            case TOP_DECKABLE_ROW:
+<b class="fc">&nbsp;                player.removeSingleTopPick();</b>
+<b class="fc">&nbsp;                pickDeckCardAndApplyEffects(selectedCard, context, player);</b>
+<b class="fc">&nbsp;                context.getBoard().removeFromTopDeckableRow(selectedCard);</b>
+&nbsp;                break;
+&nbsp;            case TOP_BUILDING_ROW:
+<b class="fc">&nbsp;                player.removeSingleTopPick();</b>
+<b class="fc">&nbsp;                pickBuildingAndApplyImmediateEffects((Building) selectedCard, context, player);</b>
+<b class="fc">&nbsp;                context.getBoard().removeFromTopBuildingRow(selectedCard);</b>
+&nbsp;                break;
+&nbsp;            case BOTTOM_DECKABLE_ROW:
+<b class="fc">&nbsp;                player.removeSingleBottomPick();</b>
+<b class="fc">&nbsp;                pickDeckCardAndApplyEffects(selectedCard, context, player);</b>
+<b class="fc">&nbsp;                context.getBoard().removeFromBottomDeckableRow(selectedCard);</b>
+&nbsp;                break;
+&nbsp;            case BOTTOM_BUILDING_ROW:
+<b class="fc">&nbsp;                player.removeSingleBottomPick();</b>
+<b class="fc">&nbsp;                pickBuildingAndApplyImmediateEffects((Building) selectedCard, context, player);</b>
+<b class="fc">&nbsp;                context.getBoard().removeFromBottomBuildingRow(selectedCard);</b>
+&nbsp;                break;
+&nbsp;            default:
+<b class="nc">&nbsp;                throw new IllegalPickException(&quot;You can&#39;t pick this card&quot;);</b>
+&nbsp;        }
+&nbsp;
+<b class="fc">&nbsp;        nextState(context);</b>
+&nbsp;
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;    private TotemSlot findFirstPlayerTotemOnOffersPath(Game context) {
+<b class="fc">&nbsp;        for (Character key : context.getBoard().getOffersPath().offersPathKeySet()) {</b>
+<b class="fc">&nbsp;            if (context.getBoard().getOffersPath().offersPathGet(key).getPlayerTotem() != null) {</b>
+<b class="fc">&nbsp;                return new TotemSlot(context.getBoard().getOffersPath().offersPathGet(key).getPlayerTotem(), key);</b>
+&nbsp;            }
+&nbsp;        }
+<b class="fc">&nbsp;        return null;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;    private void applyBuildingEffectsIfSetsCompleted(Player player, Game context) {
+&nbsp;
+<b class="fc">&nbsp;        ArrayList&lt;Integer&gt; tribeSize = new ArrayList&lt;&gt;();</b>
+<b class="fc">&nbsp;        tribeSize.add(player.getTribe().getHuntersSize());</b>
+<b class="fc">&nbsp;        tribeSize.add(player.getTribe().getInventorsSize());</b>
+<b class="fc">&nbsp;        tribeSize.add(player.getTribe().getShamansSize());</b>
+<b class="fc">&nbsp;        tribeSize.add(player.getTribe().getGatherersSize());</b>
+<b class="fc">&nbsp;        tribeSize.add(player.getTribe().getArtistsSize());</b>
+<b class="fc">&nbsp;        tribeSize.add(player.getTribe().getBuildersSize());</b>
+&nbsp;
+<b class="fc">&nbsp;        int min = tribeSize.stream().min(Integer::compare).orElse(0);</b>
+<b class="fc">&nbsp;        int numSetCompleted = min - player.getNumSetCompleted();</b>
+&nbsp;
+<b class="fc">&nbsp;        if (numSetCompleted &gt; 0) {</b>
+<b class="fc">&nbsp;            player.addToSetCompleted(numSetCompleted);</b>
+&nbsp;            //BUILDING CHECK
+<b class="fc">&nbsp;            SetVisitor visitor = new SetVisitor(context, player);</b>
+<b class="fc">&nbsp;            ArrayList&lt;Building&gt; buildings = player.getTribe().getBuildings();</b>
+<b class="fc">&nbsp;            for (Building building : buildings) {</b>
+<b class="fc">&nbsp;                building.accept(visitor);</b>
+&nbsp;            }
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    private void pickBuildingAndApplyImmediateEffects(Building building, Game context, Player player) {
+<b class="fc">&nbsp;        building.buy(player);</b>
+<b class="fc">&nbsp;        ImmediateVisitor visitor = new ImmediateVisitor(context, player);</b>
+<b class="fc">&nbsp;        building.accept(visitor);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private void pickDeckCardAndApplyEffects(Card card, Game context, Player player) {
+<b class="fc">&nbsp;        card.applyEffect(player, context);</b>
+<b class="fc">&nbsp;        applyBuildingEffectsIfSetsCompleted(player, context);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;    private void validateRowPicksAvailability(Player player, int row) throws IllegalPickException {
+<b class="pc">&nbsp;        switch (row) {</b>
+&nbsp;            case TOP_DECKABLE_ROW:
+&nbsp;            case TOP_BUILDING_ROW:
+<b class="fc">&nbsp;                if (player.getNumTopPicksLeft() == 0) {</b>
+<b class="fc">&nbsp;                    throw new IllegalPickException(&quot;You don&#39;t have any picks left in the top row&quot;);</b>
+&nbsp;                }
+&nbsp;                break;
+&nbsp;            case BOTTOM_DECKABLE_ROW:
+&nbsp;            case BOTTOM_BUILDING_ROW:
+<b class="pc">&nbsp;                if (player.getNumBottomPicksLeft() == 0) {</b>
+<b class="nc">&nbsp;                    throw new IllegalPickException(&quot;You don&#39;t have any picks left in the bottom row&quot;);</b>
+&nbsp;                }
+&nbsp;                break;
+&nbsp;            default:
+<b class="nc">&nbsp;                throw new IllegalPickException(&quot;You can&#39;t pick this card&quot;);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    private boolean isExceptionalAddTopPickTurn(Player player) {
+<b class="fc">&nbsp;        return player.getNumTopPicksLeft() + player.getNumBottomPicksLeft() == 0</b>
+<b class="pc">&nbsp;                &amp;&amp; player.getAddTopPick() == 1;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private void handleExceptionalPick(Card card, int row, Game context, Player player) throws IllegalPickException, SQLException, ForcedPickException {
+<b class="fc">&nbsp;        switch (row) {</b>
+&nbsp;            case TOP_DECKABLE_ROW:
+<b class="fc">&nbsp;                pickDeckCardAndApplyEffects(card, context, player);</b>
+&nbsp;                break;
+&nbsp;            case TOP_BUILDING_ROW:
+<b class="fc">&nbsp;                pickBuildingAndApplyImmediateEffects((Building) card, context, player);</b>
+&nbsp;                break;
+&nbsp;            default:
+<b class="fc">&nbsp;                throw new IllegalPickException(&quot;You can&#39;t pick this card&quot;);</b>
+&nbsp;        }
+&nbsp;
+<b class="fc">&nbsp;        wasAdditionalTopPick = true;</b>
+<b class="fc">&nbsp;        nextState(context);</b>
+&nbsp;
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Shifts control to the verification phase by generating a new state instance.
+&nbsp;     * &lt;p&gt;
+&nbsp;     * Forwards control markers smoothly into {@link ControlState} and launches
+&nbsp;     * {@link ControlState#controlPick(Game, boolean, Card, int)} to compute next eligible turn orders.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     *
+&nbsp;     * @param context               the central game monitoring instance {@link Game}
+&nbsp;     * @throws SQLException         if system transaction propagation hits internal blockages
+&nbsp;     * @throws IllegalPickException if sequential selection validation hits a formatting failure
+&nbsp;     * @throws ForcedPickException  if downstream parameters detect validation veto exceptions
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    protected void nextState(Game context) throws SQLException, IllegalPickException, ForcedPickException {
+<b class="fc">&nbsp;        context.setCurrentState(new ControlState());</b>
+<b class="fc">&nbsp;        context.getCurrentState().controlPick(context,wasAdditionalTopPick, selectedCard, row);</b>
+&nbsp;    }
+&nbsp;    /**
+&nbsp;     * Exposes the canonical text identifier assigned to this component state in order to be processed by ClientModel.
+&nbsp;     *
+&nbsp;     * @return a text String representing the state mode (&quot;PICK&quot;)
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    protected String getStateName() {
+<b class="fc">&nbsp;        return &quot;PICK&quot;;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-22 23:30</div>
+</div>
+</body>
+</html>

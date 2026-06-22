@@ -1,0 +1,397 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > ControlState</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">it.polimi.ingsw.am14.model.gameLogic</a>
+</div>
+
+<h1>Coverage Summary for Class: ControlState (it.polimi.ingsw.am14.model.gameLogic)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">ControlState</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (15/15)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    86,7%
+  </span>
+  <span class="absValue">
+    (52/60)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    95,8%
+  </span>
+  <span class="absValue">
+    (91/95)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package it.polimi.ingsw.am14.model.gameLogic;
+&nbsp;
+&nbsp;import it.polimi.ingsw.am14.model.cards.Card;
+&nbsp;import it.polimi.ingsw.am14.network.messages.events.CardPickedEvent;
+&nbsp;
+&nbsp;import java.sql.SQLException;
+&nbsp;import java.util.ArrayList;
+&nbsp;import java.util.Objects;
+&nbsp;import java.util.Optional;
+&nbsp;
+&nbsp;/**
+&nbsp; * State implementation that handles the control, validation, and orchestration logic immediately
+&nbsp; * following a player&#39;s card pick phase.
+&nbsp; * &lt;p&gt;
+&nbsp; * This class acts as a state router within the State Pattern of the game framework. It evaluates
+&nbsp; * player pick balances across different board rows (Top/Bottom, Character/Building), processes
+&nbsp; * extra picks (such as {@code wasAdditionalPick} and special abilities), handles player totem rotations
+&nbsp; * on the {@code OffersPath}, updates turn orders, and safely decides whether the game should prompt
+&nbsp; * the next eligible player or transition toward round or game termination.
+&nbsp; * &lt;/p&gt;
+&nbsp; */
+&nbsp;
+<b class="fc">&nbsp;class ControlState extends GameState {</b>
+&nbsp;
+&nbsp;    private boolean goToEndRound;
+&nbsp;    private Card selectedCard;
+&nbsp;    private int row;
+&nbsp;    private Player pickingPlayer;
+&nbsp;    /**
+&nbsp;     * Executes the primary control cycle after a player attempts or completes a card pick.
+&nbsp;     * &lt;p&gt;
+&nbsp;     * The routine evaluates the pick under two main flows:
+&nbsp;     * &lt;/p&gt;
+&nbsp;     * &lt;ul&gt;
+&nbsp;     *   &lt;li&gt;&lt;b&gt;Additional Pick Flow:&lt;/b&gt; Instantly finalized and routed to update models if the choice
+&nbsp;     *       stems from a temporary additional placement condition.&lt;/li&gt;
+&nbsp;     *   &lt;li&gt;&lt;b&gt;Standard Round Flow:&lt;/b&gt; Dynamically reads player totems on the track, checks affordable
+&nbsp;     *       buildings or pickable characters via custom constraints, shifts turn counters, and computes
+&nbsp;     *       whether control remains with the current player or moves down the turn queue.&lt;/li&gt;
+&nbsp;     * &lt;/ul&gt;
+&nbsp;     *
+&nbsp;     * @param context           the central {@link Game} orchestrator managing rules and states
+&nbsp;     * @param wasAdditionalPick {@code true} if this step covers an extra top pick; {@code false} for regular drafts
+&nbsp;     * @param card              the targeted {@link Card} artifact involved in the action
+&nbsp;     * @param rowChosen         the row index where the selection was performed
+&nbsp;     * @throws SQLException     if a database or state persistence error occurs during state transitions
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    protected void controlPick(Game context, boolean wasAdditionalPick, Card card, int rowChosen) throws SQLException {
+&nbsp;
+<b class="fc">&nbsp;        goToEndRound = false;</b>
+<b class="fc">&nbsp;        selectedCard=card;</b>
+<b class="fc">&nbsp;        row = rowChosen;</b>
+&nbsp;
+&nbsp;        // we don&#39;t need to check anything in this case --&gt; mandatory since the checks are not designed to work for addTopPick
+<b class="fc">&nbsp;        if(wasAdditionalPick){</b>
+<b class="fc">&nbsp;            goToEndRound = true;</b>
+&nbsp;
+<b class="fc">&nbsp;            context.getPlayers().stream()</b>
+<b class="pc">&nbsp;                    .filter(player -&gt; player.getAddTopPick() == 1)</b>
+<b class="fc">&nbsp;                    .findFirst()</b>
+<b class="fc">&nbsp;                    .ifPresent(player -&gt; {</b>
+<b class="fc">&nbsp;                        update(player, selectedCard, row, context,true);</b>
+&nbsp;                        try {
+<b class="fc">&nbsp;                            nextState(context);</b>
+&nbsp;                        } catch (SQLException _) {}
+&nbsp;                    });
+&nbsp;
+&nbsp;            return;
+&nbsp;        }
+&nbsp;
+&nbsp;        // it&#39;s never null because controlPick is called if and only if there is atLeast a player on the offersPath
+<b class="fc">&nbsp;        pickingPlayer = Objects.requireNonNull(findFirstPlayerTotemOnOffersPath(context)).getPlayer();</b>
+<b class="fc">&nbsp;        char playerTotemPosition = Objects.requireNonNull(findFirstPlayerTotemOnOffersPath(context)).getPosition();</b>
+&nbsp;
+&nbsp;
+&nbsp;        //Check Phase Start
+<b class="fc">&nbsp;        int availableTopCharacters = countAvailableCharacterCardsFromTopRow(context, pickingPlayer);</b>
+<b class="fc">&nbsp;        int availableBottomCharacters = countAvailableCharacterCardsFromBottomRow(context, pickingPlayer);</b>
+&nbsp;
+&nbsp;        // if the current player has still picks left, we check if he can pick from both rows, otherwise we find the next player in turn order
+<b class="fc">&nbsp;        if (pickingPlayer.getNumTopPicksLeft() != 0 || pickingPlayer.getNumBottomPicksLeft() != 0) {</b>
+<b class="fc">&nbsp;            boolean currentPlayerHasMorePicks = determineIfCurrentPlayerCanContinuePickingFromBothRows(pickingPlayer, context, availableTopCharacters, availableBottomCharacters, playerTotemPosition);</b>
+<b class="fc">&nbsp;            if (!currentPlayerHasMorePicks) {</b>
+<b class="fc">&nbsp;                findAndActivateNextPlayerInTurnOrder(context, availableTopCharacters, availableBottomCharacters, playerTotemPosition);</b>
+&nbsp;            }
+&nbsp;
+&nbsp;        } else {  // we must analyze what happens after the pick of the current player who just finished their picks
+<b class="fc">&nbsp;            finalizeCurrentPlayerTurn(context, pickingPlayer, playerTotemPosition); // return the current player to the turnOrderCard</b>
+&nbsp;
+&nbsp;
+<b class="fc">&nbsp;            if (context.getCurrentPlayerIndex() == context.getNumPlayers()) { // if the player was the last one</b>
+&nbsp;
+<b class="fc">&nbsp;                handleAllPlayersFinishedTheirPicksPhase(context, availableTopCharacters); // check if a state transition is needed</b>
+&nbsp;
+&nbsp;            } else  {  // if the player is not the last one --&gt; check if the next player can still pick
+<b class="fc">&nbsp;                findAndActivateNextPlayerInTurnOrder(context, availableTopCharacters, availableBottomCharacters, playerTotemPosition);</b>
+&nbsp;            }
+&nbsp;        }
+&nbsp;
+<b class="fc">&nbsp;        nextState(context);</b>
+&nbsp;
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;    private int countAvailableCharacterCardsFromTopRow(Game context, Player player) {
+<b class="fc">&nbsp;        return Math.toIntExact(context.getBoard().getTopDeckableRow().stream()</b>
+<b class="fc">&nbsp;                .filter(card -&gt; card.isPickable(player))</b>
+<b class="fc">&nbsp;                .count());</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private int countAvailableCharacterCardsFromBottomRow(Game context, Player player) {
+<b class="fc">&nbsp;        return Math.toIntExact(context.getBoard().getBottomDeckableRow().stream()</b>
+<b class="fc">&nbsp;                .filter(card -&gt; card.isPickable(player))</b>
+<b class="fc">&nbsp;                .count());</b>
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;    private void finalizeCurrentPlayerTurn(Game context, Player player, Character playerTotemPosition) {
+<b class="fc">&nbsp;        context.incrementCurrentPlayerIndexBy(1);</b>
+<b class="fc">&nbsp;        context.getBoard().getOffersPath().offersPathGet(playerTotemPosition).setPlayerTotem(null);</b>
+<b class="fc">&nbsp;        context.getBoard().getTurnOrderCard().addPlayer(player);</b>
+<b class="fc">&nbsp;        this.update(player, selectedCard, row, context, true);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;    private boolean canPlayerAffordAnyBuildingInTopRow(Player player, Game context, int availableTopCharacters) {
+<b class="fc">&nbsp;        availableTopCharacters += Math.toIntExact(context.getBoard().getTopBuildingRow().stream()</b>
+<b class="fc">&nbsp;                .filter(building -&gt; building.getCost() &lt;= player.getNumFood()).count());</b>
+<b class="fc">&nbsp;        return availableTopCharacters &gt; 0 &amp;&amp; player.getNumTopPicksLeft() + player.getAddTopPick() &gt; 0;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private boolean canPlayerAffordAnyBuildingInBottomRow(Player player, Game context, int availableBottomCharacters) {
+<b class="fc">&nbsp;        availableBottomCharacters += Math.toIntExact(context.getBoard().getBottomBuildingRow().stream()</b>
+<b class="pc">&nbsp;                .filter(building -&gt; building.getCost() &lt;= player.getNumFood()).count());</b>
+<b class="fc">&nbsp;        return availableBottomCharacters &gt; 0 &amp;&amp; player.getNumBottomPicksLeft() &gt; 0;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;    private boolean determineIfCurrentPlayerCanContinuePickingFromBothRows(Player player, Game context, int availableTopCharacters, int availableBottomCharacters, Character playerTotem) {
+<b class="fc">&nbsp;        boolean canPickFromTopRow = canPlayerAffordAnyBuildingInTopRow(player, context, availableTopCharacters);</b>
+<b class="fc">&nbsp;        boolean canPickFromBottomRow = canPlayerAffordAnyBuildingInBottomRow(player, context, availableBottomCharacters);</b>
+&nbsp;
+<b class="fc">&nbsp;        if (canPickFromTopRow || canPickFromBottomRow) {</b>
+<b class="fc">&nbsp;            this.update(player, selectedCard, row, context, false);</b>
+<b class="fc">&nbsp;            return true;</b>
+&nbsp;        }
+&nbsp;
+&nbsp;        // if they cannot pick --&gt; conclude their turn
+<b class="fc">&nbsp;        finalizeCurrentPlayerTurn(context, player, playerTotem);</b>
+&nbsp;
+<b class="fc">&nbsp;        return (handleAllPlayersFinishedTheirPicksPhase(context, availableTopCharacters));</b>
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;    private void findAndActivateNextPlayerInTurnOrder(Game context, int availableTopCharacters, int availableBottomCharacters, Character playerTotemPosition) {
+<b class="fc">&nbsp;        Character currentTotemPosition = playerTotemPosition;</b>
+<b class="pc">&nbsp;        while (context.getCurrentPlayerIndex() &lt; context.getNumPlayers()) {</b>
+<b class="fc">&nbsp;            TotemSlot nextSlot = findNextPlayerTotemAfterPosition(context, currentTotemPosition);</b>
+&nbsp;
+<b class="fc">&nbsp;            boolean currentPlayerCanStillPick = determineIfCurrentPlayerCanContinuePickingFromBothRows(Objects.requireNonNull(nextSlot).getPlayer(), context, availableTopCharacters, availableBottomCharacters, nextSlot.getPosition());</b>
+<b class="fc">&nbsp;            if (currentPlayerCanStillPick) {</b>
+&nbsp;                return;
+&nbsp;            }
+&nbsp;
+<b class="fc">&nbsp;            currentTotemPosition = nextSlot.getPosition();</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;    private TotemSlot findFirstPlayerTotemOnOffersPath(Game context) {
+<b class="pc">&nbsp;        for (Character key : context.getBoard().getOffersPath().offersPathKeySet()) {</b>
+<b class="fc">&nbsp;            if (context.getBoard().getOffersPath().offersPathGet(key).getPlayerTotem() != null) {</b>
+<b class="fc">&nbsp;                return new TotemSlot(context.getBoard().getOffersPath().offersPathGet(key).getPlayerTotem(), key);</b>
+&nbsp;            }
+&nbsp;        }
+<b class="nc">&nbsp;        return null;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private TotemSlot findNextPlayerTotemAfterPosition(Game context, Character currentPosition) {
+<b class="pc">&nbsp;        for (Character key :  context.getBoard().getOffersPath().offersPathKeySet()) {</b>
+<b class="pc">&nbsp;            if (key &gt; currentPosition &amp;&amp; context.getBoard().getOffersPath().offersPathGet(key).getPlayerTotem() != null) {</b>
+<b class="fc">&nbsp;                return new TotemSlot(context.getBoard().getOffersPath().offersPathGet(key).getPlayerTotem(), key);</b>
+&nbsp;            }
+&nbsp;        }
+<b class="nc">&nbsp;        return null;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;    private boolean handleAllPlayersFinishedTheirPicksPhase(Game context, int availableTopCharacters) {
+&nbsp;        // When all players have finished their standard picks, we check if there is a player with an additional pick
+&nbsp;        // If we find one and they can still pick from the top row, we give them the opportunity to do so
+&nbsp;        // Otherwise, we move to the next phase (end of the pick turn)
+<b class="fc">&nbsp;        if (context.getCurrentPlayerIndex() == context.getNumPlayers()) {</b>
+<b class="fc">&nbsp;            Optional&lt;Player&gt; playerWithAdditionalTopPick = context.getPlayers().stream()</b>
+<b class="fc">&nbsp;                    .filter(player -&gt; player.getAddTopPick() == 1)</b>
+<b class="fc">&nbsp;                    .findFirst();</b>
+&nbsp;
+<b class="fc">&nbsp;            if (playerWithAdditionalTopPick.isPresent()) {</b>
+<b class="fc">&nbsp;                Player playerWithExtraTop = playerWithAdditionalTopPick.get();</b>
+<b class="fc">&nbsp;                if (!canPlayerAffordAnyBuildingInTopRow(playerWithExtraTop, context, availableTopCharacters)) {</b>
+<b class="fc">&nbsp;                    goToEndRound = true;</b>
+&nbsp;                }
+&nbsp;            } else {
+<b class="fc">&nbsp;                goToEndRound= true;</b>
+&nbsp;            }
+&nbsp;
+&nbsp;
+<b class="fc">&nbsp;            return true;</b>
+&nbsp;        }
+<b class="fc">&nbsp;        return false;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;    private void update(Player player, Card card, int row, Game context, Boolean wasLastPick) {
+&nbsp;        Optional&lt;ArrayList&lt;Player&gt;&gt; currentTurnOrderCard =
+<b class="fc">&nbsp;                !wasLastPick ? Optional.empty() :</b>
+<b class="fc">&nbsp;                        Optional.of(context.getBoard().getTurnOrderCard().getPlayerOrder());</b>
+&nbsp;
+&nbsp;        // This must be included because determineIfCurrentPlayerCanContinuePickingFromBothRows is also called for players who are not picking during the control phase
+&nbsp;        // therefore, the update will still be called for these non-picking players. In that case, however, we pass card = null since we do not need to register a pick
+&nbsp;        // but potentially only an update of the turnOrderCard and trackCard in case not even the next player can skip.
+&nbsp;
+<b class="fc">&nbsp;        if(pickingPlayer!= null){</b>
+<b class="fc">&nbsp;            if(!(pickingPlayer.equals(player))) {</b>
+<b class="fc">&nbsp;                card = null;</b>
+&nbsp;            }
+&nbsp;        }
+&nbsp;
+&nbsp;
+<b class="fc">&nbsp;        context.notifyObservers(</b>
+&nbsp;                new CardPickedEvent(
+<b class="fc">&nbsp;                        player.getNickname(),</b>
+&nbsp;                        card,
+&nbsp;                        row,
+<b class="fc">&nbsp;                        player.getNumFood(),</b>
+<b class="fc">&nbsp;                        player.getNumPrestigePoints(),</b>
+&nbsp;                        currentTurnOrderCard,
+<b class="fc">&nbsp;                        context.getGameId(),</b>
+<b class="fc">&nbsp;                        player.getTotalBuildingDiscount(),</b>
+<b class="fc">&nbsp;                        player.getTotalGatheringDiscount(),</b>
+<b class="fc">&nbsp;                        player.getNumStars(),</b>
+<b class="fc">&nbsp;                        wasLastPick</b>
+&nbsp;
+&nbsp;                )
+&nbsp;        );
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Shifts control dynamically into the next state destination based on internal decision flags.
+&nbsp;     * &lt;p&gt;
+&nbsp;     * If {@code goToEndRound} evaluates to true, counters reset and control shifts to either
+&nbsp;     * {@link EndGameState} (if round limit 10 is hit) or a generic {@link EndRoundState}.
+&nbsp;     * Otherwise, loops context access smoothly back to a standard {@link PickState}.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     *
+&nbsp;     * @param context       the tracking {@link Game} driver instance
+&nbsp;     * @throws SQLException if a subsequent transaction context mapping encounters failures
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    protected void nextState(Game context) throws SQLException {
+<b class="fc">&nbsp;        if (goToEndRound) {</b>
+<b class="fc">&nbsp;            context.setCurrentPlayerIndex(0);</b>
+<b class="pc">&nbsp;            if (context.getCurrentRound() == 10) {</b>
+<b class="nc">&nbsp;                context.setCurrentState(new EndGameState());</b>
+<b class="nc">&nbsp;                context.getCurrentState().endRound(context);</b>
+&nbsp;            } else {
+<b class="fc">&nbsp;                context.setCurrentState(new EndRoundState());</b>
+<b class="fc">&nbsp;                context.getCurrentState().endRound(context);</b>
+&nbsp;            }
+&nbsp;        }
+&nbsp;        else
+&nbsp;        {
+<b class="fc">&nbsp;            context.setCurrentState(new PickState());</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-22 23:30</div>
+</div>
+</body>
+</html>

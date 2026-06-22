@@ -1,0 +1,97 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > Observable</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">it.polimi.ingsw.am14.model.gameLogic</a>
+</div>
+
+<h1>Coverage Summary for Class: Observable (it.polimi.ingsw.am14.model.gameLogic)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+</tr>
+<tr>
+  <td class="name">Observable</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package it.polimi.ingsw.am14.model.gameLogic;
+&nbsp;
+&nbsp;import it.polimi.ingsw.am14.network.Observer;
+&nbsp;import it.polimi.ingsw.am14.network.messages.events.Event;
+&nbsp;
+&nbsp;/**
+&nbsp; * &lt;p&gt;
+&nbsp; *     Interface representing an observable entity in the game. An observable entity can be observed by one or more observers, which are notified of changes in the entity&#39;s state.
+&nbsp; *     This interface defines methods for adding and removing observers, as well as notifying them of events.
+&nbsp; * &lt;/p&gt;
+&nbsp; */
+&nbsp;public interface Observable {
+&nbsp;
+&nbsp;    /**
+&nbsp;     * &lt;p&gt;
+&nbsp;     *     Adds an observer to this observable entity. The observer will be notified of changes in the entity&#39;s state.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     * @param observer the observer to be added
+&nbsp;     */
+&nbsp;    void addObserver(Observer observer);
+&nbsp;
+&nbsp;    /**
+&nbsp;     * &lt;p&gt;
+&nbsp;     *     Notifies all registered observers of an event. This method is called when the state of the observable entity changes, and it informs all observers of the change.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     * @param event the event to be sent to the observers
+&nbsp;     */
+&nbsp;    void notifyObservers(Event event);
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-22 23:30</div>
+</div>
+</body>
+</html>

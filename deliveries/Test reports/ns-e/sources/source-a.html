@@ -1,0 +1,199 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > PlayerDisconnectedEvent</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">it.polimi.ingsw.am14.network.messages.events</a>
+</div>
+
+<h1>Coverage Summary for Class: PlayerDisconnectedEvent (it.polimi.ingsw.am14.network.messages.events)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">PlayerDisconnectedEvent</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/4)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/4)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/16)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package it.polimi.ingsw.am14.network.messages.events;
+&nbsp;
+&nbsp;import com.fasterxml.jackson.annotation.JsonCreator;
+&nbsp;import com.fasterxml.jackson.annotation.JsonIgnore;
+&nbsp;import com.fasterxml.jackson.annotation.JsonProperty;
+&nbsp;import it.polimi.ingsw.am14.clientModelController.ClientModel;
+&nbsp;import it.polimi.ingsw.am14.network.NetworkLayer;
+&nbsp;import it.polimi.ingsw.am14.network.VirtualClient;
+&nbsp;import it.polimi.ingsw.am14.view.viewEvents.UserDisconnectedViewEvent;
+&nbsp;/**
+&nbsp; * Event representing a player disconnecting from the game.
+&nbsp; * Inherits from {@link ServerEvent}.
+&nbsp; * It notifies other clients about the disconnection and triggers cleanup operations on the server network layer.
+&nbsp; */
+&nbsp;public class PlayerDisconnectedEvent extends ServerEvent{
+&nbsp;    @JsonIgnore
+&nbsp;    private String nickname;
+&nbsp;    @JsonIgnore
+&nbsp;    private int gameId;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Constructs a {@code PlayerDisconnectedEvent} triggered by the server when a player disconnects.
+&nbsp;     *
+&nbsp;     * @param nickname the nickname of the disconnected player.
+&nbsp;     * @param gameId   the unique ID of the game the player was in.
+&nbsp;     */
+&nbsp;
+&nbsp;    public PlayerDisconnectedEvent(String nickname, int gameId) {
+<b class="nc">&nbsp;        super(&quot;Player &quot; + nickname + &quot; disconnected&quot;);</b>
+<b class="nc">&nbsp;        this.nickname = nickname;</b>
+<b class="nc">&nbsp;        this.gameId = gameId;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Constructs a {@code PlayerDisconnectedEvent} from JSON data, used by Jackson upon receiving a message.
+&nbsp;     *
+&nbsp;     * @param description the description of the event.
+&nbsp;     */
+&nbsp;
+&nbsp;    @JsonCreator
+&nbsp;    public PlayerDisconnectedEvent(
+&nbsp;            @JsonProperty(&quot;description&quot;) String description) {
+<b class="nc">&nbsp;        super(description);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Bufferizes the event into the network layer, broadcasting the disconnection to other players
+&nbsp;     * and performing cleanup tasks such as removing the client&#39;s threads, buffers, and game associations.
+&nbsp;     *
+&nbsp;     * @param networkLayer the network layer used to perform cleanup and broadcast the event.
+&nbsp;     */
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public void bufferize(NetworkLayer networkLayer) {
+<b class="nc">&nbsp;        VirtualClient client = networkLayer.getClientBy(nickname);</b>
+<b class="nc">&nbsp;        if (client != null) {</b>
+<b class="nc">&nbsp;            networkLayer.notifyBufferForClient(client);</b>
+<b class="nc">&nbsp;            networkLayer.removeThreadsByClient(client);</b>
+<b class="nc">&nbsp;            networkLayer.removeBuffer(client);</b>
+&nbsp;        }
+<b class="nc">&nbsp;        networkLayer.removeClientBy(nickname);</b>
+<b class="nc">&nbsp;        networkLayer.removeClientFromGameId(client, gameId);</b>
+<b class="nc">&nbsp;        networkLayer.broadcastUpdate(this, gameId);</b>
+<b class="nc">&nbsp;        if (gameId &gt;= 0) {</b>
+<b class="nc">&nbsp;            networkLayer.removeGame(gameId);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Applies the effect of this event to the provided client model, returning the remaining
+&nbsp;     * players to the lobby and notifying the view observers of the disconnection.
+&nbsp;     *
+&nbsp;     * @param model the {@link ClientModel} representing the client-side state of the game.
+&nbsp;     */
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public void effect(ClientModel model) {
+&nbsp;//        model.setMessage(description);
+<b class="nc">&nbsp;        model.returnToLobby();</b>
+<b class="nc">&nbsp;        model.notifyObservers(new UserDisconnectedViewEvent(description));</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-22 23:30</div>
+</div>
+</body>
+</html>

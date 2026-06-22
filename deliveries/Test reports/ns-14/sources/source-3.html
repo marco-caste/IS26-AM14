@@ -1,0 +1,127 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > VirtualServerSocket</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">it.polimi.ingsw.am14.network.socket.client</a>
+</div>
+
+<h1>Coverage Summary for Class: VirtualServerSocket (it.polimi.ingsw.am14.network.socket.client)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+</tr>
+<tr>
+  <td class="name">VirtualServerSocket</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package it.polimi.ingsw.am14.network.socket.client;
+&nbsp;
+&nbsp;import it.polimi.ingsw.am14.network.VirtualServer;
+&nbsp;/**
+&nbsp; * Interface representing the virtual server for socket-based communication on the client side.
+&nbsp; * Extends {@link VirtualServer} to define specific methods for sending requests to the server.
+&nbsp; */
+&nbsp;public interface VirtualServerSocket extends VirtualServer {
+&nbsp;    /**
+&nbsp;     * Sends a request to connect a user to the server with the specified nickname.
+&nbsp;     *
+&nbsp;     * @param nickname the nickname of the user wanting to connect.
+&nbsp;     */
+&nbsp;    void connectUser(String nickname);
+&nbsp;    /**
+&nbsp;     * Sends a request to create a new game.
+&nbsp;     *
+&nbsp;     * @param nickname   the nickname of the player creating the game.
+&nbsp;     * @param numPlayers the total number of players selected for the game.
+&nbsp;     * @param totemColor the initial totem color chosen by the creator.
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    void createGame(String nickname, int numPlayers, String totemColor);
+&nbsp;    /**
+&nbsp;     * Sends a request to join an existing game.
+&nbsp;     *
+&nbsp;     * @param nickname   the nickname of the player wanting to join.
+&nbsp;     * @param gameId     the unique identifier of the game to join.
+&nbsp;     * @param totemColor the totem color requested by the player.
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    void joinGame(String nickname, int gameId, String totemColor);
+&nbsp;    /**
+&nbsp;     * Sends a request to place the player&#39;s initial totem card.
+&nbsp;     *
+&nbsp;     * @param nickname the nickname of the player performing the action.
+&nbsp;     * @param position a character indicating the position (e.g., side) to place the totem.
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    void placeTotem(String nickname, char position);
+&nbsp;    /**
+&nbsp;     * Sends a request to pick a card from the shared pool.
+&nbsp;     *
+&nbsp;     * @param nickname the nickname of the player picking the card.
+&nbsp;     * @param cardId   the unique identifier of the chosen card.
+&nbsp;     * @param row      the index of the row or area corresponding to the card&#39;s position.
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    void pickCard(String nickname, int cardId, int row);
+&nbsp;    /**
+&nbsp;     * Initializes and starts a dedicated thread for sending periodic ping signals to the server,
+&nbsp;     * ensuring the connection is kept alive over time.
+&nbsp;     *
+&nbsp;     * @param nickname the nickname of the user for whom the ping is sent.
+&nbsp;     * @return the background {@link Thread} handling the ping.
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    Thread pingServer(String nickname);
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-22 23:30</div>
+</div>
+</body>
+</html>

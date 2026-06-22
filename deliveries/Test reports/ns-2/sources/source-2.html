@@ -1,0 +1,510 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > LobbyController</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">it.polimi.ingsw.am14.controller</a>
+</div>
+
+<h1>Coverage Summary for Class: LobbyController (it.polimi.ingsw.am14.controller)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">LobbyController</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/28)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/28)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/122)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package it.polimi.ingsw.am14.controller;
+&nbsp;
+&nbsp;import com.fasterxml.jackson.annotation.JsonCreator;
+&nbsp;import com.fasterxml.jackson.annotation.JsonIgnore;
+&nbsp;import com.fasterxml.jackson.annotation.JsonProperty;
+&nbsp;import it.polimi.ingsw.am14.network.messages.events.ExceptionEvent;
+&nbsp;import it.polimi.ingsw.am14.network.messages.events.LoginSuccesfulEvent;
+&nbsp;import it.polimi.ingsw.am14.network.messages.events.PlayerDisconnectedEvent;
+&nbsp;import it.polimi.ingsw.am14.network.NetworkLayer;
+&nbsp;import it.polimi.ingsw.am14.exceptions.*;
+&nbsp;import it.polimi.ingsw.am14.model.gameLogic.Game;
+&nbsp;import it.polimi.ingsw.am14.model.gameLogic.GameFactory;
+&nbsp;import it.polimi.ingsw.am14.utils.Codec;
+&nbsp;import it.polimi.ingsw.am14.utils.JsonCodec;
+&nbsp;
+&nbsp;import java.sql.SQLException;
+&nbsp;import java.util.HashMap;
+&nbsp;import java.util.HashSet;
+&nbsp;import java.util.Map;
+&nbsp;import java.util.Optional;
+&nbsp;import java.util.Set;
+&nbsp;
+&nbsp;import static it.polimi.ingsw.am14.utils.Constants.PING_TIMEOUT;
+&nbsp;/**
+&nbsp; * The root orchestrator and session gateway on the server side.
+&nbsp; * &lt;p&gt;
+&nbsp; * This class serves as the entry point for global cluster management, directing operations
+&nbsp; * before players enter a distinct game loop context. It maintains multi-tenant indexing dictionaries
+&nbsp; * linking player nicknames to active match rooms and mapping unique match IDs to specific {@link GameController}
+&nbsp; * subunits.
+&nbsp; * &lt;/p&gt;
+&nbsp; * &lt;p&gt;
+&nbsp; * Key infrastructure duties include:
+&nbsp; * &lt;/p&gt;
+&nbsp; * &lt;ul&gt;
+&nbsp; * &lt;li&gt;&lt;b&gt;User Onboarding:&lt;/b&gt; Handling entry authentication registration and handling active session reconnection loops.&lt;/li&gt;
+&nbsp; * &lt;li&gt;&lt;b&gt;Liveness Watchdog:&lt;/b&gt; Monitoring background heartbeats to safely disconnect unresponsive socket/RMI clients.&lt;/li&gt;
+&nbsp; * &lt;li&gt;&lt;b&gt;Asynchronous Persistence:&lt;/b&gt; Spawning detached non-blocking background threads to serialize
+&nbsp; * the complete system state into cold storage after critical actions (picks, placements).&lt;/li&gt;
+&nbsp; * &lt;/ul&gt;
+&nbsp; */
+&nbsp;public class LobbyController {
+&nbsp;    private final Map&lt;Integer, GameController&gt; gameIdToGameController;
+&nbsp;    private final Map&lt;String, Integer&gt; nicknameToGameId;
+&nbsp;    private int gameIdCounter;
+&nbsp;    @JsonIgnore
+&nbsp;    private NetworkLayer networkLayer;
+&nbsp;    @JsonIgnore
+&nbsp;    private final Map&lt;String, Long&gt; lastPingReceivedTime;
+<b class="nc">&nbsp;    @JsonIgnore</b>
+&nbsp;    private final Object dataLock = new Object();
+&nbsp;    private final String saveFilePath;
+<b class="nc">&nbsp;    @JsonIgnore</b>
+&nbsp;    private final Object saveFileLock = new Object();
+&nbsp;    /**
+&nbsp;     * Standard constructor initializing an empty standalone server lobby context.
+&nbsp;     *
+&nbsp;     * @param networkLayer the outbound packet transmission bridge pipeline
+&nbsp;     * @param saveFilePath target file system directory address for writing state recovery data
+&nbsp;     */
+<b class="nc">&nbsp;    public LobbyController(NetworkLayer networkLayer, String saveFilePath) {</b>
+<b class="nc">&nbsp;        this.gameIdToGameController = new HashMap&lt;&gt;();</b>
+<b class="nc">&nbsp;        this.nicknameToGameId = new HashMap&lt;&gt;();</b>
+<b class="nc">&nbsp;        this.networkLayer = networkLayer;</b>
+<b class="nc">&nbsp;        this.lastPingReceivedTime = new HashMap&lt;&gt;();</b>
+<b class="nc">&nbsp;        this.gameIdCounter = 0;</b>
+<b class="nc">&nbsp;        this.saveFilePath = saveFilePath;</b>
+&nbsp;    }
+&nbsp;    /**
+&nbsp;     * Reconstructive constructor utilizing Jackson mapping components to inflate an entire historical
+&nbsp;     * deployment node back into volatile memory after a server crash shutdown.
+&nbsp;     *
+&nbsp;     * @param nicknameToGameId       historical user session assignment registry map
+&nbsp;     * @param gameIdToGameController historical sub-controller map populated with deserialized match data
+&nbsp;     * @param gameIdCounter          the last verified state configuration counter tracking active indexes
+&nbsp;     * @param saveFilePath           target backup storage path matching physical deployment setups
+&nbsp;     */
+&nbsp;    @JsonCreator
+&nbsp;    public LobbyController(
+&nbsp;            @JsonProperty(&quot;nicknameToGameId&quot;) Map&lt;String, Integer&gt; nicknameToGameId,
+&nbsp;            @JsonProperty(&quot;gameIdToGameController&quot;) Map&lt;Integer, GameController&gt; gameIdToGameController,
+&nbsp;            @JsonProperty(&quot;gameIdCounter&quot;) int gameIdCounter,
+<b class="nc">&nbsp;            @JsonProperty(&quot;saveFilePath&quot;) String saveFilePath) {</b>
+<b class="nc">&nbsp;        this.saveFilePath = saveFilePath;</b>
+<b class="nc">&nbsp;        this.gameIdToGameController = gameIdToGameController;</b>
+<b class="nc">&nbsp;        this.nicknameToGameId = nicknameToGameId;</b>
+<b class="nc">&nbsp;        this.networkLayer = new NetworkLayer();</b>
+<b class="nc">&nbsp;        this.lastPingReceivedTime = new HashMap&lt;&gt;();</b>
+<b class="nc">&nbsp;        this.gameIdCounter = gameIdCounter;</b>
+&nbsp;    }
+&nbsp;    /**
+&nbsp;     * Appends a newly compiled game sub-controller entity into the centralized dictionary cache.
+&nbsp;     */
+&nbsp;    private void addGameController(int gameId, GameController gameController) {
+<b class="nc">&nbsp;        gameIdToGameController.put(gameId, gameController);</b>
+&nbsp;    }
+&nbsp;    /**
+&nbsp;     * Discards a sub-controller mapping from internal registers, typically triggered upon match conclusion.
+&nbsp;     */
+&nbsp;    private void removeGameController(int gameId) {
+<b class="nc">&nbsp;        gameIdToGameController.remove(gameId);</b>
+&nbsp;    }
+&nbsp;    /**
+&nbsp;     * Attempts safe lookup retrieval of a sub-controller entity using an optional container wrapper.
+&nbsp;     */
+&nbsp;    private Optional&lt;GameController&gt; getGameController(int gameId) {
+<b class="nc">&nbsp;        return Optional.ofNullable(gameIdToGameController.get(gameId));</b>
+&nbsp;    }
+&nbsp;    /**
+&nbsp;     * Assigns a structural binding pairing an authenticated user nickname token to a room index tracker.
+&nbsp;     */
+&nbsp;    private void assignPlayerToGame(String nickname, int gameId) {
+<b class="nc">&nbsp;        nicknameToGameId.put(nickname, gameId);</b>
+&nbsp;    }
+&nbsp;    /**
+&nbsp;     * Purges a player&#39;s credentials out of multi-tenant assignment dictionaries completely.
+&nbsp;     */
+&nbsp;    private void removePlayerFromLobby(String nickname) {
+<b class="nc">&nbsp;        nicknameToGameId.remove(nickname);</b>
+&nbsp;    }
+&nbsp;    /**
+&nbsp;     * Thread-safe query utility retrieving the current match identification index assigned to a user nickname.
+&nbsp;     *
+&nbsp;     * @param nickname targeted player signature text string under evaluation
+&nbsp;     * @return an {@link Optional} containing the matched room index code integer, or empty if unmapped
+&nbsp;     */
+&nbsp;    public Optional&lt;Integer&gt; getGameIdByNickname(String nickname) {
+<b class="nc">&nbsp;        synchronized (dataLock) {</b>
+<b class="nc">&nbsp;            return Optional.ofNullable(nicknameToGameId.get(nickname));</b>
+<b class="nc">&nbsp;        }</b>
+&nbsp;    }
+&nbsp;    /**
+&nbsp;     * Stages a newborn user signature inside the baseline lobby environment, initializing tracking pointers to null.
+&nbsp;     */
+&nbsp;    private void addPlayerToLobby(String nickname) {
+<b class="nc">&nbsp;        nicknameToGameId.put(nickname, null);</b>
+&nbsp;    }
+&nbsp;    /**
+&nbsp;     * Evaluates if an active user profile signature currently holds a non-null match room assignment index.
+&nbsp;     */
+&nbsp;    private boolean hasPlayerAGameAssigned(String nickname) {
+<b class="nc">&nbsp;        return nicknameToGameId.containsKey(nickname) &amp;&amp; nicknameToGameId.get(nickname) != null;</b>
+&nbsp;    }
+&nbsp;    /**
+&nbsp;     * Performs a reverse dictionary lookup traversal to isolate all user nickname keys tied to a room index.
+&nbsp;     */
+&nbsp;    private Set&lt;String&gt; getPlayersByGameId(int gameId) {
+<b class="nc">&nbsp;        Set&lt;String&gt; players = new HashSet&lt;&gt;();</b>
+<b class="nc">&nbsp;        Set&lt;Map.Entry&lt;String, Integer&gt;&gt; entries = nicknameToGameId.entrySet();</b>
+<b class="nc">&nbsp;        for (Map.Entry&lt;String, Integer&gt; entry : entries) {</b>
+<b class="nc">&nbsp;            if (entry.getValue() != null &amp;&amp; entry.getValue() == gameId) {</b>
+<b class="nc">&nbsp;                players.add(entry.getKey());</b>
+&nbsp;            }
+&nbsp;        }
+<b class="nc">&nbsp;        return players;</b>
+&nbsp;    }
+&nbsp;    /**
+&nbsp;     * Captures the system&#39;s exact current calendar timestamp and updates a player&#39;s liveness tracker.
+&nbsp;     */
+&nbsp;    private void setLastPingReceivedTime(String nickname) {
+<b class="nc">&nbsp;        synchronized (dataLock) {</b>
+<b class="nc">&nbsp;            lastPingReceivedTime.put(nickname, System.currentTimeMillis());</b>
+<b class="nc">&nbsp;        }</b>
+&nbsp;    }
+&nbsp;    /**
+&nbsp;     * Evaluates if a player profile has an active heartbeat registration tracking vector inside memory.
+&nbsp;     */
+&nbsp;    private boolean isPlayerConnected(String nickname) {
+<b class="nc">&nbsp;        synchronized (dataLock) {</b>
+<b class="nc">&nbsp;            return lastPingReceivedTime.containsKey(nickname);</b>
+<b class="nc">&nbsp;        }</b>
+&nbsp;    }
+&nbsp;    /**
+&nbsp;     * Binds a fresh outbound communication engine wrapper, supporting system hot-swaps after network resets.
+&nbsp;     *
+&nbsp;     * @param networkLayer active low-level messaging transport subsystem instance
+&nbsp;     */
+&nbsp;    public void setNetworkLayer(NetworkLayer networkLayer) {
+<b class="nc">&nbsp;        this.networkLayer = networkLayer;</b>
+&nbsp;    }
+&nbsp;    /**
+&nbsp;     * Clears internal connection heartbeat indexes mapped to a user signature.
+&nbsp;     */
+&nbsp;    private void removeLastPingReceivedTime(String nickname) {
+<b class="nc">&nbsp;        lastPingReceivedTime.remove(nickname);</b>
+&nbsp;    }
+&nbsp;    /**
+&nbsp;     * Processes inbound user entries requesting credential authorization or recovery mapping connections.
+&nbsp;     * &lt;p&gt;
+&nbsp;     * Logic constraints:
+&nbsp;     * &lt;/p&gt;
+&nbsp;     * &lt;ul&gt;
+&nbsp;     * &lt;li&gt;If the nickname matches a historical active match placement, it initiates structural reconnection hooks.&lt;/li&gt;
+&nbsp;     * &lt;li&gt;If the nickname represents a first-time login, it registers the client into the global staging pool.&lt;/li&gt;
+&nbsp;     * &lt;/ul&gt;
+&nbsp;     * Dispatches a {@link LoginSuccesfulEvent} forward down the wire upon completion to update client states.
+&nbsp;     *
+&nbsp;     * @param nickname text signature identifier selected by the client framework node
+&nbsp;     * @throws IllegalGameIdException if a historical match indexing record points to an absent engine instance
+&nbsp;     * @throws WrongStateException    if structural model locks reject entry parameters down the pipeline
+&nbsp;     */
+&nbsp;    public void connectUser(String nickname) throws IllegalNicknameException, IllegalGameIdException, WrongStateException {
+&nbsp;        int gameId;
+<b class="nc">&nbsp;        synchronized (dataLock) {</b>
+<b class="nc">&nbsp;            if (hasPlayerAGameAssigned(nickname)) {</b>
+<b class="nc">&nbsp;                gameId = getGameIdByNickname(nickname).orElseThrow();</b>
+&nbsp;            }
+&nbsp;            else {
+<b class="nc">&nbsp;                addPlayerToLobby(nickname);</b>
+<b class="nc">&nbsp;                gameId = -1;</b>
+&nbsp;            }
+<b class="nc">&nbsp;        }</b>
+<b class="nc">&nbsp;        networkLayer.update(new LoginSuccesfulEvent(nickname));</b>
+<b class="nc">&nbsp;        setLastPingReceivedTime(nickname);</b>
+<b class="nc">&nbsp;        if (gameId &gt;=0) {</b>
+<b class="nc">&nbsp;            getGameController(gameId).orElseThrow(() -&gt; new IllegalGameIdException(&quot;Game with the specified ID does not exist&quot;))</b>
+<b class="nc">&nbsp;                    .onPlayerConnection(nickname, null);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;    /**
+&nbsp;     * Compiles a separate game core model node using structural factories, binds observers,
+&nbsp;     * hooks up sub-controllers, and assigns the creating player into the newborn match workspace context.
+&nbsp;     * &lt;p&gt;
+&nbsp;     * &lt;b&gt;Non-Blocking IO Pattern:&lt;/b&gt; Spawns an ephemeral worker thread named {@code &quot;Save-Thread-pick&quot;}
+&nbsp;     * to perform a background disk write task right after creation, ensuring zero delay on network queues.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     *
+&nbsp;     * @param nickname   the profile username creating the session lobby environment
+&nbsp;     * @param numPlayers systemic scaling threshold sizing limits assigned to the room (2-5)
+&nbsp;     * @param totemColor cosmetic identification option key chosen by the host player
+&nbsp;     * @throws IllegalSetupException if structural scaling configurations fail boundary tests inside factories
+&nbsp;     * @throws WrongStateException   if state validation constraints block structural insertions
+&nbsp;     */
+&nbsp;    public void createGame(String nickname, int numPlayers, String totemColor) throws IllegalSetupException, WrongStateException, IllegalNicknameException {
+<b class="nc">&nbsp;        synchronized (dataLock) {</b>
+<b class="nc">&nbsp;            if (hasPlayerAGameAssigned(nickname)) {</b>
+<b class="nc">&nbsp;                networkLayer.update(new ExceptionEvent(&quot;Player with the specified nickname is already assigned to a game&quot;));</b>
+<b class="nc">&nbsp;                return;</b>
+&nbsp;            }
+<b class="nc">&nbsp;            Game game = GameFactory.setup(numPlayers, gameIdCounter);</b>
+<b class="nc">&nbsp;            game.addObserver(networkLayer);</b>
+<b class="nc">&nbsp;            GameController gameController = new GameController(game);</b>
+<b class="nc">&nbsp;            addGameController(game.getGameId(), gameController);</b>
+<b class="nc">&nbsp;            assignPlayerToGame(nickname, game.getGameId());</b>
+<b class="nc">&nbsp;            gameIdCounter++;</b>
+<b class="nc">&nbsp;            gameController.onPlayerConnection(nickname, totemColor);</b>
+<b class="nc">&nbsp;        }</b>
+<b class="nc">&nbsp;        new Thread(() -&gt; {</b>
+<b class="nc">&nbsp;            synchronized (saveFileLock) {</b>
+<b class="nc">&nbsp;                Codec parser = new JsonCodec();</b>
+<b class="nc">&nbsp;                parser.writeSaveData(this, saveFilePath);</b>
+<b class="nc">&nbsp;            }</b>
+<b class="nc">&nbsp;        }, &quot;Save-Thread-pick&quot;).start();</b>
+&nbsp;    }
+&nbsp;    /**
+&nbsp;     * Adds an authenticated staging player profile into an ongoing pre-existing match room.
+&nbsp;     *
+&nbsp;     * @param nickname   the client text username requesting room integration
+&nbsp;     * @param gameId     the unique room number targeted for interaction
+&nbsp;     * @param totemColor aesthetic marking option parameter picked by the returning player
+&nbsp;     * @throws IllegalGameIdException if the target integer mapping index fails to return a valid instance
+&nbsp;     * @throws WrongStateException    if room capacity boundaries or lifecycle states reject registration parameters
+&nbsp;     */
+&nbsp;    public void joinGame(String nickname, int gameId, String totemColor) throws WrongStateException, IllegalGameIdException {
+<b class="nc">&nbsp;        synchronized (dataLock) {</b>
+<b class="nc">&nbsp;            if (hasPlayerAGameAssigned(nickname)) {</b>
+<b class="nc">&nbsp;                networkLayer.update(new ExceptionEvent(&quot;Player with the specified nickname is already assigned to a game&quot;));</b>
+<b class="nc">&nbsp;                return;</b>
+&nbsp;            }
+<b class="nc">&nbsp;        }</b>
+<b class="nc">&nbsp;        getGameController(gameId).orElseThrow(() -&gt; new IllegalGameIdException(&quot;Game with the specified ID does not exist&quot;))</b>
+<b class="nc">&nbsp;                .onPlayerConnection(nickname, totemColor);</b>
+<b class="nc">&nbsp;        synchronized (dataLock) {</b>
+<b class="nc">&nbsp;            assignPlayerToGame(nickname, gameId);</b>
+<b class="nc">&nbsp;        }</b>
+&nbsp;    }
+&nbsp;    /**
+&nbsp;     * Routes structural totem deployment commands directly to the assigned match sub-controller unit.
+&nbsp;     * &lt;p&gt;
+&nbsp;     * Immediately triggers an isolated background serialization thread named {@code &quot;Save-Thread-place&quot;}
+&nbsp;     * to log changes safely onto physical disks.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     *
+&nbsp;     * @throws IllegalNicknameException if tracking maps indicate the target user has no active game link
+&nbsp;     */
+&nbsp;    public void placeTotem(String nickname, char position) throws IllegalNicknameException, WrongStateException, WrongTurnException, UnknownPositionException, IllegalPlacementException, UnknownNicknameException, SQLException, IllegalPickException, ForcedPickException {
+<b class="nc">&nbsp;        getGameController(getGameIdByNickname(nickname).orElseThrow(() -&gt; new IllegalNicknameException(&quot;Player with the specified nickname is not in the lobby&quot;)))</b>
+<b class="nc">&nbsp;                .orElseThrow(() -&gt; new IllegalNicknameException(&quot;Player with the specified nickname is not assigned to any game&quot;))</b>
+<b class="nc">&nbsp;                .placeTotem(nickname, position);</b>
+<b class="nc">&nbsp;        new Thread(() -&gt; {</b>
+<b class="nc">&nbsp;            synchronized (saveFileLock) {</b>
+<b class="nc">&nbsp;                Codec parser = new JsonCodec();</b>
+<b class="nc">&nbsp;                parser.writeSaveData(this, saveFilePath);</b>
+<b class="nc">&nbsp;            }</b>
+<b class="nc">&nbsp;        }, &quot;Save-Thread-place&quot;).start();</b>
+&nbsp;    }
+&nbsp;    /**
+&nbsp;     * Routes structural card draft requests directly down to the assigned match sub-controller unit.
+&nbsp;     * &lt;p&gt;
+&nbsp;     * Immediately triggers an isolated background serialization thread named {@code &quot;Save-Thread-pick&quot;}
+&nbsp;     * to keep system recovery snapshots up to date on disk.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     *
+&nbsp;     * @throws IllegalNicknameException if tracking maps indicate the target user has no active game link
+&nbsp;     */
+&nbsp;    public void pickCard(String nickname, int cardId, int row) throws IllegalNicknameException, WrongStateException, WrongTurnException, UnknownPositionException, IllegalPickException, ForcedPickException, IllegalPlacementException, UnknownNicknameException, SQLException {
+<b class="nc">&nbsp;        getGameController(getGameIdByNickname(nickname).orElseThrow(() -&gt; new IllegalNicknameException(&quot;Player with the specified nickname is not in the lobby&quot;)))</b>
+<b class="nc">&nbsp;                .orElseThrow(() -&gt; new IllegalNicknameException(&quot;Player with the specified nickname is not assigned to any game&quot;))</b>
+<b class="nc">&nbsp;                .pickCard(nickname, cardId, row);</b>
+<b class="nc">&nbsp;        new Thread(() -&gt; {</b>
+<b class="nc">&nbsp;            synchronized (saveFileLock) {</b>
+<b class="nc">&nbsp;                Codec parser = new JsonCodec();</b>
+<b class="nc">&nbsp;                parser.writeSaveData(this, saveFilePath);</b>
+<b class="nc">&nbsp;            }</b>
+<b class="nc">&nbsp;        }, &quot;Save-Thread-pick&quot;).start();</b>
+&nbsp;    }
+&nbsp;    /**
+&nbsp;     * Performs an immediate structural purge of a client session due to an explicit disconnect request
+&nbsp;     * or a watchdog heartbeat timeout.
+&nbsp;     * &lt;p&gt;
+&nbsp;     * &lt;b&gt;Tolleranza ai Guasti / Fault Isolation:&lt;/b&gt; If the departing client was inside a match, the system
+&nbsp;     * securely purges the entire associated {@code GameController} from current rosters. Active, healthy co-players
+&nbsp;     * are gently rolled back into the global lobby space. This design approach enables unaffected users to
+&nbsp;     * safely re-queue or establish new rooms without deadlocking the global server thread pool.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     *
+&nbsp;     * @param nickname user signature profile token undergoing extraction
+&nbsp;     */
+&nbsp;    public void disconnectUser(String nickname) {
+<b class="nc">&nbsp;        synchronized (dataLock) {</b>
+<b class="nc">&nbsp;            int gameId = getGameIdByNickname(nickname).orElse(-1);</b>
+&nbsp;
+<b class="nc">&nbsp;            removePlayerFromLobby(nickname);</b>
+<b class="nc">&nbsp;            removeLastPingReceivedTime(nickname);</b>
+&nbsp;
+<b class="nc">&nbsp;            if (gameId &gt;= 0) {</b>
+&nbsp;                // if user was in a game, remove the game controller.
+<b class="nc">&nbsp;                removeGameController(gameId);</b>
+<b class="nc">&nbsp;                getPlayersByGameId(gameId).forEach(playerNickname -&gt; {</b>
+<b class="nc">&nbsp;                    if (isPlayerConnected(playerNickname)) {</b>
+&nbsp;                        //If player is connected returns to lobby in order to be able to reconnect to the game if he wants to
+<b class="nc">&nbsp;                        addPlayerToLobby(playerNickname);</b>
+&nbsp;                    } else {
+&nbsp;                        // If player is not connected (because the other players were waiting for him after a server crash and quit before his join)
+&nbsp;                        // remove him from the lobby so that he can use his name again
+<b class="nc">&nbsp;                        removePlayerFromLobby(playerNickname);</b>
+&nbsp;                    }
+&nbsp;                });
+&nbsp;            }
+<b class="nc">&nbsp;            networkLayer.update(new PlayerDisconnectedEvent(nickname, gameId));</b>
+<b class="nc">&nbsp;        }</b>
+&nbsp;    }
+&nbsp;    /**
+&nbsp;     * Intercepts incoming client check-ins and refreshes the corresponding liveness tracking entry inside memory.
+&nbsp;     *
+&nbsp;     * @param nickname text signature identifier of the verifying node
+&nbsp;     */
+&nbsp;    public void handlePingRequest(String nickname) {
+<b class="nc">&nbsp;        synchronized (dataLock) {</b>
+<b class="nc">&nbsp;            setLastPingReceivedTime(nickname);</b>
+<b class="nc">&nbsp;        }</b>
+&nbsp;    }
+&nbsp;    /**
+&nbsp;     * Scheduled heartbeat verification routine executed at regular intervals by internal clock loops.
+&nbsp;     * &lt;p&gt;
+&nbsp;     * It computes time deltas between the current system epoch and individual entry logs inside
+&nbsp;     * {@code lastPingReceivedTime}. Any node whose lag duration exceeds the defined {@code PING_TIMEOUT} threshold
+&nbsp;     * is forwarded to {@link #disconnectUser(String)} to free up system resources.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     */
+&nbsp;    public void handlePingTimeOut() {
+<b class="nc">&nbsp;        synchronized (dataLock) {</b>
+<b class="nc">&nbsp;            long currentTime = System.currentTimeMillis();</b>
+<b class="nc">&nbsp;            HashSet&lt;String&gt; nicknames = new HashSet&lt;&gt;(lastPingReceivedTime.keySet());</b>
+<b class="nc">&nbsp;            for (String nickname : nicknames) {</b>
+<b class="nc">&nbsp;                long lastPingTime = lastPingReceivedTime.get(nickname);</b>
+<b class="nc">&nbsp;                if (currentTime - lastPingTime &gt; PING_TIMEOUT) {</b>
+<b class="nc">&nbsp;                    disconnectUser(nickname);</b>
+&nbsp;                }
+&nbsp;            }
+<b class="nc">&nbsp;        }</b>
+&nbsp;    }
+&nbsp;    /**
+&nbsp;     * Iterates through active sub-controller maps to link the updated communication layer
+&nbsp;     * following a global network reset or deployment rebuild.
+&nbsp;     *
+&nbsp;     * @param networkLayer current active network transport dispatcher layer entity
+&nbsp;     */
+&nbsp;    public void registerObserversAfterReconnection(NetworkLayer networkLayer) {
+<b class="nc">&nbsp;        for (GameController gc: gameIdToGameController.values()) {</b>
+<b class="nc">&nbsp;            gc.getGame().addObserver(networkLayer);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-22 23:30</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,166 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > LauncherDispatcher</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">it.polimi.ingsw.am14.launcher</a>
+</div>
+
+<h1>Coverage Summary for Class: LauncherDispatcher (it.polimi.ingsw.am14.launcher)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">LauncherDispatcher</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/3)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/4)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/12)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package it.polimi.ingsw.am14.launcher;
+&nbsp;
+&nbsp;import java.io.IOException;
+&nbsp;import java.net.URISyntaxException;
+&nbsp;import java.util.Arrays;
+&nbsp;
+&nbsp;/**
+&nbsp; * The {@code LauncherDispatcher} class is responsible for dispatching the application launch
+&nbsp; * based on the provided command-line arguments. It determines whether to start the client or server
+&nbsp; * mode and invokes the corresponding launcher.
+&nbsp; */
+<b class="nc">&nbsp;public class LauncherDispatcher {</b>
+&nbsp;
+&nbsp;    /**
+&nbsp;     * The main entry point of the application. It parses the command-line arguments to determine
+&nbsp;     * the mode (client or server) and invokes the appropriate launcher.
+&nbsp;     *
+&nbsp;     * @param args command-line arguments where the first argument specifies the mode (client/server)
+&nbsp;     *             and subsequent arguments are passed to the respective launcher.
+&nbsp;     * @throws IOException        if an I/O error occurs during launching.
+&nbsp;     * @throws URISyntaxException if a URI syntax error occurs during launching.
+&nbsp;     */
+&nbsp;    public static void main(String[] args) throws IOException, URISyntaxException {
+<b class="nc">&nbsp;        if (args.length == 0) {</b>
+<b class="nc">&nbsp;            printUsage();</b>
+&nbsp;            return;
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        String mode = args[0].toLowerCase();</b>
+<b class="nc">&nbsp;        String[] launcherArgs = Arrays.copyOfRange(args, 1, args.length);</b>
+&nbsp;
+<b class="nc">&nbsp;        switch (mode) {</b>
+<b class="nc">&nbsp;            case &quot;client&quot; -&gt; ClientLauncher.startClient(launcherArgs);</b>
+<b class="nc">&nbsp;            case &quot;server&quot; -&gt; ServerLauncher.startServer(launcherArgs);</b>
+&nbsp;            default -&gt; {
+<b class="nc">&nbsp;                System.err.println(&quot;Unknown mode: &quot; + args[0]);</b>
+<b class="nc">&nbsp;                printUsage();</b>
+<b class="nc">&nbsp;                System.exit(1);</b>
+&nbsp;            }
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    private static void printUsage() {
+<b class="nc">&nbsp;        System.out.println(&quot;&quot;&quot;</b>
+&nbsp;                Usage:
+&nbsp;                  java -jar AM14.jar client [client arguments]
+&nbsp;                  java -jar AM14.jar server [server arguments]
+&nbsp;                &quot;&quot;&quot;);
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-22 23:30</div>
+</div>
+</body>
+</html>

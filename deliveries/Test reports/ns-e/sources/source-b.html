@@ -1,0 +1,349 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > PlayerReconnectedEvent</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">it.polimi.ingsw.am14.network.messages.events</a>
+</div>
+
+<h1>Coverage Summary for Class: PlayerReconnectedEvent (it.polimi.ingsw.am14.network.messages.events)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">PlayerReconnectedEvent</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    14,3%
+  </span>
+  <span class="absValue">
+    (2/14)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/8)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    46,7%
+  </span>
+  <span class="absValue">
+    (42/90)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package it.polimi.ingsw.am14.network.messages.events;
+&nbsp;
+&nbsp;import com.fasterxml.jackson.annotation.JsonCreator;
+&nbsp;import com.fasterxml.jackson.annotation.JsonProperty;
+&nbsp;import it.polimi.ingsw.am14.clientModelController.ClientModel;
+&nbsp;import it.polimi.ingsw.am14.clientModelController.ClientPlayer;
+&nbsp;import it.polimi.ingsw.am14.model.boardComponents.Board;
+&nbsp;import it.polimi.ingsw.am14.model.cards.Card;
+&nbsp;import it.polimi.ingsw.am14.model.gameLogic.Player;
+&nbsp;import it.polimi.ingsw.am14.network.NetworkLayer;
+&nbsp;import it.polimi.ingsw.am14.view.viewEvents.PlayerReconnectedViewEvent;
+&nbsp;
+&nbsp;import java.util.ArrayList;
+&nbsp;import java.util.HashMap;
+&nbsp;import java.util.List;
+&nbsp;import java.util.Map;
+&nbsp;import java.util.stream.Collectors;
+&nbsp;
+&nbsp;import static it.polimi.ingsw.am14.utils.Constants.*;
+&nbsp;import static it.polimi.ingsw.am14.utils.Constants.BOTTOM_BUILDING_ROW;
+&nbsp;/**
+&nbsp; * Event representing a player successfully reconnecting to an ongoing game.
+&nbsp; * Inherits from {@link ServerEvent}.
+&nbsp; * It contains the full state of the game, including the board configuration,
+&nbsp; * player attributes, and their positions, in order to synchronize the reconnected client.
+&nbsp; */
+&nbsp;public class PlayerReconnectedEvent extends ServerEvent {
+&nbsp;
+&nbsp;    private final int gameId;
+&nbsp;    private final int turnOrderCardIndex;
+&nbsp;    private final int numPlayers;
+&nbsp;    private final ArrayList&lt;ArrayList&lt;Integer&gt;&gt; board;
+&nbsp;    private final String playerNickname;
+&nbsp;    private final Map&lt;String, String&gt; nicknameToTotemColor;
+&nbsp;    private final Map&lt;String, Integer&gt; nicknameToNumFood;
+&nbsp;    private final Map&lt;String, Integer&gt; nicknameToNumPrestigePoints;
+&nbsp;    private final Map&lt;String, Integer&gt; nicknameToNumStars;
+&nbsp;    private final Map&lt;String, Integer&gt; nicknameToTotalBuildingDiscount;
+&nbsp;    private final Map&lt;String, Integer&gt; nicknameToTotalGatheringDiscount;
+&nbsp;    private final Map&lt;String, Character&gt; nicknameToPlayerPosition;
+&nbsp;    private final ArrayList&lt;String&gt; playersOrderInTurnOrderCard;
+&nbsp;    private final Map&lt;String, int []&gt; nicknameToPlayerTribe;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Constructs a {@code PlayerReconnectedEvent} triggered by the server model when a player reconnects.
+&nbsp;     *
+&nbsp;     * @param playerNickname the nickname of the reconnected player.
+&nbsp;     * @param gameId         the unique ID of the game the player reconnected to.
+&nbsp;     * @param board          the current state of the game {@link Board}.
+&nbsp;     * @param numPlayers     the total number of players in the game.
+&nbsp;     * @param players        the list of {@link Player} instances currently in the game.
+&nbsp;     */
+&nbsp;
+&nbsp;    public PlayerReconnectedEvent(String playerNickname, int gameId, Board board, int numPlayers, List&lt;Player&gt; players) {
+<b class="fc">&nbsp;        super(&quot;Player \&quot;&quot; + playerNickname + &quot;\&quot; has re-established their connection to game [&quot; + gameId + &quot;].&quot;);</b>
+<b class="fc">&nbsp;        this.playerNickname = playerNickname;</b>
+<b class="fc">&nbsp;        this.gameId = gameId;</b>
+<b class="fc">&nbsp;        this.turnOrderCardIndex = numPlayers - 2;</b>
+&nbsp;        // TurnOrderCards are indexed from 0 to 3 as numPlayers goes from 2 to 5.
+<b class="fc">&nbsp;        this.numPlayers = numPlayers;</b>
+&nbsp;        // the offersPath will be built by the View using numPlayers.
+&nbsp;
+<b class="fc">&nbsp;        this.board = new ArrayList&lt;&gt;(4);</b>
+<b class="fc">&nbsp;        this.board.add(TOP_DECKABLE_ROW,</b>
+<b class="fc">&nbsp;                board.getTopDeckableRow().stream()</b>
+<b class="fc">&nbsp;                        .map(Card::getId)</b>
+<b class="fc">&nbsp;                        .collect(Collectors.toCollection(ArrayList::new))</b>
+&nbsp;        );
+<b class="fc">&nbsp;        this.board.add(TOP_BUILDING_ROW,</b>
+<b class="fc">&nbsp;                board.getTopBuildingRow().stream()</b>
+<b class="fc">&nbsp;                        .map(Card::getId)</b>
+<b class="fc">&nbsp;                        .collect(Collectors.toCollection(ArrayList::new))</b>
+&nbsp;        );
+<b class="fc">&nbsp;        this.board.add(BOTTOM_DECKABLE_ROW,</b>
+<b class="fc">&nbsp;                board.getBottomDeckableRow().stream()</b>
+<b class="fc">&nbsp;                        .map(Card::getId)</b>
+<b class="fc">&nbsp;                        .collect(Collectors.toCollection(ArrayList::new))</b>
+&nbsp;        );
+<b class="fc">&nbsp;        this.board.add(BOTTOM_BUILDING_ROW,</b>
+<b class="fc">&nbsp;                board.getBottomBuildingRow().stream()</b>
+<b class="fc">&nbsp;                        .map(Card::getId)</b>
+<b class="fc">&nbsp;                        .collect(Collectors.toCollection(ArrayList::new))</b>
+&nbsp;        );
+&nbsp;
+<b class="fc">&nbsp;        this.playersOrderInTurnOrderCard = board.getTurnOrderCard().getPlayerOrder().stream()</b>
+<b class="fc">&nbsp;                .map(</b>
+&nbsp;                        (player) -&gt; {
+&nbsp;                            // in the turnOrderCard we admit null values for players that are in the offersPath
+&nbsp;                            // and thus not in the turnOrderCard. In this case we return an empty string for the nickname.
+<b class="nc">&nbsp;                            if (player == null) {</b>
+<b class="nc">&nbsp;                                return &quot;&quot;;</b>
+&nbsp;                            } else {
+<b class="nc">&nbsp;                                return player.getNickname();</b>
+&nbsp;                            }
+&nbsp;                        }
+&nbsp;                )
+<b class="fc">&nbsp;                .collect(Collectors.toCollection(ArrayList::new));</b>
+&nbsp;
+<b class="fc">&nbsp;        nicknameToTotemColor = new HashMap&lt;&gt;();</b>
+<b class="fc">&nbsp;        nicknameToNumFood = new HashMap&lt;&gt;();</b>
+<b class="fc">&nbsp;        nicknameToNumPrestigePoints = new HashMap&lt;&gt;();</b>
+<b class="fc">&nbsp;        nicknameToNumStars = new HashMap&lt;&gt;();</b>
+<b class="fc">&nbsp;        nicknameToTotalBuildingDiscount = new HashMap&lt;&gt;();</b>
+<b class="fc">&nbsp;        nicknameToTotalGatheringDiscount = new HashMap&lt;&gt;();</b>
+<b class="fc">&nbsp;        nicknameToPlayerPosition = new HashMap&lt;&gt;();</b>
+<b class="fc">&nbsp;        nicknameToPlayerTribe = new HashMap&lt;&gt;();</b>
+&nbsp;
+<b class="fc">&nbsp;        players.forEach(player -&gt; {</b>
+<b class="fc">&nbsp;            nicknameToTotemColor.put(player.getNickname(), player.getTotemColor().toString());</b>
+<b class="fc">&nbsp;            nicknameToNumFood.put(player.getNickname(), player.getNumFood());</b>
+<b class="fc">&nbsp;            nicknameToNumPrestigePoints.put(player.getNickname(), player.getNumPrestigePoints());</b>
+<b class="fc">&nbsp;            nicknameToNumStars.put(player.getNickname(), player.getNumStars());</b>
+<b class="fc">&nbsp;            nicknameToTotalBuildingDiscount.put(player.getNickname(), player.getTotalBuildingDiscount());</b>
+<b class="fc">&nbsp;            nicknameToTotalGatheringDiscount.put(player.getNickname(), player.getTotalGatheringDiscount());</b>
+<b class="fc">&nbsp;            nicknameToPlayerPosition.put(player.getNickname(), board.findPlayerPosition(player.getNickname()).orElse(null));</b>
+<b class="fc">&nbsp;            nicknameToPlayerTribe.put(player.getNickname(), player.getAllIds());</b>
+&nbsp;        });
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Constructs a {@code PlayerReconnectedEvent} from JSON data, used by Jackson upon receiving a message.
+&nbsp;     *
+&nbsp;     * @param description                      the description of the event.
+&nbsp;     * @param gameId                           the unique ID of the game.
+&nbsp;     * @param turnOrderCardIndex               the index of the turn order card based on the number of players.
+&nbsp;     * @param numPlayers                       the total number of players in the game.
+&nbsp;     * @param playerNickname                   the nickname of the reconnected player.
+&nbsp;     * @param board                            the current state of the board.
+&nbsp;     * @param nicknameToTotemColor             mapping of nicknames to their chosen totem colors.
+&nbsp;     * @param nicknameToNumFood                mapping of nicknames to their current food amounts.
+&nbsp;     * @param nicknameToNumPrestigePoints      mapping of nicknames to their current prestige points.
+&nbsp;     * @param nicknameToNumStars               mapping of nicknames to their current stars.
+&nbsp;     * @param nicknameToTotalBuildingDiscount  mapping of nicknames to their building discount.
+&nbsp;     * @param nicknameToTotalGatheringDiscount mapping of nicknames to their gathering discount.
+&nbsp;     * @param nicknameToPlayerPosition         mapping of nicknames to their current positions on the board.
+&nbsp;     * @param playersOrderInTurnOrderCard      the turn order of the players.
+&nbsp;     * @param nicknameToPlayerTribe            mapping of nicknames to their built tribe cards IDs.
+&nbsp;     */
+&nbsp;
+&nbsp;    @JsonCreator
+&nbsp;    public PlayerReconnectedEvent(
+&nbsp;            @JsonProperty(&quot;description&quot;) String description,
+&nbsp;            @JsonProperty(&quot;gameId&quot;) int gameId,
+&nbsp;            @JsonProperty(&quot;turnOrderCardIndex&quot;) int turnOrderCardIndex,
+&nbsp;            @JsonProperty(&quot;numPlayers&quot;) int numPlayers,
+&nbsp;            @JsonProperty(&quot;playerNickname&quot;) String playerNickname,
+&nbsp;            @JsonProperty(&quot;board&quot;) ArrayList&lt;ArrayList&lt;Integer&gt;&gt; board,
+&nbsp;            @JsonProperty(&quot;nicknameToTotemColor&quot;) Map&lt;String, String&gt; nicknameToTotemColor,
+&nbsp;            @JsonProperty(&quot;nicknameToNumFood&quot;) Map&lt;String, Integer&gt; nicknameToNumFood,
+&nbsp;            @JsonProperty(&quot;nicknameToNumPrestigePoints&quot;) Map&lt;String, Integer&gt; nicknameToNumPrestigePoints,
+&nbsp;            @JsonProperty(&quot;nicknameToNumStars&quot;) Map&lt;String, Integer&gt; nicknameToNumStars,
+&nbsp;            @JsonProperty(&quot;nicknameToTotalBuildingDiscount&quot;) Map&lt;String, Integer&gt; nicknameToTotalBuildingDiscount,
+&nbsp;            @JsonProperty(&quot;nicknameToTotalGatheringDiscount&quot;) Map&lt;String, Integer&gt; nicknameToTotalGatheringDiscount,
+&nbsp;            @JsonProperty(&quot;nicknameToPlayerPosition&quot;) Map&lt;String, Character&gt; nicknameToPlayerPosition,
+&nbsp;            @JsonProperty(&quot;playersOrderInTurnOrderCard&quot;) ArrayList&lt;String&gt; playersOrderInTurnOrderCard,
+&nbsp;            @JsonProperty(&quot;nicknameToPlayerTribe&quot;) Map&lt;String, int []&gt; nicknameToPlayerTribe) {
+<b class="nc">&nbsp;        super(description);</b>
+<b class="nc">&nbsp;        this.gameId = gameId;</b>
+<b class="nc">&nbsp;        this.turnOrderCardIndex = turnOrderCardIndex;</b>
+<b class="nc">&nbsp;        this.numPlayers = numPlayers;</b>
+<b class="nc">&nbsp;        this.playerNickname = playerNickname;</b>
+<b class="nc">&nbsp;        this.board = board;</b>
+<b class="nc">&nbsp;        this.nicknameToTotemColor = nicknameToTotemColor;</b>
+<b class="nc">&nbsp;        this.nicknameToNumFood = nicknameToNumFood;</b>
+<b class="nc">&nbsp;        this.nicknameToNumPrestigePoints = nicknameToNumPrestigePoints;</b>
+<b class="nc">&nbsp;        this.nicknameToNumStars = nicknameToNumStars;</b>
+<b class="nc">&nbsp;        this.nicknameToTotalBuildingDiscount = nicknameToTotalBuildingDiscount;</b>
+<b class="nc">&nbsp;        this.nicknameToTotalGatheringDiscount = nicknameToTotalGatheringDiscount;</b>
+<b class="nc">&nbsp;        this.nicknameToPlayerPosition = nicknameToPlayerPosition;</b>
+<b class="nc">&nbsp;        this.playersOrderInTurnOrderCard = playersOrderInTurnOrderCard;</b>
+<b class="nc">&nbsp;        this.nicknameToPlayerTribe = nicknameToPlayerTribe;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Bufferizes the event into the network layer to be sent exclusively
+&nbsp;     * to the player who just reconnected.
+&nbsp;     *
+&nbsp;     * @param network the network layer used to buffer the event for the specific client.
+&nbsp;     */
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public void bufferize(NetworkLayer network) {
+<b class="nc">&nbsp;        network.addToEventBuffer(network.getClientBy(playerNickname), this);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Applies the effect of this event to the provided client model, completely restoring
+&nbsp;     * the game state (players, board, points, resources, tribe cards) for the reconnected client
+&nbsp;     * and notifying the view observers.
+&nbsp;     *
+&nbsp;     * @param model the {@link ClientModel} representing the client-side state of the game.
+&nbsp;     */
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public void effect(ClientModel model) {
+<b class="nc">&nbsp;        nicknameToTotemColor.forEach((nickname, totemColor) -&gt; {</b>
+<b class="nc">&nbsp;            ClientPlayer player = new ClientPlayer(nickname);</b>
+<b class="nc">&nbsp;            if (!nickname.equals(model.getHomePlayerNickname())) {</b>
+<b class="nc">&nbsp;                model.addPlayer(player);</b>
+&nbsp;            } else {
+<b class="nc">&nbsp;                model.setHomePlayer(player);</b>
+&nbsp;            }
+<b class="nc">&nbsp;            player.setTotemColor(totemColor);</b>
+&nbsp;        });
+<b class="nc">&nbsp;        nicknameToNumFood.forEach((nickname, numFood) -&gt;</b>
+<b class="nc">&nbsp;                model.getPlayerByNickname(nickname).setNumFood(numFood));</b>
+<b class="nc">&nbsp;        nicknameToNumPrestigePoints.forEach((nickname, numPrestigePoints) -&gt;</b>
+<b class="nc">&nbsp;                model.getPlayerByNickname(nickname).setNumPrestigePoints(numPrestigePoints));</b>
+<b class="nc">&nbsp;        nicknameToNumStars.forEach((nickname, numStars) -&gt;</b>
+<b class="nc">&nbsp;                model.getPlayerByNickname(nickname).setNumStars(numStars));</b>
+<b class="nc">&nbsp;        nicknameToTotalBuildingDiscount.forEach((nickname, totalBuildingDiscount) -&gt;</b>
+<b class="nc">&nbsp;                model.getPlayerByNickname(nickname).setTotalBuildingDiscount(totalBuildingDiscount));</b>
+<b class="nc">&nbsp;        nicknameToTotalGatheringDiscount.forEach((nickname, totalGatheringDiscount) -&gt;</b>
+<b class="nc">&nbsp;                model.getPlayerByNickname(nickname).setTotalGatheringDiscount(totalGatheringDiscount));</b>
+<b class="nc">&nbsp;        nicknameToPlayerPosition.forEach(model::updatePlayerPosition);</b>
+<b class="nc">&nbsp;        nicknameToPlayerTribe.forEach((nickname, playerTribe) -&gt; {</b>
+<b class="nc">&nbsp;            for (int tribeElement : playerTribe) {</b>
+<b class="nc">&nbsp;                model.getPlayerByNickname(nickname).addToPlayerTribe(tribeElement);</b>
+&nbsp;            }
+&nbsp;        });
+<b class="nc">&nbsp;        model.setBoard(board);</b>
+<b class="nc">&nbsp;        model.setNumPlayers(numPlayers);</b>
+<b class="nc">&nbsp;        model.setGameId(gameId);</b>
+<b class="nc">&nbsp;        model.setTurnOrderCardIndex(turnOrderCardIndex);</b>
+<b class="nc">&nbsp;        model.setPlayerOrderInTurnOrderCard(playersOrderInTurnOrderCard);</b>
+<b class="nc">&nbsp;        model.getPlayerOrderInTurnOrderCard().forEach(playerNickname -&gt; {</b>
+<b class="nc">&nbsp;            if (playerNickname.isEmpty()) {</b>
+<b class="nc">&nbsp;                model.removePlayerFromTurnOrderCard(playerNickname);</b>
+&nbsp;            }
+&nbsp;        });
+<b class="nc">&nbsp;        model.notifyObservers(new PlayerReconnectedViewEvent(description));</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-22 23:30</div>
+</div>
+</body>
+</html>

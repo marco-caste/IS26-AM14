@@ -1,0 +1,231 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > WaitingRoomAfterCrashState</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">it.polimi.ingsw.am14.model.gameLogic</a>
+</div>
+
+<h1>Coverage Summary for Class: WaitingRoomAfterCrashState (it.polimi.ingsw.am14.model.gameLogic)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">WaitingRoomAfterCrashState</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (4/4)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    50%
+  </span>
+  <span class="absValue">
+    (9/18)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    75%
+  </span>
+  <span class="absValue">
+    (21/28)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package it.polimi.ingsw.am14.model.gameLogic;
+&nbsp;
+&nbsp;import it.polimi.ingsw.am14.network.messages.events.ExceptionEvent;
+&nbsp;import it.polimi.ingsw.am14.network.messages.events.GameRestartedEvent;
+&nbsp;import it.polimi.ingsw.am14.network.messages.events.PlayerReconnectedEvent;
+&nbsp;/**
+&nbsp; * State implementation that manages fault tolerance and session recovery immediately following a server crash
+&nbsp; * or massive network failure.
+&nbsp; * &lt;p&gt;
+&nbsp; * This class acts as a synchronized staging environment (Waiting Room). When a game is reloaded from a persistent
+&nbsp; * save state, control is assigned here until all original participants successfully establish a new connection.
+&nbsp; * Upon complete reconnection, the state executes a crucial structural re-linking routine: it synchronizes volatile
+&nbsp; * network player references with stale structural placements inside the board layouts (such as {@code TurnOrderCard}
+&nbsp; * and {@code OffersPath}) before safely rolling back control to the game state active right before the crash occurred.
+&nbsp; * &lt;/p&gt;
+&nbsp; */
+<b class="fc">&nbsp;public class WaitingRoomAfterCrashState extends GameState {</b>
+&nbsp;
+<b class="fc">&nbsp;    private int numPlayersReconnected = 0;</b>
+&nbsp;    /**
+&nbsp;     * Handles the physical reconnection event of a player returning to the recovered game environment.
+&nbsp;     * &lt;p&gt;
+&nbsp;     * The processing lifecycle carries out the following steps:
+&nbsp;     * &lt;/p&gt;
+&nbsp;     * &lt;ol&gt;
+&nbsp;     * &lt;li&gt;Broadcasts a {@link PlayerReconnectedEvent} notification to push current board layouts and historical models
+&nbsp;     * down to the newly connected view client.&lt;/li&gt;
+&nbsp;     * &lt;li&gt;Increments the internal connection counter via {@link #addNumPlayersConnected()}.&lt;/li&gt;
+&nbsp;     * &lt;li&gt;Checks if the quorum of reconnected users matches the original game size setup ({@code game.getNumPlayers()}).&lt;/li&gt;
+&nbsp;     * &lt;li&gt;If the quorum is reached, it initiates a defensive dual-pass mapping sweep to overwrite stale player references
+&nbsp;     * with new session tokens within the {@code TurnOrderCard} sequence and the grid-mapped {@code OffersPath} track slots.&lt;/li&gt;
+&nbsp;     * &lt;li&gt;Advances the state machine using {@link #nextState(Game)} and fires a global {@link GameRestartedEvent}
+&nbsp;     * to inform all participants that structural setup has stabilized and active turns are resuming.&lt;/li&gt;
+&nbsp;     * &lt;/ol&gt;
+&nbsp;     *
+&nbsp;     * @param game        the central {@link Game} context manager directing recovery routines
+&nbsp;     * @param nickname    the unique textual signature profile of the returning user
+&nbsp;     * @param totemColor  the aesthetic identifier mapped to the player&#39;s game token
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    protected void onPlayerConnection(Game game, String nickname, String totemColor) {
+<b class="pc">&nbsp;        if (game.getPlayers().stream().noneMatch(p -&gt; p.getNickname().equals(nickname))) {</b>
+<b class="nc">&nbsp;            game.notifyObservers(</b>
+&nbsp;                    new ExceptionEvent(&quot;Player &quot; + nickname + &quot; is not part of this game.&quot;)
+&nbsp;            );
+&nbsp;            return;
+&nbsp;        }
+<b class="fc">&nbsp;        game.notifyObservers(</b>
+&nbsp;                new PlayerReconnectedEvent(
+&nbsp;                        nickname,
+<b class="fc">&nbsp;                        game.getGameId(),</b>
+<b class="fc">&nbsp;                        game.getBoard(),</b>
+<b class="fc">&nbsp;                        game.getNumPlayers(),</b>
+<b class="fc">&nbsp;                        game.getPlayers()</b>
+&nbsp;                )
+&nbsp;        );
+<b class="fc">&nbsp;        addNumPlayersConnected();</b>
+<b class="fc">&nbsp;        if (numPlayersReconnected == game.getNumPlayers()) {</b>
+&nbsp;
+&nbsp;            try {
+<b class="fc">&nbsp;                for (Player p : game.getPlayers()) {</b>
+&nbsp;                    Player p1;
+<b class="pc">&nbsp;                    if (!game.getBoard().getTurnOrderCard().getPlayerOrder().isEmpty()) {</b>
+<b class="nc">&nbsp;                        for (int i = 0; i &lt; game.getBoard().getTurnOrderCard().getPlayerOrder().size(); i++) {</b>
+&nbsp;
+&nbsp;                            try {
+<b class="nc">&nbsp;                                p1 = game.getBoard().getTurnOrderCard().getPlayer(i);</b>
+&nbsp;                            } catch (NullPointerException _) {
+&nbsp;                                continue;
+&nbsp;                            }
+<b class="nc">&nbsp;                            if (p.getNickname().equals(p1.getNickname())) {</b>
+<b class="nc">&nbsp;                                game.getBoard().getTurnOrderCard().setPlayerReference(i, p);</b>
+&nbsp;                            }
+&nbsp;                        }
+&nbsp;                    }
+<b class="fc">&nbsp;                    for (Character trackCardName : game.getBoard().getOffersPath().offersPathKeySet()) {</b>
+<b class="fc">&nbsp;                        p1 = game.getBoard().getOffersPath().offersPathGet(trackCardName).getPlayerTotem();</b>
+<b class="pc">&nbsp;                        if (p1 == null) {</b>
+&nbsp;                            continue;
+&nbsp;                        }
+<b class="nc">&nbsp;                        if (p.getNickname().equals(p1.getNickname())) {</b>
+<b class="nc">&nbsp;                            game.getBoard().getOffersPath().offersPathGet(trackCardName).setPlayerTotem(p);</b>
+&nbsp;                        }
+&nbsp;                    }
+&nbsp;                }
+&nbsp;            } catch (Exception _) {}
+&nbsp;
+<b class="fc">&nbsp;            this.nextState(game);</b>
+<b class="fc">&nbsp;            game.notifyObservers(</b>
+&nbsp;                    new GameRestartedEvent(
+<b class="fc">&nbsp;                            game.getGameId(),</b>
+&nbsp;                            nickname,
+<b class="fc">&nbsp;                            game.previouslySavedStateName()</b>
+&nbsp;                    )
+&nbsp;            );
+&nbsp;        }
+&nbsp;    }
+&nbsp;    /**
+&nbsp;     * Restores control to the historically recorded functional flow by popping the saved state token.
+&nbsp;     * &lt;p&gt;
+&nbsp;     * Re-assigns the central engine status pointer dynamically back to the instance retrieved from
+&nbsp;     * {@link Game#getPreviouslySavedState()}, ensuring seamless continuity of game history.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     *
+&nbsp;     * @param context the central game engine tracking wrapper {@link Game}
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    protected void nextState(Game context) {
+<b class="fc">&nbsp;        context.setCurrentState(context.getPreviouslySavedState());</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private void addNumPlayersConnected() {
+<b class="fc">&nbsp;        this.numPlayersReconnected++;</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-22 23:30</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,165 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > EntryPointFactory</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">it.polimi.ingsw.am14.network</a>
+</div>
+
+<h1>Coverage Summary for Class: EntryPointFactory (it.polimi.ingsw.am14.network)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">EntryPointFactory</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/11)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package it.polimi.ingsw.am14.network;
+&nbsp;
+&nbsp;import it.polimi.ingsw.am14.clientModelController.ClientController;
+&nbsp;import it.polimi.ingsw.am14.network.rmi.RmiClientLauncher;
+&nbsp;import it.polimi.ingsw.am14.network.rmi.client.RmiClient;
+&nbsp;import it.polimi.ingsw.am14.network.socket.SocketClientLauncher;
+&nbsp;import it.polimi.ingsw.am14.network.socket.client.VirtualServerSocket;
+&nbsp;
+<b class="nc">&nbsp;public abstract class EntryPointFactory {</b>
+&nbsp;    /**
+&nbsp;     * Establishes a connection to the server using the specified connection parameters.
+&nbsp;     *
+&nbsp;     * @param connectionMode the network protocol to use (&quot;socket&quot; or &quot;rmi&quot;)
+&nbsp;     * @param serverIP the IP address of the server
+&nbsp;     * @param serverPort the port number of the server
+&nbsp;     * @param playerNickname the nickname of the player connecting
+&nbsp;     * @return a VirtualServer instance representing the connected server
+&nbsp;     * @throws IllegalArgumentException if an invalid connection mode is provided
+&nbsp;     * @throws RuntimeException if connection fails
+&nbsp;     */
+&nbsp;    public static VirtualServer connect(String connectionMode, String serverIP, int serverPort, String playerNickname, ClientController controller) {
+<b class="nc">&nbsp;        switch (connectionMode.toLowerCase()) {</b>
+&nbsp;            case &quot;socket&quot; -&gt; {
+&nbsp;                try {
+&nbsp;                    // Create and launch Socket client with explicit parameters
+<b class="nc">&nbsp;                    VirtualServerSocket server = SocketClientLauncher.launch(</b>
+&nbsp;                            serverIP,
+&nbsp;                            serverPort,
+&nbsp;                            controller
+&nbsp;                    );
+<b class="nc">&nbsp;                    server.connectUser(playerNickname);</b>
+<b class="nc">&nbsp;                    return server;</b>
+&nbsp;                } catch (Exception e) {
+<b class="nc">&nbsp;                    throw new RuntimeException(&quot;Socket connection failed: &quot; + e.getMessage());</b>
+&nbsp;                }
+&nbsp;            }
+&nbsp;            case &quot;rmi&quot; -&gt; {
+&nbsp;                try {
+<b class="nc">&nbsp;                    RmiClient server = RmiClientLauncher.launch(controller);</b>
+<b class="nc">&nbsp;                    server.connect(playerNickname, serverIP, serverPort);</b>
+<b class="nc">&nbsp;                    return server;</b>
+&nbsp;                } catch (Exception e) {
+<b class="nc">&nbsp;                    throw new RuntimeException(&quot;RMI connection failed: &quot; + e.getMessage());</b>
+&nbsp;                }
+&nbsp;            }
+<b class="nc">&nbsp;            default -&gt; throw new IllegalArgumentException(&quot;Invalid connection mode: &#39;&quot; + connectionMode + &quot;&#39;. Use &#39;socket&#39; or &#39;rmi&#39;.&quot;);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-22 23:30</div>
+</div>
+</body>
+</html>

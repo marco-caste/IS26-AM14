@@ -1,0 +1,203 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > PaintEvent</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">it.polimi.ingsw.am14.model.cards.deckCards</a>
+</div>
+
+<h1>Coverage Summary for Class: PaintEvent (it.polimi.ingsw.am14.model.cards.deckCards)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">PaintEvent</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (3/3)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (6/6)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (16/16)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package it.polimi.ingsw.am14.model.cards.deckCards;
+&nbsp;
+&nbsp;import com.fasterxml.jackson.annotation.JsonCreator;
+&nbsp;import com.fasterxml.jackson.annotation.JsonProperty;
+&nbsp;import it.polimi.ingsw.am14.model.cards.buildings.Building;
+&nbsp;import it.polimi.ingsw.am14.model.cards.buildings.visitors.*;
+&nbsp;import it.polimi.ingsw.am14.model.gameLogic.*;
+&nbsp;
+&nbsp;import java.util.ArrayList;
+&nbsp;/**
+&nbsp; * Represents a Paint Event card within the game.
+&nbsp; * &lt;p&gt;
+&nbsp; * This class extends {@link EventCard}. When activated, it evaluates the number of Artists
+&nbsp; * in each player&#39;s tribe against a threshold determined by the card&#39;s age.
+&nbsp; * Players with too few artists suffer a prestige penalty, while players exceeding the threshold
+&nbsp; * receive a prestige reward. It also checks for building interactions using the Visitor Pattern.
+&nbsp; * &lt;/p&gt;
+&nbsp; */
+&nbsp;public class PaintEvent extends EventCard {
+&nbsp;    /**
+&nbsp;     * Constructs a new {@code PaintEvent} card with the specified age and unique identifier.
+&nbsp;     * This constructor is annotated with {@link JsonCreator} for Jackson JSON deserialization.
+&nbsp;     *
+&nbsp;     * @param age the historical age/era this card belongs to (passed to super)
+&nbsp;     * @param id  the unique identifier of the card (passed to super)
+&nbsp;     */
+&nbsp;    @JsonCreator
+&nbsp;    public PaintEvent(
+&nbsp;            @JsonProperty(&quot;age&quot;) int age,
+&nbsp;            @JsonProperty(&quot;id&quot;) int id
+&nbsp;    ) {
+<b class="fc">&nbsp;        super(age, id);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private void checkBuilding(Player player, Game context) {
+<b class="fc">&nbsp;        PaintEventVisitor visitor = new PaintEventVisitor(context, player);</b>
+<b class="fc">&nbsp;        ArrayList&lt;Building&gt; buildings = player.getTribe().getBuildings();</b>
+<b class="fc">&nbsp;        for (Building building : buildings) {</b>
+<b class="fc">&nbsp;            building.accept(visitor);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;    /**
+&nbsp;     * Applies the global paint event effect to all players in the game.
+&nbsp;     * &lt;p&gt;
+&nbsp;     * For every player, this method computes a threshold value: {@code lossRange = age - 1}.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     * &lt;ul&gt;
+&nbsp;     *   &lt;li&gt;If the player&#39;s artist count is &lt;b&gt;less than or equal to&lt;/b&gt; the {@code lossRange},
+&nbsp;     *       they lose prestige points equal to twice their artist count.&lt;/li&gt;
+&nbsp;     *   &lt;li&gt;If the player&#39;s artist count is &lt;b&gt;greater than&lt;/b&gt; the {@code lossRange},
+&nbsp;     *       they gain prestige points equal to their artist count multiplied by the card&#39;s age.&lt;/li&gt;
+&nbsp;     * &lt;/ul&gt;
+&nbsp;     * After updating the prestige points, it evaluates the player&#39;s buildings via {@link #checkBuilding(Player, Game)}
+&nbsp;     * and finally cleans up the board state by invoking {@link #removeEvent(Game)}.
+&nbsp;     *
+&nbsp;     * @param player  the current active {@link Player} triggering the step (the effect applies to all players)
+&nbsp;     * @param context the current {@link Game} context used to access the player list and the board
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public void applyEffect(Player player, Game context) {
+&nbsp;
+<b class="fc">&nbsp;        int lossRange = this.getAge() - 1 ; // it&#39;s a formula which gives us the range of artists that cause a loss of prestige points</b>
+&nbsp;        int numArtists;
+&nbsp;        int prestigeLoss;  // gives the number of prestige loss if the player has a number of artists &lt;= lossRange
+&nbsp;        int prestigeWin;    // gives the number of prestige win if the player has a number of artists &gt; lossRange
+&nbsp;
+<b class="fc">&nbsp;        ArrayList&lt;Player&gt; players = new ArrayList&lt;&gt;(context.getPlayers());</b>
+&nbsp;
+<b class="fc">&nbsp;        for (Player p : players) {</b>
+&nbsp;
+<b class="fc">&nbsp;            numArtists = p.getTribe().getArtistsSize();</b>
+<b class="fc">&nbsp;            prestigeWin = numArtists * this.getAge() ;</b>
+<b class="fc">&nbsp;            prestigeLoss = numArtists * 2;</b>
+&nbsp;
+<b class="fc">&nbsp;            if (numArtists &lt;= lossRange)</b>
+<b class="fc">&nbsp;                p.addToPrestigePoints(-prestigeLoss);</b>
+&nbsp;            else
+<b class="fc">&nbsp;                p.addToPrestigePoints(prestigeWin);</b>
+&nbsp;
+<b class="fc">&nbsp;            checkBuilding(p, context);</b>
+&nbsp;
+&nbsp;        }
+<b class="fc">&nbsp;        removeEvent(context);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-22 23:30</div>
+</div>
+</body>
+</html>

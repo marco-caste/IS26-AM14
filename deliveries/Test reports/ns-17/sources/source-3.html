@@ -1,0 +1,148 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > ViewType</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">it.polimi.ingsw.am14.view</a>
+</div>
+
+<h1>Coverage Summary for Class: ViewType (it.polimi.ingsw.am14.view)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+</tr>
+<tr>
+  <td class="name">ViewType</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package it.polimi.ingsw.am14.view;
+&nbsp;
+&nbsp;import it.polimi.ingsw.am14.view.viewEvents.ViewEvent;
+&nbsp;import it.polimi.ingsw.am14.clientModelController.ClientModel;
+&nbsp;
+&nbsp;import java.io.IOException;
+&nbsp;
+&nbsp;public interface ViewType {
+&nbsp;    /**
+&nbsp;     * Starts the view and handles user input.
+&nbsp;     * @throws IOException if an I/O error occurs
+&nbsp;     */
+&nbsp;    void run() throws IOException;
+&nbsp;    /**
+&nbsp;     * Updates the view based on the provided model and event.
+&nbsp;     * @param model the client model to update the view with
+&nbsp;     * @param event the event that triggered the update
+&nbsp;     */
+&nbsp;    void update(ClientModel model, ViewEvent event);
+&nbsp;    /**
+&nbsp;     * Renders a Login message to the user.
+&nbsp;     * @param message the message to render
+&nbsp;     */
+&nbsp;    void renderLogin(String message);
+&nbsp;    /**
+&nbsp;     * Renders a message indicating that a player has joined the game.
+&nbsp;     * @param message the message to render
+&nbsp;     */
+&nbsp;    void renderPlayerJoin(String message);
+&nbsp;    /**
+&nbsp;     * Renders a message indicating that the game has started.
+&nbsp;     * @param message the message to render
+&nbsp;     */
+&nbsp;    void renderGameStart(String message);
+&nbsp;    /**
+&nbsp;     * Renders a message indicating that a player has placed a totem.
+&nbsp;     * @param message the message to render
+&nbsp;     */
+&nbsp;    void renderTotemPlaced(String message);
+&nbsp;    /**
+&nbsp;     * Renders a message indicating that a player has picked a card.
+&nbsp;     * @param message the message to render
+&nbsp;     */
+&nbsp;    void renderCardPicked(String message);
+&nbsp;    /**
+&nbsp;     * Renders a message indicating that a player has played a card.
+&nbsp;     * @param message the message to render
+&nbsp;     */
+&nbsp;    void renderEndRound(String message);
+&nbsp;    /**
+&nbsp;     * Renders a message indicating that the game has ended.
+&nbsp;     * @param message the message to render
+&nbsp;     */
+&nbsp;    void renderEndGame(String message);
+&nbsp;    /**
+&nbsp;     * Renders a message indicating that a player has disconnected from the game.
+&nbsp;     * @param message the message to render
+&nbsp;     */
+&nbsp;    void renderDisconnection(String message);
+&nbsp;    /**
+&nbsp;     * Renders a message indicating that a player has reconnected to the game.
+&nbsp;     * @param message the message to render
+&nbsp;     */
+&nbsp;    void renderReconnection(String message);
+&nbsp;    /**
+&nbsp;     * Renders a message indicating that the game has been restarted.
+&nbsp;     * @param message the message to render
+&nbsp;     */
+&nbsp;    void renderGameRestarted(String message);
+&nbsp;    /**
+&nbsp;     * Renders an exception message to the user.
+&nbsp;     * @param message the exception message to render
+&nbsp;     */
+&nbsp;    void renderException(String message);
+&nbsp;    /**
+&nbsp;     * Handles a network error by displaying an error message to the user.
+&nbsp;     * @param errorMessage the error message to display
+&nbsp;     */
+&nbsp;    void handleNetworkError(String errorMessage);
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-22 23:30</div>
+</div>
+</body>
+</html>

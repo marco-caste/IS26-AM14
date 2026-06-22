@@ -1,0 +1,563 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > Board</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">it.polimi.ingsw.am14.model.boardComponents</a>
+</div>
+
+<h1>Coverage Summary for Class: Board (it.polimi.ingsw.am14.model.boardComponents)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">Board</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (40/40)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (4/4)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (68/68)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package it.polimi.ingsw.am14.model.boardComponents;
+&nbsp;
+&nbsp;import com.fasterxml.jackson.annotation.JsonCreator;
+&nbsp;import com.fasterxml.jackson.annotation.JsonIgnore;
+&nbsp;import com.fasterxml.jackson.annotation.JsonProperty;
+&nbsp;import it.polimi.ingsw.am14.model.cards.deckCards.*;
+&nbsp;import it.polimi.ingsw.am14.model.cards.Card;
+&nbsp;import it.polimi.ingsw.am14.model.cards.buildings.Building;
+&nbsp;
+&nbsp;import java.util.*;
+&nbsp;
+&nbsp;/**
+&nbsp; * &lt;p&gt;
+&nbsp; *     The Board class represents the game board and contains all the components of the game, such as decks and tiles.
+&nbsp; * &lt;/p&gt;
+&nbsp; */
+&nbsp;public class Board {
+&nbsp;    /**
+&nbsp;     * &lt;p&gt;
+&nbsp;     *     The TurnOrderCard represents the turn order of the players in a game.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     */
+&nbsp;    private final TurnOrderCard turnOrderCard;
+&nbsp;    /**
+&nbsp;     * &lt;p&gt;
+&nbsp;     *     The OffersPath represents the set of track cards in a game.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     */
+&nbsp;    private final OffersPath offersPath;
+&nbsp;    /**
+&nbsp;     * &lt;p&gt;
+&nbsp;     *     The TribeDeck represents the deck of tribe cards in a game.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     */
+&nbsp;    private final TribeDeck tribeDeck;
+&nbsp;    /**
+&nbsp;     * &lt;p&gt;
+&nbsp;     *     The BuildingDeck represents the deck of building cards in a game.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     */
+&nbsp;    private final BuildingDeck buildingDeck;
+&nbsp;    /**
+&nbsp;     * &lt;p&gt;
+&nbsp;     *     The topDeckableRow represents the row of deckable cards in a game.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     */
+&nbsp;    private ArrayList&lt;DeckCard&gt; topDeckableRow;
+&nbsp;    /**
+&nbsp;     * &lt;p&gt;
+&nbsp;     *     The topBuildingRow represents the row of building cards in a game.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     */
+&nbsp;    private ArrayList&lt;Building&gt; topBuildingRow;
+&nbsp;    /**
+&nbsp;     * &lt;p&gt;
+&nbsp;     *     The bottomDeckableRow represents the row of deckable cards in a game.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     */
+&nbsp;    private ArrayList&lt;DeckCard&gt; bottomDeckableRow;
+&nbsp;    /**
+&nbsp;     * &lt;p&gt;
+&nbsp;     *     The bottomBuildingRow represents the row of building cards in a game.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     */
+&nbsp;    private ArrayList&lt;Building&gt; bottomBuildingRow;
+&nbsp;    /**
+&nbsp;     * &lt;p&gt;
+&nbsp;     *     The toResolveSustenanceEventRow represents the row of sustenance event cards in a game.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     */
+&nbsp;    private ArrayList&lt;EventCard&gt; toResolveSustenanceEventRow;
+&nbsp;    /**
+&nbsp;     * &lt;p&gt;
+&nbsp;     *     The toResolveOtherEventsRow represents the row of other event cards in a game.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     */
+&nbsp;    private ArrayList&lt;EventCard&gt; toResolveOtherEventsRow;
+&nbsp;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * &lt;p&gt;
+&nbsp;     *     Initializes the board with the correct number of players
+&nbsp;     * &lt;/p&gt;
+&nbsp;     * @param numPlayers the number of players to be in the game, must be between 2 and 5
+&nbsp;     */
+<b class="fc">&nbsp;    public Board(int numPlayers) {</b>
+<b class="fc">&nbsp;        this.turnOrderCard                  = new TurnOrderCard(numPlayers);</b>
+<b class="fc">&nbsp;        this.offersPath                     = new OffersPath(numPlayers);</b>
+<b class="fc">&nbsp;        this.tribeDeck                      = new TribeDeck(numPlayers);</b>
+<b class="fc">&nbsp;        this.buildingDeck                   = new BuildingDeck(numPlayers);</b>
+<b class="fc">&nbsp;        this.topDeckableRow                 = new ArrayList&lt;&gt;();</b>
+<b class="fc">&nbsp;        this.topBuildingRow                 = new ArrayList&lt;&gt;();</b>
+<b class="fc">&nbsp;        this.bottomDeckableRow              = new ArrayList&lt;&gt;();</b>
+<b class="fc">&nbsp;        this.bottomBuildingRow              = new ArrayList&lt;&gt;();</b>
+<b class="fc">&nbsp;        this.toResolveOtherEventsRow        = new ArrayList&lt;&gt;();</b>
+<b class="fc">&nbsp;        this.toResolveSustenanceEventRow    = new ArrayList&lt;&gt;();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * &lt;p&gt;
+&nbsp;     *     Initializes the board with the correct number of players
+&nbsp;     * &lt;/p&gt;
+&nbsp;     * @param turnOrderCard the TurnOrderCard to be used in the game
+&nbsp;     * @param offersPath the OffersPath to be used in the game
+&nbsp;     * @param tribeDeck the TribeDeck to be used in the game
+&nbsp;     * @param buildingDeck the BuildingDeck to be used in the game
+&nbsp;     * @param topDeckableRow the top row of DeckCards to be used in the game
+&nbsp;     * @param topBuildingRow the top row of Buildings to be used in the game
+&nbsp;     * @param bottomDeckableRow the bottom row of DeckCards to be used in the game
+&nbsp;     * @param bottomBuildingRow the bottom row of Buildings to be used in the game
+&nbsp;     * @param toResolveSustenanceEventRow the row of EventCards to be resolved for sustenance
+&nbsp;     * @param toResolveOtherEventsRow the row of EventCards to be resolved for other events
+&nbsp;     */
+&nbsp;    @JsonCreator
+&nbsp;    public Board(
+&nbsp;            @JsonProperty(&quot;turnOrderCard&quot;) TurnOrderCard turnOrderCard,
+&nbsp;            @JsonProperty(&quot;offersPath&quot;) OffersPath offersPath,
+&nbsp;            @JsonProperty(&quot;tribeDeck&quot;) TribeDeck tribeDeck,
+&nbsp;            @JsonProperty(&quot;buildingDeck&quot;) BuildingDeck buildingDeck,
+&nbsp;            @JsonProperty(&quot;topDeckableRow&quot;) ArrayList&lt;DeckCard&gt; topDeckableRow,
+&nbsp;            @JsonProperty(&quot;topBuildingRow&quot;) ArrayList&lt;Building&gt; topBuildingRow,
+&nbsp;            @JsonProperty(&quot;bottomDeckableRow&quot;) ArrayList&lt;DeckCard&gt; bottomDeckableRow,
+&nbsp;            @JsonProperty(&quot;bottomBuildingRow&quot;) ArrayList&lt;Building&gt; bottomBuildingRow,
+&nbsp;            @JsonProperty(&quot;toResolveSustenanceEventRow&quot;) ArrayList&lt;EventCard&gt; toResolveSustenanceEventRow,
+<b class="fc">&nbsp;            @JsonProperty(&quot;toResolveOtherEventsRow&quot;) ArrayList&lt;EventCard&gt; toResolveOtherEventsRow) {</b>
+<b class="fc">&nbsp;        this.turnOrderCard                  = turnOrderCard;</b>
+<b class="fc">&nbsp;        this.offersPath                     = offersPath;</b>
+<b class="fc">&nbsp;        this.tribeDeck                      = tribeDeck;</b>
+<b class="fc">&nbsp;        this.buildingDeck                   = buildingDeck;</b>
+<b class="fc">&nbsp;        this.topDeckableRow                 = topDeckableRow;</b>
+<b class="fc">&nbsp;        this.topBuildingRow                 = topBuildingRow;</b>
+<b class="fc">&nbsp;        this.bottomDeckableRow              = bottomDeckableRow;</b>
+<b class="fc">&nbsp;        this.bottomBuildingRow              = bottomBuildingRow;</b>
+<b class="fc">&nbsp;        this.toResolveSustenanceEventRow    = toResolveSustenanceEventRow;</b>
+<b class="fc">&nbsp;        this.toResolveOtherEventsRow        = toResolveOtherEventsRow;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    // GETTERS
+&nbsp;    public OffersPath getOffersPath() {
+<b class="fc">&nbsp;        return offersPath;</b>
+&nbsp;    }
+&nbsp;    public BuildingDeck getBuildingDeck() {
+<b class="fc">&nbsp;        return buildingDeck;</b>
+&nbsp;    }
+&nbsp;    public TribeDeck getTribeDeck() {
+<b class="fc">&nbsp;        return tribeDeck;</b>
+&nbsp;    }
+&nbsp;    public TurnOrderCard getTurnOrderCard() {
+<b class="fc">&nbsp;        return turnOrderCard;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     *
+&nbsp;     * @return a defensive copy of the top deck cards row
+&nbsp;     */
+&nbsp;    public ArrayList&lt;DeckCard&gt; getTopDeckableRow() {
+<b class="fc">&nbsp;        return new ArrayList&lt;&gt;(this.topDeckableRow);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     *
+&nbsp;     * @return a defensive copy of the top building cards row
+&nbsp;     */
+&nbsp;    public ArrayList&lt;Building&gt; getTopBuildingRow() {
+<b class="fc">&nbsp;        return new ArrayList&lt;&gt;(this.topBuildingRow);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     *
+&nbsp;     * @return a defensive copy of the bottom deck cards row
+&nbsp;     */
+&nbsp;    public ArrayList&lt;DeckCard&gt; getBottomDeckableRow() {
+<b class="fc">&nbsp;        return new ArrayList&lt;&gt;(this.bottomDeckableRow);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     *
+&nbsp;     * @return a defensive copy of the bottom building cards row
+&nbsp;     */
+&nbsp;    public ArrayList&lt;Building&gt; getBottomBuildingRow() {
+<b class="fc">&nbsp;        return new ArrayList&lt;&gt;(this.bottomBuildingRow);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     *
+&nbsp;     * @param index the index of the event, must be &gt;= 0
+&nbsp;     * @return the Event to be resolved, given its position {@code index}
+&nbsp;     */
+&nbsp;    public EventCard getFromResolveOtherEventsRow(int index) {
+<b class="fc">&nbsp;        return this.toResolveOtherEventsRow.get(index);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     *
+&nbsp;     * @param index the index of the sustenance event, must be &gt;= 0
+&nbsp;     * @return the Sustenance Event to be resolved, given its position {@code index}
+&nbsp;     */
+&nbsp;    public EventCard getFromResolveSustenanceEventRow(int index) {
+<b class="fc">&nbsp;        return this.toResolveSustenanceEventRow.get(index);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     *
+&nbsp;     * @return the last Event to be resolved
+&nbsp;     */
+&nbsp;    @JsonIgnore
+&nbsp;    public EventCard getLastOtherEvent() {
+<b class="fc">&nbsp;        return this.toResolveOtherEventsRow.getLast();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    // SETTERS
+&nbsp;    public void setBottomBuildingRow(ArrayList&lt;Building&gt; bottomBuildingRow) {
+<b class="fc">&nbsp;        this.bottomBuildingRow = bottomBuildingRow;</b>
+&nbsp;    }
+&nbsp;    public void setBottomDeckableRow(ArrayList&lt;DeckCard&gt; bottomDeckableRow) {
+<b class="fc">&nbsp;        this.bottomDeckableRow = bottomDeckableRow;</b>
+&nbsp;    }
+&nbsp;    public void setTopBuildingRow(ArrayList&lt;Building&gt; topBuildingRow) {
+<b class="fc">&nbsp;        this.topBuildingRow = topBuildingRow;</b>
+&nbsp;    }
+&nbsp;    public void setTopDeckableRow(ArrayList&lt;DeckCard&gt; topDeckableRow) {
+<b class="fc">&nbsp;        this.topDeckableRow = topDeckableRow;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    // REMOVERS
+&nbsp;
+&nbsp;    /**
+&nbsp;     * &lt;p&gt;
+&nbsp;     *     removes {@code card} from the top building row
+&nbsp;     * &lt;/p&gt;
+&nbsp;     * @param card the card to be removed, must not be null
+&nbsp;     */
+&nbsp;    public void removeFromTopBuildingRow(Card card) {
+<b class="fc">&nbsp;        this.topBuildingRow.remove((Building) card);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * &lt;p&gt;
+&nbsp;     *     removes {@code card} from the top deckable row
+&nbsp;     * &lt;/p&gt;
+&nbsp;     * @param card the card to be removed, must not be null
+&nbsp;     */
+&nbsp;    public void removeFromTopDeckableRow(Card card) {
+<b class="fc">&nbsp;        this.topDeckableRow.remove((DeckCard) card);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * &lt;p&gt;
+&nbsp;     *     removes {@code card} from the bottom building row
+&nbsp;     * &lt;/p&gt;
+&nbsp;     * @param card the card to be removed, must not be null
+&nbsp;     */
+&nbsp;    public void removeFromBottomBuildingRow(Card card) {
+<b class="fc">&nbsp;        this.bottomBuildingRow.remove((Building) card);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * &lt;p&gt;
+&nbsp;     *     removes {@code card} from the bottom deckable row
+&nbsp;     * &lt;/p&gt;
+&nbsp;     * @param card the card to be removed, must not be null
+&nbsp;     */
+&nbsp;    public void removeFromBottomDeckableRow(Card card) {
+<b class="fc">&nbsp;        this.bottomDeckableRow.remove((DeckCard) card);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * &lt;p&gt;
+&nbsp;     *     overload of removeFromBottomDeckableRow, removes a card from the bottom deckable row given its index
+&nbsp;     * &lt;/p&gt;
+&nbsp;     * @param cardIndex the index of the card to be removed, must be &gt;= 0
+&nbsp;     */
+&nbsp;    public void removeFromBottomDeckableRow(int cardIndex) {
+<b class="fc">&nbsp;        this.bottomDeckableRow.remove(cardIndex);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * &lt;p&gt;
+&nbsp;     *     removes the last Event in the list of events to be resolved.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     */
+&nbsp;    public void removeLastOtherEvent() {
+<b class="fc">&nbsp;        this.toResolveOtherEventsRow.removeLast();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    // ADDERS
+&nbsp;
+&nbsp;    /**
+&nbsp;     * &lt;p&gt;
+&nbsp;     *     adds {@code event} to the list of events to be resolved
+&nbsp;     * &lt;/p&gt;
+&nbsp;     * @param event not null
+&nbsp;     */
+&nbsp;    public void addToResolvingOtherEventsRow(EventCard event) {
+<b class="fc">&nbsp;        this.toResolveOtherEventsRow.add(event);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * &lt;p&gt;
+&nbsp;     *     adds {@code event} to the list of sustenance events to be resolved
+&nbsp;     * &lt;/p&gt;
+&nbsp;     * @param event not null
+&nbsp;     */
+&nbsp;    public void addToResolvingSustenanceEventsRow(EventCard event) {
+<b class="fc">&nbsp;        this.toResolveSustenanceEventRow.add(event);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * &lt;p&gt;
+&nbsp;     *     adds {@code card} to the bottom deck cards row
+&nbsp;     * &lt;/p&gt;
+&nbsp;     * @param card not null
+&nbsp;     */
+&nbsp;    public void addToBottomDeckableRow(DeckCard card) {
+<b class="fc">&nbsp;        this.bottomDeckableRow.add(card);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * &lt;p&gt;
+&nbsp;     *     adds {@code card} to the top deck cards row
+&nbsp;     * &lt;/p&gt;
+&nbsp;     * @param card not null
+&nbsp;     */
+&nbsp;    public void addToTopDeckableRow(DeckCard card) {
+<b class="fc">&nbsp;        this.topDeckableRow.add(card);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * &lt;p&gt;
+&nbsp;     *     adds {@code building} to the top building cards row
+&nbsp;     * &lt;/p&gt;
+&nbsp;     * @param building not null
+&nbsp;     */
+&nbsp;    public void addToTopBuildingRow(Building building) {
+<b class="fc">&nbsp;        this.topBuildingRow.add(building);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    // SIZERS
+&nbsp;    public int topDeckableRowSize() {
+<b class="fc">&nbsp;        return this.topDeckableRow.size();</b>
+&nbsp;    }
+&nbsp;    public int toResolveOtherEventsRowSize() {
+<b class="fc">&nbsp;        return this.toResolveOtherEventsRow.size();</b>
+&nbsp;    }
+&nbsp;    public int toResolveSustenanceEventsRowSize() {
+<b class="fc">&nbsp;        return this.toResolveSustenanceEventRow.size();</b>
+&nbsp;    }
+&nbsp;    public int bottomDeckableRowSize() {
+<b class="fc">&nbsp;        return this.bottomDeckableRow.size();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;    // METHODS EXPOSED FOR endRound():
+&nbsp;    // takes all the DeckCards from the top row and puts them in the bottom row
+&nbsp;
+&nbsp;    /**
+&nbsp;     * &lt;p&gt;
+&nbsp;     *     moves the cards from the top deck cards row to the bottom deck cards row and resets the top deck cards row
+&nbsp;     * &lt;/p&gt;
+&nbsp;     */
+&nbsp;    public void switchDeckablesFromTop() {
+<b class="fc">&nbsp;        this.bottomDeckableRow.addAll(this.topDeckableRow);</b>
+<b class="fc">&nbsp;        this.topDeckableRow = new ArrayList&lt;&gt;();</b>
+&nbsp;    }
+&nbsp;    // takes all the buildings from the top row and puts them in the bottom row
+&nbsp;
+&nbsp;    /**
+&nbsp;     * &lt;p&gt;
+&nbsp;     *     moves the buildings from the top building cards row to the bottom building cards row and resets the top building cards row
+&nbsp;     * &lt;/p&gt;
+&nbsp;     */
+&nbsp;    public void switchBuildingsFromTop() {
+<b class="fc">&nbsp;        this.bottomBuildingRow.addAll(this.topBuildingRow);</b>
+<b class="fc">&nbsp;        this.topBuildingRow = new ArrayList&lt;&gt;();</b>
+&nbsp;    }
+&nbsp;    // iterates on the bottom row and for each card calls card.discard()
+&nbsp;
+&nbsp;    /**
+&nbsp;     * puts events in two separate lists, according to their type, in order for them to be resolved, and discards cards from the bottom deck cards row
+&nbsp;     */
+&nbsp;    public void idleEventsAndDiscardCharactersFromBottom() {
+<b class="fc">&nbsp;        int initialSize = this.bottomDeckableRow.size();</b>
+<b class="fc">&nbsp;        for (int i = initialSize - 1; i &gt;= 0; i--) {</b>
+<b class="fc">&nbsp;            this.bottomDeckableRow.get(i).discard(this, i);</b>
+&nbsp;        }
+&nbsp;
+&nbsp;        // sorts the events by age
+<b class="fc">&nbsp;        this.toResolveOtherEventsRow.sort((e1, e2) -&gt; Integer.compare(e2.getAge(), e1.getAge()));</b>
+<b class="fc">&nbsp;        this.toResolveSustenanceEventRow.sort(Comparator.comparingInt(Card::getAge));</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * &lt;p&gt;
+&nbsp;     *     removes buildings from the bottom building cards row.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     */
+&nbsp;    public void discardBuildingFromBottom() {
+<b class="fc">&nbsp;        this.bottomBuildingRow = new ArrayList&lt;&gt;();</b>
+&nbsp;    }
+&nbsp;    // it deletes the previous list of events to resolve by assigning to the reference a
+&nbsp;    // new object.
+&nbsp;
+&nbsp;    /**
+&nbsp;     * &lt;p&gt;
+&nbsp;     *     resets the temporary event rows
+&nbsp;     * &lt;/p&gt;
+&nbsp;     */
+&nbsp;    public void discardEvents() {
+<b class="fc">&nbsp;        this.toResolveOtherEventsRow = new ArrayList&lt;&gt;();</b>
+<b class="fc">&nbsp;        this.toResolveSustenanceEventRow = new ArrayList&lt;&gt;();</b>
+&nbsp;    }
+&nbsp;    // draws the correct number of cards to start the new round
+&nbsp;
+&nbsp;    /**
+&nbsp;     * &lt;p&gt;
+&nbsp;     *     fills the top deck cards row with {@code numPlayers} + 4 cards
+&nbsp;     * &lt;/p&gt;
+&nbsp;     * @param numPlayers the number of players in the game, between 2 and 5
+&nbsp;     */
+&nbsp;
+&nbsp;    public void pickDeckableAndAddToTop(int numPlayers) {
+<b class="fc">&nbsp;        for (int i = 0; i &lt; numPlayers + 4 ; i++) {</b>
+<b class="fc">&nbsp;            this.topDeckableRow.add(this.tribeDeck.deckPop());</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * &lt;p&gt;
+&nbsp;     *     refills the top building cards row from the building deck, accordingly to the current age
+&nbsp;     * &lt;/p&gt;
+&nbsp;     * @param currentAge the current age of thegame, must be between 1 and 3
+&nbsp;     */
+&nbsp;    public void pickBuildingAndAddToTop(int currentAge) {
+<b class="fc">&nbsp;        this.topBuildingRow.addAll(buildingDeck.getBuildings(currentAge));</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * &lt;p&gt;
+&nbsp;     *     finds the position of a player in the offers path, given its nickname
+&nbsp;     * &lt;/p&gt;
+&nbsp;     * @param nickname the nickname of the player to be found, must not be null
+&nbsp;     * @return an Optional containing the position of the player in the offers path, or an empty Optional if the player is not found
+&nbsp;     */
+&nbsp;    public Optional&lt;Character&gt; findPlayerPosition(String nickname) {
+<b class="fc">&nbsp;        return this.offersPath.findPlayerPosition(nickname);</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-22 23:30</div>
+</div>
+</body>
+</html>

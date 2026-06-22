@@ -3,7 +3,9 @@ package it.polimi.ingsw.am14.model.gameLogic;
 import it.polimi.ingsw.am14.exceptions.IllegalPlacementException;
 import it.polimi.ingsw.am14.exceptions.UnknownPositionException;
 import it.polimi.ingsw.am14.exceptions.WrongTurnException;
+import it.polimi.ingsw.am14.model.cards.Card;
 import org.junit.jupiter.api.Test;
+
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -55,6 +57,32 @@ public class PositionStateTest {
         game.setCurrentState(state);
 
         return new TestFixture(state, game, p1, p2);
+    }
+
+    private Game buildNoOpGame(int numPlayers, int gameId) {
+        return new Game(numPlayers, gameId) {
+            private final GameState noOpState = new GameState() {
+                @Override
+                protected void nextState(Game context) {
+                    // no-op
+                }
+
+                @Override
+                protected void controlPick(Game context, boolean wasAdditionalPick, Card selectedCard, int row) {
+                    // no-op
+                }
+            };
+
+            @Override
+            public void setCurrentState(GameState currentState) {
+                // ignore: this helper is used only to isolate PositionState.nextState()
+            }
+
+            @Override
+            public GameState getCurrentState() {
+                return noOpState;
+            }
+        };
     }
 
     @Test
@@ -131,6 +159,14 @@ public class PositionStateTest {
     }
 
     @Test
+    public void testPlaceTotemWithNullContextThrowsNullPointerExceptionCurrentBehavior() {
+        TestFixture fixture = buildFixture(2);
+
+        assertThrows(NullPointerException.class,
+                () -> fixture.state.placeTotem(null, fixture.p1, 'B'));
+    }
+
+    @Test
     public void testLastPlacementAppliesCorrectTrackCardEffectForSecondPlayer() throws Exception {
         TestFixture fixture = buildFixture(2);
 
@@ -141,6 +177,52 @@ public class PositionStateTest {
         assertEquals(1, fixture.p2.getNumTopPicksLeft());
         assertEquals(0, fixture.p2.getNumBottomPicksLeft());
         assertEquals(0, fixture.p2.getNumFood());
+    }
+
+    @Test
+    public void testPlaceTotemReachesFirstFoodBranchAndClearsA() throws Exception {
+        PositionState state = new PositionState();
+        Game game = buildNoOpGame(5, 1);
+
+        Player p1 = new Player("P1", TotemColor.WHITE);
+        Player p2 = new Player("P2", TotemColor.RED);
+        Player p3 = new Player("P3", TotemColor.BLUE);
+        Player p4 = new Player("P4", TotemColor.PURPLE);
+        Player p5 = new Player("P5", TotemColor.YELLOW);
+
+        game.getBoard().getTurnOrderCard().addPlayer(p1);
+        game.getBoard().getTurnOrderCard().addPlayer(p2);
+        game.getBoard().getTurnOrderCard().addPlayer(p3);
+        game.getBoard().getTurnOrderCard().addPlayer(p4);
+        game.getBoard().getTurnOrderCard().addPlayer(p5);
+
+        state.placeTotem(game, p1, 'A');
+        state.placeTotem(game, p2, 'B');
+        state.placeTotem(game, p3, 'C');
+        state.placeTotem(game, p4, 'D');
+        state.placeTotem(game, p5, 'E');
+
+        assertNull(game.getBoard().getOffersPath().offersPathGet('A').getPlayerTotem());
+        assertEquals(3, p1.getNumFood());
+        assertEquals(1, game.getCurrentPlayerIndex());
+        assertEquals(1, game.getBoard().getTurnOrderCard().getPlayerOrder().size());
+        assertEquals(p1, game.getBoard().getTurnOrderCard().getPlayerOrder().get(0));
+    }
+
+    @Test
+    public void testNextStateReAddsFirstFoodPlayer() throws Exception {
+        PositionState state = new PositionState();
+        Game game = buildNoOpGame(2, 1);
+
+        Player firstFoodPlayer = new Player("P1", TotemColor.WHITE);
+        state.first = firstFoodPlayer;
+        state.isThereFirstFood = true;
+
+        state.nextState(game);
+
+        assertEquals(1, game.getCurrentPlayerIndex());
+        assertEquals(1, game.getBoard().getTurnOrderCard().getPlayerOrder().size());
+        assertEquals(firstFoodPlayer, game.getBoard().getTurnOrderCard().getPlayerOrder().get(0));
     }
 
     @Test

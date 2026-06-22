@@ -1,0 +1,452 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > JsonCodec</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">it.polimi.ingsw.am14.utils</a>
+</div>
+
+<h1>Coverage Summary for Class: JsonCodec (it.polimi.ingsw.am14.utils)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">JsonCodec</td>
+<td class="coverageStat">
+  <span class="percent">
+    36,4%
+  </span>
+  <span class="absValue">
+    (4/11)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    27,1%
+  </span>
+  <span class="absValue">
+    (13/48)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">JsonCodec$1</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">JsonCodec$2</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">JsonCodec$3</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">JsonCodec$4</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">JsonCodec$5</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">JsonCodec$6</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">JsonCodec$7</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    38,9%
+  </span>
+  <span class="absValue">
+    (7/18)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    29,1%
+  </span>
+  <span class="absValue">
+    (16/55)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package it.polimi.ingsw.am14.utils;
+&nbsp;
+&nbsp;import com.fasterxml.jackson.annotation.JsonAutoDetect;
+&nbsp;import com.fasterxml.jackson.annotation.PropertyAccessor;
+&nbsp;import com.fasterxml.jackson.core.JsonProcessingException;
+&nbsp;import com.fasterxml.jackson.core.type.TypeReference;
+&nbsp;import com.fasterxml.jackson.databind.ObjectMapper;
+&nbsp;import it.polimi.ingsw.am14.controller.LobbyController;
+&nbsp;import it.polimi.ingsw.am14.network.messages.requests.ClientRequest;
+&nbsp;import it.polimi.ingsw.am14.network.messages.events.Event;
+&nbsp;import it.polimi.ingsw.am14.model.boardComponents.TrackCard;
+&nbsp;import it.polimi.ingsw.am14.model.cards.buildings.Building;
+&nbsp;import it.polimi.ingsw.am14.model.cards.deckCards.DeckCard;
+&nbsp;
+&nbsp;import java.io.File;
+&nbsp;import java.io.IOException;
+&nbsp;import java.util.Collection;
+&nbsp;import java.util.List;
+&nbsp;import java.util.Map;
+&nbsp;import java.util.stream.Collectors;
+&nbsp;
+<b class="fc">&nbsp;public class JsonCodec implements Codec {</b>
+&nbsp;    /**
+&nbsp;     * {@inheritDoc}
+&nbsp;     * @param filePath not null, path of the file where the save data is stored
+&nbsp;     * @return the saved Game object
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public LobbyController readSaveData(String filePath) {
+<b class="nc">&nbsp;        ObjectMapper objectMapper = new ObjectMapper();</b>
+<b class="nc">&nbsp;        objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);</b>
+<b class="nc">&nbsp;        objectMapper.setVisibility(PropertyAccessor.GETTER, JsonAutoDetect.Visibility.NONE);</b>
+<b class="nc">&nbsp;        objectMapper.setVisibility(PropertyAccessor.IS_GETTER, JsonAutoDetect.Visibility.NONE);</b>
+&nbsp;        try {
+<b class="nc">&nbsp;            return objectMapper.readValue(new File(filePath), new TypeReference&lt;LobbyController&gt;(){});</b>
+&nbsp;        } catch (IOException e) {
+<b class="nc">&nbsp;            System.out.println(e.getMessage());</b>
+<b class="nc">&nbsp;            throw new RuntimeException(&quot;[JsonCodec] Failed to read save data from file: &quot; + filePath);</b>
+&nbsp;
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * {@inheritDoc}
+&nbsp;     * @param filePath not null, path of the file where the card descriptions data is stored
+&nbsp;     * @return a map of card descriptions read from the specified file path, where the keys are the card IDs and the values are the corresponding descriptions
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public Map&lt;Integer, String&gt; readCardDescriptions(String filePath) {
+<b class="nc">&nbsp;        ObjectMapper objectMapper = new ObjectMapper();</b>
+&nbsp;        try {
+<b class="nc">&nbsp;            return objectMapper.readValue(new File(filePath), new TypeReference&lt;Map&lt;Integer, String&gt;&gt;(){});</b>
+&nbsp;        } catch (IOException e) {
+<b class="nc">&nbsp;            throw new RuntimeException(&quot;[JsonCodec] Failed to read card descriptions from file: &quot; + filePath);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * {@inheritDoc}
+&nbsp;     * @param controller the Game object to be saved
+&nbsp;     * @param filePath the path of the file where the save data will be stored
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public void writeSaveData(LobbyController controller, String filePath) {
+<b class="nc">&nbsp;        ObjectMapper objectMapper = new ObjectMapper();</b>
+<b class="nc">&nbsp;        objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);</b>
+<b class="nc">&nbsp;        objectMapper.setVisibility(PropertyAccessor.GETTER, JsonAutoDetect.Visibility.NONE);</b>
+<b class="nc">&nbsp;        objectMapper.setVisibility(PropertyAccessor.IS_GETTER, JsonAutoDetect.Visibility.NONE);</b>
+&nbsp;
+&nbsp;        try {
+<b class="nc">&nbsp;            objectMapper.writeValue(new File(filePath + &quot;/save.json&quot;), controller);</b>
+&nbsp;        } catch (IOException e) {
+<b class="nc">&nbsp;            throw new RuntimeException(&quot;[JsonCodec] Failed to write save data to file: &quot; + filePath);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * {@inheritDoc}
+&nbsp;     * @param input the string to be parsed into a ClientRequest
+&nbsp;     * @return the ClientRequest object represented by the input string
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public ClientRequest parseClientRequest(String input) {
+<b class="nc">&nbsp;        ObjectMapper objectMapper = new ObjectMapper();</b>
+<b class="nc">&nbsp;        objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);</b>
+&nbsp;
+&nbsp;        try {
+<b class="nc">&nbsp;            return objectMapper.readValue(input, new TypeReference&lt;ClientRequest&gt;(){});</b>
+&nbsp;        } catch (JsonProcessingException e) {
+<b class="nc">&nbsp;            throw new RuntimeException(&quot;[JsonCodec] Failed to parse ClientRequest from input string&quot;);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * {@inheritDoc}
+&nbsp;     * @param request the ClientRequest object to be serialized
+&nbsp;     * @return a string representation of the ClientRequest object
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public String writeClientRequest(ClientRequest request) {
+<b class="nc">&nbsp;        ObjectMapper objectMapper = new ObjectMapper();</b>
+<b class="nc">&nbsp;        objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);</b>
+&nbsp;
+&nbsp;        try {
+<b class="nc">&nbsp;            return objectMapper.writeValueAsString(request);</b>
+&nbsp;        } catch (JsonProcessingException e) {
+<b class="nc">&nbsp;            throw new RuntimeException(&quot;[JsonCodec] Failed to serialize ClientRequest to string&quot;);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * {@inheritDoc}
+&nbsp;     * @param input the string to be parsed into an Event
+&nbsp;     * @return the Event object represented by the input string
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public Event parseEvent(String input) {
+<b class="nc">&nbsp;        ObjectMapper objectMapper = new ObjectMapper();</b>
+<b class="nc">&nbsp;        objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);</b>
+&nbsp;
+&nbsp;        try {
+<b class="nc">&nbsp;            return objectMapper.readValue(input, new TypeReference&lt;Event&gt;(){});</b>
+&nbsp;        } catch (JsonProcessingException e) {
+<b class="nc">&nbsp;            throw new RuntimeException(&quot;[JsonCodec] Failed to parse Event from input string&quot;);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * {@inheritDoc}
+&nbsp;     * @param event the Event object to be serialized
+&nbsp;     * @return a string representation of the Event object
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public String writeEvent(Event event) {
+<b class="nc">&nbsp;        ObjectMapper objectMapper = new ObjectMapper();</b>
+<b class="nc">&nbsp;        objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);</b>
+&nbsp;
+&nbsp;        try {
+<b class="nc">&nbsp;            return objectMapper.writeValueAsString(event);</b>
+&nbsp;        } catch (JsonProcessingException e) {
+<b class="nc">&nbsp;            throw new RuntimeException(&quot;[JsonCodec] Failed to serialize Event to string&quot;);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * {@inheritDoc}
+&nbsp;     * @param filePath the path of the file where the deck cards data is stored
+&nbsp;     * @param numPlayers the initial number of players in the game, used to determine which cards to read from the file
+&nbsp;     * @return a list of DeckCard objects read from the specified file path, sorted by number of players
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public List&lt;DeckCard&gt; readDeckCards(String filePath, int numPlayers) {
+<b class="fc">&nbsp;        ObjectMapper objectMapper = new ObjectMapper();</b>
+&nbsp;
+&nbsp;        // filePath must be &quot;resources/DeckCards.json&quot;
+&nbsp;
+&nbsp;        try {
+<b class="fc">&nbsp;            return objectMapper.readValue(new File(filePath), new TypeReference&lt;List&lt;List&lt;DeckCard&gt;&gt;&gt;(){}).stream().</b>
+<b class="fc">&nbsp;                    limit(numPlayers - 1).flatMap(Collection::stream).toList();</b>
+&nbsp;        } catch (IOException e) {
+<b class="nc">&nbsp;            throw new RuntimeException(&quot;[JsonCodec] Failed to read deck cards from file: &quot; + filePath);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * {@inheritDoc}
+&nbsp;     * @param filePath the path of the file where the building cards data is stored
+&nbsp;     * @return a list of Building objects read from the specified file path, sorted by age
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public List&lt;Building&gt; readBuildings(String filePath) {
+&nbsp;
+&nbsp;        // buildings will come from &quot;resources/Buildings.json&quot; as a List&lt;List&lt;Building&gt;&gt;
+&nbsp;
+<b class="fc">&nbsp;        ObjectMapper objectMapper = new ObjectMapper();</b>
+&nbsp;
+&nbsp;        try {
+<b class="fc">&nbsp;            return objectMapper.readValue(new File(filePath), new TypeReference&lt;List&lt;List&lt;Building&gt;&gt;&gt;(){}).stream().</b>
+<b class="fc">&nbsp;                    flatMap(Collection::stream).</b>
+<b class="fc">&nbsp;                    toList();</b>
+&nbsp;        } catch (IOException e) {
+<b class="nc">&nbsp;            throw new RuntimeException(&quot;[JsonCodec] Failed to read building cards from file: &quot; + filePath);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * {@inheritDoc}
+&nbsp;     * @param filePath the path of the file where the track cards data is stored
+&nbsp;     * @param numPlayers the initial number of players in the game, used to determine which track cards to read from the file
+&nbsp;     * @return a map of TrackCard objects read from the specified file path, where the keys are the TrackCard names
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public Map&lt;Character, TrackCard&gt; readTrackCards(String filePath, int numPlayers) {
+&nbsp;
+&nbsp;        // track cards will come from &quot;resources/TrackCards.json&quot; as a List&lt;List&lt;TrackCard&gt;&gt;
+&nbsp;
+<b class="fc">&nbsp;        ObjectMapper objectMapper = new ObjectMapper();</b>
+&nbsp;
+&nbsp;        try {
+<b class="fc">&nbsp;            return objectMapper.readValue(new File(filePath), new TypeReference&lt;List&lt;List&lt;TrackCard&gt;&gt;&gt;(){}).stream().</b>
+<b class="fc">&nbsp;                    limit(numPlayers - 1).</b>
+<b class="fc">&nbsp;                    flatMap(Collection::stream).</b>
+<b class="fc">&nbsp;                    collect(Collectors.toMap(TrackCard::getName, trackCard -&gt; trackCard));</b>
+&nbsp;        } catch (IOException e) {
+<b class="nc">&nbsp;            throw new RuntimeException(&quot;[JsonCodec] Failed to read track cards from file: &quot; + filePath);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-22 23:30</div>
+</div>
+</body>
+</html>

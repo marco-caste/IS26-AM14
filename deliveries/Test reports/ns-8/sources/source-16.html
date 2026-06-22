@@ -1,0 +1,125 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > EffectStrategy</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">it.polimi.ingsw.am14.model.cards.buildings.effects</a>
+</div>
+
+<h1>Coverage Summary for Class: EffectStrategy (it.polimi.ingsw.am14.model.cards.buildings.effects)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+</tr>
+<tr>
+  <td class="name">EffectStrategy</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package it.polimi.ingsw.am14.model.cards.buildings.effects;
+&nbsp;
+&nbsp;import com.fasterxml.jackson.annotation.JsonSubTypes;
+&nbsp;import com.fasterxml.jackson.annotation.JsonTypeInfo;
+&nbsp;import it.polimi.ingsw.am14.model.gameLogic.*;
+&nbsp;
+&nbsp;/**
+&nbsp; * Represents a functional interface utilizing the Strategy pattern to define various
+&nbsp; * effects that can be applied by building cards.
+&nbsp; * &lt;p&gt;
+&nbsp; * This interface uses Jackson annotations to support polymorphic serialization and
+&nbsp; * deserialization, allowing the correct implementing class to be instantiated based
+&nbsp; * on the type provided in the JSON property.
+&nbsp; * &lt;/p&gt;
+&nbsp; */
+&nbsp;@JsonTypeInfo(
+&nbsp;        use = JsonTypeInfo.Id.NAME,
+&nbsp;        include = JsonTypeInfo.As.PROPERTY,
+&nbsp;        property = &quot;type&quot;
+&nbsp;)
+&nbsp;@JsonSubTypes({
+&nbsp;        @JsonSubTypes.Type(value = DoubleBuilderPrestige.class, name = &quot;DoubleBuilderPrestige&quot;),
+&nbsp;        @JsonSubTypes.Type(value = DoubleShamanicReward.class, name = &quot;DoubleShamanicReward&quot;),
+&nbsp;        @JsonSubTypes.Type(value = EndGameSetPrestige.class, name = &quot;EndGameSetPrestige&quot;),
+&nbsp;        @JsonSubTypes.Type(value = ExtraEndTurnFood.class, name = &quot;ExtraEndTurnFood&quot;),
+&nbsp;        @JsonSubTypes.Type(value = ExtraShamanicStars.class, name = &quot;ExtraShamanicStars&quot;),
+&nbsp;        @JsonSubTypes.Type(value = Flat25Prestige.class, name = &quot;Flat25Prestige&quot;),
+&nbsp;        @JsonSubTypes.Type(value = HuntExtraFoodAndPrestige.class, name = &quot;HuntExtraFoodAndPrestige&quot;),
+&nbsp;        @JsonSubTypes.Type(value = InventorPairFood.class, name = &quot;InventorPairFood&quot;),
+&nbsp;        @JsonSubTypes.Type(value = PaintExtraFood.class, name = &quot;PaintExtraFood&quot;),
+&nbsp;        @JsonSubTypes.Type(value = PlayerExtraDraft.class, name = &quot;PlayerExtraDraft&quot;),
+&nbsp;        @JsonSubTypes.Type(value = ScoringArtists.class, name = &quot;ScoringArtists&quot;),
+&nbsp;        @JsonSubTypes.Type(value = ScoringBuilders.class, name = &quot;ScoringBuilders&quot;),
+&nbsp;        @JsonSubTypes.Type(value = ScoringGatherers.class, name = &quot;ScoringGatherers&quot;),
+&nbsp;        @JsonSubTypes.Type(value = ScoringHunters.class, name = &quot;ScoringHunters&quot;),
+&nbsp;        @JsonSubTypes.Type(value = ScoringInventors.class, name = &quot;ScoringInventors&quot;),
+&nbsp;        @JsonSubTypes.Type(value = ScoringShamans.class, name = &quot;ScoringShamans&quot;),
+&nbsp;        @JsonSubTypes.Type(value = SetCompletionFood.class, name = &quot;SetCompletionFood&quot;),
+&nbsp;        @JsonSubTypes.Type(value = ShamanicPenaltyShield.class, name = &quot;ShamanicPenaltyShield&quot;),
+&nbsp;        @JsonSubTypes.Type(value = SustenanceDiscountArtists.class, name = &quot;SustenanceDiscountArtists&quot;),
+&nbsp;        @JsonSubTypes.Type(value = SustenanceDiscountGatherers.class, name = &quot;SustenanceDiscountGatherers&quot;),
+&nbsp;        @JsonSubTypes.Type(value = SustenanceDiscountInventors.class, name = &quot;SustenanceDiscountInventors&quot;)
+&nbsp;})
+&nbsp;
+&nbsp;@FunctionalInterface //In order to have only 1 method
+&nbsp;public interface EffectStrategy {
+&nbsp;    /**
+&nbsp;     * Applies the specific building effect to the given player based on the current game state.
+&nbsp;     *
+&nbsp;     * @param player the player who is receiving the benefits or penalties of the effect
+&nbsp;     * @param game   the current game instance to retrieve any necessary global state variables
+&nbsp;     */
+&nbsp;    void applyEffect(Player player, Game game);
+&nbsp;}
+&nbsp;
+&nbsp;
+&nbsp;
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-22 23:30</div>
+</div>
+</body>
+</html>

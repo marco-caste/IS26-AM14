@@ -64,6 +64,9 @@ class PickState extends GameState {
         Player currentPlayer = (currentSlot == null ? null : currentSlot.getPlayer());
         wasAdditionalTopPick = false;
 
+        if (!selectedCard.isPickable(player))
+            throw new IllegalPickException("You can't pick this card");
+
         // exceptional pick due to additional pick building. This check is needed and is put first because the player with the additional top pick is not present
         // on the offers path and thus the check related to the player turn will be false.
         if (isExceptionalAddTopPickTurn(player) && (currentPlayer == null)){ // the null guarantees that the additional pick happens when everyone has already picked

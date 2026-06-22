@@ -1,0 +1,345 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > RmiServer</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">it.polimi.ingsw.am14.network.rmi.server</a>
+</div>
+
+<h1>Coverage Summary for Class: RmiServer (it.polimi.ingsw.am14.network.rmi.server)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">RmiServer</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/19)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/24)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/74)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package it.polimi.ingsw.am14.network.rmi.server;
+&nbsp;
+&nbsp;import it.polimi.ingsw.am14.network.NetworkLayer;
+&nbsp;import it.polimi.ingsw.am14.controller.LobbyController;
+&nbsp;import it.polimi.ingsw.am14.network.messages.events.Event;
+&nbsp;import it.polimi.ingsw.am14.network.messages.events.ExceptionEvent;
+&nbsp;import it.polimi.ingsw.am14.network.EventBuffer;
+&nbsp;import it.polimi.ingsw.am14.exceptions.IllegalNicknameException;
+&nbsp;import it.polimi.ingsw.am14.network.rmi.client.VirtualServerRmi;
+&nbsp;
+&nbsp;import java.rmi.RemoteException;
+&nbsp;import java.rmi.server.UnicastRemoteObject;
+&nbsp;import java.util.*;
+&nbsp;/**
+&nbsp; * RMI server implementation handling connections and inbound requests from remote clients.
+&nbsp; * Forwards respective actions to the {@link LobbyController} and manages dedicated asynchronous threads
+&nbsp; * to safely deliver outbound events to clients via the {@link NetworkLayer}.
+&nbsp; */
+&nbsp;public class RmiServer extends UnicastRemoteObject implements VirtualServerRmi {
+&nbsp;    private final LobbyController lobbyController;
+&nbsp;    private final NetworkLayer networkLayer;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Constructs a new {@code RmiServer}.
+&nbsp;     *
+&nbsp;     * @param lobbyController the controller handling game and lobby synchronizations.
+&nbsp;     * @param networkLayer    the networking layer managing active clients, threads, and buffers.
+&nbsp;     * @throws RemoteException if an RMI error prevents the object from being exported.
+&nbsp;     */
+&nbsp;    public RmiServer(LobbyController lobbyController, NetworkLayer networkLayer) throws RemoteException {
+<b class="nc">&nbsp;        super();</b>
+<b class="nc">&nbsp;        this.lobbyController = lobbyController;</b>
+<b class="nc">&nbsp;        this.networkLayer = networkLayer;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Connects a remote client and initializes a buffer flushing thread to send pending events asynchronously.
+&nbsp;     * Also handles connection rejection by notifying the client of duplicate nicknames.
+&nbsp;     *
+&nbsp;     * @param client   the remote reference to the {@link VirtualClientRmi} representing the user.
+&nbsp;     * @param nickname the selected username for the player.
+&nbsp;     */
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public void connect(VirtualClientRmi client, String nickname) {
+<b class="nc">&nbsp;        new Thread(() -&gt; {</b>
+&nbsp;            try {
+<b class="nc">&nbsp;                networkLayer.updateNicknameMap(nickname, client);</b>
+<b class="nc">&nbsp;                networkLayer.updateBufferMap(client);</b>
+&nbsp;
+&nbsp;                // New thread in order to let Rmi Server handle multiple clients at the same time for the output flow
+<b class="nc">&nbsp;                Thread thread = new Thread(() -&gt; {</b>
+&nbsp;                    try {
+<b class="nc">&nbsp;                        while (!Thread.currentThread().isInterrupted()) {</b>
+<b class="nc">&nbsp;                            EventBuffer buffer = networkLayer.getBuffer(client);</b>
+<b class="nc">&nbsp;                            if (buffer == null) {</b>
+&nbsp;                                return;
+&nbsp;                            }
+<b class="nc">&nbsp;                            synchronized (buffer) {</b>
+<b class="nc">&nbsp;                                if (Thread.currentThread().isInterrupted()) {</b>
+<b class="nc">&nbsp;                                    return;</b>
+&nbsp;                                }
+<b class="nc">&nbsp;                                while (buffer.isEmpty() </b>
+<b class="nc">&nbsp;                                       &amp;&amp; !Thread.currentThread().isInterrupted()) {</b>
+&nbsp;                                    try {
+<b class="nc">&nbsp;                                        buffer.wait();</b>
+&nbsp;                                    } catch (InterruptedException e) {
+<b class="nc">&nbsp;                                        Thread.currentThread().interrupt();</b>
+<b class="nc">&nbsp;                                        return;</b>
+&nbsp;                                    }
+&nbsp;                                }
+<b class="nc">&nbsp;                                if (!buffer.isEmpty() </b>
+<b class="nc">&nbsp;                                    &amp;&amp; !Thread.currentThread().isInterrupted()) {</b>
+<b class="nc">&nbsp;                                    List&lt;Event&gt; eventsToSend = buffer.flushBuffer();</b>
+<b class="nc">&nbsp;                                    for (Event event : eventsToSend) {</b>
+&nbsp;                                        try {
+<b class="nc">&nbsp;                                            client.update(event);</b>
+&nbsp;                                        } catch (RemoteException e) {
+<b class="nc">&nbsp;                                            Thread.currentThread().interrupt();</b>
+<b class="nc">&nbsp;                                            return;</b>
+&nbsp;                                        }
+&nbsp;                                    }
+&nbsp;                                }
+<b class="nc">&nbsp;                            }</b>
+&nbsp;                        }
+&nbsp;                    } catch (Exception _) {
+&nbsp;                    }
+&nbsp;                }, &quot;RMIServerBuffer-&quot; + nickname);
+<b class="nc">&nbsp;                thread.start();</b>
+&nbsp;
+<b class="nc">&nbsp;                networkLayer.updateClientThreads(client, thread);</b>
+<b class="nc">&nbsp;                lobbyController.connectUser(nickname);</b>
+<b class="nc">&nbsp;                lobbyController.getGameIdByNickname(nickname).ifPresentOrElse(</b>
+<b class="nc">&nbsp;                        (id) -&gt; networkLayer.updateClients(id, client),</b>
+<b class="nc">&nbsp;                        () -&gt; { }</b>
+&nbsp;                );
+&nbsp;            } catch (IllegalNicknameException e) {
+&nbsp;                try {
+<b class="nc">&nbsp;                    client.reportError(new ExceptionEvent(&quot;Nickname already in use&quot;));</b>
+&nbsp;                } catch (RemoteException _) {
+&nbsp;                }
+&nbsp;            } catch (Exception _) {
+&nbsp;                }
+<b class="nc">&nbsp;        }, &quot;RMIConnect-&quot; + nickname).start();</b>
+&nbsp;    }
+&nbsp;    /**
+&nbsp;     * Spawns a localized thread to process a new game creation request.
+&nbsp;     *
+&nbsp;     * @param nickname   the nickname of the user starting the game.
+&nbsp;     * @param numPlayers the chosen number of players.
+&nbsp;     * @param totemColor the initial assigned totem color.
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public void createGame(String nickname, int numPlayers, String totemColor) {
+<b class="nc">&nbsp;        new Thread(() -&gt; {</b>
+&nbsp;            try {
+<b class="nc">&nbsp;                lobbyController.createGame(nickname, numPlayers, totemColor);</b>
+<b class="nc">&nbsp;                lobbyController.getGameIdByNickname(nickname).ifPresentOrElse(</b>
+<b class="nc">&nbsp;                        (id) -&gt; networkLayer.updateClients(id, networkLayer.getClientBy(nickname)),</b>
+<b class="nc">&nbsp;                        () -&gt; { }</b>
+&nbsp;                );
+&nbsp;            } catch (Exception e) {
+&nbsp;                try {
+<b class="nc">&nbsp;                    VirtualClientRmi clientRmi = (VirtualClientRmi) networkLayer.getClientBy(nickname);</b>
+<b class="nc">&nbsp;                    if (clientRmi != null) {</b>
+<b class="nc">&nbsp;                        clientRmi.reportError(new ExceptionEvent(e.getMessage()));</b>
+&nbsp;                    }
+&nbsp;                } catch (RemoteException ex) {
+<b class="nc">&nbsp;                    System.err.println(&quot;[RMI Server] Failed to send error to client &quot; + nickname + &quot;: &quot; + ex.getMessage());</b>
+&nbsp;                } catch (Exception ex) {
+<b class="nc">&nbsp;                    System.err.println(&quot;[RMI Server] Unexpected error in createGame for &quot; + nickname + &quot;: &quot; + ex.getMessage());</b>
+&nbsp;                }
+&nbsp;            }
+<b class="nc">&nbsp;        }, &quot;RMICreate-&quot; + nickname).start();</b>
+&nbsp;    }
+&nbsp;    /**
+&nbsp;     * Spawns a localized thread to process joining an existing game.
+&nbsp;     *
+&nbsp;     * @param nickname   the nickname of the joining player.
+&nbsp;     * @param gameId     the unique identifier for the targeted game.
+&nbsp;     * @param totemColor the newly joined player&#39;s requested totem color.
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public void joinGame(String nickname, int gameId, String totemColor) {
+<b class="nc">&nbsp;        new Thread(() -&gt; {</b>
+&nbsp;            try {
+<b class="nc">&nbsp;                lobbyController.joinGame(nickname, gameId, totemColor);</b>
+<b class="nc">&nbsp;                lobbyController.getGameIdByNickname(nickname).ifPresentOrElse(</b>
+<b class="nc">&nbsp;                        (id) -&gt; networkLayer.updateClients(id, networkLayer.getClientBy(nickname)),</b>
+<b class="nc">&nbsp;                        () -&gt; { }</b>
+&nbsp;                );
+&nbsp;            } catch (Exception e) {
+&nbsp;                try {
+<b class="nc">&nbsp;                    VirtualClientRmi clientRmi = (VirtualClientRmi) networkLayer.getClientBy(nickname);</b>
+<b class="nc">&nbsp;                    if (clientRmi != null) {</b>
+<b class="nc">&nbsp;                        clientRmi.reportError(new ExceptionEvent(e.getMessage()));</b>
+&nbsp;                    }
+&nbsp;                } catch (RemoteException ex) {
+<b class="nc">&nbsp;                    System.err.println(&quot;[RMI Server] Failed to send error to client &quot; + nickname + &quot;: &quot; + ex.getMessage());</b>
+&nbsp;                } catch (Exception ex) {
+<b class="nc">&nbsp;                    System.err.println(&quot;[RMI Server] Unexpected error in joinGame for &quot; + nickname + &quot;: &quot; + ex.getMessage());</b>
+&nbsp;                }
+&nbsp;            }
+<b class="nc">&nbsp;        }, &quot;RMIJoin-&quot; + nickname).start();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Spawns a localized thread to handle totem placements.
+&nbsp;     *
+&nbsp;     * @param nickname the nickname of the active player placing their totem.
+&nbsp;     * @param position the symbol representing the specific placement side for the starter card.
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public void placeTotem(String nickname, char position) {
+<b class="nc">&nbsp;        new Thread(() -&gt; {</b>
+&nbsp;            try {
+<b class="nc">&nbsp;                lobbyController.placeTotem(nickname, position);</b>
+&nbsp;            } catch (Exception e) {
+&nbsp;                try {
+<b class="nc">&nbsp;                    VirtualClientRmi clientRmi = (VirtualClientRmi) networkLayer.getClientBy(nickname);</b>
+<b class="nc">&nbsp;                    if (clientRmi != null) {</b>
+<b class="nc">&nbsp;                        clientRmi.reportError(new ExceptionEvent(e.getMessage()));</b>
+&nbsp;                    }
+&nbsp;                } catch (RemoteException ex) {
+<b class="nc">&nbsp;                    System.err.println(&quot;[RMI Server] Failed to send error to client &quot; + nickname + &quot;: &quot; + ex.getMessage());</b>
+&nbsp;                } catch (Exception ex) {
+<b class="nc">&nbsp;                    System.err.println(&quot;[RMI Server] Unexpected error in placeTotem for &quot; + nickname + &quot;: &quot; + ex.getMessage());</b>
+&nbsp;                }
+&nbsp;            }
+<b class="nc">&nbsp;        }, &quot;RMIPlace-&quot; + nickname).start();</b>
+&nbsp;    }
+&nbsp;    /**
+&nbsp;     * Spawns a localized thread to process a pick card action request.
+&nbsp;     *
+&nbsp;     * @param nickname the nickname of the player taking the action.
+&nbsp;     * @param cardId   the identifier of the chosen card to be picked.
+&nbsp;     * @param row      an integer representing the row structure index containing the card.
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public void pickCard(String nickname, int cardId, int row) {
+<b class="nc">&nbsp;        new Thread(() -&gt; {</b>
+&nbsp;            try {
+<b class="nc">&nbsp;                lobbyController.pickCard(nickname, cardId, row);</b>
+&nbsp;            } catch (Exception e) {
+&nbsp;                try {
+<b class="nc">&nbsp;                    VirtualClientRmi clientRmi = (VirtualClientRmi) networkLayer.getClientBy(nickname);</b>
+<b class="nc">&nbsp;                    if (clientRmi != null) {</b>
+<b class="nc">&nbsp;                        clientRmi.reportError(new ExceptionEvent(e.getMessage()));</b>
+&nbsp;                    }
+&nbsp;                } catch (RemoteException ex) {
+<b class="nc">&nbsp;                    System.err.println(&quot;[RMI Server] Failed to send error to client &quot; + nickname + &quot;: &quot; + ex.getMessage());</b>
+&nbsp;                } catch (Exception ex) {
+<b class="nc">&nbsp;                    System.err.println(&quot;[RMI Server] Unexpected error in pickCard for &quot; + nickname + &quot;: &quot; + ex.getMessage());</b>
+&nbsp;                }
+&nbsp;            }
+<b class="nc">&nbsp;        }, &quot;RMIPick-&quot; + nickname).start();</b>
+&nbsp;    }
+&nbsp;    /**
+&nbsp;     * Spawns a thread to acknowledge a remote client ping, successfully confirming a live state on the server.
+&nbsp;     *
+&nbsp;     * @param nickname the nickname of the client sending the ping request.
+&nbsp;     * @return null, as the connection timeout loop runs on the server controller asynchronously.
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public Thread pingServer(String nickname) {
+<b class="nc">&nbsp;        new Thread(() -&gt; lobbyController.handlePingRequest(nickname), &quot;RMIPingClient-&quot; + nickname).start();</b>
+<b class="nc">&nbsp;        return null;</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-22 23:30</div>
+</div>
+</body>
+</html>

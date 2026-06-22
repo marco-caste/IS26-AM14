@@ -1,0 +1,265 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > SocketServerHandler</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">it.polimi.ingsw.am14.network.socket.client</a>
+</div>
+
+<h1>Coverage Summary for Class: SocketServerHandler (it.polimi.ingsw.am14.network.socket.client)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">SocketServerHandler</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/8)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/49)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package it.polimi.ingsw.am14.network.socket.client;
+&nbsp;
+&nbsp;import it.polimi.ingsw.am14.network.messages.requests.*;
+&nbsp;import it.polimi.ingsw.am14.utils.Codec;
+&nbsp;import it.polimi.ingsw.am14.utils.JsonCodec;
+&nbsp;
+&nbsp;import java.io.BufferedWriter;
+&nbsp;import java.io.PrintWriter;
+&nbsp;
+&nbsp;import static it.polimi.ingsw.am14.utils.Constants.PING_INTERVAL;
+&nbsp;/**
+&nbsp; * Handles outgoing socket communication from the client to the server.
+&nbsp; * Implements {@link VirtualServerSocket} to act as a proxy, serializing client actions
+&nbsp; * into JSON requests and dispatching them through the output streams.
+&nbsp; */
+&nbsp;public class SocketServerHandler implements VirtualServerSocket{
+&nbsp;
+&nbsp;    private final PrintWriter output;
+&nbsp;    private PrintWriter pingOutput;
+&nbsp;    private final Codec jsonWriter;
+&nbsp;    private final SocketClient client;
+&nbsp;    /**
+&nbsp;     * Constructs a new {@code SocketServerHandler}.
+&nbsp;     *
+&nbsp;     * @param output the {@link BufferedWriter} used to send data over the primary socket to the server.
+&nbsp;     * @param client the referenced {@link SocketClient} responsible for receiving messages and spawning the ping socket.
+&nbsp;     */
+<b class="nc">&nbsp;    public SocketServerHandler(BufferedWriter output, SocketClient client) {</b>
+<b class="nc">&nbsp;        this.output = new PrintWriter(output);</b>
+<b class="nc">&nbsp;        this.client = client;</b>
+<b class="nc">&nbsp;        this.jsonWriter = new JsonCodec();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Sends a request to connect the user to the server using the provided nickname.
+&nbsp;     *
+&nbsp;     * @param nickname the requested username for the new connection.
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public void connectUser(String nickname) {
+<b class="nc">&nbsp;        ConnectClientRequest request = new ConnectClientRequest(nickname);</b>
+<b class="nc">&nbsp;        String message = jsonWriter.writeClientRequest(request);</b>
+<b class="nc">&nbsp;        synchronized (output) {     // tecnicamente non serve, println e flush si sincronizzano su un lock interno</b>
+<b class="nc">&nbsp;            output.println(message);</b>
+<b class="nc">&nbsp;            output.flush();</b>
+<b class="nc">&nbsp;        }</b>
+&nbsp;    }
+&nbsp;    /**
+&nbsp;     * Sends a request to create a new game lobby.
+&nbsp;     *
+&nbsp;     * @param nickname   the nickname of the player creating the game.
+&nbsp;     * @param numPlayers the chosen total number of players for this match.
+&nbsp;     * @param totemColor the initial totem color selected by the creator.
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public void createGame(String nickname, int numPlayers, String totemColor){
+<b class="nc">&nbsp;        CreateGameClientRequest request = new CreateGameClientRequest(nickname, numPlayers, totemColor);</b>
+<b class="nc">&nbsp;        String message = jsonWriter.writeClientRequest(request);</b>
+<b class="nc">&nbsp;        synchronized (output) {</b>
+<b class="nc">&nbsp;            output.println(message);</b>
+<b class="nc">&nbsp;            output.flush();</b>
+<b class="nc">&nbsp;        }</b>
+&nbsp;    }
+&nbsp;    /**
+&nbsp;     * Sends a request to join an existing game lobby.
+&nbsp;     *
+&nbsp;     * @param nickname   the nickname of the joining player.
+&nbsp;     * @param gameId     the unique identifier of the game to join.
+&nbsp;     * @param totemColor the totem color requested by the joining player.
+&nbsp;     */
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public void joinGame(String nickname, int gameId, String totemColor){
+<b class="nc">&nbsp;        JoinGameClientRequest request = new JoinGameClientRequest(nickname, totemColor, gameId);</b>
+<b class="nc">&nbsp;        String message = jsonWriter.writeClientRequest(request);</b>
+<b class="nc">&nbsp;        synchronized (output) {</b>
+<b class="nc">&nbsp;            output.println(message);</b>
+<b class="nc">&nbsp;            output.flush();</b>
+<b class="nc">&nbsp;        }</b>
+&nbsp;    }
+&nbsp;    /**
+&nbsp;     * Sends a request to place the player&#39;s initial totem card.
+&nbsp;     *
+&nbsp;     * @param nickname the nickname of the player taking the action.
+&nbsp;     * @param position a character indicating the position (e.g., side) to place the totem.
+&nbsp;     */
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public void placeTotem(String nickname, char position){
+<b class="nc">&nbsp;        PlaceTotemClientRequest request = new PlaceTotemClientRequest(nickname, position);</b>
+<b class="nc">&nbsp;        String message = jsonWriter.writeClientRequest(request);</b>
+<b class="nc">&nbsp;        synchronized (output) {</b>
+<b class="nc">&nbsp;            output.println(message);</b>
+<b class="nc">&nbsp;            output.flush();</b>
+<b class="nc">&nbsp;        }</b>
+&nbsp;    }
+&nbsp;    /**
+&nbsp;     * Sends a request to pick a card from the shared pool.
+&nbsp;     *
+&nbsp;     * @param nickname the nickname of the player picking the card.
+&nbsp;     * @param cardId   the unique identifier of the chosen card.
+&nbsp;     * @param row      the index of the row corresponding to the card&#39;s location in the layout.
+&nbsp;     */
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public void pickCard(String nickname, int cardId, int row){
+<b class="nc">&nbsp;        PickCardClientRequest request = new PickCardClientRequest(nickname, cardId, row);</b>
+<b class="nc">&nbsp;        String message = jsonWriter.writeClientRequest(request);</b>
+<b class="nc">&nbsp;        synchronized (output) {</b>
+<b class="nc">&nbsp;            output.println(message);</b>
+<b class="nc">&nbsp;            output.flush();</b>
+<b class="nc">&nbsp;        }</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Establishes a secondary connection dedicated to network heartbeats and spawns a thread
+&nbsp;     * that periodically sends ping requests to keep the server connection alive.
+&nbsp;     *
+&nbsp;     * @param nickname the nickname of the user asserting connection liveness.
+&nbsp;     * @return the background {@link Thread} executing the periodic ping, or {@code null} if the socket could not be set up.
+&nbsp;     */
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public Thread pingServer(String nickname) {
+<b class="nc">&nbsp;        BufferedWriter output = client.setPingSocket();</b>
+<b class="nc">&nbsp;        if (output!=null) {</b>
+<b class="nc">&nbsp;            pingOutput = new PrintWriter(output);</b>
+<b class="nc">&nbsp;            Thread thread = new Thread(() -&gt; {</b>
+&nbsp;                try {
+&nbsp;                    while (true) {
+<b class="nc">&nbsp;                        Thread.sleep(PING_INTERVAL);</b>
+&nbsp;
+<b class="nc">&nbsp;                        PingClientRequest request = new PingClientRequest(nickname);</b>
+<b class="nc">&nbsp;                        String message = jsonWriter.writeClientRequest(request);</b>
+<b class="nc">&nbsp;                        synchronized (output) {</b>
+<b class="nc">&nbsp;                            pingOutput.println(message);</b>
+<b class="nc">&nbsp;                            pingOutput.flush();</b>
+<b class="nc">&nbsp;                        }</b>
+&nbsp;                    }
+&nbsp;                } catch (InterruptedException e) {
+<b class="nc">&nbsp;                    Thread.currentThread().interrupt();</b>
+&nbsp;                }
+&nbsp;            }, &quot;SocketClient-pinger-&quot; + nickname);
+<b class="nc">&nbsp;            thread.start();</b>
+<b class="nc">&nbsp;            return thread;</b>
+&nbsp;        }
+<b class="nc">&nbsp;        return null;</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-22 23:30</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,141 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > ExceptionViewEvent</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">it.polimi.ingsw.am14.view.viewEvents</a>
+</div>
+
+<h1>Coverage Summary for Class: ExceptionViewEvent (it.polimi.ingsw.am14.view.viewEvents)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">ExceptionViewEvent</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/3)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package it.polimi.ingsw.am14.view.viewEvents;
+&nbsp;
+&nbsp;import it.polimi.ingsw.am14.view.ViewType;
+&nbsp;
+&nbsp;/**
+&nbsp; * &lt;p&gt;
+&nbsp; *     View event representing an exception that occurred during the game. This event contains a message describing the exception, which can be rendered on the user interface to inform the player about the issue.
+&nbsp; * &lt;/p&gt;
+&nbsp; */
+&nbsp;public class ExceptionViewEvent implements ViewEvent {
+&nbsp;    /**
+&nbsp;     * The message describing the exception that occurred.
+&nbsp;     */
+&nbsp;    String exceptionMessage;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Constructs an ExceptionViewEvent with the specified exception message.
+&nbsp;     *
+&nbsp;     * @param exceptionMessage the message describing the exception that occurred
+&nbsp;     */
+<b class="nc">&nbsp;    public ExceptionViewEvent(String exceptionMessage) {</b>
+<b class="nc">&nbsp;        this.exceptionMessage = exceptionMessage;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * {@inheritDoc}
+&nbsp;     * &lt;p&gt;
+&nbsp;     *     For this class, renders the exception message using the provided view.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     *
+&nbsp;     * @param view the view to render the exception message on
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public void render(ViewType view) {
+<b class="nc">&nbsp;        view.renderException(exceptionMessage);</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-22 23:30</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,205 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > EventCard</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">it.polimi.ingsw.am14.model.cards.deckCards</a>
+</div>
+
+<h1>Coverage Summary for Class: EventCard (it.polimi.ingsw.am14.model.cards.deckCards)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">EventCard</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    83,3%
+  </span>
+  <span class="absValue">
+    (5/6)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    63,6%
+  </span>
+  <span class="absValue">
+    (7/11)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package it.polimi.ingsw.am14.model.cards.deckCards;
+&nbsp;
+&nbsp;import com.fasterxml.jackson.annotation.JsonProperty;
+&nbsp;import it.polimi.ingsw.am14.model.gameLogic.Game;
+&nbsp;import it.polimi.ingsw.am14.model.gameLogic.Player;
+&nbsp;import it.polimi.ingsw.am14.model.boardComponents.Board;
+&nbsp;/**
+&nbsp; * Represents an abstract Event card within the game deck.
+&nbsp; * &lt;p&gt;
+&nbsp; * This class extends {@link DeckCard} and acts as the base layer for all event-type cards
+&nbsp; * (such as Hunt, Paint, Shaman, or Sustenance events). Unlike character cards, event cards
+&nbsp; * alter the state of the game globally when triggered and follow a distinct cycle of
+&nbsp; * initialization, resolution, and cleanup on the {@link Board}.
+&nbsp; * &lt;/p&gt;
+&nbsp; */
+&nbsp;public abstract class EventCard extends DeckCard{
+&nbsp;    /**
+&nbsp;     * Constructs a new {@code EventCard} with the specified age and unique identifier.
+&nbsp;     * This constructor is designed to be invoked by concrete subclasses during JSON deserialization.
+&nbsp;     *
+&nbsp;     * @param age the historical age/era this card belongs to (passed to super)
+&nbsp;     * @param id  the unique identifier of the card (passed to super)
+&nbsp;     */
+&nbsp;    public EventCard(
+&nbsp;            @JsonProperty(&quot;age&quot;) int age,
+&nbsp;            @JsonProperty(&quot;id&quot;) int id
+&nbsp;    ) {
+<b class="fc">&nbsp;        super(age, id);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Determines whether this event card can be directly picked by a player.
+&nbsp;     * &lt;p&gt;
+&nbsp;     * By definition, event cards cannot be purchased or kept in a player&#39;s hand.
+&nbsp;     * They are triggered through board mechanics instead.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     *
+&nbsp;     * @param player the {@link Player} checking availability
+&nbsp;     * @return always {@code false} as event cards are never directly pickable
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public boolean isPickable(Player player) {
+<b class="fc">&nbsp;        return false; // events are not pickable</b>
+&nbsp;    }
+&nbsp;    /**
+&nbsp;     * Executes the specific setup actions required for event cards during &quot;Phase Four&quot;
+&nbsp;     * of the game initialization.
+&nbsp;     * &lt;p&gt;
+&nbsp;     * Places this event instance into the top deckable row of the board.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     *
+&nbsp;     * @param board the {@link Board} being initialized
+&nbsp;     * @return always {@code 0}, as event cards do not increment the character row counts
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public int setupPhaseFour(Board board) {
+<b class="fc">&nbsp;        board.addToTopDeckableRow(this);</b>
+<b class="fc">&nbsp;        return 0;</b>
+&nbsp;    }
+&nbsp;    /**
+&nbsp;     * Handles the discarding routine when an event card is triggered or replaced on the board.
+&nbsp;     * &lt;p&gt;
+&nbsp;     * Moves this event into the board&#39;s designated row for events currently being resolved
+&nbsp;     * (&quot;resolvingOtherEventsRow&quot;) and clears its original slot in the deckable row.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     *
+&nbsp;     * @param board     the {@link Board} instance where the card operations occur
+&nbsp;     * @param cardIndex the index position of the card within its original row
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public void discard(Board board, int cardIndex) {
+<b class="fc">&nbsp;        board.addToResolvingOtherEventsRow(this);</b>
+<b class="fc">&nbsp;        board.removeFromBottomDeckableRow(cardIndex);</b>
+&nbsp;    }
+&nbsp;    /**
+&nbsp;     * Removes this event from the active evaluation context, typically called
+&nbsp;     * once the event&#39;s effects have finished resolving.
+&nbsp;     * &lt;p&gt;
+&nbsp;     * Tells the board to clean up and pop the last recorded active event.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     *
+&nbsp;     * @param game the current {@link Game} instance containing the board to be updated
+&nbsp;     */
+&nbsp;    public void removeEvent(Game game) {
+<b class="fc">&nbsp;        game.getBoard().removeLastOtherEvent();</b>
+&nbsp;    }
+&nbsp;    /**
+&nbsp;     * Returns a string representation of the event card, detailing its identifiers
+&nbsp;     * and specific concrete event type name.
+&nbsp;     *
+&nbsp;     * @return a string summarizing the event card&#39;s state
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public String toString() {
+<b class="nc">&nbsp;        return &quot;Event{&quot; +</b>
+<b class="nc">&nbsp;                &quot;age=&quot; + this.getAge() +</b>
+<b class="nc">&nbsp;                &quot;, id=&quot; + this.getId() +</b>
+<b class="nc">&nbsp;                &quot;, type=&quot; + this.getClass().getSimpleName() +</b>
+&nbsp;                &#39;}&#39;;
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-22 23:30</div>
+</div>
+</body>
+</html>

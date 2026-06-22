@@ -1,0 +1,213 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > GameStartedEvent</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">it.polimi.ingsw.am14.network.messages.events</a>
+</div>
+
+<h1>Coverage Summary for Class: GameStartedEvent (it.polimi.ingsw.am14.network.messages.events)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">GameStartedEvent</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    25%
+  </span>
+  <span class="absValue">
+    (1/4)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    31,6%
+  </span>
+  <span class="absValue">
+    (6/19)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package it.polimi.ingsw.am14.network.messages.events;
+&nbsp;
+&nbsp;import com.fasterxml.jackson.annotation.JsonCreator;
+&nbsp;import com.fasterxml.jackson.annotation.JsonIgnore;
+&nbsp;import com.fasterxml.jackson.annotation.JsonProperty;
+&nbsp;import it.polimi.ingsw.am14.network.NetworkLayer;
+&nbsp;import it.polimi.ingsw.am14.model.gameLogic.Player;
+&nbsp;import it.polimi.ingsw.am14.view.viewEvents.GameStartViewEvent;
+&nbsp;import it.polimi.ingsw.am14.clientModelController.ClientModel;
+&nbsp;import it.polimi.ingsw.am14.clientModelController.ClientPlayer;
+&nbsp;
+&nbsp;import java.util.ArrayList;
+&nbsp;import java.util.stream.Collectors;
+&nbsp;
+&nbsp;import static it.polimi.ingsw.am14.utils.Constants.initialFood;
+&nbsp;/**
+&nbsp; * Event representing the start of a game.
+&nbsp; * Inherits from {@link ServerEvent}.
+&nbsp; * It contains the established turn order of players for the current game.
+&nbsp; */
+&nbsp;public class GameStartedEvent extends ServerEvent {
+&nbsp;
+&nbsp;    private final ArrayList&lt;String&gt; playerOrder;
+&nbsp;    @JsonIgnore
+&nbsp;    private int gameId; // only used for bufferization, will not be sent to the client
+&nbsp;    @JsonIgnore
+&nbsp;    private String lastPlayerConnectedNickname; // only used for bufferization, will not be sent to the client
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Constructs a {@code GameStartedEvent} triggered by the server model when the game starts.
+&nbsp;     *
+&nbsp;     * @param players                     the list of {@link Player} instances participating in the game.
+&nbsp;     * @param gameId                      the unique ID of the game this event belongs to.
+&nbsp;     * @param lastPlayerConnectedNickname the nickname of the last player who connected and caused the game to start.
+&nbsp;     */
+&nbsp;
+&nbsp;    public GameStartedEvent(final ArrayList&lt;Player&gt; players, int gameId, String lastPlayerConnectedNickname) {
+<b class="fc">&nbsp;        super(&quot;The game has started&quot;);</b>
+<b class="fc">&nbsp;        this.playerOrder = players.stream()</b>
+<b class="fc">&nbsp;                .map(Player::getNickname)</b>
+<b class="fc">&nbsp;                .collect(Collectors.toCollection(ArrayList::new));</b>
+<b class="fc">&nbsp;        this.gameId = gameId;</b>
+<b class="fc">&nbsp;        this.lastPlayerConnectedNickname = lastPlayerConnectedNickname;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Constructs a {@code GameStartedEvent} from JSON data, used by Jackson upon receiving a message.
+&nbsp;     *
+&nbsp;     * @param description the description of the event.
+&nbsp;     * @param playerOrder the list of player nicknames representing the turn order.
+&nbsp;     */
+&nbsp;
+&nbsp;    @JsonCreator
+&nbsp;    public GameStartedEvent(
+&nbsp;            @JsonProperty(&quot;description&quot;) String description,
+&nbsp;            @JsonProperty(&quot;playerOrder&quot;) ArrayList&lt;String&gt; playerOrder) {
+<b class="nc">&nbsp;        super(description);</b>
+<b class="nc">&nbsp;        this.playerOrder = playerOrder;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Applies the effect of this event to the provided client model, initializing players&#39; starting attributes
+&nbsp;     * such as food and prestige points, and notifying the view observers.
+&nbsp;     *
+&nbsp;     * @param model the {@link ClientModel} representing the client-side state of the game.
+&nbsp;     */
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public void effect(ClientModel model) {
+&nbsp;//        model.setMessage(description);
+&nbsp;
+&nbsp;        ClientPlayer player;
+<b class="nc">&nbsp;        model.setPlayerOrderInTurnOrderCard(playerOrder);</b>
+<b class="nc">&nbsp;        for (int i = 0; i &lt; playerOrder.size(); i++) {</b>
+<b class="nc">&nbsp;            String nickname = playerOrder.get(i);</b>
+<b class="nc">&nbsp;            player = model.getPlayerByNickname(nickname);</b>
+<b class="nc">&nbsp;            player.setNumFood(initialFood[i]);</b>
+<b class="nc">&nbsp;            player.setNumPrestigePoints(0);</b>
+<b class="nc">&nbsp;            model.updatePlayerPosition(nickname, null);</b>
+&nbsp;        }
+<b class="nc">&nbsp;        model.setPlaceState();</b>
+<b class="nc">&nbsp;        model.notifyObservers(new GameStartViewEvent(description));</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Bufferizes the event into the network layer to be sent to the last connected player
+&nbsp;     * and broadcasted to all other connected clients in the game.
+&nbsp;     *
+&nbsp;     * @param networkLayer the network layer used to broadcast the event.
+&nbsp;     */
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public void bufferize(NetworkLayer networkLayer) {
+<b class="nc">&nbsp;        networkLayer.addToEventBuffer(networkLayer.getClientBy(lastPlayerConnectedNickname), this);</b>
+<b class="nc">&nbsp;        networkLayer.broadcastUpdate(this, gameId);</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-22 23:30</div>
+</div>
+</body>
+</html>

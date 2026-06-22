@@ -1,0 +1,269 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > GameState</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">it.polimi.ingsw.am14.model.gameLogic</a>
+</div>
+
+<h1>Coverage Summary for Class: GameState (it.polimi.ingsw.am14.model.gameLogic)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">GameState</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (7/7)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (7/7)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package it.polimi.ingsw.am14.model.gameLogic;
+&nbsp;
+&nbsp;import com.fasterxml.jackson.annotation.JsonCreator;
+&nbsp;import com.fasterxml.jackson.annotation.JsonSubTypes;
+&nbsp;import com.fasterxml.jackson.annotation.JsonTypeInfo;
+&nbsp;import it.polimi.ingsw.am14.exceptions.*;
+&nbsp;import it.polimi.ingsw.am14.model.cards.Card;
+&nbsp;
+&nbsp;import java.sql.SQLException;
+&nbsp;import java.util.Optional;
+&nbsp;
+&nbsp;/**
+&nbsp; * Abstract base for all game states; implements the State design pattern.
+&nbsp; *
+&nbsp; * &lt;p&gt;
+&nbsp; * Each concrete subclass represents one logical state of the game (for example:
+&nbsp; * waiting room, position selection, picking, end-of-round, end-of-game, etc.).
+&nbsp; * The {@code Game} context delegates state-specific behavior to the current
+&nbsp; * {@code GameState} instance: actions such as {@link #placeTotem}, {@link #pickCard}
+&nbsp; * and {@link #onPlayerConnection} are handled by the active state object.
+&nbsp; * &lt;/p&gt;
+&nbsp; *
+&nbsp; * &lt;p&gt;
+&nbsp; * This class acts as the engine of the game&#39;s state machine:
+&nbsp; * subclasses override the operation methods to provide permitted behavior for that
+&nbsp; * state and implement {@link #nextState(Game)} to perform state transitions.
+&nbsp; * Default implementations throw {@code WrongStateException} (or perform no-op)
+&nbsp; * to enforce that only allowed operations succeed in a given state.
+&nbsp; * &lt;/p&gt;
+&nbsp; *
+&nbsp; * &lt;p&gt;Responsibilities:&lt;/p&gt;
+&nbsp; *  &lt;ul&gt;
+&nbsp; *   &lt;li&gt;Define the state interface for game operations.&lt;/li&gt;
+&nbsp; *   &lt;li&gt;Provide default (disabled) implementations that raise {@code WrongStateException}.&lt;/li&gt;
+&nbsp; *   &lt;li&gt;Require subclasses to implement {@link #nextState(Game)} to advance the state machine.&lt;/li&gt;
+&nbsp; *   &lt;li&gt;Serve as the single place to add or modify state-specific logic and transitions.&lt;/li&gt;
+&nbsp; *  &lt;/ul&gt;
+&nbsp; *
+&nbsp; * &lt;p&gt;&lt;b&gt;Note:&lt;/b&gt; concrete states may throw or propagate domain-specific exceptions
+&nbsp; * (e.g. {@code IllegalPickException}, {@code ForcedPickException}, {@code WrongTurnException},
+&nbsp; * {@code UnknownPositionException}, {@code IllegalPlacementException}) to signal invalid
+&nbsp; * operations according to game rules.&lt;/p&gt;
+&nbsp; *
+&nbsp; * @see it.polimi.ingsw.am14.model.gameLogic.Game
+&nbsp; * @see #placeTotem(it.polimi.ingsw.am14.model.gameLogic.Game, it.polimi.ingsw.am14.model.gameLogic.Player, char)
+&nbsp; * @see #pickCard(it.polimi.ingsw.am14.model.gameLogic.Game, it.polimi.ingsw.am14.model.gameLogic.Player, java.util.Optional, int)
+&nbsp; * @see #onPlayerConnection(it.polimi.ingsw.am14.model.gameLogic.Game, String, String)
+&nbsp; * @see #nextState(it.polimi.ingsw.am14.model.gameLogic.Game)
+&nbsp; */
+&nbsp;@JsonTypeInfo(
+&nbsp;        use = JsonTypeInfo.Id.NAME,
+&nbsp;        include = JsonTypeInfo.As.PROPERTY,
+&nbsp;        property = &quot;type&quot;
+&nbsp;)
+&nbsp;@JsonSubTypes({
+&nbsp;        @JsonSubTypes.Type(value = WaitingRoomState.class, name = &quot;waitingRoomState&quot;),
+&nbsp;        @JsonSubTypes.Type(value = PositionState.class, name = &quot;positionState&quot;),
+&nbsp;        @JsonSubTypes.Type(value = PickState.class, name = &quot;pickState&quot;),
+&nbsp;        @JsonSubTypes.Type(value = EndRoundState.class, name = &quot;endRoundState&quot;),
+&nbsp;        @JsonSubTypes.Type(value = EndGameState.class, name = &quot;endGameState&quot;),
+&nbsp;        @JsonSubTypes.Type(value = WaitingRoomAfterCrashState.class, name = &quot;waitingRoomAfterCrashState&quot;)
+&nbsp;})
+&nbsp;abstract class GameState {
+&nbsp;
+&nbsp;    @JsonCreator
+<b class="fc">&nbsp;    public GameState() {</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * &lt;p&gt;
+&nbsp;     *     Moves player p from the TurnOrderCard towards the required TrackCard, if it is possible to do so.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     * @param context the game context in which this action is performed
+&nbsp;     * @param player the player performing this request
+&nbsp;     * @param position the name of the track card on which player wants to place their totem
+&nbsp;     * @throws WrongStateException by default if the current state does not allow this action
+&nbsp;     * @throws IllegalPlacementException if an override call throws it
+&nbsp;     * @throws UnknownPositionException if an override call throws it
+&nbsp;     * @throws WrongTurnException if an override call throws it
+&nbsp;     */
+&nbsp;    protected void placeTotem(Game context, Player player, char position) throws WrongStateException, UnknownPositionException, WrongTurnException, IllegalPlacementException, SQLException, IllegalPickException, ForcedPickException {
+<b class="fc">&nbsp;        throw new WrongStateException(&quot;Not in the right state to place a totem&quot;);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * &lt;p&gt;
+&nbsp;     *     Picks the card the player wants to pick, if it is possible to do so, putting it in the player&#39;s tribe and eventually applying its effects.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     * @param context the game context in which this action is performed
+&nbsp;     * @param player the player performing this request
+&nbsp;     * @param card the card the player wants to pick
+&nbsp;     * @param row between 0 and 3
+&nbsp;     * @throws WrongStateException by default if the current state does not allow this action
+&nbsp;     * @throws IllegalPickException if an override call throws it
+&nbsp;     * @throws ForcedPickException if an override call throws it
+&nbsp;     * @throws WrongTurnException if an override call throws it
+&nbsp;     */
+&nbsp;    protected void pickCard(Game context, Player player, Optional&lt;Card&gt; card, int row) throws WrongStateException, IllegalPickException, ForcedPickException, WrongTurnException, SQLException {
+<b class="fc">&nbsp;        throw new WrongStateException(&quot;Not in the right state to pick a card&quot;);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * &lt;p&gt;
+&nbsp;     *     Handles the connection of a player to the game
+&nbsp;     * &lt;/p&gt;
+&nbsp;     * @param context the game context in which this action is performed
+&nbsp;     * @param nickname the nickname of the player requesting to join the game
+&nbsp;     * @param totemColor the color of the totem the player wants to use
+&nbsp;     * @throws WrongStateException by default if the current state does not allow this action
+&nbsp;     */
+&nbsp;    protected void onPlayerConnection(Game context, String nickname, String totemColor) throws WrongStateException {
+<b class="fc">&nbsp;        throw new WrongStateException(&quot;Not in the right state to handle a player connection&quot;);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * &lt;p&gt;
+&nbsp;     *     Transitions the game to the next state
+&nbsp;     * &lt;/p&gt;
+&nbsp;     * @param context the game context in which this action is performed
+&nbsp;     * @throws SQLException if an SQL error occurs
+&nbsp;     */
+&nbsp;    protected abstract void nextState(Game context) throws SQLException, IllegalPickException, ForcedPickException;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * &lt;p&gt;
+&nbsp;     *     Ends the current round and transitions the game to the next round, if it was not the last one.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     * @param context the game context in which this action is performed
+&nbsp;     * @throws SQLException if an SQL error occurs
+&nbsp;     */
+&nbsp;    protected void endRound(Game context) throws SQLException {
+<b class="fc">&nbsp;    }</b>
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Initiates the control cycle after a card pick to evaluate the validity and consequences of the action.
+&nbsp;     * &lt;p&gt;
+&nbsp;     * By default, this method performs no operation. Concrete subclasses (specifically {@code ControlState})
+&nbsp;     * override this method to handle post-pick validations, process additional pick allowances,
+&nbsp;     * update turn counters, and compute whether control remains with the current player or transitions.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     *
+&nbsp;     * @param context      the game context in which this action is performed
+&nbsp;     * @param addTopPick   {@code true} if this step covers an extra top pick; {@code false} for regular drafts
+&nbsp;     * @param selectedCard the card involved in the action
+&nbsp;     * @param row          the board row index where the selection was performed
+&nbsp;     * @throws SQLException if a database or state persistence error occurs during state transitions
+&nbsp;     */
+&nbsp;    protected void controlPick(Game context, boolean addTopPick, Card selectedCard, int row) throws SQLException{
+<b class="fc">&nbsp;    }</b>
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Retrieves the canonical text identifier associated with this specific game state.
+&nbsp;     * &lt;p&gt;
+&nbsp;     * This identifier is primarily utilized by the client-side architecture (e.g., {@code ClientModel})
+&nbsp;     * to recognize, track, or reset the current state representation. By default, this base implementation
+&nbsp;     * returns {@code null}. Concrete state subclasses are expected to override this method to return their
+&nbsp;     * unique string designation (e.g., &quot;PICK&quot;, &quot;PLACE&quot;).
+&nbsp;     * &lt;/p&gt;
+&nbsp;     *
+&nbsp;     * @return a {@code String} representing the state mode, or {@code null} if not explicitly defined by the subclass
+&nbsp;     */
+&nbsp;    protected String getStateName() {
+<b class="fc">&nbsp;        return null;</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-22 23:30</div>
+</div>
+</body>
+</html>

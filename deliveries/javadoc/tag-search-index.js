@@ -1,0 +1,1 @@
+tagSearchIndex = [{"l":"Constant Field Values","h":"","k":"18","u":"constant-values.html"},{"l":"Serialized Form","h":"","k":"18","u":"serialized-form.html"},{"l":"Supported Commands:","h":"class it.polimi.ingsw.am14.view.TUIView","k":"16","u":"it/polimi/ingsw/am14/view/TUIView.html#supported-commands--heading"}];updateSearchResults();

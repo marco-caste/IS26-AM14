@@ -1,0 +1,164 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > Constants</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">it.polimi.ingsw.am14.utils</a>
+</div>
+
+<h1>Coverage Summary for Class: Constants (it.polimi.ingsw.am14.utils)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">Constants</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    50%
+  </span>
+  <span class="absValue">
+    (1/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    88,9%
+  </span>
+  <span class="absValue">
+    (8/9)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package it.polimi.ingsw.am14.utils;
+&nbsp;
+&nbsp;import java.util.List;
+&nbsp;import java.util.Map;
+&nbsp;
+&nbsp;/**
+&nbsp; * Contains all shared constants between client and server, such as ping timeout, message types, etc.
+&nbsp; */
+<b class="nc">&nbsp;public abstract class Constants {</b>
+&nbsp;    /**
+&nbsp;     * The time in milliseconds after which a client is considered disconnected if it hasn&#39;t sent a ping message.
+&nbsp;     */
+&nbsp;    public static final int PING_TIMEOUT = 10000;
+&nbsp;    /**
+&nbsp;     * The interval at which clients should send ping messages to the server to keep the connection alive.
+&nbsp;     */
+&nbsp;    public static final int PING_INTERVAL = 2000;
+&nbsp;    /**
+&nbsp;     * Constants representing the different rows in the game board. These constants are used to identify the position of deckable and building rows for both the top and bottom players.
+&nbsp;     */
+&nbsp;    public static final int TOP_DECKABLE_ROW = 0;
+&nbsp;    public static final int TOP_BUILDING_ROW = 1;
+&nbsp;    public static final int BOTTOM_DECKABLE_ROW = 2;
+&nbsp;    public static final int BOTTOM_BUILDING_ROW = 3;
+&nbsp;    /**
+&nbsp;     * The initial food resources available to players at the start of the game. Value {@code initialFood[i]} is the food that the {@code i}-th player obtains.
+&nbsp;     */
+<b class="fc">&nbsp;    public static final int[] initialFood = {2, 3, 3, 4, 4};</b>
+&nbsp;    /**
+&nbsp;     * The initial buildings available to players at the start of the game.
+&nbsp;     * Value {@code initialBuildings[i][j]} is the number of buildings to place on the board for age {@code j} in a game of {@code i + 2} players.
+&nbsp;     */
+<b class="fc">&nbsp;    public static final int[][] initialBuildings = {</b>
+&nbsp;            {1, 2, 3}, {2, 2, 4}, {2, 3, 4}, {2, 3, 5}
+&nbsp;    };
+&nbsp;    /**
+&nbsp;     * The food resources obtained by players when they place a building of a certain age.
+&nbsp;     * List {@code foodTable.get(i)} contains the food obtained/lost by each player when placing back on the turnOrderCard after a turn has ended.
+&nbsp;     */
+<b class="fc">&nbsp;    public static final Map&lt;Integer, List&lt;Integer&gt;&gt; foodTable = Map.of(</b>
+<b class="fc">&nbsp;            2, List.of(1, -1),</b>
+<b class="fc">&nbsp;            3, List.of(2, 0, -1),</b>
+<b class="fc">&nbsp;            4, List.of(2, 1, 0, -1),</b>
+<b class="fc">&nbsp;            5, List.of(3, 1, 0, 0, -1)</b>
+&nbsp;    );
+&nbsp;    /**
+&nbsp;     * The name of the server, used for RMI registry lookup.
+&nbsp;     */
+&nbsp;    public static final String serverName = &quot;AM14MesosServer&quot;;
+&nbsp;    /**
+&nbsp;     * The URL, username, and password for connecting to the MySQL database.
+&nbsp;     */
+&nbsp;    public static final String DBurl = &quot;jdbc:mysql://localhost:3306/mesos_am_14&quot;;
+&nbsp;    public static final String DBusername = &quot;root&quot;;
+&nbsp;    public static final String DBpassword = &quot;mesos14&quot;;
+&nbsp;    /**
+&nbsp;     * The String representation of totem colors available in the game.
+&nbsp;     */
+<b class="fc">&nbsp;    public static final String[] TotemColors = {&quot;white&quot;, &quot;purple&quot;, &quot;yellow&quot;, &quot;red&quot;, &quot;blue&quot;};</b>
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-22 23:30</div>
+</div>
+</body>
+</html>

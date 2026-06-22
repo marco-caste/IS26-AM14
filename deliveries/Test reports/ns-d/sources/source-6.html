@@ -1,0 +1,121 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > VirtualServer</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">it.polimi.ingsw.am14.network</a>
+</div>
+
+<h1>Coverage Summary for Class: VirtualServer (it.polimi.ingsw.am14.network)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+</tr>
+<tr>
+  <td class="name">VirtualServer</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package it.polimi.ingsw.am14.network;
+&nbsp;
+&nbsp;import java.rmi.RemoteException;
+&nbsp;/**
+&nbsp; * Interface representing the server infrastructure as exposed to remote clients.
+&nbsp; * It outlines the actions a connected client can invoke on the server to manage
+&nbsp; * games and execute gameplay interactions.
+&nbsp; */
+&nbsp;public interface VirtualServer {
+&nbsp;    /**
+&nbsp;     * Requests the creation of a new game session on the server.
+&nbsp;     *
+&nbsp;     * @param nickname   the requested username of the player hosting the game.
+&nbsp;     * @param numPlayers the desired number of participants for the match.
+&nbsp;     * @param totemColor the preferred totem color of the host.
+&nbsp;     * @throws Exception if the network transaction fails or validation errors occur.
+&nbsp;     */
+&nbsp;    void createGame(String nickname, int numPlayers, String totemColor) throws Exception;
+&nbsp;    /**
+&nbsp;     * Requests a connection to a specific, existing game session.
+&nbsp;     *
+&nbsp;     * @param nickname   the requested username of the player joining the match.
+&nbsp;     * @param gameId     the unique numerical identifier of the target game.
+&nbsp;     * @param totemColor the preferred totem color of the joining player.
+&nbsp;     * @throws Exception if the connection fails or if the game is full/unavailable.
+&nbsp;     */
+&nbsp;    void joinGame(String nickname, int gameId, String totemColor) throws Exception;
+&nbsp;    /**
+&nbsp;     * Submits a gameplay request to place a totem at a precise coordinate.
+&nbsp;     *
+&nbsp;     * @param nickname the username of the active player performing the action.
+&nbsp;     * @param position the character representing the chosen board position.
+&nbsp;     * @throws Exception if the network transaction fails or the move proves invalid.
+&nbsp;     */
+&nbsp;    void placeTotem(String nickname, char position) throws Exception;
+&nbsp;    /**
+&nbsp;     * Submits a gameplay request to pick a specific card from the available selections.
+&nbsp;     *
+&nbsp;     * @param nickname the username of the active player picking the card.
+&nbsp;     * @param cardId   the unique identifier of the chosen card.
+&nbsp;     * @param row      a value representing the row, deck, or context from which the card is drawn.
+&nbsp;     * @throws Exception if the network transaction fails or the action is denied.
+&nbsp;     */
+&nbsp;    void pickCard(String nickname, int cardId, int row) throws Exception;
+&nbsp;    /**
+&nbsp;     * Reaches out to the server with a keep-alive ping to maintain the connection.
+&nbsp;     *
+&nbsp;     * @param nickname the username of the client communicating its heartbeat.
+&nbsp;     * @return the {@link Thread} operating the connection/ping management, depending on the network protocol in use.
+&nbsp;     * @throws RemoteException if an RMI-related network error manifests during the ping.
+&nbsp;     */
+&nbsp;    Thread pingServer(String nickname) throws RemoteException;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-22 23:30</div>
+</div>
+</body>
+</html>

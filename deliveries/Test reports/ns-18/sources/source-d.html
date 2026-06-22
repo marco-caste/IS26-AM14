@@ -1,0 +1,89 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > ViewEvent</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">it.polimi.ingsw.am14.view.viewEvents</a>
+</div>
+
+<h1>Coverage Summary for Class: ViewEvent (it.polimi.ingsw.am14.view.viewEvents)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+</tr>
+<tr>
+  <td class="name">ViewEvent</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package it.polimi.ingsw.am14.view.viewEvents;
+&nbsp;
+&nbsp;import it.polimi.ingsw.am14.view.ViewType;
+&nbsp;
+&nbsp;/**
+&nbsp; * &lt;p&gt;
+&nbsp; *     Interface representing a view event in the game. A view event is an action or change in the game state that needs to be rendered on the user interface.
+&nbsp; *     Each view event must implement the render method, which defines how the event should be displayed on the provided view.
+&nbsp; * &lt;/p&gt;
+&nbsp; */
+&nbsp;public interface ViewEvent {
+&nbsp;    /**
+&nbsp;     * &lt;p&gt;
+&nbsp;     *     Renders this event on the provided view. The specific rendering behavior will depend on the type of event and the capabilities of the view.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     * @param view the view that will handle this event
+&nbsp;     */
+&nbsp;    void render(ViewType view);
+&nbsp;
+&nbsp;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-22 23:30</div>
+</div>
+</body>
+</html>

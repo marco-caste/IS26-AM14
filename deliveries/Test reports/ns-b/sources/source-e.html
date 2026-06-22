@@ -1,0 +1,235 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > SustenanceEvent</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">it.polimi.ingsw.am14.model.cards.deckCards</a>
+</div>
+
+<h1>Coverage Summary for Class: SustenanceEvent (it.polimi.ingsw.am14.model.cards.deckCards)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">SustenanceEvent</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (4/4)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (8/8)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (26/26)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package it.polimi.ingsw.am14.model.cards.deckCards;
+&nbsp;
+&nbsp;import com.fasterxml.jackson.annotation.JsonCreator;
+&nbsp;import com.fasterxml.jackson.annotation.JsonProperty;
+&nbsp;import it.polimi.ingsw.am14.model.cards.buildings.Building;
+&nbsp;import it.polimi.ingsw.am14.model.cards.buildings.visitors.SustenanceEventVisitor;
+&nbsp;import it.polimi.ingsw.am14.model.gameLogic.*;
+&nbsp;import it.polimi.ingsw.am14.model.boardComponents.Board;
+&nbsp;
+&nbsp;import java.util.ArrayList;
+&nbsp;/**
+&nbsp; * Represents a Sustenance Event card within the game deck.
+&nbsp; * &lt;p&gt;
+&nbsp; * This class extends {@link EventCard} and implements the global tribe feeding mechanic.
+&nbsp; * When triggered, every player must feed each member of their tribe using their available food reserves.
+&nbsp; * Failing to fully sustain the tribe results in a prestige point penalty proportional to the missing
+&nbsp; * food and the card&#39;s age. Conversely, protective building effects are evaluated beforehand using
+&nbsp; * the Visitor Pattern to mitigate potential food shortages.
+&nbsp; * &lt;/p&gt;
+&nbsp; */
+&nbsp;public class SustenanceEvent extends EventCard {
+&nbsp;    /**
+&nbsp;     * Constructs a new {@code SustenanceEvent} card with the specified age and unique identifier.
+&nbsp;     * This constructor is annotated with {@link JsonCreator} for Jackson JSON deserialization.
+&nbsp;     *
+&nbsp;     * @param age the historical age/era this card belongs to (passed to super)
+&nbsp;     * @param id  the unique identifier of the card (passed to super)
+&nbsp;     */
+&nbsp;    @JsonCreator
+&nbsp;    public SustenanceEvent(
+&nbsp;            @JsonProperty(&quot;age&quot;) int age,
+&nbsp;            @JsonProperty(&quot;id&quot;) int id
+&nbsp;    ) {
+<b class="fc">&nbsp;        super(age, id);</b>
+&nbsp;    }
+&nbsp;    /**
+&nbsp;     * Applies the global sustenance event effect to all active players in the game.
+&nbsp;     * &lt;p&gt;
+&nbsp;     * For each player, the feeding sequence executes as follows:
+&nbsp;     * &lt;/p&gt;
+&nbsp;     * &lt;ol&gt;
+&nbsp;     * &lt;li&gt;The initial food stock is recorded to prevent passive gains from defensive buildings.&lt;/li&gt;
+&nbsp;     * &lt;li&gt;Buildings are checked via {@link #checkBuilding(Player, Game)} to apply event-specific production or discounts.&lt;/li&gt;
+&nbsp;     * &lt;li&gt;The total food demand is calculated by summing all tribe members (Hunters, Gatherers, Shamans, Builders, Inventors, Artists)
+&nbsp;     *     and subtracting the player&#39;s cumulative gathering discount.&lt;/li&gt;
+&nbsp;     * &lt;li&gt;If a food deficit occurs ({@code missingFood &gt; 0}), the player&#39;s food resource is depleted into the negative
+&nbsp;     *     (or cleared, depending on model constraints) and they suffer a prestige penalty equal to {@code missingFood * cardAge}.&lt;/li&gt;
+&nbsp;     * &lt;li&gt;If the player successfully feeds their tribe, a validation check ensures their final food count does not exceed
+&nbsp;     *     their starting stock, clamping it back to {@code oldFood} if necessary.&lt;/li&gt;
+&nbsp;     * &lt;/ol&gt;
+&nbsp;     *
+&nbsp;     * @param playerNotUsed the current active player token (unused as the loop evaluates all players globally)
+&nbsp;     * @param context       the current {@link Game} context containing the player roster
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public void applyEffect(Player playerNotUsed, Game context) {
+&nbsp;        int totalFoodNeeded;
+&nbsp;        int missingFood;
+&nbsp;        int prestigeLoss;
+&nbsp;
+<b class="fc">&nbsp;        ArrayList&lt;Player&gt; players = new ArrayList&lt;&gt;(context.getPlayers());</b>
+&nbsp;
+<b class="fc">&nbsp;        for (Player player : players) {</b>
+&nbsp;            //Saving the old amount in order to apply a discount and not give food
+<b class="fc">&nbsp;            int oldFood = player.getNumFood();</b>
+&nbsp;            //Adding food based on building
+<b class="fc">&nbsp;            checkBuilding(player, context);</b>
+&nbsp;
+&nbsp;            //calculating the total food needed for the player to feed his tribe
+<b class="fc">&nbsp;            totalFoodNeeded =</b>
+<b class="fc">&nbsp;                    player.getTribe().getHuntersSize() +</b>
+<b class="fc">&nbsp;                            player.getTribe().getGatherersSize() +</b>
+<b class="fc">&nbsp;                            player.getTribe().getShamansSize() +</b>
+<b class="fc">&nbsp;                            player.getTribe().getBuildersSize() +</b>
+<b class="fc">&nbsp;                            player.getTribe().getInventorsSize() +</b>
+<b class="fc">&nbsp;                            player.getTribe().getArtistsSize() -</b>
+<b class="fc">&nbsp;                            player.getTotalGatheringDiscount();</b>
+&nbsp;
+<b class="fc">&nbsp;            missingFood = totalFoodNeeded - player.getNumFood(); // calculating the missing food for the player</b>
+<b class="fc">&nbsp;            prestigeLoss = missingFood * this.getAge(); // calculating the prestige loss for the player</b>
+&nbsp;
+<b class="fc">&nbsp;            player.addToNumFood(-totalFoodNeeded);</b>
+<b class="fc">&nbsp;            if (missingFood &gt; 0) { // if the player doesn&#39;t have enough food, he will lose all his food and some prestige points</b>
+<b class="fc">&nbsp;                player.addToPrestigePoints(-prestigeLoss);</b>
+&nbsp;            }
+&nbsp;            else {
+&nbsp;                //check: if you have more food then before you come back to the old amount
+<b class="fc">&nbsp;                if (player.getNumFood() &gt; oldFood)</b>
+<b class="fc">&nbsp;                    player.setNumFood(oldFood);</b>
+&nbsp;            }
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    private void checkBuilding(Player player, Game context) {
+<b class="fc">&nbsp;        SustenanceEventVisitor visitor = new SustenanceEventVisitor(context, player);</b>
+<b class="fc">&nbsp;        ArrayList&lt;Building&gt; buildings = player.getTribe().getBuildings();</b>
+<b class="fc">&nbsp;        for (Building building : buildings) {</b>
+<b class="fc">&nbsp;            building.accept(visitor);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;    /**
+&nbsp;     * Handles the specific discarding routine for sustenance events.
+&nbsp;     * &lt;p&gt;
+&nbsp;     * Unlike generic events, this overrides the default behavior to route this card directly
+&nbsp;     * into the board&#39;s dedicated row for pending sustenance events ({@code resolvingSustenanceEventsRow})
+&nbsp;     * before clearing its index slot from the deckable row.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     *
+&nbsp;     * @param board     the {@link Board} instance where the card layout is tracked
+&nbsp;     * @param cardIndex the index position of this card within its layout row
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public void discard(Board board, int cardIndex) {
+<b class="fc">&nbsp;        board.addToResolvingSustenanceEventsRow(this);</b>
+<b class="fc">&nbsp;        board.removeFromBottomDeckableRow(cardIndex);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-22 23:30</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,197 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > Inventor</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">it.polimi.ingsw.am14.model.cards.deckCards</a>
+</div>
+
+<h1>Coverage Summary for Class: Inventor (it.polimi.ingsw.am14.model.cards.deckCards)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">Inventor</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (4/4)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (4/4)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (11/11)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package it.polimi.ingsw.am14.model.cards.deckCards;
+&nbsp;
+&nbsp;import com.fasterxml.jackson.annotation.JsonCreator;
+&nbsp;import com.fasterxml.jackson.annotation.JsonProperty;
+&nbsp;import it.polimi.ingsw.am14.model.cards.buildings.*;
+&nbsp;import it.polimi.ingsw.am14.model.cards.buildings.visitors.InventorsVisitor;
+&nbsp;import it.polimi.ingsw.am14.model.gameLogic.*;
+&nbsp;
+&nbsp;import java.util.ArrayList;
+&nbsp;/**
+&nbsp; * Represents an Inventor character card within the game.
+&nbsp; * &lt;p&gt;
+&nbsp; * This class extends {@link CharacterCard} and introduces a specialized mechanic tied to an {@link InventionType}.
+&nbsp; * When an inventor is picked, it evaluates potential synergistic combos with existing inventors and
+&nbsp; * buildings in the player&#39;s tribe before officially joining the roster.
+&nbsp; * &lt;/p&gt;
+&nbsp; */
+&nbsp;public class Inventor extends CharacterCard{
+&nbsp;
+&nbsp;    private final InventionType inventionType;
+&nbsp;    /**
+&nbsp;     * Constructs a new {@code Inventor} card with the specified age, identifier, and invention type.
+&nbsp;     * This constructor parses the incoming string to match the corresponding {@link InventionType} enum value.
+&nbsp;     *
+&nbsp;     * @param age           the historical age/era this card belongs to (passed to super)
+&nbsp;     * @param id            the unique identifier of the card (passed to super)
+&nbsp;     * @param inventionType the string representation of the invention type (case-insensitive)
+&nbsp;     */
+&nbsp;    @JsonCreator
+&nbsp;    public Inventor(
+&nbsp;            @JsonProperty(&quot;age&quot;) int age,
+&nbsp;            @JsonProperty(&quot;id&quot;) int id,
+&nbsp;            @JsonProperty(&quot;inventionType&quot;) String inventionType
+&nbsp;    ) {
+<b class="fc">&nbsp;        super(age, id);</b>
+<b class="fc">&nbsp;        this.inventionType = InventionType.valueOf(inventionType.toUpperCase());</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public InventionType getInvention(){
+<b class="fc">&nbsp;        return inventionType;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;    // called on pick
+&nbsp;
+&nbsp;    private void checkInventorPairBuilding(Player player, Game context){
+&nbsp;
+<b class="fc">&nbsp;        if(player.getTribe().getInventors().stream()</b>
+<b class="fc">&nbsp;                .noneMatch(x-&gt; x.getInvention().equals(this.inventionType))){</b>
+&nbsp;            return;
+&nbsp;        }
+&nbsp;        // if we don&#39;t have the inventor match we don&#39;t need to check if we have the building match, so we return immediately
+&nbsp;
+<b class="fc">&nbsp;        InventorsVisitor visitor = new InventorsVisitor(context, player);</b>
+<b class="fc">&nbsp;        ArrayList&lt;Building&gt; buildings = player.getTribe().getBuildings();</b>
+<b class="fc">&nbsp;        for (Building building : buildings) {</b>
+<b class="fc">&nbsp;            building.accept(visitor);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Applies the inventor&#39;s specific effect upon being picked.
+&nbsp;     * &lt;p&gt;
+&nbsp;     * First, it evaluates the player&#39;s tribe assets for inventor-building combinations
+&nbsp;     * using {@link #checkInventorPairBuilding(Player, Game)}. Afterward, it registers
+&nbsp;     * this inventor instance into the player&#39;s tribe.
+&nbsp;     * &lt;/p&gt;
+&nbsp;     *
+&nbsp;     * @param player  the {@link Player} who is playing or activating the card
+&nbsp;     * @param context the current {@link Game} context
+&nbsp;     */
+&nbsp;    @Override
+&nbsp;    public void applyEffect(Player player, Game context) {
+<b class="fc">&nbsp;        checkInventorPairBuilding(player, context);</b>
+<b class="fc">&nbsp;        player.getTribe().addInventor(this);</b>
+&nbsp;
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-06-22 23:30</div>
+</div>
+</body>
+</html>
