@@ -236,7 +236,7 @@ public class TUIView implements ViewType {
     public void update(ClientModel model, ViewEvent event) {
 
         // if no model has yet been assigned -> assign
-        if (model != null && this.modelReference == null) {
+        if (model != null) {
             this.modelReference = model;
             this.chosenNickname = model.getHomePlayerNickname();
             if (chosenNickname.equalsIgnoreCase("marcob")) {
