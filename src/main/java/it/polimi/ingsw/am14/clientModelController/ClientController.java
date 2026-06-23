@@ -314,14 +314,6 @@ public class ClientController {
         }
     }
     /**
-     * Verifies if a functional network proxy connection channel remains open towards the remote architecture.
-     *
-     * @return {@code true} if the server interface pointer is safely configured; {@code false} otherwise
-     */
-    public boolean isConnected() {
-        return server != null;
-    }
-    /**
      * Receives an inbound asynchronous update package coming down from the networking pipelines.
      * <p>
      * Utilizes a deterministic synchronization lock to guarantee thread safety, avoiding race conditions

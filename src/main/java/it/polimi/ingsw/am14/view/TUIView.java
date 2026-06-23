@@ -537,10 +537,6 @@ public class TUIView implements ViewType {
         if (!args[1].equalsIgnoreCase("socket") && !args[1].equalsIgnoreCase("rmi")) {
             throw new IllegalArgumentException("Invalid connection mode. Available options: socket, rmi.");
         }
-
-        if (this.controller.isConnected()) {
-            throw new IllegalArgumentException("You are already connected to a server.");
-        }
         String connectionMode = args[1];
         
         // Request connection parameters from user
