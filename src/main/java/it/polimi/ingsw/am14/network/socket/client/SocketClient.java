@@ -109,4 +109,14 @@ public class SocketClient {
             controller.updateLastPing();
         }
     }
+
+    public void close() {
+        try {
+            socket.close();
+            if (pingSocket != null) {
+                pingSocket.close();
+            }
+        } catch (IOException _) {
+        }
+    }
 }

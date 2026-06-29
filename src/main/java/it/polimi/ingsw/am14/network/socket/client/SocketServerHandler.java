@@ -138,6 +138,7 @@ public class SocketServerHandler implements VirtualServerSocket{
                         }
                     }
                 } catch (InterruptedException e) {
+                    client.close();
                     Thread.currentThread().interrupt();
                 }
             }, "SocketClient-pinger-" + nickname);

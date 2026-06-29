@@ -521,4 +521,8 @@ public class ClientModel {
     public boolean checkPlaceState() {
         return state == ClientState.PLACE;
     }
+
+    public boolean isConnected() {
+        return this.homePlayer != null;
+    }
 }

@@ -141,6 +141,11 @@ public class ClientController {
      */
     public void connect(String connectionMode, String serverIP, int serverPort, String playerNickname, ViewType view) {
 
+        if (model != null && model.isConnected()) {
+            handleException("You are already connected to a server.");
+            return;
+        }
+
         model = new ClientModel();
         model.registerObserver(view);
 

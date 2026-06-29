@@ -403,6 +403,7 @@ public class GUIView extends Application implements ViewType {
 
         connectButton.setOnAction(event -> {
             if (!isButtonAlreadySelected) {
+                isButtonAlreadySelected = true;
                 String insertedNickname = nicknameField.getText().trim().toLowerCase();
                 String insertedIp = ipField.getText().trim();
                 String insertedPort = portField.getText().trim();
